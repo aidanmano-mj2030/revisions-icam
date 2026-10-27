@@ -1,0 +1,13 @@
+{
+  "name": "studicam",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "node --test",
+    "db:local": "wrangler d1 migrations apply studicam --local"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}
