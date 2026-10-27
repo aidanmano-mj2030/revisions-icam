@@ -1,0 +1,9 @@
+// Projet Cloudflare Pages « studicam », pour l'adresse studicam.pages.dev.
+// Il ne change presque jamais : publié à la main avec `npx wrangler pages deploy` depuis ce dossier.
+// Le site lui-même est le Worker défini dans ../wrangler.jsonc.
+{
+  "name": "studicam",
+  "pages_build_output_dir": "./public",
+  "compatibility_date": "2026-10-01",
+  "services": [{ "binding": "SITE", "service": "studicam" }]
+}
