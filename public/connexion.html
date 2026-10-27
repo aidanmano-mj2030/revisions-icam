@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion | Studicam</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root { color-scheme: dark; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+        min-height: 100vh; min-height: 100dvh;
+        display: flex; align-items: center; justify-content: center;
+        padding: 24px 16px;
+        background: #0a0f1d; color: #e2e8f0;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+    main { width: 100%; max-width: 420px; }
+    .marque { display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 28px; }
+    .logo {
+        width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+        background: linear-gradient(to top right, #2563eb, #6366f1);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, .2);
+    }
+    h1 { margin: 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; color: #fff; }
+    h1 span { background: linear-gradient(to right, #60a5fa, #818cf8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .sous-titre { margin: 4px 0 0; font-size: .9rem; color: #94a3b8; }
+    .carte {
+        background: #161e2e; border: 1px solid #27354a; border-radius: 16px;
+        padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, .35);
+    }
+    label { display: block; font-size: .875rem; font-weight: 600; color: #e2e8f0; margin-bottom: 8px; }
+    input {
+        width: 100%; padding: 12px 14px; border-radius: 12px;
+        background: #020617; border: 1px solid #334155; color: #f1f5f9;
+        font: inherit; font-size: 1rem;
+    }
+    input::placeholder { color: #475569; }
+    input:focus { outline: none; border-color: #60a5fa; }
+    input:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    input[aria-invalid="true"] { border-color: #ef4444; }
+    button {
+        width: 100%; margin-top: 16px; padding: 12px 16px; border: 0; border-radius: 12px;
+        background: #3b82f6; color: #fff; font: inherit; font-weight: 700; font-size: .95rem;
+        cursor: pointer; transition: background-color .15s;
+    }
+    button:hover { background: #2563eb; }
+    button:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+    button:disabled { opacity: .6; cursor: wait; }
+    .erreur {
+        margin: 12px 0 0; padding: 10px 12px; border-radius: 10px;
+        border: 1px solid rgba(239, 68, 68, .4); background: rgba(239, 68, 68, .1);
+        color: #fecaca; font-size: .85rem; line-height: 1.45;
+    }
+    .erreur[hidden] { display: none; }
+    .mention { margin: 16px 0 0; font-size: .8rem; line-height: 1.5; color: #94a3b8; text-align: center; }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+    <div class="marque">
+        <div class="logo" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
+        </div>
+        <div>
+            <h1><span>Studicam</span></h1>
+            <p class="sous-titre">Révisions ICAM, promos A1 et A2</p>
+        </div>
+    </div>
+
+    <form id="formulaire" class="carte" novalidate>
+        <label for="email">Adresse ICAM</label>
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false"
+               placeholder="prenom.nom@icam.fr" required aria-describedby="erreur mention">
+        <p id="erreur" class="erreur" role="alert" hidden></p>
+        <button id="bouton" type="submit">Se connecter</button>
+        <p id="mention" class="mention">Pas de mot de passe : ton adresse sert seulement à retrouver ta progression.</p>
+    </form>
+</main>
+<script>
+    (function () {
+        const form = document.getElementById('formulaire');
+        const champ = document.getElementById('email');
+        const erreur = document.getElementById('erreur');
+        const bouton = document.getElementById('bouton');
+        // même motif que src/regles.js, appliqué après trim et passage en minuscules
+        const ICAM = /^[a-z0-9._%+'-]+@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)*icam\.fr$/;
+
+        function montrer(message) {
+            erreur.textContent = message;
+            erreur.hidden = false;
+            champ.setAttribute('aria-invalid', 'true');
+            champ.focus();
+        }
+        champ.addEventListener('input', () => { erreur.hidden = true; champ.removeAttribute('aria-invalid'); });
+
+        form.addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            const email = champ.value.trim().toLowerCase();
+            if (!ICAM.test(email)) return montrer('Utilise ton adresse ICAM (…@icam.fr), sans accents ni espaces');
+            bouton.disabled = true;
+            try {
+                const r = await fetch('/api/connexion', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                if (r.ok) { location.href = '/'; return; }
+                let message = 'La connexion a échoué, réessaie dans un instant.';
+                try { const d = await r.json(); if (d && d.erreur) message = d.erreur; } catch (e) { /* réponse sans JSON */ }
+                montrer(message);
+            } catch (e) {
+                montrer('Impossible de joindre le serveur. Vérifie ta connexion et réessaie.');
+            } finally {
+                bouton.disabled = false;
+            }
+        });
+    })();
+</script>
+</body>
+</html>

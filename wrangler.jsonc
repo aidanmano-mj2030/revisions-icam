@@ -1,0 +1,25 @@
+{
+  "name": "studicam",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "studicam",
+      "database_id": "d10caf2e-e345-4ff4-b038-c64512de777e",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Limites de débit : connexions par IP (large, l'école partage une IP) et par adresse,
+  // écritures de progression par élève.
+  "ratelimits": [
+    { "name": "LIMITE_CONNEXION", "namespace_id": "1001", "simple": { "limit": 300, "period": 60 } },
+    { "name": "LIMITE_ADRESSE", "namespace_id": "1003", "simple": { "limit": 10, "period": 60 } },
+    { "name": "LIMITE_ECRITURE", "namespace_id": "1002", "simple": { "limit": 60, "period": 60 } }
+  ]
+}
