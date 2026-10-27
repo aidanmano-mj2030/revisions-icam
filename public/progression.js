@@ -92,7 +92,10 @@
         const corps = { cle, reussi };
         if (score !== undefined) corps.score = score;
         api('PUT', '/api/progression', corps)
-            .then(r => { if (!r.ok) console.warn('Studicam : progression non enregistrée', r.status); })
+            .then(r => {
+                if (r.status === 401) { location.replace('/connexion'); return; }  // session expirée ou remplacée
+                if (!r.ok) console.warn('Studicam : progression non enregistrée', r.status);
+            })
             .catch(e => console.warn('Studicam : progression non enregistrée', e));
     }
     window.studicamResultat = enregistrer;
@@ -376,8 +379,8 @@
         if (!charge) return;
         try { decorerChapitres(); decorerMatieres(); } catch (e) { console.warn('Studicam : affichage de la progression', e); }
     }
-    envelopper('ouvrirMatiere', () => decorerChapitres());
-    envelopper('choisirCategorie', () => decorerMatieres());
+    envelopper('ouvrirMatiere', () => decorer());
+    envelopper('choisirCategorie', () => decorer());
 
     // ---------- bandeau de session ----------
     function bandeau(email) {
@@ -428,4 +431,6 @@
         } catch (e) { console.warn('Studicam : progression illisible', e); }
     }
     demarrer();
+    // Page restaurée depuis le cache arrière (après une déconnexion par exemple) : on revérifie.
+    window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
 })();

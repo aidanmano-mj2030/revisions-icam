@@ -5,7 +5,7 @@ const DUREE_SESSION = 180 * 24 * 3600; // secondes
 const TAILLE_MAX_CORPS = 4096;
 const SESSIONS_MAX = 5;          // par élève, les plus anciennes sont supprimées
 const LIGNES_PROGRESSION_MAX = 500;
-const PAGES_PUBLIQUES = new Set(["/connexion", "/connexion.html", "/favicon.ico"]);
+const PAGES_PUBLIQUES = new Set(["/connexion", "/connexion.html"]);
 
 // true si la limite est dépassée. Sans binding (tests), rien n'est limité.
 async function tropDeRequetes(limiteur, cle) {
@@ -101,15 +101,19 @@ async function lireJson(request) {
 }
 
 async function connexion(request, env) {
-  const ip = request.headers.get("CF-Connecting-IP") || "inconnue";
-  if (await tropDeRequetes(env.LIMITE_CONNEXION, ip)) return json({ erreur: "Trop d'essais, attends une minute." }, 429);
   const corps = await lireJson(request);
   const email = normaliserEmail(corps && corps.email);
   if (!email) return json({ erreur: "Adresse ICAM invalide" }, 400);
 
-  // Déjà connecté avec la même adresse : on garde la session existante.
+  // Déjà connecté avec la même adresse : on garde la session existante, sans compter d'essai.
   const existante = await sessionCourante(request, env);
   if (existante && existante.email === email) return json({ email });
+
+  // Limite large par IP (toute une promo sort par l'IP de l'école), stricte par adresse.
+  const ip = request.headers.get("CF-Connecting-IP") || "inconnue";
+  if (await tropDeRequetes(env.LIMITE_CONNEXION, "ip:" + ip) || await tropDeRequetes(env.LIMITE_ADRESSE, "email:" + email)) {
+    return json({ erreur: "Trop d'essais, attends une minute." }, 429);
+  }
 
   const maintenant = new Date();
   const iso = maintenant.toISOString();
@@ -203,14 +207,16 @@ function avecEnTetesHtml(reponse) {
   copie.headers.set("X-Content-Type-Options", "nosniff");
   copie.headers.set("Referrer-Policy", "same-origin");
   copie.headers.set("X-Frame-Options", "DENY");
+  copie.headers.set("Cache-Control", "no-store");  // pas de page connectée restaurée après déconnexion
   return copie;
 }
 
 // Tout exige une session, sauf la liste explicite PAGES_PUBLIQUES.
 async function pages(request, env, chemin) {
+  if (chemin === "/favicon.ico") return new Response(null, { status: 204 });  // pas d'icône, pas de lecture D1
   const session = await sessionCourante(request, env);
   if (PAGES_PUBLIQUES.has(chemin)) {
-    if (session && chemin !== "/favicon.ico") return redirection("/");
+    if (session) return redirection("/");
     return avecEnTetesHtml(await env.ASSETS.fetch(request));
   }
   if (!session) return redirection("/connexion");
