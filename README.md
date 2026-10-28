@@ -3,7 +3,12 @@
 Site de révision des promos A1 et A2 de l'ICAM Toulouse (BTS ATI) : cours et exercices
 interactifs par matière, connexion par adresse ICAM et suivi de la progression.
 
-En ligne : https://studicam.aidanmano.workers.dev
+En ligne : https://studicam.pages.dev
+
+Le site est le Worker `studicam` (dossier racine). `studicam.pages.dev` est un petit projet
+Cloudflare Pages (dossier `pages/`) qui lui transmet chaque visite, pour avoir une adresse
+sans nom de compte. Ce dossier ne change presque jamais ; s'il change, Aidan le republie avec
+`npx wrangler pages deploy --branch main` depuis `pages/`.
 
 **Avant de travailler, lire le journal partagé** : dossier OneDrive `Revisions ICAM/JOURNAL.md`.
 Il dit ce qui a été fait en dernier, par qui, et la suite. Le mettre à jour après chaque séance.
