@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confidentialité | Studicam</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root { color-scheme: dark; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+        min-height: 100vh; min-height: 100dvh;
+        display: flex; align-items: center; justify-content: center;
+        padding: 24px 16px;
+        background: #0a0f1d; color: #e2e8f0;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+    main { width: 100%; max-width: 420px; }
+    .marque { display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 28px; }
+    .logo {
+        width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+        background: linear-gradient(to top right, #2563eb, #6366f1);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, .2);
+    }
+    h1 { margin: 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; color: #fff; }
+    h1 span { background: linear-gradient(to right, #60a5fa, #818cf8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .sous-titre { margin: 4px 0 0; font-size: .9rem; color: #94a3b8; }
+    .carte {
+        background: #161e2e; border: 1px solid #27354a; border-radius: 16px;
+        padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, .35);
+    }
+    .bouton {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        width: 100%; padding: 12px 16px; border-radius: 12px;
+        background: #fff; color: #1f2937; font-weight: 700; font-size: .95rem; text-decoration: none;
+        transition: background-color .15s;
+    }
+    .bouton:hover { background: #e2e8f0; }
+    .bouton:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+    .erreur {
+        margin: 12px 0 0; padding: 10px 12px; border-radius: 10px;
+        border: 1px solid rgba(239, 68, 68, .4); background: rgba(239, 68, 68, .1);
+        color: #fecaca; font-size: .85rem; line-height: 1.45;
+    }
+    .erreur[hidden] { display: none; }
+    .mention { margin: 16px 0 0; font-size: .8rem; line-height: 1.5; color: #94a3b8; text-align: center; }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    main { max-width: 640px; }
+    .carte h2 { margin: 20px 0 8px; font-size: 1rem; color: #fff; }
+    .carte h2:first-child { margin-top: 0; }
+    .carte p, .carte li { margin: 0 0 8px; font-size: .9rem; line-height: 1.55; color: #cbd5e1; }
+    .carte ul { margin: 0 0 8px; padding-left: 20px; }
+    a { color: #93c5fd; }
+</style>
+</head>
+<body>
+<main>
+    <div class="marque">
+        <div>
+            <h1><span>Studicam</span></h1>
+            <p class="sous-titre">Règles de confidentialité</p>
+        </div>
+    </div>
+    <div class="carte">
+        <h2>Ce qu'est Studicam</h2>
+        <p>Studicam est un site de révision gratuit fait par des étudiants pour les promos A1 et A2 de l'ICAM Toulouse : cours et exercices interactifs, avec le suivi des exercices réussis. Ce n'est pas un service officiel de l'ICAM.</p>
+
+        <h2>Ce que Studicam enregistre</h2>
+        <ul>
+            <li>ton adresse ICAM, transmise par Google quand tu te connectes ;</li>
+            <li>la date de ta première connexion et de ta dernière visite ;</li>
+            <li>les exercices que tu as réussis et ton meilleur score ;</li>
+            <li>une session de connexion (un cookie), valable 180 jours au plus.</li>
+        </ul>
+        <p>Rien d'autre : ni ton nom, ni ta photo, ni l'accès à ta boîte mail, à tes fichiers ou à ton agenda. Pas de publicité, pas de traceur, rien n'est vendu ni partagé.</p>
+
+        <h2>Pourquoi</h2>
+        <p>Uniquement pour te reconnaître et te montrer ta progression d'une visite à l'autre.</p>
+
+        <h2>Où</h2>
+        <p>Les données sont hébergées par Cloudflare (Worker et base D1). Seuls les responsables du site y ont accès.</p>
+
+        <h2>Effacer tes données</h2>
+        <p>Écris à <a href="mailto:aidanmano@gmail.com">aidanmano@gmail.com</a> depuis ton adresse ICAM : ton compte et ta progression sont supprimés.</p>
+
+        <p><a href="/connexion">Retour à la connexion</a></p>
+    </div>
+</main>
+</body>
+</html>

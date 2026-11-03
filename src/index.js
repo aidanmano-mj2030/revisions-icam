@@ -9,7 +9,7 @@ const DUREE_SESSION = 180 * 24 * 3600; // secondes
 const TAILLE_MAX_CORPS = 4096;
 const SESSIONS_MAX = 5;          // par élève, les plus anciennes sont supprimées
 const LIGNES_PROGRESSION_MAX = 500;
-const PAGES_PUBLIQUES = new Set(["/connexion", "/connexion.html"]);
+const PAGES_PUBLIQUES = new Set(["/connexion", "/connexion.html", "/confidentialite", "/confidentialite.html"]);
 
 // true si la limite est dépassée. Sans binding (tests), rien n'est limité.
 async function tropDeRequetes(limiteur, cle) {
@@ -300,7 +300,7 @@ async function pages(request, env, chemin) {
   if (chemin === "/favicon.ico") return new Response(null, { status: 204 });  // pas d'icône, pas de lecture D1
   const session = await sessionCourante(request, env);
   if (PAGES_PUBLIQUES.has(chemin)) {
-    if (session) return redirection("/");
+    if (session && chemin.startsWith("/connexion")) return redirection("/");
     return avecEnTetesHtml(await env.ASSETS.fetch(request));
   }
   if (!session) return redirection("/connexion");
