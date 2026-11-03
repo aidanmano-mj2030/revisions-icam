@@ -1,6 +1,10 @@
-import { normaliserEmail, validerProgression } from "./regles.js";
+import { emailDepuisGoogle, lirePayloadJwt, validerProgression } from "./regles.js";
 
 const COOKIE = "studicam_session";
+const COOKIE_GOOGLE = "studicam_google"; // état, nonce et vérificateur PKCE pendant l'aller-retour Google
+const DUREE_COOKIE_GOOGLE = 600;         // secondes
+const GOOGLE_AUTORISATION = "https://accounts.google.com/o/oauth2/v2/auth";
+const GOOGLE_JETON = "https://oauth2.googleapis.com/token";
 const DUREE_SESSION = 180 * 24 * 3600; // secondes
 const TAILLE_MAX_CORPS = 4096;
 const SESSIONS_MAX = 5;          // par élève, les plus anciennes sont supprimées
@@ -42,17 +46,26 @@ function nouveauJeton() {
   return [...octets].map((o) => o.toString(16).padStart(2, "0")).join("");
 }
 
-function lireCookie(request) {
+function base64Url(octets) {
+  return btoa(String.fromCharCode(...octets)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function lireCookie(request, nomCherche = COOKIE) {
   const brut = request.headers.get("Cookie") || "";
   for (const morceau of brut.split(";")) {
     const [nom, ...reste] = morceau.trim().split("=");
-    if (nom === COOKIE) return reste.join("=");
+    if (nom === nomCherche) return reste.join("=");
   }
   return null;
 }
 
 function cookieSession(valeur, maxAge) {
   return `${COOKIE}=${valeur}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
+}
+
+// Lax : le retour de Google est une navigation de premier niveau, le cookie est donc envoyé.
+function cookieGoogle(valeur, maxAge) {
+  return `${COOKIE_GOOGLE}=${valeur}; HttpOnly; Secure; SameSite=Lax; Path=/api/google; Max-Age=${maxAge}`;
 }
 
 // Retourne {id, email, jetonHash} si la session est valide, sinon null.
@@ -62,7 +75,7 @@ async function sessionCourante(request, env) {
   const jetonHash = await sha256Hex(jeton);
   const ligne = await env.DB.prepare(
     `SELECT s.expire_le, u.id, u.email, u.vu_le FROM sessions s
-     JOIN utilisateurs u ON u.id = s.utilisateur_id WHERE s.jeton_hash = ?`
+     JOIN utilisateurs u ON u.id = s.utilisateur_id WHERE s.jeton_hash = ? AND s.methode = 'google'`
   ).bind(jetonHash).first();
   if (!ligne) return null;
 
@@ -100,21 +113,90 @@ async function lireJson(request) {
   }
 }
 
-async function connexion(request, env) {
-  const corps = await lireJson(request);
-  const email = normaliserEmail(corps && corps.email);
-  if (!email) return json({ erreur: "Adresse ICAM invalide" }, 400);
+function retourConnexion(erreur, cookies = []) {
+  const enTetes = new Headers({ Location: "/connexion?erreur=" + erreur, "Cache-Control": "no-store" });
+  for (const c of cookies) enTetes.append("Set-Cookie", c);
+  return new Response(null, { status: 302, headers: enTetes });
+}
 
-  // Déjà connecté avec la même adresse : on garde la session existante, sans compter d'essai.
-  const existante = await sessionCourante(request, env);
-  if (existante && existante.email === email) return json({ email });
-
-  // Limite large par IP (toute une promo sort par l'IP de l'école), stricte par adresse.
+// Départ vers Google. hd=icam.fr ne sert qu'à proposer les comptes ICAM : le vrai contrôle
+// est fait au retour, sur le jeton d'identité.
+async function debutGoogle(request, env) {
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return retourConnexion("config");
+  // Limite large par IP : toute une promo sort par l'IP de l'école.
   const ip = request.headers.get("CF-Connecting-IP") || "inconnue";
-  if (await tropDeRequetes(env.LIMITE_CONNEXION, "ip:" + ip) || await tropDeRequetes(env.LIMITE_ADRESSE, "email:" + email)) {
-    return json({ erreur: "Trop d'essais, attends une minute." }, 429);
-  }
+  if (await tropDeRequetes(env.LIMITE_CONNEXION, "ip:" + ip)) return retourConnexion("limite");
 
+  const etat = nouveauJeton();
+  const nonce = nouveauJeton();
+  const verificateur = nouveauJeton();
+  const defi = base64Url(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verificateur))));
+  const adresse = new URL(GOOGLE_AUTORISATION);
+  adresse.search = new URLSearchParams({
+    client_id: env.GOOGLE_CLIENT_ID,
+    redirect_uri: new URL(request.url).origin + "/api/google/retour",
+    response_type: "code",
+    scope: "openid email",
+    state: etat,
+    nonce,
+    code_challenge: defi,
+    code_challenge_method: "S256",
+    hd: "icam.fr",
+    prompt: "select_account",
+  }).toString();
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: adresse.toString(),
+      "Cache-Control": "no-store",
+      "Set-Cookie": cookieGoogle(`${etat}.${nonce}.${verificateur}`, DUREE_COOKIE_GOOGLE),
+    },
+  });
+}
+
+async function retourGoogle(request, env) {
+  const effacer = cookieGoogle("", 0);
+  const params = new URL(request.url).searchParams;
+  const [etat, nonce, verificateur] = (lireCookie(request, COOKIE_GOOGLE) || "").split(".");
+  if (params.get("error")) return retourConnexion("annule", [effacer]);
+  if (!etat || !nonce || !verificateur || params.get("state") !== etat || !params.get("code")) {
+    return retourConnexion("expire", [effacer]);
+  }
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return retourConnexion("config", [effacer]);
+
+  const reponse = await fetch(GOOGLE_JETON, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code: params.get("code"),
+      client_id: env.GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: new URL(request.url).origin + "/api/google/retour",
+      grant_type: "authorization_code",
+      code_verifier: verificateur,
+    }),
+  });
+  if (!reponse.ok) {
+    console.error("Google : échange du code refusé", reponse.status);
+    return retourConnexion("google", [effacer]);
+  }
+  const { id_token } = await reponse.json();
+  const email = emailDepuisGoogle(lirePayloadJwt(id_token), {
+    clientId: env.GOOGLE_CLIENT_ID,
+    nonce,
+    maintenant: Date.now(),
+  });
+  if (!email) return retourConnexion("compte", [effacer]);
+
+  const jeton = await ouvrirSession(env, email);
+  const enTetes = new Headers({ Location: "/", "Cache-Control": "no-store" });
+  enTetes.append("Set-Cookie", effacer);
+  enTetes.append("Set-Cookie", cookieSession(jeton, DUREE_SESSION));
+  return new Response(null, { status: 302, headers: enTetes });
+}
+
+// Crée l'élève si besoin et renvoie le jeton d'une nouvelle session.
+async function ouvrirSession(env, email) {
   const maintenant = new Date();
   const iso = maintenant.toISOString();
   const expire = new Date(maintenant.getTime() + DUREE_SESSION * 1000).toISOString();
@@ -125,8 +207,9 @@ async function connexion(request, env) {
 
   const jeton = nouveauJeton();
   await env.DB.batch([
-    env.DB.prepare("DELETE FROM sessions WHERE expire_le <= ?").bind(iso),
-    env.DB.prepare("INSERT INTO sessions (jeton_hash, utilisateur_id, expire_le) VALUES (?, ?, ?)")
+    // Nettoie aussi les sessions de l'ancienne connexion par adresse seule (methode vide).
+    env.DB.prepare("DELETE FROM sessions WHERE expire_le <= ? OR methode IS NULL").bind(iso),
+    env.DB.prepare("INSERT INTO sessions (jeton_hash, utilisateur_id, expire_le, methode) VALUES (?, ?, ?, 'google')")
       .bind(await sha256Hex(jeton), utilisateur.id, expire),
     env.DB.prepare("UPDATE utilisateurs SET vu_le = ? WHERE id = ?").bind(iso, utilisateur.id),
     env.DB.prepare(
@@ -134,13 +217,14 @@ async function connexion(request, env) {
          (SELECT jeton_hash FROM sessions WHERE utilisateur_id = ?1 ORDER BY expire_le DESC LIMIT ?2)`
     ).bind(utilisateur.id, SESSIONS_MAX),
   ]);
-  return json({ email }, 200, { "Set-Cookie": cookieSession(jeton, DUREE_SESSION) });
+  return jeton;
 }
 
 async function api(request, env, chemin) {
   const methode = request.method;
 
-  if (chemin === "/api/connexion" && methode === "POST") return connexion(request, env);
+  if (chemin === "/api/google/debut" && methode === "GET") return debutGoogle(request, env);
+  if (chemin === "/api/google/retour" && methode === "GET") return retourGoogle(request, env);
 
   if (chemin === "/api/deconnexion" && methode === "POST") {
     await lireJsonSiCorps(request);
