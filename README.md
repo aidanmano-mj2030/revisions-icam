@@ -10,10 +10,10 @@ Cloudflare Pages (dossier `pages/`) qui lui transmet chaque visite, pour avoir u
 sans nom de compte. Ce dossier ne change presque jamais ; s'il change, Aidan le republie avec
 `npx wrangler pages deploy --branch main` depuis `pages/`.
 
-**Avant de travailler, lire le journal partagé** : dossier OneDrive `Revisions ICAM/JOURNAL.md`.
-Il dit ce qui a été fait en dernier, par qui, et la suite. Le mettre à jour après chaque séance.
+Fait par Aidan et Baptiste, étudiants de l'ICAM. Ce n'est pas un service officiel de l'ICAM.
 
-Façon de contribuer : voir [CONTRIBUTING.md](CONTRIBUTING.md).
+**Contribuer** : voir [CONTRIBUTING.md](CONTRIBUTING.md). Les membres de l'équipe lisent
+aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant de travailler.
 
 ## Organisation
 
@@ -67,3 +67,10 @@ Puis ouvrir http://localhost:8787 et se connecter avec son compte ICAM (il faut 
 Seule exception : une modification de la base (nouveau fichier dans `migrations/`) doit être
 appliquée par Aidan **avant** le merge, avec
 `npx wrangler d1 migrations apply studicam --remote`.
+
+## Licence
+
+- Le code (serveur, pages, scripts, tests) est sous licence [MIT](LICENSE).
+- Le contenu des cours et des exercices est sous licence
+  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr) : libre de le
+  partager et de l'adapter, en citant Studicam, sans usage commercial et sous la même licence.
