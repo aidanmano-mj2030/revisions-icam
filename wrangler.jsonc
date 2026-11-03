@@ -21,7 +21,7 @@
   // Connexion Google. L'identifiant client est public ; le secret est rangé à part avec
   // `npx wrangler secret put GOOGLE_CLIENT_SECRET` (et dans .dev.vars pour le test local).
   "vars": {
-    "GOOGLE_CLIENT_ID": ""
+    "GOOGLE_CLIENT_ID": "815727012676-53222kn5tkji2rb52na64qghu9fdg5pb.apps.googleusercontent.com"
   },
   // Limites de débit : connexions par IP (large, l'école partage une IP),
   // écritures de progression par élève.
