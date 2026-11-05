@@ -29,7 +29,8 @@
  * exgVerifier(id)                a2/maths/maths-dl-usuels/dlu, -ops/dlo,  bilan vert ; score = réponses justes
  *                                -lim/dll, -tang/dlt ; maths-vecto-coord/vco,
  *                                -colin/vcl, -param/vpa, -repere/vre, -droites/vdr ;
- *                                a1/aii/aii-pneu/dsx
+ *                                a1/aii/aii-pneu/dsx ; a1/maths/m1-calculs/m1x-m1-calculs
+ *                                (idem pour les 11 chapitres m1-*)
  *
  * Un essai est ignoré s'il n'y a aucune réponse saisie, ou si la correction de cet
  * exercice a été affichée (corriger*, ciCorriger, mxCorriger, exgCorriger) depuis le
@@ -51,7 +52,11 @@
         'maths-matrices': ['mt'], 'maths-dl-usuels': ['dlu'], 'maths-dl-ops': ['dlo'],
         'maths-dl-lim': ['dll'], 'maths-dl-tang': ['dlt'], 'maths-vecto-coord': ['vco'],
         'maths-vecto-colin': ['vcl'], 'maths-vecto-param': ['vpa'], 'maths-vecto-repere': ['vre'],
-        'maths-vecto-droites': ['vdr']
+        'maths-vecto-droites': ['vdr'],
+        'm1-calculs': ['m1x-m1-calculs'], 'm1-polynomes': ['m1x-m1-polynomes'], 'm1-trigo': ['m1x-m1-trigo'],
+        'm1-limites': ['m1x-m1-limites'], 'm1-derivation': ['m1x-m1-derivation'],
+        'm1-fonctions': ['m1x-m1-fonctions'], 'm1-complexes': ['m1x-m1-complexes'], 'm1-suites': ['m1x-m1-suites'],
+        'm1-integrale': ['m1x-m1-integrale'], 'm1-edo': ['m1x-m1-edo'], 'm1-fourier': ['m1x-m1-fourier']
     };
     const CLES_PS = ['a2/cm/produit-scalaire/exo1', 'a2/cm/produit-scalaire/exo2'];
     const CLES_LIAISONS = ['a1/cm/liaisons/exo'];
