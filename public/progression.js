@@ -14,7 +14,7 @@
  * Fonction enveloppée            Clé(s)                                   Réussi si
  * -----------------------------  ---------------------------------------  ------------------------------------
  * verifierExo1()                 a2/cm/produit-scalaire/exo1              #exo1-feedback vert (orange = incomplet, ignoré)
- * validerQuestionExo2(q, bonne)  a2/cm/produit-scalaire/exo2              les 3 questions justes du premier coup ; score = part juste au 1er essai
+ * verifierExo2()                 a2/cm/produit-scalaire/exo2              les 3 questions justes ; score = réponses justes (ignoré tant qu'une question est sans réponse)
  * verifierExoA1()                a1/cm/liaisons/exo                       #a1-exo-feedback vert
  * verifierExoCodes()             a1/aii/aii-codes/codes                   toutes les cases justes ; score = cases justes
  * verifierBloc(id)               a1/aii/aii-karnaugh/kn                   tous les champs F justes ; score = champs justes
@@ -34,7 +34,7 @@
  *
  * Un essai est ignoré s'il n'y a aucune réponse saisie, ou si la correction de cet
  * exercice a été affichée (corriger*, ciCorriger, mxCorriger, exgCorriger) depuis le
- * dernier tirage (nouveau*, ciNouveau, demarrerExoCodes, mxNouvelle, exgNouvelle).
+ * dernier tirage (nouveau*, generer*, ciNouveau, demarrerExoCodes, mxNouvelle, exgNouvelle).
  * Une fois un exercice réussi, on n'envoie plus que les scores meilleurs.
  *
  * Point d'entrée public : window.studicamResultat(cle, reussi, score?)
@@ -165,30 +165,31 @@
     // CM A2 produit scalaire, exercice 1 (étiquettes à placer)
     envelopper('verifierExo1', () => {
         const c = couleurBilan($('exo1-feedback'));
-        if (c !== 'autre') enregistrer(CLES_PS[0], c === 'vert');
+        if (c !== 'autre' && !corriges.has(CLES_PS[0])) enregistrer(CLES_PS[0], c === 'vert');
     });
+    envelopper('corrigerExo1', () => marquerCorrige(CLES_PS[0]));
+    envelopper('genererExo1', () => oublierCorrige(CLES_PS[0]));
 
-    // CM A2 produit scalaire, exercice 2 : 3 questions à choix, on retient le premier essai
-    let suiviExo2 = { ref: null, premiers: [], envoye: false };
-    envelopper('validerQuestionExo2', ([q, bonne]) => {
+    // CM A2 produit scalaire, exercice 2 : 3 questions à choix, comptées une fois toutes répondues
+    envelopper('verifierExo2', () => {
         const questions = typeof questionsExo2 !== 'undefined' ? questionsExo2 : null;
-        if (!questions) return;
-        if (suiviExo2.ref !== questions) suiviExo2 = { ref: questions, premiers: [], envoye: false };
-        if (suiviExo2.premiers[q] === undefined) suiviExo2.premiers[q] = !!bonne;
+        const choix = typeof choixExo2 !== 'undefined' ? choixExo2 : null;
+        if (!questions || !choix || corriges.has(CLES_PS[1])) return;
         const n = questions.length;
-        const repondues = suiviExo2.premiers.filter(v => v !== undefined).length;
-        if (!suiviExo2.envoye && repondues === n) {
-            suiviExo2.envoye = true;
-            const justes = suiviExo2.premiers.filter(Boolean).length;
-            enregistrer(CLES_PS[1], justes === n, 100 * justes / n);
-        }
+        if (questions.some((_, q) => choix[q] === undefined)) return;
+        const justes = questions.filter((qo, q) => qo.options[choix[q]].bonne).length;
+        enregistrer(CLES_PS[1], justes === n, 100 * justes / n);
     });
+    envelopper('corrigerExo2', () => marquerCorrige(CLES_PS[1]));
+    envelopper('genererExo2', () => oublierCorrige(CLES_PS[1]));
 
     // CM A1 liaisons
     envelopper('verifierExoA1', () => {
         const c = couleurBilan($('a1-exo-feedback'));
-        if (c !== 'autre') enregistrer(CLES_LIAISONS[0], c === 'vert');
+        if (c !== 'autre' && !corriges.has(CLES_LIAISONS[0])) enregistrer(CLES_LIAISONS[0], c === 'vert');
     });
+    envelopper('corrigerExoA1', () => marquerCorrige(CLES_LIAISONS[0]));
+    envelopper('genererExoA1', () => oublierCorrige(CLES_LIAISONS[0]));
 
     // AII conversion des codes
     envelopper('verifierExoCodes', () => {

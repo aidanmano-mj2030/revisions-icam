@@ -296,9 +296,6 @@
                                 <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Exercice 1 • Configuration cinématique</span>
                                 <h2 class="text-xl font-bold text-white mt-1">Placement des axes sur les repères vectoriels</h2>
                             </div>
-                            <button onclick="genererExo1()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs font-semibold flex items-center gap-2 transition-all shadow-md">
-                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Générer une nouvelle configuration
-                            </button>
                         </div>
 
                         <div id="exo1-enonce" class="text-slate-300 text-xs p-3 bg-slate-950/70 rounded-xl border border-slate-800">
@@ -325,12 +322,14 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-between items-center pt-2">
-                            <button onclick="verifierExo1()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs flex items-center gap-2">
-                                <i data-lucide="check-circle" class="w-4 h-4"></i> Vérifier le placement
-                            </button>
-                            <div id="exo1-feedback" class="text-xs font-semibold"></div>
+                        <p id="exo1-feedback" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="verifierExo1()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold flex items-center gap-2 transition-all"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
+                            <button type="button" onclick="reinitialiserExo1()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser</button>
+                            <button type="button" onclick="genererExo1()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Question suivante</button>
+                            <button type="button" onclick="corrigerExo1()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="eye" class="w-4 h-4"></i> Correction</button>
                         </div>
+                        <div id="exo1-solution" hidden class="rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3 text-sm text-violet-100 leading-relaxed space-y-1"></div>
                     </div>
                 </div>
 
@@ -342,9 +341,6 @@
                                 <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Exercice 2 • Calculs Vectoriels Visuels</span>
                                 <h2 class="text-xl font-bold text-white mt-1">Calculs de produits avec transfert $R_0 \rightarrow R_2$</h2>
                             </div>
-                            <button onclick="genererExo2()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs font-semibold flex items-center gap-2 transition-all shadow-md">
-                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Générer de nouvelles questions
-                            </button>
                         </div>
 
                         <div id="exo2-contexte" class="text-slate-300 text-xs p-3 bg-slate-950/70 rounded-xl border border-slate-800">
@@ -368,6 +364,15 @@
                         <div id="exo2-questions-container" class="space-y-4 pt-2">
                             <!-- Généré dynamiquement en JS -->
                         </div>
+
+                        <p id="exo2-feedback" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="verifierExo2()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold flex items-center gap-2 transition-all"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
+                            <button type="button" onclick="reinitialiserExo2()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser</button>
+                            <button type="button" onclick="genererExo2()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Question suivante</button>
+                            <button type="button" onclick="corrigerExo2()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="eye" class="w-4 h-4"></i> Correction</button>
+                        </div>
+                        <div id="exo2-solution" hidden class="rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3 text-sm text-violet-100 leading-relaxed space-y-2"></div>
                     </div>
                 </div>
 
@@ -430,9 +435,6 @@
                                 <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Exercice d'identification • CM 1ère Année</span>
                                 <h2 class="text-xl font-bold text-white mt-1">Caractérisation complète d'une liaison mécano-cinématique</h2>
                             </div>
-                            <button onclick="genererExoA1()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-500/30 text-xs font-semibold flex items-center gap-2 transition-all shadow-md">
-                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Changer de liaison (Aléatoire)
-                            </button>
                         </div>
 
                         <!-- Tableau 4 lignes -->
@@ -525,12 +527,14 @@
                             </table>
                         </div>
 
-                        <div class="flex justify-between items-center pt-2">
-                            <button onclick="verifierExoA1()" class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-slate-950 font-bold text-xs flex items-center gap-2">
-                                <i data-lucide="check-circle" class="w-4 h-4"></i> Valider les réponses du tableau
-                            </button>
-                            <div id="a1-exo-feedback" class="text-xs font-semibold"></div>
+                        <p id="a1-exo-feedback" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="verifierExoA1()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold flex items-center gap-2 transition-all"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
+                            <button type="button" onclick="reinitialiserExoA1()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser</button>
+                            <button type="button" onclick="genererExoA1()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Question suivante</button>
+                            <button type="button" onclick="corrigerExoA1()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="eye" class="w-4 h-4"></i> Correction</button>
                         </div>
+                        <div id="a1-exo-solution" hidden class="rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3 text-sm text-violet-100 leading-relaxed space-y-1"></div>
 
                     </div>
                 </div>
@@ -975,6 +979,7 @@
             document.getElementById('exo1-title-fig2').innerHTML = `Repère $R_1 \\rightarrow R_2$ (Axe $\\vec{${rot2Axe}}_1$, Angle $\\beta$)`;
 
             document.getElementById('exo1-feedback').innerHTML = '';
+            document.getElementById('exo1-solution').hidden = true;
 
             const container = document.getElementById('etiquettes-container');
             container.innerHTML = '';
@@ -1130,15 +1135,39 @@
 
             const feedback = document.getElementById('exo1-feedback');
             if (incomplet) {
-                feedback.className = "text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20";
-                feedback.textContent = "Veuillez placer toutes les étiquettes sur les schémas !";
+                feedback.className = "text-sm min-h-[1.25rem] text-amber-300";
+                feedback.textContent = "Place toutes les étiquettes sur les schémas avant de vérifier.";
             } else if (sansFaute) {
-                feedback.className = "text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20";
-                feedback.textContent = "Bravo ! Tous les axes des 2 repères sont parfaitement placés.";
+                feedback.className = "text-sm min-h-[1.25rem] text-emerald-300";
+                feedback.textContent = "Bravo ! Tous les axes des 2 repères sont bien placés.";
             } else {
-                feedback.className = "text-xs font-bold text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20";
-                feedback.textContent = "Des axes sont mal placés. Vérifiez les axes de rotation imposés !";
+                feedback.className = "text-sm min-h-[1.25rem] text-red-300";
+                feedback.textContent = "Des axes sont mal placés. Vérifie les axes de rotation imposés.";
             }
+        }
+
+        const ZONES_EXO1 = ['drop-f1-a0', 'drop-f1-a1', 'drop-f1-b0', 'drop-f1-b1', 'drop-f1-z', 'drop-f2-a0', 'drop-f2-a1', 'drop-f2-b0', 'drop-f2-b1', 'drop-f2-z'];
+
+        function reinitialiserExo1() {
+            const reserve = document.getElementById('etiquettes-container');
+            ZONES_EXO1.forEach(id => { const el = document.getElementById(id).firstElementChild; if (el) reserve.appendChild(el); });
+            deselectionnerEtiquette();
+            document.getElementById('exo1-feedback').textContent = '';
+            document.getElementById('exo1-solution').hidden = true;
+        }
+
+        // Place chaque étiquette attendue sur son emplacement
+        function corrigerExo1() {
+            reinitialiserExo1();
+            const reserve = document.getElementById('etiquettes-container');
+            ZONES_EXO1.forEach(id => {
+                const zone = document.getElementById(id), code = zone.getAttribute('data-target').split(',')[0];
+                const el = [...reserve.children].find(t => t.getAttribute('data-code') === code);
+                if (el) zone.appendChild(el);
+            });
+            const z = document.getElementById('exo1-solution');
+            z.innerHTML = '<p class="font-bold text-violet-200">Correction</p><p>Les étiquettes sont placées sur les bons emplacements. Les deux étiquettes restantes ne servent pas : l\'axe de rotation est commun aux deux repères, il n\'apparaît qu\'une fois sur chaque schéma.</p>';
+            z.hidden = false;
         }
 
 
@@ -1274,9 +1303,9 @@
                 qDiv.className = "bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3";
                 
                 let optionsHTML = "";
-                qObj.options.forEach((opt) => {
+                qObj.options.forEach((opt, o) => {
                     optionsHTML += `
-                        <button onclick="validerQuestionExo2(${idx}, ${opt.bonne}, this)" class="p-2.5 bg-slate-950 hover:bg-slate-800 rounded-lg border border-slate-800 text-xs font-mono text-slate-200 transition-colors">
+                        <button type="button" data-q="${idx}" data-o="${o}" onclick="choisirOptionExo2(${idx}, ${o})" class="${CLASSE_OPTION_EXO2}">
                             $${opt.txt}$
                         </button>
                     `;
@@ -1293,23 +1322,59 @@
                 container.appendChild(qDiv);
             });
 
+            choixExo2 = [];
+            document.getElementById('exo2-feedback').textContent = '';
+            document.getElementById('exo2-solution').hidden = true;
             setTimeout(() => chargerIconesEtMaths(), 30);
         }
 
-        function validerQuestionExo2(qIdx, estBonne, btn) {
-            const feedback = document.getElementById(`feedback-exo2-q${qIdx}`);
-            feedback.classList.remove('hidden');
-            btn.classList.remove('border-slate-800');
-            btn.classList.add(estBonne ? 'border-emerald-500' : 'border-red-500');
+        // Exercice 2 : on choisit une réponse par question, puis « Vérifier » corrige les trois.
+        const CLASSE_OPTION_EXO2 = "p-2.5 bg-slate-950 hover:bg-slate-800 rounded-lg border border-slate-800 text-xs font-mono text-slate-200 transition-colors";
+        let choixExo2 = [];
 
-            if (estBonne) {
-                feedback.className = "text-xs font-semibold text-emerald-400 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20 mt-2";
-                feedback.innerHTML = questionsExo2[qIdx].explication;
-            } else {
-                feedback.className = "text-xs font-semibold text-red-400 bg-red-500/10 p-2.5 rounded-lg border border-red-500/20 mt-2";
-                feedback.innerHTML = "Réponse incorrecte. Utilisez les schémas vectoriels pour visualiser la projection de l'angle !";
-            }
+        function choisirOptionExo2(qIdx, o) {
+            choixExo2[qIdx] = o;
+            document.querySelectorAll(`#exo2-questions-container button[data-q="${qIdx}"]`).forEach(b => {
+                b.className = CLASSE_OPTION_EXO2 + (Number(b.dataset.o) === o ? ' ring-2 ring-amber-400' : '');
+            });
+            const fb = document.getElementById(`feedback-exo2-q${qIdx}`);
+            fb.className = 'text-xs hidden mt-2 p-2.5 rounded-lg border';
+        }
 
+        function verifierExo2() {
+            let vides = 0, justes = 0;
+            questionsExo2.forEach((qObj, qIdx) => {
+                const o = choixExo2[qIdx], fb = document.getElementById(`feedback-exo2-q${qIdx}`);
+                if (o === undefined) { vides++; return; }
+                const bonne = qObj.options[o].bonne;
+                if (bonne) justes++;
+                const b = document.querySelector(`#exo2-questions-container button[data-q="${qIdx}"][data-o="${o}"]`);
+                b.className = CLASSE_OPTION_EXO2.replace('border-slate-800', bonne ? 'border-emerald-500' : 'border-red-500');
+                fb.className = bonne ? "text-xs font-semibold text-emerald-400 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20 mt-2" : "text-xs font-semibold text-red-400 bg-red-500/10 p-2.5 rounded-lg border border-red-500/20 mt-2";
+                fb.innerHTML = bonne ? qObj.explication : "Réponse incorrecte. Utilise les schémas vectoriels pour visualiser la projection de l'angle.";
+            });
+            const n = questionsExo2.length, feedback = document.getElementById('exo2-feedback');
+            if (vides) { feedback.className = 'text-sm min-h-[1.25rem] text-amber-300'; feedback.textContent = `Il reste ${vides} question${vides > 1 ? 's' : ''} sans réponse.`; }
+            else if (justes === n) { feedback.className = 'text-sm min-h-[1.25rem] text-emerald-300'; feedback.textContent = 'Bravo, les trois réponses sont justes !'; }
+            else { feedback.className = 'text-sm min-h-[1.25rem] text-red-300'; feedback.textContent = `${n - justes} réponse${n - justes > 1 ? 's sont fausses' : ' est fausse'}.`; }
+            setTimeout(() => chargerIconesEtMaths(), 30);
+        }
+
+        function reinitialiserExo2() {
+            choixExo2 = [];
+            document.querySelectorAll('#exo2-questions-container button[data-q]').forEach(b => { b.className = CLASSE_OPTION_EXO2; });
+            questionsExo2.forEach((_, qIdx) => { document.getElementById(`feedback-exo2-q${qIdx}`).className = 'text-xs hidden mt-2 p-2.5 rounded-lg border'; });
+            document.getElementById('exo2-feedback').textContent = '';
+            document.getElementById('exo2-solution').hidden = true;
+        }
+
+        function corrigerExo2() {
+            const z = document.getElementById('exo2-solution');
+            z.innerHTML = '<p class="font-bold text-violet-200">Correction</p>' + questionsExo2.map((qObj, qIdx) => {
+                const bonne = qObj.options.find(o => o.bonne);
+                return `<p><strong>Q${qIdx + 1}</strong> : $${bonne.txt}$. ${qObj.explication.replace(/^Exact\s*!\s*/, '')}</p>`;
+            }).join('');
+            z.hidden = false;
             setTimeout(() => chargerIconesEtMaths(), 30);
         }
 
@@ -1816,7 +1881,7 @@
             remplirSelect('sel-stat-m', ['0', 'M']);
             remplirSelect('sel-stat-n', ['0', 'N']);
 
-            document.getElementById('a1-exo-feedback').innerHTML = '';
+            reinitialiserExoA1();
             setTimeout(() => chargerIconesEtMaths(), 30);
         }
 
@@ -1845,8 +1910,8 @@
 
             // Vérifications
             if (!nomSaisi || Object.values(cinSaisi).includes("") || Object.values(statSaisi).includes("")) {
-                feedback.className = "text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20";
-                feedback.textContent = "Veuillez remplir toutes les cases du tableau !";
+                feedback.className = "text-sm min-h-[1.25rem] text-amber-300";
+                feedback.textContent = "Remplis toutes les cases du tableau avant de vérifier.";
                 return;
             }
 
@@ -1854,13 +1919,40 @@
             const cinCorrect = JSON.stringify(cinSaisi) === JSON.stringify(liaisonActiveExoA1.cin);
             const statCorrect = JSON.stringify(statSaisi) === JSON.stringify(liaisonActiveExoA1.stat);
 
+            // chaque case passe au vert ou au rouge, comme dans les autres exercices
+            const marquer = (id, ok) => { const s = document.getElementById(id); s.classList.remove('border-slate-700', 'border-emerald-500', 'border-red-500'); s.classList.add(ok ? 'border-emerald-500' : 'border-red-500'); };
+            marquer('select-a1-nom', nomCorrect);
+            CHAMPS_A1.cin.forEach(k => marquer('sel-cin-' + k, cinSaisi[k] === liaisonActiveExoA1.cin[k]));
+            CHAMPS_A1.stat.forEach(k => marquer('sel-stat-' + k, statSaisi[k] === liaisonActiveExoA1.stat[k]));
+
             if (nomCorrect && cinCorrect && statCorrect) {
-                feedback.className = "text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20";
-                feedback.textContent = "Parfait ! Nom de liaison et torseurs associés 100% exacts.";
+                feedback.className = "text-sm min-h-[1.25rem] text-emerald-300";
+                feedback.textContent = "Bravo ! Le nom de la liaison et les deux torseurs sont justes.";
             } else {
-                feedback.className = "text-xs font-bold text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20";
-                feedback.textContent = "Erreur dans le tableau. Vérifiez les mobilités autorisées et les blocages d'efforts !";
+                feedback.className = "text-sm min-h-[1.25rem] text-red-300";
+                feedback.textContent = "Il y a des erreurs dans le tableau (cases en rouge). Vérifie les mobilités autorisées et les efforts bloqués.";
             }
+        }
+
+        const CHAMPS_A1 = { cin: ['wx', 'wy', 'wz', 'vx', 'vy', 'vz'], stat: ['x', 'y', 'z', 'l', 'm', 'n'] };
+        const idsChampsA1 = () => ['select-a1-nom'].concat(CHAMPS_A1.cin.map(k => 'sel-cin-' + k), CHAMPS_A1.stat.map(k => 'sel-stat-' + k));
+
+        function reinitialiserExoA1() {
+            idsChampsA1().forEach(id => { const s = document.getElementById(id); s.value = ''; s.classList.remove('border-emerald-500', 'border-red-500'); s.classList.add('border-slate-700'); });
+            document.getElementById('a1-exo-feedback').textContent = '';
+            document.getElementById('a1-exo-solution').hidden = true;
+        }
+
+        function corrigerExoA1() {
+            reinitialiserExoA1();
+            const l = liaisonActiveExoA1;
+            document.getElementById('select-a1-nom').value = l.nom;
+            CHAMPS_A1.cin.forEach(k => { document.getElementById('sel-cin-' + k).value = l.cin[k]; });
+            CHAMPS_A1.stat.forEach(k => { document.getElementById('sel-stat-' + k).value = l.stat[k]; });
+            const mob = CHAMPS_A1.cin.filter(k => l.cin[k] !== '0').length;
+            const z = document.getElementById('a1-exo-solution');
+            z.innerHTML = `<p class="font-bold text-violet-200">Correction</p><p>C'est une liaison <strong class="text-white">${l.nom}</strong> : ${mob} degré${mob > 1 ? 's' : ''} de liberté. Le tableau est rempli avec les bonnes valeurs.</p>${l.id === 'helicoide' ? '<p>Pour l\'hélicoïdale, la rotation et la translation sont liées par le pas : ω<sub>x</sub> et V<sub>x</sub> ne sont pas indépendants.</p>' : '<p>Chaque mobilité autorisée (composante non nulle du torseur cinématique) correspond à une composante nulle du torseur statique, et inversement.</p>'}`;
+            z.hidden = false;
         }
     
         // ==========================================
@@ -2741,7 +2833,7 @@
                             <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser
                         </button>
                         <button type="button" id="conv-nouveau" onclick="demarrerExoCodes()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Changer les valeurs
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Question suivante
                         </button>
                         <button type="button" id="conv-correction" onclick="corrigerExoCodes()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30 text-sm font-semibold flex items-center gap-2 transition-all">
                             <i data-lucide="eye" class="w-4 h-4"></i> Correction
@@ -2801,7 +2893,7 @@
             const bilan = document.getElementById('conv-bilan');
             bilan.hidden = false;
             bilan.className = 'rounded-xl border px-4 py-3 text-sm leading-relaxed border-violet-500/30 bg-violet-500/10 text-violet-100';
-            bilan.textContent = 'Correction : toutes les cases sont remplies avec les bonnes valeurs. Utilise Réinitialiser ou Changer les valeurs pour recommencer.';
+            bilan.textContent = 'Correction : toutes les cases sont remplies avec les bonnes valeurs. Utilise Réinitialiser ou Question suivante pour recommencer.';
         }
 
         function reinitialiserExoCodes() {
@@ -3140,16 +3232,22 @@
                 + `<tbody class="divide-y divide-slate-800/80 bg-slate-950/50">${lignes}</tbody></table></div>`;
         }
 
+        // ---------- claviers d'aide à l'écriture : même présentation dans tous les exercices ----------
+        // couleur : 'variable' (lettres, vecteurs), 'grandeur' (angles, longueurs), 'operateur' ou 'special'
+        const COULEURS_TOUCHE = { variable: 'text-amber-300', grandeur: 'text-sky-300', operateur: 'text-slate-100', special: 'text-violet-200' };
+        const toucheClavier = (ins, libelle, couleur, titre) => `<button type="button" data-ins="${ins}"${titre ? ` title="${titre}" aria-label="${titre}"` : ''} class="min-w-[2.5rem] px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 ${COULEURS_TOUCHE[couleur || 'operateur']} font-mono text-sm transition-all">${libelle}</button>`;
+        const toucheEffacer = () => `<button type="button" data-sup="1" title="Effacer le dernier caractère" aria-label="Effacer le dernier caractère" class="min-w-[2.5rem] px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 text-sm transition-all">⌫</button>`;
+        const clavierHTML = (lignes, attr) => `<div class="space-y-1.5"${attr || ''}><p class="text-[11px] text-slate-400">Boutons pour écrire plus vite (ils s'ajoutent dans la dernière case utilisée) :</p>${lignes.map(l => `<div class="flex flex-wrap gap-1.5">${l}</div>`).join('')}</div>`;
+
         function clavierExpression(id, variables) {
-            const touche = (ins, libelle, titre) => `<button type="button" data-ins="${ins}" title="${titre}" aria-label="${titre}" class="min-w-[2.5rem] px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 font-mono text-sm transition-all">${libelle}</button>`;
-            const touches = variables.map(v => touche(v, v, 'Variable ' + v)).join('')
-                + touche("'", "'", "NON : à écrire juste après une variable ou une parenthèse")
-                + touche('·', '·', 'ET')
-                + touche('+', '+', 'OU')
-                + touche('(', '(', 'Parenthèse ouvrante')
-                + touche(')', ')', 'Parenthèse fermante')
-                + `<button type="button" data-sup="1" title="Effacer le dernier caractère" aria-label="Effacer le dernier caractère" class="min-w-[2.5rem] px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 text-sm transition-all">⌫</button>`;
-            return `<div class="space-y-1.5"><p class="text-[11px] text-slate-400">Boutons pour écrire plus vite (ils s'ajoutent dans la dernière case utilisée) :</p><div class="flex flex-wrap gap-1.5" data-clavier="${id}">${touches}</div></div>`;
+            const touches = variables.map(v => toucheClavier(v, v, 'variable', 'Variable ' + v)).join('')
+                + toucheClavier("'", "'", 'operateur', "NON : à écrire juste après une variable ou une parenthèse")
+                + toucheClavier('·', '·', 'operateur', 'ET')
+                + toucheClavier('+', '+', 'operateur', 'OU')
+                + toucheClavier('(', '(', 'operateur', 'Parenthèse ouvrante')
+                + toucheClavier(')', ')', 'operateur', 'Parenthèse fermante')
+                + toucheEffacer();
+            return clavierHTML([touches], ` data-clavier="${id}"`);
         }
 
         function creerBloc(id, titre, icone) {
@@ -3174,7 +3272,7 @@
                 <div class="flex flex-wrap gap-2">
                     <button type="button" id="${id}-verifier" onclick="verifierBloc('${id}')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold flex items-center gap-2 transition-all"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
                     <button type="button" id="${id}-reinitialiser" onclick="reinitialiserBloc('${id}')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser</button>
-                    <button type="button" id="${id}-nouveau" onclick="nouveauBloc('${id}')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Changer les valeurs</button>
+                    <button type="button" id="${id}-nouveau" onclick="nouveauBloc('${id}')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Question suivante</button>
                     <button type="button" id="${id}-correction" onclick="corrigerBloc('${id}')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="eye" class="w-4 h-4"></i> Correction</button>
                 </div>
                 <div id="${id}-solution" hidden class="rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3 text-sm text-violet-100 leading-relaxed space-y-1"></div>`;
@@ -3296,7 +3394,7 @@
                 <div class="flex flex-wrap gap-2">
                     <button type="button" id="kv-verifier" onclick="verifierRemplir()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold flex items-center gap-2 transition-all"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
                     <button type="button" id="kv-reinitialiser" onclick="reinitialiserRemplir()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser</button>
-                    <button type="button" id="kv-nouveau" onclick="nouveauRemplir()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Changer les valeurs</button>
+                    <button type="button" id="kv-nouveau" onclick="nouveauRemplir()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Question suivante</button>
                     <button type="button" id="kv-correction" onclick="corrigerRemplir()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="eye" class="w-4 h-4"></i> Correction</button>
                 </div>
                 <div id="kv-bilan" role="status" aria-live="polite" hidden class="rounded-xl border px-4 py-3 text-sm leading-relaxed"></div>`;
@@ -3345,7 +3443,7 @@
             const b = document.getElementById('kv-bilan');
             b.hidden = false;
             b.className = 'rounded-xl border px-4 py-3 text-sm leading-relaxed border-violet-500/30 bg-violet-500/10 text-violet-100';
-            b.textContent = 'Correction : le tableau est rempli avec les bonnes valeurs. Utilise Réinitialiser ou Changer les valeurs pour recommencer.';
+            b.textContent = 'Correction : le tableau est rempli avec les bonnes valeurs. Utilise Réinitialiser ou Question suivante pour recommencer.';
         }
         function nouveauRemplir() { EXO_LOG.kv.F = tirerTable16(); dessinerRemplir(); }
 
@@ -3713,7 +3811,7 @@
                 <div class="flex flex-wrap gap-2">
                     <button type="button" id="${id}-verifier" onclick="verifierPortes('${id}')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold flex items-center gap-2 transition-all"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
                     <button type="button" id="${id}-reinitialiser" onclick="reinitialiserPortes('${id}')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser</button>
-                    <button type="button" id="${id}-nouveau" onclick="nouveauPortes('${id}')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Changer les valeurs</button>
+                    <button type="button" id="${id}-nouveau" onclick="nouveauPortes('${id}')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Question suivante</button>
                     <button type="button" id="${id}-correction" onclick="corrigerPortes('${id}')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30 text-sm font-semibold flex items-center gap-2 transition-all"><i data-lucide="eye" class="w-4 h-4"></i> Correction</button>
                 </div>
                 <div id="${id}-bilan" role="status" aria-live="polite" hidden class="rounded-xl border px-4 py-3 text-sm leading-relaxed"></div>`;
@@ -3937,7 +4035,7 @@
             b.rows.filter(r => r.saisie).forEach(r => { r.rep = r.sol.slice(); r.etat = r.sol.map(() => 'ok'); });
             (b.questions || []).forEach(q => { q.rep = q.sol.slice(); q.etat = 'ok'; });
             rafraichirChrono(id); synchroniserSaisies(id); synchroniserQuestions(id);
-            messageChrono(id, 'violet', 'Correction : toutes les cases sont remplies avec les bonnes valeurs. Utilise Réinitialiser ou Changer les valeurs pour recommencer.');
+            messageChrono(id, 'violet', 'Correction : toutes les cases sont remplies avec les bonnes valeurs. Utilise Réinitialiser ou Question suivante pour recommencer.');
         }
 
         function nouveauChrono(id) { CHRONO[id].generer(); dessinerChronoBloc(id); }
@@ -3985,7 +4083,7 @@
                 <div class="flex flex-wrap gap-2">
                     ${bouton('verifier', 'verifierChrono', 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold', 'check-circle-2', 'Vérifier')}
                     ${bouton('reinitialiser', 'reinitialiserChrono', 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600', 'rotate-ccw', 'Réinitialiser')}
-                    ${bouton('nouveau', 'nouveauChrono', 'bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30', 'refresh-cw', 'Changer les valeurs')}
+                    ${bouton('nouveau', 'nouveauChrono', 'bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30', 'refresh-cw', 'Question suivante')}
                     ${bouton('correction', 'corrigerChrono', 'bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30', 'eye', 'Correction')}
                 </div>
                 <div id="${id}-bilan" role="status" aria-live="polite" hidden class="rounded-xl border px-4 py-3 text-sm leading-relaxed"></div>`;
@@ -4716,6 +4814,37 @@
             return NaN;
         }
 
+        // ---------- réponses décimales : toujours arrondies au centième ----------
+        // Une valeur décimale s'écrit avec 2 chiffres après la virgule au maximum. Plus de 2 chiffres,
+        // ou une valeur arrondie trop tôt (0,3 au lieu de 0,28), est comptée fausse : « erreur dans les décimales ».
+        // Une fraction (24/25) reste acceptée si elle est exacte.
+        const arrondiCentieme = (x) => Math.sign(x) * Math.round(Number(Math.abs(x * 100).toPrecision(12))) / 100 + 0;
+        const centiemeFR = (x) => String(arrondiCentieme(x)).replace('.', ',');
+        const centiemeTeX = (x) => centiemeFR(x).replace(",", "{,}");
+        const MSG_DECIMALES = 'Erreur dans les décimales : arrondis au centième (2 chiffres après la virgule au maximum).';
+        const CONSIGNE_CENTIEME = '<p class="text-xs text-slate-400"><i data-lucide="info" class="w-3.5 h-3.5 inline -mt-0.5"></i> Valeurs décimales : arrondis au <strong class="text-slate-200">centième</strong> (2 chiffres après la virgule au maximum).</p>';
+        const estDecimal = (x) => typeof x === 'number' && Math.abs(arrondiCentieme(x) - Math.round(x)) > 1e-9;
+        // 'juste', 'decimales', 'faux' ou 'illisible'
+        function comparerCentieme(txt, sol, modulo) {
+            const v = lireNombre(txt);
+            if (Number.isNaN(v)) return 'illisible';
+            let s = sol;
+            if (modulo) s = sol + Math.round((v - sol) / modulo) * modulo;
+            if (txt.includes('/')) return Math.abs(v - s) < 1e-6 ? 'juste' : 'faux';
+            const m = /[.,](\d+)\s*$/.exec(txt.trim()), d = m ? m[1].length : 0;
+            if (d > 2) return 'decimales';
+            if (Math.abs(v - arrondiCentieme(s)) < 1e-9) return 'juste';
+            const p = 10 ** d;
+            if (d < 2 && Math.abs(v - Math.round(s * p) / p) < 1e-9) return 'decimales';
+            return 'faux';
+        }
+        // Valeurs attendues des champs décimaux, ajoutées à la fin d'une correction.
+        function lignesCentiemes(champs) {
+            const dec = champs.filter(c => (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol));
+            if (!dec.length) return '';
+            return `<p class="pt-1 text-violet-200">Valeurs attendues (au centième) : ${dec.map(c => `${c.label ? c.label.replace(/\s*[:=]\s*$/, '') + ' = ' : ''}<strong class="text-white">${centiemeFR(c.sol)}</strong>`).join(' ; ')}</p>`;
+        }
+
         // ---------- moteur d'exercice à réponses numériques ----------
         const EXO_NUM = {};
         const CLASSE_NUM = 'w-36 rounded-lg px-3 py-2 text-sm font-mono text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-amber-400 border ';
@@ -4734,11 +4863,12 @@
             const bouton = (suffixe, clic, cls, icone, texte) => `<button type="button" id="${id}-${suffixe}" onclick="${clic}('${id}')" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all ${cls}"><i data-lucide="${icone}" class="w-4 h-4"></i> ${texte}</button>`;
             document.getElementById(`bloc-${id}-corps`).innerHTML = `
                 ${d.enonce}
+                ${CONSIGNE_CENTIEME}
                 <div class="grid gap-4 sm:grid-cols-2">${champs}</div>
                 <div class="flex flex-wrap gap-2">
                     ${bouton('verifier', 'verifierNum', 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold', 'check-circle-2', 'Vérifier')}
                     ${bouton('reinitialiser', 'reinitialiserNum', 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600', 'rotate-ccw', 'Réinitialiser')}
-                    ${bouton('nouveau', 'nouveauNum', 'bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30', 'refresh-cw', 'Changer les valeurs')}
+                    ${bouton('nouveau', 'nouveauNum', 'bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30', 'refresh-cw', 'Question suivante')}
                     ${bouton('correction', 'corrigerNum', 'bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30', 'eye', 'Correction')}
                 </div>
                 <div id="${id}-solution" hidden class="rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3 text-sm text-violet-100 leading-relaxed space-y-1"></div>`;
@@ -4760,14 +4890,13 @@
                 let etat, texte;
                 if (champ.value.trim() === '') { etat = 'vide'; texte = 'Écris ta réponse dans cette case.'; }
                 else {
-                    const v = lireNombre(champ.value);
-                    if (Number.isNaN(v)) { etat = 'faux'; texte = "Je ne comprends pas ce nombre : écris par exemple -0,33 ou 12,5."; }
-                    else {
-                        const tol = Math.max(c.tolAbs, (c.tolRel || 0.01) * Math.abs(c.sol));
-                        if (Math.abs(v - c.sol) <= tol) { etat = 'juste'; texte = 'Juste.'; }
-                        else if (Math.abs(Math.abs(v) - Math.abs(c.sol)) <= tol && c.sol !== 0) { etat = 'faux'; texte = 'La valeur est bonne, mais attention au signe.'; }
-                        else { etat = 'faux'; texte = "Ce n'est pas la bonne valeur."; }
-                    }
+                    let r = comparerCentieme(champ.value, c.sol);
+                    if (r !== 'juste' && c.alt !== undefined && comparerCentieme(champ.value, c.alt) === 'juste') r = 'juste';
+                    if (r === 'illisible') { etat = 'faux'; texte = "Je ne comprends pas ce nombre : écris par exemple -0,33 ou 12,5."; }
+                    else if (r === 'juste') { etat = 'juste'; texte = 'Juste.'; }
+                    else if (r === 'decimales') { etat = 'faux'; texte = MSG_DECIMALES; }
+                    else if (c.sol !== 0 && comparerCentieme(champ.value, -c.sol) === 'juste') { etat = 'faux'; texte = 'La valeur est bonne, mais attention au signe.'; }
+                    else { etat = 'faux'; texte = "Ce n'est pas la bonne valeur."; }
                 }
                 champ.className = CLASSE_NUM + (etat === 'juste' ? ETATS_CHAMP.juste : etat === 'vide' ? ETATS_CHAMP.vide : ETATS_CHAMP.faux);
                 msg.className = 'text-xs min-h-[1rem] ' + (etat === 'juste' ? 'text-emerald-300' : etat === 'vide' ? 'text-amber-300' : 'text-red-300');
@@ -4788,7 +4917,7 @@
 
         function corrigerNum(id) {
             const d = EXO_NUM[id].donnees, z = document.getElementById(`${id}-solution`);
-            z.innerHTML = '<p class="font-bold text-violet-200">Correction</p>' + d.correction;
+            z.innerHTML = '<p class="font-bold text-violet-200">Correction</p>' + d.correction + lignesCentiemes(d.champs);
             z.hidden = false;
             chargerIconesEtMaths();
         }
@@ -4833,19 +4962,20 @@
                 const engrenements = liens.map((l, i) => ({ i, l })).filter(x => x.l !== 'arbre');
                 const q = choisir(engrenements);
                 const entraxe = q.l === 'ext' ? module * (Z[q.i] + Z[q.i + 1]) / 2 : module * Math.abs(Z[q.i + 1] - Z[q.i]) / 2;
-                const Ns = lambda * Ne, ws = Ns * 2 * Math.PI / 60;
+                // les calculs suivent les valeurs arrondies au centième (le calcul exact reste accepté : alt)
+                const lambdaC = arrondiCentieme(lambda), Ns = arrondiCentieme(lambdaC * Ne), ws = Ns * 2 * Math.PI / 60;
                 const champs = [
-                    { cle: 'lambda', label: 'Rapport de transmission λ (avec son signe)', unite: '', indice: 'ex : -0,5', sol: lambda, tolAbs: 0.015 },
-                    { cle: 'ns', label: 'Vitesse de la roue de sortie N<sub>s</sub>', unite: 'tr/min', indice: 'ex : -750', sol: Ns, tolAbs: 1 },
-                    { cle: 'ws', label: 'Vitesse angulaire de sortie ω<sub>s</sub>', unite: 'rad/s', indice: 'ex : -78,5', sol: ws, tolAbs: 0.1 },
-                    { cle: 'a', label: `Entraxe entre les roues ${q.i + 1} et ${q.i + 2}`, unite: 'mm', indice: 'ex : 72', sol: entraxe, tolAbs: 0.1 }
+                    { cle: 'lambda', label: 'Rapport de transmission λ (avec son signe)', unite: '', indice: 'ex : -0,5', sol: lambda },
+                    { cle: 'ns', label: 'Vitesse de la roue de sortie N<sub>s</sub>', unite: 'tr/min', indice: 'ex : -750', sol: Ns, alt: lambda * Ne },
+                    { cle: 'ws', label: 'Vitesse angulaire de sortie ω<sub>s</sub>', unite: 'rad/s', indice: 'ex : -78,54', sol: ws, alt: lambda * Ne * 2 * Math.PI / 60 },
+                    { cle: 'a', label: `Entraxe entre les roues ${q.i + 1} et ${q.i + 2}`, unite: 'mm', indice: 'ex : 72', sol: entraxe }
                 ];
                 const formule = Z.map((z, i) => (menante[i] ? 'Z<sub>' + (i + 1) + '</sub>' : '')).filter(Boolean).join(' × ') + ' / (' + Z.map((z, i) => (menee[i] ? 'Z<sub>' + (i + 1) + '</sub>' : '')).filter(Boolean).join(' × ') + ')';
                 const valNum = Z.map((z, i) => (menante[i] ? z : null)).filter(x => x !== null).join(' × '), valDen = Z.map((z, i) => (menee[i] ? z : null)).filter(x => x !== null).join(' × ');
-                const correction = `<p>Contacts extérieurs : ${nbExt}, donc λ = (−1)<sup>${nbExt}</sup> × ${formule} = (−1)<sup>${nbExt}</sup> × ${valNum} / (${valDen}) = <strong class="text-white">${nombreFR(lambda, 3)}</strong></p>`
-                    + `<p>N<sub>s</sub> = λ × N<sub>e</sub> = ${nombreFR(lambda, 3)} × ${Ne} = <strong class="text-white">${nombreFR(Ns, 1)} tr/min</strong></p>`
-                    + `<p>ω<sub>s</sub> = N<sub>s</sub> × 2π / 60 = <strong class="text-white">${nombreFR(ws, 2)} rad/s</strong></p>`
-                    + `<p>Entraxe = m × (Z<sub>${q.i + 1}</sub> ${q.l === 'ext' ? '+' : '−'} Z<sub>${q.i + 2}</sub>) / 2 = ${module} × ${q.l === 'ext' ? Z[q.i] + Z[q.i + 1] : Math.abs(Z[q.i + 1] - Z[q.i])} / 2 = <strong class="text-white">${nombreFR(entraxe, 2)} mm</strong></p>`;
+                const correction = `<p>Contacts extérieurs : ${nbExt}, donc λ = (−1)<sup>${nbExt}</sup> × ${formule} = (−1)<sup>${nbExt}</sup> × ${valNum} / (${valDen}) ≈ <strong class="text-white">${centiemeFR(lambda)}</strong></p>`
+                    + `<p>N<sub>s</sub> = λ × N<sub>e</sub> = ${centiemeFR(lambda)} × ${Ne} = <strong class="text-white">${centiemeFR(Ns)} tr/min</strong></p>`
+                    + `<p>ω<sub>s</sub> = N<sub>s</sub> × 2π / 60 = ${centiemeFR(Ns)} × 2π / 60 ≈ <strong class="text-white">${centiemeFR(ws)} rad/s</strong></p>`
+                    + `<p>Entraxe = m × (Z<sub>${q.i + 1}</sub> ${q.l === 'ext' ? '+' : '−'} Z<sub>${q.i + 2}</sub>) / 2 = ${module} × ${q.l === 'ext' ? Z[q.i] + Z[q.i + 1] : Math.abs(Z[q.i + 1] - Z[q.i])} / 2 = <strong class="text-white">${centiemeFR(entraxe)} mm</strong></p>`;
                 const decrit = liens.map((l, i) => l === 'arbre' ? `les roues ${i + 1} et ${i + 2} sont sur le même arbre` : `la roue ${i + 1} engrène avec la roue ${i + 2} (contact ${l === 'ext' ? 'extérieur' : 'intérieur'})`);
                 const enonce = `
                     <p class="text-slate-300 text-sm leading-relaxed">Voici un train d'engrenages de ${k} roues. La roue 1 est l'entrée et la roue ${k} est la sortie. Toutes les roues ont le même module <strong class="text-white">m = ${String(module).replace('.', ',')} mm</strong>, et la roue d'entrée tourne à <strong class="text-white">N<sub>e</sub> = ${Ne} tr/min</strong>.</p>
@@ -4999,17 +5129,18 @@
                 if (Object.values(Z).some(z => z < 10 || z > 90)) continue;
                 const lambda = Math.pow(-1, def.n) * def.calc(Z);
                 if (Math.abs(lambda - 1) < 0.08 || Math.abs(lambda) < 0.08 || Math.abs(lambda) > 12) continue;
-                const cfg = choisir(CONFIGS_EPI), raison = cfg.rel(lambda);
-                if (Math.abs(raison) > 30) continue;
+                // la raison suit λ arrondi au centième (le calcul exact reste accepté : alt)
+                const cfg = choisir(CONFIGS_EPI), raison = cfg.rel(arrondiCentieme(lambda)), raisonExacte = cfg.rel(lambda);
+                if (Math.abs(raison) > 30 || !Number.isFinite(raison)) continue;
                 const nomsZ = def.noms.map(n => `${n.replace(/^Z(\d)(\d)?$/, (m, a, b) => 'Z<sub>' + a + (b || '') + '</sub>')} = ${Z[n]}`).join(', ');
                 const valeurs = def.noms.map(n => Z[n]);
                 const champs = [
-                    { cle: 'type', label: 'Type du train épicycloïdal', unite: '(1, 2, 3 ou 4)', indice: 'ex : 2', sol: type, tolAbs: 0.01 },
-                    { cle: 'lambda', label: 'λ = (ω<sub>3</sub> − ω<sub>4</sub>) / (ω<sub>1</sub> − ω<sub>4</sub>)', unite: '', indice: 'ex : -0,43', sol: lambda, tolAbs: 0.015 },
-                    { cle: 'raison', label: `Raison ω<sub>${cfg.S}</sub> / ω<sub>${cfg.E}</sub>`, unite: '', indice: 'ex : 1,33', sol: raison, tolAbs: 0.015 }
+                    { cle: 'type', label: 'Type du train épicycloïdal', unite: '(1, 2, 3 ou 4)', indice: 'ex : 2', sol: type },
+                    { cle: 'lambda', label: 'λ = (ω<sub>3</sub> − ω<sub>4</sub>) / (ω<sub>1</sub> − ω<sub>4</sub>)', unite: '', indice: 'ex : -0,43', sol: lambda },
+                    { cle: 'raison', label: `Raison ω<sub>${cfg.S}</sub> / ω<sub>${cfg.E}</sub>`, unite: '', indice: 'ex : 1,33', sol: raison, alt: raisonExacte }
                 ];
-                const correction = `<p>Type <strong class="text-white">${type}</strong> : ${DESC_TYPES[type]}.</p><p>Contacts extérieurs : ${def.n}, donc λ = (−1)<sup>${def.n}</sup> × ${def.formule} = <strong class="text-white">${nombreFR(lambda, 3)}</strong></p>`
-                    + `<p>${cfg.texte}.</p><p>Raison ω<sub>${cfg.S}</sub> / ω<sub>${cfg.E}</sub> = <strong class="text-white">${nombreFR(raison, 3)}</strong></p>`;
+                const correction = `<p>Type <strong class="text-white">${type}</strong> : ${DESC_TYPES[type]}.</p><p>Contacts extérieurs : ${def.n}, donc λ = (−1)<sup>${def.n}</sup> × ${def.formule} ≈ <strong class="text-white">${centiemeFR(lambda)}</strong></p>`
+                    + `<p>${cfg.texte}.</p><p>Avec λ = ${centiemeFR(lambda)} : raison ω<sub>${cfg.S}</sub> / ω<sub>${cfg.E}</sub> ≈ <strong class="text-white">${centiemeFR(raison)}</strong></p>`;
                 const enonce = `
                     <p class="text-slate-300 text-sm leading-relaxed">Voici le schéma à bâtons d'un train épicycloïdal (1 : planétaire, 2 ou 21 et 22 : satellites, 3 : couronne ou second planétaire, 4 : porte-satellite). Commence par trouver son <strong class="text-white">type</strong> (1, 2, 3 ou 4, comme dans la leçon).</p>
                     <div class="flex flex-wrap items-center justify-center gap-6">
@@ -5365,10 +5496,12 @@
             for (let b = 0; b < nf; b++) CI_AX.forEach(a => vecs.push(`${a}${b}`));
             const scal = [L.L1, nf === 3 ? L.L2 : v, L.L3].concat(['ψ', 'θ', 'ψ\u0307', 'ψ\u0308', 'θ\u0307', 'θ\u0308']);
             if (nf === 4) scal.push(v + '\u0307', v + '\u0308');
-            const bouton = (txt, ins, cls) => `<button type="button" data-ins="${ins}" class="px-2 py-1 rounded-md text-xs font-mono ${cls} hover:brightness-125 border border-slate-700">${txt}</button>`;
-            const palette = `<div class="space-y-1.5">
-                <div class="flex flex-wrap gap-1">${[...new Set(vecs)].filter(t => !(nf === 4 && t.endsWith('2'))).map(t => bouton(t, t, 'bg-slate-800 text-amber-300')).join('')}</div>
-                <div class="flex flex-wrap gap-1">${scal.map(t => bouton(t, t, 'bg-slate-800 text-sky-300')).join('')}${['cos(', 'sin(', '(', ')', '+', '-', '*', '/'].map(t => bouton(t, t, 'bg-slate-800 text-slate-200')).join('')}<button type="button" data-ins=" ∧ " title="Produit vectoriel" class="px-3 py-0.5 rounded-md text-lg leading-none font-bold bg-violet-500/20 text-violet-200 border border-violet-400/40 hover:brightness-125">∧</button><button type="button" data-ins="^2" title="Exposant (au carré)" class="px-2 py-1 rounded-md text-xs font-mono bg-slate-800 text-slate-200 border border-slate-700 hover:brightness-125">x²</button></div></div>`;
+            const palette = clavierHTML([
+                [...new Set(vecs)].filter(t => !(nf === 4 && t.endsWith('2'))).map(t => toucheClavier(t, t, 'variable')).join(''),
+                scal.map(t => toucheClavier(t, t, 'grandeur')).join(''),
+                ['cos(', 'sin(', '(', ')', '+', '-', '*', '/'].map(t => toucheClavier(t, t, 'operateur')).join('')
+                    + toucheClavier(' ∧ ', '∧', 'special', 'Produit vectoriel') + toucheClavier('^2', 'x²', 'operateur', 'Exposant (au carré)') + toucheEffacer()
+            ]);
             const q = (id, label) => `<div class="space-y-1">
                 <label for="cin-${id}" class="text-sm font-semibold text-slate-200">${label}</label>
                 <input id="cin-${id}" data-q="${id}" type="text" autocomplete="off" spellcheck="false" placeholder="ex : ψ̇*z0" class="${CI_CLASSE}${ETATS_CHAMP.neutre}">
@@ -5400,7 +5533,7 @@
                 <div class="flex flex-wrap gap-2">
                     <button type="button" id="cin-verifier" class="px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
                     <button type="button" id="cin-reinitialiser" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser</button>
-                    <button type="button" id="cin-nouveau" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Nouveau sujet</button>
+                    <button type="button" id="cin-nouveau" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Question suivante</button>
                     <button type="button" id="cin-correction" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-violet-300 border border-violet-500/30"><i data-lucide="eye" class="w-4 h-4"></i> Correction</button>
                 </div>
                 <div id="cin-solution" hidden class="rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3 text-sm text-violet-100 leading-relaxed space-y-3 overflow-x-auto"></div>`;
@@ -5408,10 +5541,11 @@
             if (!corps._pret) {
             corps._pret = true;
             corps.addEventListener('focusin', (ev) => { if (ev.target.matches && ev.target.matches('input[data-q]')) CI.dernier = ev.target; });
-            corps.addEventListener('mousedown', (ev) => { if (ev.target.closest && ev.target.closest('button[data-ins]')) ev.preventDefault(); });
+            corps.addEventListener('mousedown', (ev) => { if (ev.target.closest && ev.target.closest('button[data-ins], button[data-sup]')) ev.preventDefault(); });
             corps.addEventListener('click', (ev) => {
-                const b = ev.target.closest && ev.target.closest('button[data-ins]'); if (!b) return;
-                const c = CI.dernier || document.getElementById('cin-o1'); const d = c.selectionStart == null ? c.value.length : c.selectionStart, f = c.selectionEnd == null ? d : c.selectionEnd;
+                const b = ev.target.closest && ev.target.closest('button[data-ins], button[data-sup]'); if (!b) return;
+                const c = CI.dernier || document.getElementById('cin-o1'); let d = c.selectionStart == null ? c.value.length : c.selectionStart, f = c.selectionEnd == null ? d : c.selectionEnd;
+                if (b.dataset.sup) { if (d === f && d > 0) { d -= 1; if (/[̇̈ ]/.test(c.value[d]) && d > 0) d -= c.value[d] === ' ' && /[̇̈]/.test(c.value[d - 1]) ? 2 : 1; } c.value = c.value.slice(0, d) + c.value.slice(f); c.focus(); c.setSelectionRange(d, d); c.className = CI_CLASSE + ETATS_CHAMP.neutre; return; }
                 const ins = b.dataset.ins + (/[\u0307\u0308]$/.test(b.dataset.ins) ? '\u2002' : ''); c.value = c.value.slice(0, d) + ins + c.value.slice(f); const p = d + ins.length; c.focus(); c.setSelectionRange(p, p);
                 c.className = CI_CLASSE + ETATS_CHAMP.neutre;
             });
@@ -5836,7 +5970,7 @@
                 <div class="rounded-xl bg-slate-950 border border-slate-800 p-4 space-y-3">${q.enonce}</div>
                 <div class="space-y-2"><p class="text-sm font-semibold text-slate-200">Ta réponse${q.type === 'systeme' ? ' (X)' : ''} :</p>
                     <div class="flex flex-wrap items-center gap-4"><div style="display:inline-block;border-left:2px solid #94a3b8;border-right:2px solid #94a3b8;border-radius:8px;padding:0 4px">${grille}</div>${special}</div>
-                    <p class="text-xs text-slate-500">Tu peux écrire des fractions (1/2) ou des décimaux (0,5).</p>
+                    <p class="text-xs text-slate-500">Tu peux écrire des fractions exactes (1/3) ou des décimaux arrondis au centième, 2 chiffres après la virgule au maximum (0,33).</p>
                     <p id="mt-bilan" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p></div>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" id="mt-verifier" class="px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
@@ -5873,15 +6007,15 @@
             } else if (coche) {
                 texte = q.type === 'produit' ? 'Ce produit existe : les tailles sont compatibles.' : 'Cette matrice est inversible (son déterminant n\'est pas nul).';
             } else {
-                let vides = 0, faux = 0;
+                let vides = 0, faux = 0, decimales = 0;
                 for (let i = 0; i < n; i++) for (let j = 0; j < p; j++) {
                     const champ = document.getElementById(`mt-c-${i}-${j}`);
                     if (champ.value.trim() === '') { vides++; marquer(i, j, 'vide'); continue; }
-                    const v = lireNombre(champ.value);
-                    if (!Number.isNaN(v) && Math.abs(v - q.sol[i][j]) <= 0.006) marquer(i, j, 'juste'); else { faux++; marquer(i, j, 'faux'); }
+                    const r = comparerCentieme(champ.value, q.sol[i][j]);
+                    if (r === 'juste') marquer(i, j, 'juste'); else { faux++; marquer(i, j, 'faux'); if (r === 'decimales') decimales++; }
                 }
                 if (vides) texte = `Il reste ${vides} case${vides > 1 ? 's' : ''} vide${vides > 1 ? 's' : ''}.`;
-                else if (faux) texte = `${faux} case${faux > 1 ? 's' : ''} ${faux > 1 ? 'sont fausses' : 'est fausse'}.`;
+                else if (faux) texte = `${faux} case${faux > 1 ? 's' : ''} ${faux > 1 ? 'sont fausses' : 'est fausse'}.${decimales ? ' ' + MSG_DECIMALES : ''}`;
                 else { ok = true; texte = 'Bravo, toutes les cases sont justes !'; }
             }
             bilan.className = 'text-sm min-h-[1.25rem] ' + (ok ? 'text-emerald-300' : 'text-amber-300');
@@ -5938,6 +6072,7 @@
             const corps = document.getElementById(`bloc-${id}-corps`);
             corps.innerHTML = `${chips}
                 <div class="rounded-xl bg-slate-950 border border-slate-800 p-4 space-y-3 text-sm text-slate-300 leading-relaxed overflow-x-auto">${q.enonce}</div>
+                ${q.champs.some(c => (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol)) ? CONSIGNE_CENTIEME : ''}
                 <div class="space-y-3">${exgChamps(id, q)}<p id="${id}-bilan" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p></div>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" id="${id}-verifier" class="px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
@@ -5964,7 +6099,7 @@
             chargerIconesEtMaths();
         }
         function exgVerifier(id) {
-            const e = EXG[id], q = e.q; let vides = 0, faux = 0, total = 0;
+            const e = EXG[id], q = e.q; let vides = 0, faux = 0, total = 0, decimales = 0;
             q.champs.forEach(c => {
                 const nom = `${id}-f-${c.cle}`;
                 if (c.requis === false) return;
@@ -5977,16 +6112,16 @@
                 const champ = document.getElementById(nom);
                 if (c.kind === 'select') { if (!champ.value) { vides++; champ.className = EXG_CLASSE + ETATS_CHAMP.vide; return; } const okS = champ.value === c.sol; champ.className = EXG_CLASSE + (okS ? ETATS_CHAMP.juste : ETATS_CHAMP.faux); if (!okS) faux++; return; }
                 if (champ.value.trim() === '') { vides++; champ.className = EXG_CLASSE + ETATS_CHAMP.vide; return; }
-                const v = lireNombre(champ.value);
-                let ok = false;
-                if (!Number.isNaN(v)) { let d = Math.abs(v - c.sol); if (c.modulo) { d = d % c.modulo; d = Math.min(d, c.modulo - d); } ok = d <= (c.tolAbs === undefined ? 0.006 : c.tolAbs); }
+                const r = comparerCentieme(champ.value, c.sol, c.modulo);
+                const ok = r === 'juste';
                 champ.className = EXG_CLASSE + (ok ? ETATS_CHAMP.juste : ETATS_CHAMP.faux);
                 if (!ok) faux++;
+                if (r === 'decimales') decimales++;
             });
             const bilan = document.getElementById(`${id}-bilan`);
             let texte, ok = false;
             if (vides) texte = `Il reste ${vides} réponse${vides > 1 ? 's' : ''} à donner.`;
-            else if (faux) texte = `${faux} réponse${faux > 1 ? 's sont fausses' : ' est fausse'}.`;
+            else if (faux) texte = `${faux} réponse${faux > 1 ? 's sont fausses' : ' est fausse'}.${decimales ? ' ' + MSG_DECIMALES : ''}`;
             else { ok = true; texte = total > 1 ? 'Bravo, tout est juste !' : 'Bravo, c\'est juste !'; }
             bilan.className = 'text-sm min-h-[1.25rem] ' + (ok ? 'text-emerald-300' : 'text-amber-300'); bilan.textContent = texte;
             if (ok && !e.compte && !e.utilisee) { e.compte = true; e.reussies++; document.getElementById(`${id}-score`).textContent = `Réussies : ${e.reussies}`; }
@@ -6000,7 +6135,7 @@
         }
         function exgCorriger(id) {
             const e = EXG[id]; e.utilisee = true;
-            const z = document.getElementById(`${id}-solution`); z.innerHTML = '<p class="font-bold text-violet-200">Correction</p>' + e.q.correction; z.hidden = false; chargerIconesEtMaths();
+            const z = document.getElementById(`${id}-solution`); z.innerHTML = '<p class="font-bold text-violet-200">Correction</p>' + e.q.correction + lignesCentiemes(e.q.champs); z.hidden = false; chargerIconesEtMaths();
         }
         function exgLancer(id, titre, icone, types, libelles) {
             EXG[id] = { types, libelles: libelles || null, filtre: libelles ? 'tout' : Object.keys(types)[0], q: null, reussies: 0 };
@@ -6260,7 +6395,7 @@
             const r = Math.hypot(x, y); let th = deg(Math.atan2(y, x)); if (th < 0) th += 360;
             return { enonce: `<p>Un point $M$ a pour coordonnées cartésiennes $(${x}\\,;\\,${y})$. Donne ses coordonnées polaires $(r\\,;\\,\\theta)$ avec $r \\geq 0$ et $\\theta \\in [0\\,;\\,360^\\circ[$ (arrondis à $10^{-2}$ ; $\\theta$ en degrés).</p>`,
                 champs: [gNum('r', '$r$ =', r, { groupe: 'Coordonnées polaires', tolAbs: 0.011 }), gNum('th', '$\\theta$ =', th, { groupe: 'Coordonnées polaires', tolAbs: 0.2, modulo: 360, unite: '°' })],
-                correction: `<p>$r = \\sqrt{x^2 + y^2} = \\sqrt{${x * x + y * y}} \\approx ${arrondi(r, 2)}$.</p><p>$\\cos\\theta = \\dfrac{x}{r}$ et $\\sin\\theta = \\dfrac{y}{r}$, donc $\\theta \\approx ${arrondi(th, 1)}^\\circ$.</p>` };
+                correction: `<p>$r = \\sqrt{x^2 + y^2} = \\sqrt{${x * x + y * y}} \\approx ${arrondi(r, 2)}$.</p><p>$\\cos\\theta = \\dfrac{x}{r}$ et $\\sin\\theta = \\dfrac{y}{r}$, donc $\\theta \\approx ${arrondi(th, 2)}^\\circ$.</p>` };
         }
         function rCylindrique() {
             if (Math.random() < 0.5) {
@@ -6273,7 +6408,7 @@
             const z = gInt(-4, 5), r = Math.hypot(x, y); let th = deg(Math.atan2(y, x)); if (th < 0) th += 360;
             return { enonce: `<p>Un point $M$ a pour coordonnées cartésiennes $(${x}\\,;\\,${y}\\,;\\,${z})$. Donne ses coordonnées cylindriques $(r\\,;\\,\\theta\\,;\\,z)$ avec $r \\geq 0$ et $\\theta \\in [0\\,;\\,360^\\circ[$ (arrondis à $10^{-2}$).</p>`,
                 champs: [gNum('r', '$r$ =', r, { groupe: 'Coordonnées cylindriques', tolAbs: 0.011 }), gNum('th', '$\\theta$ =', th, { groupe: 'Coordonnées cylindriques', tolAbs: 0.2, modulo: 360, unite: '°' }), gNum('z', '$z$ =', z, { groupe: 'Coordonnées cylindriques' })],
-                correction: `<p>$r = \\sqrt{x^2 + y^2} \\approx ${arrondi(r, 2)}$, $\\theta \\approx ${arrondi(th, 1)}^\\circ$ (comme en polaire) et $z = ${z}$.</p>` };
+                correction: `<p>$r = \\sqrt{x^2 + y^2} \\approx ${arrondi(r, 2)}$, $\\theta \\approx ${arrondi(th, 2)}^\\circ$ (comme en polaire) et $z = ${z}$.</p>` };
         }
         function rSpherique() {
             const AN = [30, 45, 60, 90, 120, 135, 150];
@@ -6288,7 +6423,7 @@
             const r = Math.sqrt(x * x + y * y + z * z), th = deg(Math.acos(z / r)); let ph = deg(Math.atan2(y, x)); if (ph < 0) ph += 360;
             return { enonce: `<p>Un point $M$ a pour coordonnées cartésiennes $(${x}\\,;\\,${y}\\,;\\,${z})$. Donne ses coordonnées sphériques $(r\\,;\\,\\theta\\,;\\,\\varphi)$ avec $\\theta \\in [0\\,;\\,180^\\circ]$ et $\\varphi \\in [0\\,;\\,360^\\circ[$ (arrondis à $10^{-2}$ ; angles en degrés).</p>`,
                 champs: [gNum('r', '$r$ =', r, { groupe: 'Coordonnées sphériques', tolAbs: 0.011 }), gNum('th', '$\\theta$ =', th, { groupe: 'Coordonnées sphériques', tolAbs: 0.2, unite: '°' }), gNum('ph', '$\\varphi$ =', ph, { groupe: 'Coordonnées sphériques', tolAbs: 0.2, modulo: 360, unite: '°' })],
-                correction: `<p>$r = \\sqrt{x^2 + y^2 + z^2} = \\sqrt{${x * x + y * y + z * z}} \\approx ${arrondi(r, 2)}$.</p><p>$\\cos\\theta = \\dfrac{z}{r}$, donc $\\theta \\approx ${arrondi(th, 1)}^\\circ$. $\\varphi$ vérifie $\\cos\\varphi = \\dfrac{x}{r\\sin\\theta}$ et $\\sin\\varphi = \\dfrac{y}{r\\sin\\theta}$, donc $\\varphi \\approx ${arrondi(ph, 1)}^\\circ$.</p>` };
+                correction: `<p>$r = \\sqrt{x^2 + y^2 + z^2} = \\sqrt{${x * x + y * y + z * z}} \\approx ${arrondi(r, 2)}$.</p><p>$\\cos\\theta = \\dfrac{z}{r}$, donc $\\theta \\approx ${arrondi(th, 2)}^\\circ$. $\\varphi$ vérifie $\\cos\\varphi = \\dfrac{x}{r\\sin\\theta}$ et $\\sin\\varphi = \\dfrac{y}{r\\sin\\theta}$, donc $\\varphi \\approx ${arrondi(ph, 2)}^\\circ$.</p>` };
         }
         // exo V5 : positions relatives de deux droites
         function vDeuxDroites() {
@@ -8460,8 +8595,8 @@
         const M1ANG = [[0, '0', 0], [30, '\\frac{\\pi}{6}', 1 / 6], [45, '\\frac{\\pi}{4}', 1 / 4], [60, '\\frac{\\pi}{3}', 1 / 3], [90, '\\frac{\\pi}{2}', 1 / 2], [120, '\\frac{2\\pi}{3}', 2 / 3], [135, '\\frac{3\\pi}{4}', 3 / 4], [150, '\\frac{5\\pi}{6}', 5 / 6], [180, '\\pi', 1], [210, '\\frac{7\\pi}{6}', 7 / 6], [225, '\\frac{5\\pi}{4}', 5 / 4], [240, '\\frac{4\\pi}{3}', 4 / 3], [270, '\\frac{3\\pi}{2}', 3 / 2], [300, '\\frac{5\\pi}{3}', 5 / 3], [315, '\\frac{7\\pi}{4}', 7 / 4], [330, '\\frac{11\\pi}{6}', 11 / 6]];
         function m1Valeurs() {
             const [d, tex] = choisir(M1ANG), r = d * Math.PI / 180;
-            return { enonce: `<p>Donne les valeurs <strong>décimales</strong> (3 chiffres après la virgule) de $\\cos ${tex}$ et $\\sin ${tex}$.</p>`, champs: [gNum('c', '$\\cos$ =', Math.round(Math.cos(r) * 1e6) / 1e6, { tolAbs: 0.003, groupe: 'Valeurs' }), gNum('s', '$\\sin$ =', Math.round(Math.sin(r) * 1e6) / 1e6, { tolAbs: 0.003, groupe: 'Valeurs' })],
-                correction: `<p>Sur le cercle trigonométrique, le point d'angle $${tex}$ a pour abscisse $\\cos = ${Math.cos(r).toFixed(3)}$ et pour ordonnée $\\sin = ${Math.sin(r).toFixed(3)}$.</p>` };
+            return { enonce: `<p>Donne les valeurs <strong>décimales</strong> (arrondies au centième) de $\\cos ${tex}$ et $\\sin ${tex}$.</p>`, champs: [gNum('c', '$\\cos$ =', Math.round(Math.cos(r) * 1e6) / 1e6, { tolAbs: 0.003, groupe: 'Valeurs' }), gNum('s', '$\\sin$ =', Math.round(Math.sin(r) * 1e6) / 1e6, { tolAbs: 0.003, groupe: 'Valeurs' })],
+                correction: `<p>Sur le cercle trigonométrique, le point d'angle $${tex}$ a pour abscisse $\\cos \\approx ${centiemeTeX(Math.cos(r))}$ et pour ordonnée $\\sin \\approx ${centiemeTeX(Math.sin(r))}$ (au centième).</p>` };
         }
         function m1Radians() {
             const [d, tex, v] = choisir(M1ANG.slice(1, 12));
@@ -8559,7 +8694,7 @@
         }
         function m1CxModule() {
             const [p, q, h] = choisir([[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17], [1, 1, 0]]);
-            if (h === 0) { const k = gInt(1, 4); return { enonce: `<p>Module de $z = ${k} ${m1S('+')} ${k}i$ ? (donne la valeur décimale)</p>`, champs: [gNum('m', '$|z|$ =', k * Math.SQRT2, { tolAbs: 0.01 })], correction: `<p>$|z| = ${k}\\sqrt2 \\approx ${(k * Math.SQRT2).toFixed(2)}$.</p>` }; }
+            if (h === 0) { const k = gInt(1, 4); return { enonce: `<p>Module de $z = ${k} ${m1S('+')} ${k}i$ ? (donne la valeur décimale)</p>`, champs: [gNum('m', '$|z|$ =', k * Math.SQRT2, { tolAbs: 0.01 })], correction: `<p>$|z| = ${k}\\sqrt2 \\approx ${centiemeTeX(k * Math.SQRT2)}$.</p>` }; }
             const a = p * gSigne(), b = q * gSigne();
             return { enonce: `<p>Pour $z = ${m1Cx(a, b)}$, donne le module et le conjugué.</p>`, champs: [gNum('m', '$|z|$ =', h, { groupe: 'Module' }), gNum('cb', 'Partie imaginaire de $\\bar z$ =', -b, { groupe: 'Conjugué' })], correction: `<p>$|z| = \\sqrt{${a * a} + ${b * b}} = ${h}$ et $\\bar z = ${m1Cx(a, -b)}$.</p>` };
         }
@@ -8597,7 +8732,7 @@
         // ---- 9. Calcul intégral ----
         function m1IntPoly() {
             const a = gInt(1, 3), b = gInt(-3, 3), c = gInt(-3, 3), x0 = 0, x1 = gInt(1, 3), v = a * x1 * x1 * x1 / 3 + b * x1 * x1 / 2 + c * x1;
-            return { enonce: `<p>Calcule $\\displaystyle\\int_0^{${x1}} (${m1Poly([a, b, c])})\\,dx$ (fraction ou décimal).</p>`, champs: [gNum('r', 'Valeur =', v, { indice: 'ex : 7/3' })], correction: `<p>Primitive : $F(x) = \\dfrac{${a}x^3}{3} + \\dfrac{${b}x^2}{2} + ${c}x$, donc $F(${x1}) - F(0) = ${Math.round(v * 6) / 6}$.</p>` };
+            return { enonce: `<p>Calcule $\\displaystyle\\int_0^{${x1}} (${m1Poly([a, b, c])})\\,dx$ (fraction ou décimal).</p>`, champs: [gNum('r', 'Valeur =', v, { indice: 'ex : 7/3' })], correction: `<p>Primitive : $F(x) = \\dfrac{${a}x^3}{3} + \\dfrac{${b}x^2}{2} + ${c}x$, donc $F(${x1}) - F(0) = ${m1F(Math.round(v * 6), 6)}${estDecimal(v) ? ` \\approx ${centiemeTeX(v)}` : ''}$.</p>` };
         }
         function m1IntUsuelle() {
             const t = choisir(['sin', 'cos', 'ln', 'moy']);
@@ -8643,7 +8778,7 @@
         function m1FourierBase() {
             if (Math.random() < 0.5) { const f = choisir([50, 100, 250, 1000]), T = 1 / f; return { enonce: `<p>Un signal périodique a pour période $T = ${String(T).replace('.', ',')}$ s. Donne sa fréquence $f$ (Hz) et sa pulsation $\\omega = k\\pi$ (rad/s) : donne $k$.</p>`, champs: [gNum('f', '$f$ (Hz) =', f, { groupe: 'Fréquence et pulsation' }), gNum('k', '$k$ =', 2 * f, { groupe: 'Fréquence et pulsation' })], correction: `<p>$f = \\dfrac1T = ${f}$ Hz et $\\omega = 2\\pi f = ${2 * f}\\pi$ rad/s.</p>` }; }
             const K = gInt(2, 8), al = choisir([0.25, 0.5, 0.2, 0.75]);
-            return { enonce: `<p>Un signal périodique vaut $${K}$ pendant une fraction ${al * 100}&nbsp;% de la période, et $0$ le reste du temps. Quelle est sa valeur moyenne $a_0$ ?</p>`, champs: [gNum('a', '$a_0$ =', K * al)], correction: `<p>$a_0 = \\dfrac1T\\int_0^T f = ${K}\\times${al} = ${K * al}$.</p>` };
+            return { enonce: `<p>Un signal périodique vaut $${K}$ pendant une fraction ${al * 100}&nbsp;% de la période, et $0$ le reste du temps. Quelle est sa valeur moyenne $a_0$ ?</p>`, champs: [gNum('a', '$a_0$ =', K * al)], correction: `<p>$a_0 = \\dfrac1T\\int_0^T f = ${K}\\times${centiemeTeX(al)} = ${centiemeTeX(K * al)}$.</p>` };
         }
         function m1Harm() {
             const [p, q, h] = choisir([[3, 4, 5], [5, 12, 13], [6, 8, 10]]);
