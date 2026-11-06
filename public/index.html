@@ -687,7 +687,8 @@
         "MATHS": [
             { num: "Fonction", titre: "Développement Limité", desc: "Étude de x -> 0, ordre 1, 2, 3...", lecon: "maths-dl", exo: "maths-dl-usuels" },
             { num: "Matrice", titre: "Les Matrices", desc: "Tableaux, somme et produit.", lecon: "maths-matrices", exo: "maths-matrices" },
-            { num: "Géométrie", titre: "Calcul vectoriel - Droites - Plans", desc: "Reprise des cours, étude de 2 vecteurs, 3 vecteurs.", lecon: "maths-vecto", exo: "maths-vecto-coord" }
+            { num: "Géométrie", titre: "Calcul vectoriel - Droites - Plans", desc: "Reprise des cours, étude de 2 vecteurs, 3 vecteurs.", lecon: "maths-vecto", exo: "maths-vecto-coord" },
+            { num: "Géométrie", titre: "Barycentres, produit scalaire et vectoriel", desc: "Barycentres, produit scalaire, Al-Kashi, plans, produit vectoriel et produit mixte.", lecon: "maths-geo", exo: "maths-geo-bary" }
         ]
     }
 };
@@ -5403,6 +5404,83 @@
             return null;
         }
 
+        // ---------- correction comme en cours : bases mélangées, changement de base seulement si besoin ----------
+        // On dérive OC terme à terme dans R0 (d u_k/dt = Ω(R_k/R0) ∧ u_k). Un produit vectoriel entre deux
+        // bases différentes utilise d'abord un axe commun (z0 = z1) ; sinon le vecteur de la base la plus
+        // haute est transféré vers la base inférieure, une étape à la fois.
+        // Vecteur = { 'k:i': polynôme } (composante sur l'axe i de la base k).
+        const mvAdd = (a, b) => { const r = Object.assign({}, a); Object.keys(b).forEach(c => { r[c] = pAdd(r[c] || {}, b[c]); if (!Object.keys(r[c]).length) delete r[c]; }); return r; };
+        const mvScal = (p, a) => { const r = {}; Object.keys(a).forEach(c => { const q = pMul(p, a[c]); if (Object.keys(q).length) r[c] = q; }); return r; };
+        const mvUnit = (k, i) => ({ [k + ':' + i]: pCst(1) });
+        const ciVitesseAng = (st) => (st.c === 'cps' ? 'psip' : 'thetap');
+        // l'axe i est le même dans les bases j et k (seulement des rotations autour de lui, ou des translations)
+        function ciAxeCommun(cfg, i, j, k) {
+            for (let s = Math.min(j, k); s < Math.max(j, k); s++) { const st = cfg.steps[s]; if (st.type === 'rot' && st.e !== i) return false; }
+            return true;
+        }
+        // produit vectoriel de deux axes d'une même base b
+        function ciCroixBase(b, i, m) {
+            if (i === m) return {};
+            return m === (i + 1) % 3 ? mvUnit(b, (i + 2) % 3) : mvScal(pCst(-1), mvUnit(b, (i + 1) % 3));
+        }
+        // axe m de la base k exprimé dans la base k-1 (transfert noté dans « transferts »)
+        function ciDescendre(cfg, k, m, transferts) {
+            const st = cfg.steps[k - 1];
+            if (st.type !== 'rot' || st.e === m) return mvUnit(k - 1, m);
+            const p = (st.e + 1) % 3, q = (st.e + 2) % 3, C = pSym(st.c), S = pSym(st.s);
+            transferts.add(k + ':' + m);
+            return m === p ? mvAdd(mvScal(C, mvUnit(k - 1, p)), mvScal(S, mvUnit(k - 1, q)))
+                : mvAdd(mvScal(pNeg(S), mvUnit(k - 1, p)), mvScal(C, mvUnit(k - 1, q)));
+        }
+        // (axe i de la base j) ∧ (axe m de la base k)
+        function ciCroixAxes(cfg, j, i, k, m, transferts) {
+            if (j > k) return mvScal(pCst(-1), ciCroixAxes(cfg, k, m, j, i, transferts));
+            if (j === k || ciAxeCommun(cfg, i, j, k)) return ciCroixBase(k, i, m);
+            if (ciAxeCommun(cfg, m, j, k)) return ciCroixBase(j, i, m);
+            const bas = ciDescendre(cfg, k, m, transferts);
+            let r = {};
+            Object.keys(bas).forEach(c => { const [kk, mm] = c.split(':').map(Number); r = mvAdd(r, mvScal(bas[c], ciCroixAxes(cfg, j, i, kk, mm, transferts))); });
+            return r;
+        }
+        // d(axe i de la base k)/dt dans R0 = Ω(R_k/R0) ∧ u, avec Ω(R_k/R0) = somme des rotations des étapes inférieures
+        function ciDeriveeUnitaire(cfg, k, i, suivi) {
+            let r = {};
+            for (let s = 0; s < k; s++) {
+                const st = cfg.steps[s];
+                if (st.type === 'rot') r = mvAdd(r, mvScal(pSym(ciVitesseAng(st)), ciCroixAxes(cfg, s, st.e, k, i, suivi.transferts)));
+            }
+            if (k > 0 && !suivi.derivees.has(k + ':' + i)) suivi.derivees.set(k + ':' + i, r);
+            return r;
+        }
+        function ciDeriverR0(cfg, v, suivi) {
+            let r = {};
+            Object.keys(v).forEach(c => {
+                const [k, i] = c.split(':').map(Number);
+                r = mvAdd(r, { [c]: pDer(v[c]) });
+                r = mvAdd(r, mvScal(v[c], ciDeriveeUnitaire(cfg, k, i, suivi)));
+            });
+            Object.keys(r).forEach(c => { r[c] = pReduire(r[c]); if (!Object.keys(r[c]).length) delete r[c]; });
+            return r;
+        }
+        function ciCalculCours(cfg) {
+            const n = cfg.nf - 1, suivi = { transferts: new Set(), derivees: new Map() };
+            let OC = mvScal(pSym(cfg.noms.L1), mvUnit(0, cfg.a0));
+            OC = mvAdd(OC, mvScal(cfg.nf === 3 ? pSym(cfg.noms.L2) : pSym('s'), mvUnit(1, cfg.a1)));
+            OC = mvAdd(OC, mvScal(pSym(cfg.noms.L3), mvUnit(n, cfg.a2)));
+            const V = ciDeriverR0(cfg, OC, suivi), G = ciDeriverR0(cfg, V, suivi);
+            return { OC, V, G, transferts: suivi.transferts, derivees: suivi.derivees };
+        }
+        // vecteur en bases mélangées → LaTeX (bases rangées de la plus basse à la plus haute)
+        function ciTexMv(v, cfg) {
+            const cles = Object.keys(v).map(c => c.split(':').map(Number)).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+            if (!cles.length) return '\\vec{0}';
+            return cles.map(([k, i], idx) => {
+                const p = v[k + ':' + i], n = Object.keys(p).length, tex = ciTexPoly(p, cfg);
+                const neg = n === 1 && tex.startsWith('-'), c = neg ? tex.slice(1) : (n > 1 ? `\\left(${tex}\\right)` : tex);
+                return (idx === 0 ? (neg ? '-' : '') : (neg ? ' - ' : ' + ')) + (c === '1' ? '' : c + '\\,') + `\\vec{${CI_AX[i]}}_{${k}}`;
+            }).join('');
+        }
+
         // ---------- mise en forme LaTeX ----------
         function ciTexSym(n, cfg) {
             const v = cfg.varLettre;
@@ -5590,21 +5668,28 @@
             lignes.push(`<p class="font-bold text-violet-200">Correction</p>`);
             lignes.push(`<p><strong>1. Vecteurs rotation.</strong></p>`);
             lignes.push(`<div class="overflow-x-auto">$$\\vec{\\Omega}(R_1/R_0) = \\dot{\\psi}\\,\\vec{${ax[cfg.e1]}}_0 \\qquad \\vec{\\Omega}(R_${rel2[0]}/R_${rel2[1]}) = \\dot{\\theta}\\,\\vec{${ax[cfg.e2]}}_${rel2[1]} \\qquad \\vec{\\Omega}(R_${n}/R_0) = \\dot{\\psi}\\,\\vec{${ax[cfg.e1]}}_0 + \\dot{\\theta}\\,\\vec{${ax[cfg.e2]}}_${rel2[1]}$$</div>`);
-            lignes.push(`<p><strong>2. Changements de base</strong> (d'après les figures) : on exprime tout dans la base de R<sub>${n}</sub>.</p>`);
-            const rels = [];
-            const dessus = (e, k, c, s, ang) => {
-                const p = ax[(e + 1) % 3], q = ax[(e + 2) % 3];
-                return `\\vec{${p}}_${k} = \\cos${ang}\\,\\vec{${p}}_${k + 1} - \\sin${ang}\\,\\vec{${q}}_${k + 1} \\qquad \\vec{${q}}_${k} = \\sin${ang}\\,\\vec{${p}}_${k + 1} + \\cos${ang}\\,\\vec{${q}}_${k + 1} \\qquad \\vec{${ax[e]}}_${k} = \\vec{${ax[e]}}_${k + 1}`;
-            };
-            rels.push(dessus(cfg.e1, 0, 'cps', 'sps', '\\psi'));
-            rels.push(dessus(cfg.e2, nf === 3 ? 1 : 2, 'cth', 'sth', '\\theta'));
-            lignes.push(`<div class="overflow-x-auto">$$\\begin{aligned}${rels.join('\\\\')}\\end{aligned}$$</div>`);
-            lignes.push(`<p><strong>3. Vecteur position</strong> dans la base de R<sub>${n}</sub> :</p>`);
-            lignes.push(`<div class="overflow-x-auto">$$\\overrightarrow{OC} = ${ciTexVec(sy.OC, cfg, n)}$$</div>`);
-            lignes.push(`<p><strong>4. Vitesse</strong> : $\\vec{V}(C/R_0) = \\dfrac{d\\overrightarrow{OC}}{dt}\\Big|_{R_${n}} + \\vec{\\Omega}(R_${n}/R_0) \\wedge \\overrightarrow{OC}$</p>`);
-            lignes.push(`<div class="overflow-x-auto">$$\\vec{V}(C/R_0) = ${ciTexVec(sy.V, cfg, n)}$$</div>`);
-            lignes.push(`<p><strong>5. Accélération</strong> : $\\vec{\\Gamma}(C/R_0) = \\dfrac{d\\vec{V}}{dt}\\Big|_{R_${n}} + \\vec{\\Omega}(R_${n}/R_0) \\wedge \\vec{V}$</p>`);
-            lignes.push(`<div class="overflow-x-auto">$$\\vec{\\Gamma}(C/R_0) = ${ciTexVec(sy.G, cfg, n)}$$</div>`);
+            const cc = ciCalculCours(cfg);
+            lignes.push(`<p><strong>2. Vecteur position</strong> : on garde chaque terme dans sa base (pas de changement de base).</p>`);
+            lignes.push(`<div class="overflow-x-auto">$$\\overrightarrow{OC} = \\overrightarrow{OA} + \\overrightarrow{AB} + \\overrightarrow{BC} = ${ciTexMv(cc.OC, cfg)}$$</div>`);
+            // dérivées des vecteurs unitaires utilisées, et changements de base devenus nécessaires (vers la base inférieure)
+            const omega = (k) => { const t = []; for (let s = 0; s < k; s++) if (cfg.steps[s].type === 'rot') t.push(`${ciVitesseAng(cfg.steps[s]) === 'psip' ? '\\dot{\\psi}' : '\\dot{\\theta}'}\\,\\vec{${ax[cfg.steps[s].e]}}_${s}`); return t.join(' + '); };
+            const derivs = [...cc.derivees.entries()].map(([c, r]) => { const [k, i] = c.split(':').map(Number); return [k, i, r]; }).sort((a, b) => a[0] - b[0] || a[1] - b[1])
+                .map(([k, i, r]) => `\\dfrac{d\\vec{${ax[i]}}_${k}}{dt}\\Big|_{R_0} = \\left(${omega(k)}\\right) \\wedge \\vec{${ax[i]}}_${k} = ${ciTexMv(r, cfg)}`);
+            lignes.push(`<p><strong>3. Dérivées des vecteurs unitaires</strong> dans R<sub>0</sub> : $\\dfrac{d\\vec{u}}{dt}\\Big|_{R_0} = \\vec{\\Omega}(R_k/R_0) \\wedge \\vec{u}$ pour un vecteur $\\vec{u}$ de R<sub>k</sub>. Les vecteurs de R<sub>0</sub> sont fixes.</p>`);
+            lignes.push(`<div class="overflow-x-auto">$$\\begin{aligned}${derivs.join('\\\\')}\\end{aligned}$$</div>`);
+            if (cc.transferts.size) {
+                const rels = [...cc.transferts].map(c => c.split(':').map(Number)).sort((a, b) => b[0] - a[0] || a[1] - b[1]).map(([k, m]) => {
+                    const st = cfg.steps[k - 1], p = (st.e + 1) % 3, q = (st.e + 2) % 3, ang = st.c === 'cps' ? '\\psi' : '\\theta';
+                    return m === p ? `\\vec{${ax[p]}}_${k} = \\cos${ang}\\,\\vec{${ax[p]}}_${k - 1} + \\sin${ang}\\,\\vec{${ax[q]}}_${k - 1}`
+                        : `\\vec{${ax[q]}}_${k} = -\\sin${ang}\\,\\vec{${ax[p]}}_${k - 1} + \\cos${ang}\\,\\vec{${ax[q]}}_${k - 1}`;
+                });
+                lignes.push(`<p>Changement de base nécessaire (d'après les figures), vers le repère inférieur, pour un produit vectoriel entre deux bases différentes :</p>`);
+                lignes.push(`<div class="overflow-x-auto">$$\\begin{aligned}${rels.join('\\\\')}\\end{aligned}$$</div>`);
+            } else lignes.push(`<p>Aucun changement de base n'est nécessaire : les axes de rotation sont communs aux deux repères (par exemple $\\vec{${ax[cfg.e1]}}_0 = \\vec{${ax[cfg.e1]}}_1$).</p>`);
+            lignes.push(`<p><strong>4. Vitesse</strong> : on dérive $\\overrightarrow{OC}$ terme à terme dans R<sub>0</sub>, $\\vec{V}(C/R_0) = \\dfrac{d\\overrightarrow{OC}}{dt}\\Big|_{R_0}$</p>`);
+            lignes.push(`<div class="overflow-x-auto">$$\\vec{V}(C/R_0) = ${ciTexMv(cc.V, cfg)}$$</div>`);
+            lignes.push(`<p><strong>5. Accélération</strong> : on dérive $\\vec{V}$ de la même façon, $\\vec{\\Gamma}(C/R_0) = \\dfrac{d\\vec{V}(C/R_0)}{dt}\\Big|_{R_0}$</p>`);
+            lignes.push(`<div class="overflow-x-auto">$$\\vec{\\Gamma}(C/R_0) = ${ciTexMv(cc.G, cfg)}$$</div>`);
             lignes.push(`<p class="text-xs text-violet-300/80">Tu peux écrire ces résultats dans une autre base, ou en mélangeant plusieurs bases : ils sont acceptés s'ils sont égaux à ceux-ci.</p>`);
             const z = document.getElementById('cin-solution'); z.innerHTML = lignes.join(''); z.hidden = false; chargerIconesEtMaths();
         }
@@ -6455,6 +6540,230 @@
         VCX('maths-vecto-param', 'Droites et plans', 'Équations paramétriques de droites et de plans', { id: 'vpa', types: { droite: vDroite, plan: vPlan }, libelles: { tout: 'Tout', droite: 'Droites', plan: 'Plans' } }, 'route');
         VCX('maths-vecto-repere', 'Repères', 'Changements de repères', { id: 'vre', types: { pol: rPolaire, cyl: rCylindrique, sph: rSpherique }, libelles: { tout: 'Tout', pol: 'Polaire', cyl: 'Cylindrique', sph: 'Sphérique' } }, 'compass');
         VCX('maths-vecto-droites', 'Deux droites', "Position relative de deux droites de l'espace", { id: 'vdr', types: { d: vDeuxDroites } }, 'git-compare');
+
+        // ==========================================
+        // Maths 2ème année • Barycentres, produit scalaire, produit vectoriel : leçon et exercices
+        // ==========================================
+        const gFr = (n, d = 1) => gTexF(mxFrac(n, d));
+        const gNb = (x) => (Number.isInteger(x) ? gTexNb(x) : centiemeTeX(x));
+        const gNorme = (v) => Math.sqrt(dot(v, v));
+        const gPoids = (k) => { let p; do { p = Array.from({ length: k }, () => { let x; do { x = gInt(-3, 5); } while (x === 0); return x; }); } while (p.reduce((s, x) => s + x, 0) === 0); return p; };
+        const gNonNul = (lo, hi, n) => { let v; do { v = vRand(lo, hi, n); } while (v.every(x => x === 0)); return v; };
+        const gProduitTex = (a, b) => a.map((x, i) => `${gTexNb(x)} \\times ${gTexNb(b[i])}`).join(' + ');
+
+        // ---------- barycentres ----------
+        function gBarPos() {
+            const [a, b] = gPoids(2), s = a + b;
+            return { enonce: `<p>Soit $[AB]$ un segment et $G$ le barycentre de $(A\\,;\\,${a})$ et $(B\\,;\\,${b})$. Donne le réel $k$ tel que $\\overrightarrow{AG} = k\\,\\overrightarrow{AB}$ (fraction ou décimal).</p>`,
+                champs: [gNum('k', '$k$ =', b / s, { indice: 'ex : 2/5' })],
+                correction: `<p>$${a}\\,\\overrightarrow{GA} ${b < 0 ? '-' : '+'} ${Math.abs(b)}\\,\\overrightarrow{GB} = \\vec{0}$. Avec Chasles, $\\overrightarrow{GB} = \\overrightarrow{GA} + \\overrightarrow{AB}$ :</p><p>$${s}\\,\\overrightarrow{GA} ${b < 0 ? '-' : '+'} ${Math.abs(b)}\\,\\overrightarrow{AB} = \\vec{0}$, donc $\\overrightarrow{AG} = \\dfrac{\\beta}{\\alpha + \\beta}\\,\\overrightarrow{AB} = ${gFr(b, s)}\\,\\overrightarrow{AB}$.</p>` };
+        }
+        function gBarCoord(n, dim) {
+            const p = gPoids(n), s = p.reduce((t, x) => t + x, 0), noms = ['A', 'B', 'C'].slice(0, n);
+            const P = noms.map(() => vRand(-5, 5, dim)), axes = ['x', 'y', 'z'].slice(0, dim);
+            const G = axes.map((_, i) => p.reduce((t, w, k) => t + w * P[k][i], 0) / s);
+            const syst = noms.map((nm, k) => `(${nm}\\,;\\,${p[k]})`).join(',\\ ');
+            const lignes = axes.map((ax, i) => `$${ax}_G = \\dfrac{${p.map((w, k) => `${gTexNb(w)} \\times ${gTexNb(P[k][i])}`).join(' + ')}}{${s}} = ${gFr(p.reduce((t, w, k) => t + w * P[k][i], 0), s)}$`);
+            return { enonce: `<p>Dans un repère orthonormé ${dim === 2 ? 'du plan' : 'de l\'espace'}, on donne ${noms.map((nm, k) => `$${pt(nm, P[k])}$`).join(', ')}. Donne les coordonnées du barycentre $G$ de $${syst}$.</p>`,
+                champs: coord('g', axes, G, 'Coordonnées de $G$', { indice: 'ex : 7/3' }),
+                correction: `<p>La somme des poids vaut $${s} \\neq 0$, donc $G$ existe.</p><p>${lignes.join('</p><p>')}</p>` };
+        }
+        function gBalance() {
+            const m = choisir([60, 80, 90, 120, 150, 200]), d1 = gInt(2, 8), d2 = gInt(1, 6), M = m * d2 / d1;
+            return { enonce: `<p>Une balance est en équilibre sur son pivot $G$. À gauche, une masse $M$ est posée à $${d1}$ m du pivot ; à droite, une masse de $${m}$ kg est posée à $${d2}$ m du pivot. Combien vaut $M$ (en kg) ?</p>`,
+                champs: [gNum('m', '$M$ =', M, { unite: 'kg' })],
+                correction: `<p>$G$ est le barycentre de $(A\\,;\\,M)$ et $(B\\,;\\,${m})$ : $M\\,\\overrightarrow{GA} + ${m}\\,\\overrightarrow{GB} = \\vec{0}$. Les vecteurs sont de sens contraires, donc $M \\times ${d1} = ${m} \\times ${d2}$.</p><p>$M = \\dfrac{${m} \\times ${d2}}{${d1}} = ${gNb(M)}$ kg.</p>` };
+        }
+
+        // ---------- produit scalaire ----------
+        function gScalCoord() {
+            const dim = Math.random() < 0.4 ? 2 : 3, u = gNonNul(-4, 4, dim), v = gNonNul(-4, 4, dim), r = dot(u, v);
+            return { enonce: `<p>Dans une base orthonormée, on donne $\\vec{u}${gTexV(u)}$ et $\\vec{v}${gTexV(v)}$. Calcule $\\vec{u}\\cdot\\vec{v}$, puis la norme de $\\vec{u}$.</p>`,
+                champs: [gNum('ps', '$\\vec{u}\\cdot\\vec{v}$ =', r, { groupe: 'Produit scalaire et norme' }), gNum('n', '$\\|\\vec{u}\\|$ =', gNorme(u), { groupe: 'Produit scalaire et norme' })],
+                correction: `<p>$\\vec{u}\\cdot\\vec{v} = ${gProduitTex(u, v)} = ${r}$.</p><p>$\\|\\vec{u}\\| = \\sqrt{${u.map(x => gTexNb(x) + '^2').join(' + ')}} = \\sqrt{${dot(u, u)}} ${Number.isInteger(gNorme(u)) ? '=' : '\\approx'} ${gNb(gNorme(u))}$.</p>` };
+        }
+        function gScalAngle() {
+            let u, v; do { u = gNonNul(-4, 4, 2); v = gNonNul(-4, 4, 2); } while (colin(u, v));
+            const c = dot(u, v) / (gNorme(u) * gNorme(v)), ang = Math.acos(c) * 180 / Math.PI;
+            return { enonce: `<p>Dans une base orthonormée du plan, $\\vec{u}${gTexV(u)}$ et $\\vec{v}${gTexV(v)}$. Donne la mesure de l'angle $(\\vec{u}, \\vec{v})$ dans $[0\\,;\\,180^\\circ]$, en degrés.</p>`,
+                champs: [gNum('a', 'Angle =', ang, { unite: '°' })],
+                correction: `<p>$\\cos(\\vec{u}, \\vec{v}) = \\dfrac{\\vec{u}\\cdot\\vec{v}}{\\|\\vec{u}\\|\\,\\|\\vec{v}\\|} = \\dfrac{${dot(u, v)}}{\\sqrt{${dot(u, u)}}\\,\\sqrt{${dot(v, v)}}} \\approx ${centiemeTeX(c)}$</p><p>donc l'angle vaut $\\arccos(\\ldots) \\approx ${centiemeTeX(ang)}^\\circ$ (calcule l'arccos avec la valeur exacte, pas avec le cosinus arrondi).</p>` };
+        }
+        function gScalOrtho() {
+            const u = gNonNul(-3, 3, 3); let v;
+            if (Math.random() < 0.5) { do { v = cross(u, gNonNul(-2, 2, 3)); } while (v.every(x => x === 0)); } else { do { v = gNonNul(-3, 3, 3); } while (dot(u, v) === 0); }
+            const r = dot(u, v);
+            return { enonce: `<p>Les vecteurs $\\vec{u}${gTexV(u)}$ et $\\vec{v}${gTexV(v)}$ sont-ils orthogonaux ?</p>`,
+                champs: [gNum('ps', '$\\vec{u}\\cdot\\vec{v}$ =', r, { groupe: 'Produit scalaire' }), gChoix('o', r === 0 ? 'oui' : 'non', OUINON, { groupe: 'Orthogonaux ?' })],
+                correction: `<p>$\\vec{u}\\cdot\\vec{v} = ${gProduitTex(u, v)} = ${r}$ : ${r === 0 ? 'il est nul, les vecteurs sont <strong class="text-white">orthogonaux</strong>' : 'il n\'est pas nul, les vecteurs <strong class="text-white">ne sont pas orthogonaux</strong>'}.</p>` };
+        }
+        function gAlKashi() {
+            const b = gInt(2, 9), c = gInt(2, 9), A = choisir([30, 40, 50, 60, 75, 100, 110, 120, 135]);
+            const a2 = b * b + c * c - 2 * b * c * Math.cos(A * Math.PI / 180), a = Math.sqrt(a2);
+            return { enonce: `<p>Dans un triangle $ABC$, on a $AB = ${c}$ cm, $AC = ${b}$ cm et $\\widehat{A} = ${A}^\\circ$. Calcule $BC$ (en cm).</p>`,
+                champs: [gNum('a', '$BC$ =', a, { unite: 'cm' })],
+                correction: `<p>Formule d'Al-Kashi : $BC^2 = AB^2 + AC^2 - 2\\,AB\\,AC\\cos\\widehat{A} = ${c * c} + ${b * b} - ${2 * b * c}\\cos ${A}^\\circ \\approx ${centiemeTeX(a2)}$</p><p>donc $BC \\approx ${centiemeTeX(a)}$ cm.</p>` };
+        }
+        function gPlanNormal() {
+            const A = vRand(-3, 3), B = vRand(-3, 3); let C; do { C = vRand(-3, 3); } while (C.every((x, i) => x === B[i]));
+            const n = vSum(C, B, -1), d = -dot(n, A);
+            return { enonce: `<p>On donne $${pt('A', A)}$, $${pt('B', B)}$ et $${pt('C', C)}$. Donne l'équation cartésienne $ax + by + cz + d = 0$ du plan passant par $A$ et orthogonal à $(BC)$, avec $(a\\,;\\,b\\,;\\,c) = \\overrightarrow{BC}$.</p>`,
+                champs: coord('p', ['a', 'b', 'c', 'd'], [...n, d], 'Coefficients'),
+                correction: `<p>$\\overrightarrow{BC}${gTexV(n)}$ est un vecteur normal. $M(x\\,;\\,y\\,;\\,z)$ est dans le plan si $\\overrightarrow{AM}\\cdot\\overrightarrow{BC} = 0$ :</p><p>$${gTexNb(n[0])}(x ${A[0] < 0 ? '+' : '-'} ${Math.abs(A[0])}) + ${gTexNb(n[1])}(y ${A[1] < 0 ? '+' : '-'} ${Math.abs(A[1])}) + ${gTexNb(n[2])}(z ${A[2] < 0 ? '+' : '-'} ${Math.abs(A[2])}) = 0$, donc $d = -(a x_A + b y_A + c z_A) = ${d}$.</p>` };
+        }
+        function gDistPlan() {
+            const n = gNonNul(-3, 3, 3), A = vRand(-3, 3), d = -dot(n, A), M = vRand(-4, 4), AM = vSum(M, A, -1), dist = Math.abs(dot(n, AM)) / gNorme(n);
+            const eq = `${n.map((k, i) => (k === 0 ? null : `${k < 0 ? '-' : '+'} ${Math.abs(k) === 1 ? '' : Math.abs(k)}${'xyz'[i]}`)).filter(Boolean).join(' ').replace(/^\+ /, '')} ${d < 0 ? '-' : '+'} ${Math.abs(d)} = 0`;
+            return { enonce: `<p>Le plan $(\\mathcal{P})$ a pour équation $${eq}$ et passe par $${pt('A', A)}$. Calcule la distance du point $${pt('M', M)}$ au plan.</p>`,
+                champs: [gNum('d', '$d(M, \\mathcal{P})$ =', dist)],
+                correction: `<p>$\\vec{n}${gTexV(n)}$ est normal au plan et $\\overrightarrow{AM}${gTexV(AM)}$.</p><p>$d = \\dfrac{|\\vec{n}\\cdot\\overrightarrow{AM}|}{\\|\\vec{n}\\|} = \\dfrac{|${dot(n, AM)}|}{\\sqrt{${dot(n, n)}}} ${Number.isInteger(dist) ? '=' : '\\approx'} ${gNb(dist)}$.</p>` };
+        }
+
+        // ---------- produit vectoriel et mixte ----------
+        function gCroix() {
+            const u = gNonNul(-3, 4, 3), v = gNonNul(-3, 4, 3), w = cross(u, v);
+            return { enonce: `<p>Dans une base orthonormée directe, calcule les coordonnées de $\\vec{u}\\wedge\\vec{v}$ avec $\\vec{u}${gTexV(u)}$ et $\\vec{v}${gTexV(v)}$.</p>`,
+                champs: coord('w', ['x', 'y', 'z'], w, 'Coordonnées de $\\vec{u}\\wedge\\vec{v}$'),
+                correction: `<p>$\\vec{u}\\wedge\\vec{v} = \\begin{pmatrix} y z' - z y' \\\\ z x' - x z' \\\\ x y' - y x' \\end{pmatrix} = \\begin{pmatrix} ${gTexNb(u[1])} \\times ${gTexNb(v[2])} - ${gTexNb(u[2])} \\times ${gTexNb(v[1])} \\\\ ${gTexNb(u[2])} \\times ${gTexNb(v[0])} - ${gTexNb(u[0])} \\times ${gTexNb(v[2])} \\\\ ${gTexNb(u[0])} \\times ${gTexNb(v[1])} - ${gTexNb(u[1])} \\times ${gTexNb(v[0])} \\end{pmatrix} = ${gTexV(w)}$.</p>` };
+        }
+        function gAire() {
+            let A, B, C, w; do { A = vRand(-3, 3); B = vRand(-3, 3); C = vRand(-3, 3); w = cross(vSum(B, A, -1), vSum(C, A, -1)); } while (w.every(x => x === 0));
+            const AB = vSum(B, A, -1), AC = vSum(C, A, -1), aire = gNorme(w) / 2;
+            return { enonce: `<p>Calcule l'aire du triangle $ABC$ avec $${pt('A', A)}$, $${pt('B', B)}$ et $${pt('C', C)}$ (en unités d'aire).</p>`,
+                champs: [gNum('a', 'Aire =', aire)],
+                correction: `<p>$\\overrightarrow{AB}${gTexV(AB)}$, $\\overrightarrow{AC}${gTexV(AC)}$ et $\\overrightarrow{AB}\\wedge\\overrightarrow{AC} = ${gTexV(w)}$.</p><p>$\\mathcal{A} = \\dfrac12\\,\\|\\overrightarrow{AB}\\wedge\\overrightarrow{AC}\\| = \\dfrac12\\sqrt{${dot(w, w)}} ${Number.isInteger(aire) ? '=' : '\\approx'} ${gNb(aire)}$.</p>` };
+        }
+        function gMixte() {
+            const u = gNonNul(-3, 3, 3); let v; do { v = gNonNul(-3, 3, 3); } while (colin(u, v));
+            const w = Math.random() < 0.4 ? vSum(vMul(gInt(-2, 2), u), vMul(choisir([-1, 1, 2]), v)) : gNonNul(-3, 3, 3);
+            const vw = cross(v, w), det = dot(u, vw);
+            return { enonce: `<p>On donne $\\vec{u}${gTexV(u)}$, $\\vec{v}${gTexV(v)}$ et $\\vec{w}${gTexV(w)}$. Calcule le produit mixte $[\\vec{u}, \\vec{v}, \\vec{w}]$. Les trois vecteurs sont-ils coplanaires ?</p>`,
+                champs: [gNum('d', '$[\\vec{u}, \\vec{v}, \\vec{w}]$ =', det, { groupe: 'Produit mixte' }), gChoix('c', det === 0 ? 'oui' : 'non', OUINON, { groupe: 'Coplanaires ?' })],
+                correction: `<p>$\\vec{v}\\wedge\\vec{w} = ${gTexV(vw)}$, donc $[\\vec{u}, \\vec{v}, \\vec{w}] = \\vec{u}\\cdot(\\vec{v}\\wedge\\vec{w}) = ${gProduitTex(u, vw)} = ${det}$.</p><p>${det === 0 ? 'Il est nul : les vecteurs sont <strong class="text-white">coplanaires</strong>.' : `Il n'est pas nul : les vecteurs <strong class="text-white">ne sont pas coplanaires</strong> (ils forment une base, et le parallélépipède qu'ils construisent a un volume de $${Math.abs(det)}$).`}</p>` };
+        }
+        function gDistDroite() {
+            const A = vRand(-3, 3), u = gNonNul(-2, 3, 3), M = vRand(-4, 4), AM = vSum(M, A, -1), w = cross(u, AM), dist = gNorme(w) / gNorme(u);
+            return { enonce: `<p>La droite $(D)$ passe par $${pt('A', A)}$ et a pour vecteur directeur $\\vec{u}${gTexV(u)}$. Calcule la distance du point $${pt('M', M)}$ à $(D)$.</p>`,
+                champs: [gNum('d', '$d(M, D)$ =', dist)],
+                correction: `<p>$\\overrightarrow{AM}${gTexV(AM)}$ et $\\vec{u}\\wedge\\overrightarrow{AM} = ${gTexV(w)}$.</p><p>$d = \\dfrac{\\|\\vec{u}\\wedge\\overrightarrow{AM}\\|}{\\|\\vec{u}\\|} = \\dfrac{\\sqrt{${dot(w, w)}}}{\\sqrt{${dot(u, u)}}} ${Number.isInteger(dist) ? '=' : '\\approx'} ${gNb(dist)}$.</p>` };
+        }
+        function gMoment() {
+            const OP = gNonNul(-3, 3, 3), F = gNonNul(-20, 20, 3).map(x => x * 5), M = cross(OP, F);
+            return { enonce: `<p>Une force $\\vec{F}${gTexV(F)}$ (en N) s'exerce au point $P$ avec $\\overrightarrow{OP}${gTexV(OP)}$ (en m). Calcule son moment par rapport au pivot $O$ : $\\vec{M}_{O} = \\overrightarrow{OP}\\wedge\\vec{F}$ (en N·m).</p>`,
+                champs: coord('m', ['x', 'y', 'z'], M, 'Coordonnées de $\\vec{M}_O$'),
+                correction: `<p>$\\vec{M}_O = \\overrightarrow{OP}\\wedge\\vec{F} = \\begin{pmatrix} ${gTexNb(OP[1])} \\times ${gTexNb(F[2])} - ${gTexNb(OP[2])} \\times ${gTexNb(F[1])} \\\\ ${gTexNb(OP[2])} \\times ${gTexNb(F[0])} - ${gTexNb(OP[0])} \\times ${gTexNb(F[2])} \\\\ ${gTexNb(OP[0])} \\times ${gTexNb(F[1])} - ${gTexNb(OP[1])} \\times ${gTexNb(F[0])} \\end{pmatrix} = ${gTexV(M)}$ N·m.</p>` };
+        }
+
+        const GVX = (id, libelle, titre, fn, icone) => { EXOS[id] = { chapitre: 'maths-geo', libelle, badge: 'Maths • 2ème Année', titre, demarrer: () => exgLancer(fn.id, titre, icone, fn.types, fn.libelles) }; };
+        GVX('maths-geo-bary', 'Barycentres', 'Barycentres : position et coordonnées', { id: 'gba', types: { pos: gBarPos, plan: () => gBarCoord(2, 2), esp: () => gBarCoord(3, 3), bal: gBalance }, libelles: { tout: 'Tout', pos: 'Sur un segment', plan: 'Deux points (plan)', esp: 'Trois points (espace)', bal: 'Balance' } }, 'scale');
+        GVX('maths-geo-scal', 'Produit scalaire', 'Produit scalaire : calculs et applications', { id: 'gsc', types: { calc: gScalCoord, angle: gScalAngle, ortho: gScalOrtho, kashi: gAlKashi, plan: gPlanNormal, dist: gDistPlan }, libelles: { tout: 'Tout', calc: 'Calcul', angle: 'Angle', ortho: 'Orthogonalité', kashi: 'Al-Kashi', plan: 'Équation de plan', dist: 'Distance à un plan' } }, 'circle-dot');
+        GVX('maths-geo-vect', 'Produit vectoriel', 'Produit vectoriel et produit mixte', { id: 'gve', types: { calc: gCroix, aire: gAire, mixte: gMixte, dist: gDistDroite, moment: gMoment }, libelles: { tout: 'Tout', calc: 'Calcul', aire: 'Aire', mixte: 'Produit mixte', dist: 'Distance à une droite', moment: 'Moment d\'une force' } }, 'move-3d');
+
+        Object.assign(LECONS, {
+            "maths-geo": {
+                badge: "Maths • 2ème Année",
+                titre: "Barycentres, produit scalaire et produit vectoriel",
+                sections: () => [
+                    {
+                        titre: "1. Barycentre de deux points", icone: "scale",
+                        contenu: [
+                            H.p(R`On associe à chaque point un <strong>poids</strong> (un réel). Si $\alpha + \beta \neq 0$, le <strong>barycentre</strong> de $(A\,;\,\alpha)$ et $(B\,;\,\beta)$ est l'unique point $G$ tel que :`),
+                            H.formule(R`\alpha\,\overrightarrow{GA} + \beta\,\overrightarrow{GB} = \vec{0} \qquad\Longleftrightarrow\qquad \overrightarrow{AG} = \dfrac{\beta}{\alpha + \beta}\,\overrightarrow{AB}`),
+                            H.figure(`<svg viewBox="0 0 320 70" style="width:100%;max-width:320px;height:auto" role="img" aria-label="Barycentre G de (A;1) et (B;3), aux trois quarts de AB"><line x1="30" y1="35" x2="290" y2="35" stroke="${SVG_TRAIT}" stroke-width="2"/>${[30, 95, 160, 225, 290].map(x => `<line x1="${x}" y1="30" x2="${x}" y2="40" stroke="${SVG_DISCRET}"/>`).join('')}<circle cx="225" cy="35" r="5" fill="${SVG_ACCENT}"/><text x="30" y="22" text-anchor="middle" fill="${SVG_TEXTE}" font-size="13">A (1)</text><text x="290" y="22" text-anchor="middle" fill="${SVG_TEXTE}" font-size="13">B (3)</text><text x="225" y="60" text-anchor="middle" fill="${SVG_ACCENT}" font-size="13" font-weight="bold">G</text></svg>`, R`Exemple : $(A\,;\,1)$ et $(B\,;\,3)$ donnent $\overrightarrow{AG} = \frac34\overrightarrow{AB}$. G est plus près du point le plus lourd.`),
+                            H.liste([
+                                R`Si $\alpha = \beta$, $G$ est le <strong>milieu</strong> de $[AB]$ (isobarycentre).`,
+                                R`On peut multiplier tous les poids par un même réel non nul : le barycentre ne change pas ($(A\,;\,2), (B\,;\,6)$ donne le même $G$ que $(A\,;\,1), (B\,;\,3)$).`,
+                                R`Pour tout point $M$ : $\alpha\,\overrightarrow{MA} + \beta\,\overrightarrow{MB} = (\alpha + \beta)\,\overrightarrow{MG}$ (on le retrouve avec Chasles).`,
+                                R`Les poids peuvent être négatifs : $G$ est alors en dehors du segment $[AB]$, mais toujours sur la droite $(AB)$.`,
+                                R`En mécanique, le barycentre des masses est le <strong>centre de gravité</strong> (ou centre d'inertie). Une balance est en équilibre sur le barycentre des masses posées.`
+                            ])
+                        ].join('')
+                    },
+                    {
+                        titre: "2. Coordonnées et barycentre de plusieurs points", icone: "locate",
+                        contenu: [
+                            H.p(R`Dans un repère, chaque coordonnée de $G$ est la <strong>moyenne pondérée</strong> des coordonnées des points (la somme des poids doit être non nulle) :`),
+                            H.formule(R`x_G = \dfrac{\alpha x_A + \beta x_B + \gamma x_C}{\alpha + \beta + \gamma} \qquad y_G = \dfrac{\alpha y_A + \beta y_B + \gamma y_C}{\alpha + \beta + \gamma} \qquad z_G = \dfrac{\alpha z_A + \beta z_B + \gamma z_C}{\alpha + \beta + \gamma}`),
+                            H.p(R`Exemple : $A(2\,;\,0)$ avec le poids $3$ et $B(-1\,;\,4)$ avec le poids $1$ : $x_G = \dfrac{3 \times 2 + 1 \times (-1)}{4} = \dfrac54$ et $y_G = \dfrac{3 \times 0 + 1 \times 4}{4} = 1$.`),
+                            H.p(R`Pour trois points, la relation devient $\alpha\,\overrightarrow{GA} + \beta\,\overrightarrow{GB} + \gamma\,\overrightarrow{GC} = \vec{0}$, et $\overrightarrow{AG} = \dfrac{\beta}{\alpha + \beta + \gamma}\overrightarrow{AB} + \dfrac{\gamma}{\alpha + \beta + \gamma}\overrightarrow{AC}$.`),
+                            H.note(R`<strong>Barycentres partiels (associativité)</strong> : on peut remplacer deux points pondérés par leur barycentre, affecté de la somme de leurs poids. Exemple : l'isobarycentre de $A$, $B$, $C$ est le barycentre de $(I\,;\,2)$ et $(C\,;\,1)$ où $I$ est le milieu de $[AB]$. C'est le <strong>centre de gravité du triangle</strong>, aux deux tiers de chaque médiane en partant du sommet.`)
+                        ].join('')
+                    },
+                    {
+                        titre: "3. Produit scalaire", icone: "circle-dot",
+                        contenu: [
+                            H.p(R`Le produit scalaire de deux vecteurs est un <strong>nombre</strong>. Trois façons équivalentes de le calculer :`),
+                            H.tableau(["Avec…", "Formule"], [
+                                ["les normes", R`$\vec{u}\cdot\vec{v} = \frac12\left(\|\vec{u} + \vec{v}\|^2 - \|\vec{u}\|^2 - \|\vec{v}\|^2\right)$`],
+                                ["l'angle", R`$\vec{u}\cdot\vec{v} = \|\vec{u}\|\,\|\vec{v}\|\cos(\vec{u}, \vec{v})$`],
+                                ["les coordonnées (base orthonormée)", R`$\vec{u}\cdot\vec{v} = xx' + yy' + zz'$`],
+                                ["un projeté orthogonal", R`$\overrightarrow{OA}\cdot\overrightarrow{OB} = \pm\,OA \times OH$ ($H$ projeté de $B$ sur $(OA)$, $+$ si même sens)`]
+                            ], { nowrap: false }),
+                            H.liste([
+                                R`$\vec{u}\cdot\vec{u} = \|\vec{u}\|^2 = x^2 + y^2 + z^2$.`,
+                                R`Il est commutatif et distributif : $\vec{u}\cdot(\vec{v} + \vec{w}) = \vec{u}\cdot\vec{v} + \vec{u}\cdot\vec{w}$, et $(\lambda\vec{u})\cdot\vec{v} = \lambda(\vec{u}\cdot\vec{v})$.`,
+                                R`<strong>Orthogonalité</strong> : $\vec{u} \perp \vec{v} \iff \vec{u}\cdot\vec{v} = 0$. Attention, un produit nul ne veut pas dire qu'un des vecteurs est nul.`,
+                                R`<strong>Angle</strong> : $\cos(\vec{u}, \vec{v}) = \dfrac{\vec{u}\cdot\vec{v}}{\|\vec{u}\|\,\|\vec{v}\|}$, ce qui donne un angle entre $0$ et $180^\circ$.`,
+                                R`<strong>Projeté</strong> de $\vec{v}$ sur $\vec{w}$ : $\dfrac{\vec{v}\cdot\vec{w}}{\|\vec{w}\|^2}\,\vec{w}$.`,
+                                R`En physique, le <strong>travail</strong> d'une force est $W = \vec{F}\cdot\vec{\ell}$.`
+                            ]),
+                            H.p(R`Exemple : $\vec{u}(2\,;\,-1\,;\,3)$ et $\vec{v}(1\,;\,4\,;\,1)$ : $\vec{u}\cdot\vec{v} = 2 - 4 + 3 = 1$.`)
+                        ].join('')
+                    },
+                    {
+                        titre: "4. Applications : triangles, droites, plans, cercles", icone: "triangle",
+                        contenu: [
+                            H.tableau(["Résultat", "Formule"], [
+                                ["Al-Kashi (côté opposé à $\\widehat{A}$)", R`$a^2 = b^2 + c^2 - 2bc\cos\widehat{A}$`],
+                                ["Loi des sinus, aire", R`$\dfrac{\sin\widehat{A}}{a} = \dfrac{\sin\widehat{B}}{b} = \dfrac{\sin\widehat{C}}{c}$, $\quad\mathcal{S} = \dfrac12\,ac\sin\widehat{B}$`],
+                                ["Droite du plan, normale $\\vec{n}(a\\,;\\,b)$", R`$ax + by + c = 0$`],
+                                ["Plan de l'espace, normale $\\vec{n}(a\\,;\\,b\\,;\\,c)$", R`$ax + by + cz + d = 0$`],
+                                ["Distance d'un point à une droite (plan) ou à un plan (espace)", R`$d = \dfrac{|\overrightarrow{AM}\cdot\vec{n}|}{\|\vec{n}\|}$ ($A$ sur la droite ou le plan)`],
+                                ["Cercle / sphère de centre $\\Omega$, rayon $r$", R`$(x - x_0)^2 + (y - y_0)^2 \,[+\,(z - z_0)^2] = r^2$`]
+                            ], { nowrap: false }),
+                            H.p(R`<strong>Méthode (plan passant par $A$ de normale $\vec{n}$)</strong> : $M(x\,;\,y\,;\,z)$ est dans le plan si $\overrightarrow{AM}\cdot\vec{n} = 0$, puis on développe. Exemple : $A(1\,;\,0\,;\,2)$, $\vec{n}(2\,;\,1\,;\,-1)$ donne $2(x - 1) + y - (z - 2) = 0$, soit $2x + y - z = 0$.`),
+                            H.liste([
+                                R`Deux plans sont <strong>parallèles</strong> si leurs normales sont colinéaires, <strong>confondus</strong> si en plus toute l'équation est proportionnelle, <strong>perpendiculaires</strong> si $\vec{n}\cdot\vec{n'} = 0$.`,
+                                R`Formules d'addition, retrouvées avec le produit scalaire : $\cos(a - b) = \cos a\cos b + \sin a\sin b$, $\sin(a + b) = \sin a\cos b + \cos a\sin b$ ; duplication : $\cos 2a = 2\cos^2 a - 1$, $\sin 2a = 2\sin a\cos a$ ; linéarisation : $\cos^2 a = \frac{1 + \cos 2a}{2}$.`
+                            ])
+                        ].join('')
+                    },
+                    {
+                        titre: "5. Produit vectoriel", icone: "move-3d",
+                        contenu: [
+                            H.p(R`Dans l'espace orienté, le produit vectoriel $\vec{u}\wedge\vec{v}$ est un <strong>vecteur</strong> :`),
+                            H.liste([
+                                R`nul si et seulement si $\vec{u}$ et $\vec{v}$ sont <strong>colinéaires</strong> ;`,
+                                R`sinon orthogonal à $\vec{u}$ et à $\vec{v}$, avec $(\vec{u}, \vec{v}, \vec{u}\wedge\vec{v})$ <strong>direct</strong> (règle de la main droite, ou bonhomme d'Ampère) ;`,
+                                R`de norme $\|\vec{u}\wedge\vec{v}\| = \|\vec{u}\|\,\|\vec{v}\|\,|\sin(\vec{u}, \vec{v})|$.`
+                            ]),
+                            H.formule(R`\vec{u}\begin{pmatrix} x \\ y \\ z \end{pmatrix} \wedge \vec{v}\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix} = \begin{pmatrix} yz' - zy' \\ zx' - xz' \\ xy' - yx' \end{pmatrix} \qquad \vec{i}\wedge\vec{j} = \vec{k},\ \ \vec{j}\wedge\vec{k} = \vec{i},\ \ \vec{k}\wedge\vec{i} = \vec{j}`),
+                            H.liste([
+                                R`Antisymétrique : $\vec{v}\wedge\vec{u} = -\,\vec{u}\wedge\vec{v}$ ; distributif ; $(k\vec{u})\wedge\vec{v} = k(\vec{u}\wedge\vec{v})$. Il n'est <strong>pas associatif</strong>.`,
+                                R`<strong>Aires</strong> : triangle $ABC$ : $\dfrac12\|\overrightarrow{AB}\wedge\overrightarrow{AC}\|$ ; parallélogramme : $\|\overrightarrow{AB}\wedge\overrightarrow{AC}\|$.`,
+                                R`<strong>Droite de l'espace</strong> (point $A$, directeur $\vec{u}$) : $M \in (D) \iff \overrightarrow{AM}\wedge\vec{u} = \vec{0}$. Distance : $d(M, D) = \dfrac{\|\vec{u}\wedge\overrightarrow{AM}\|}{\|\vec{u}\|}$.`,
+                                R`L'intersection de deux plans sécants est une droite dirigée par $\vec{n}\wedge\vec{n'}$.`,
+                                R`<strong>Moment d'une force</strong> $\vec{F}$ appliquée en $P$, par rapport à $O$ : $\vec{M}_O = \overrightarrow{OP}\wedge\vec{F}$.`
+                            ]),
+                            H.p(R`Exemple : $\vec{u}(1\,;\,0\,;\,2)\wedge\vec{v}(0\,;\,3\,;\,1) = (0 \times 1 - 2 \times 3\,;\,2 \times 0 - 1 \times 1\,;\,1 \times 3 - 0 \times 0) = (-6\,;\,-1\,;\,3)$.`)
+                        ].join('')
+                    },
+                    {
+                        titre: "6. Produit mixte", icone: "box",
+                        contenu: [
+                            H.formule(R`[\vec{u}, \vec{v}, \vec{w}] = \det(\vec{u}, \vec{v}, \vec{w}) = \vec{u}\cdot(\vec{v}\wedge\vec{w})`),
+                            H.liste([
+                                R`C'est un <strong>nombre</strong>. On peut le calculer avec la règle de Sarrus.`,
+                                R`Il ne change pas par permutation circulaire, $[\vec{u}, \vec{v}, \vec{w}] = [\vec{v}, \vec{w}, \vec{u}]$, et change de signe si on échange deux vecteurs.`,
+                                R`<strong>Coplanarité</strong> : $\vec{u}$, $\vec{v}$, $\vec{w}$ sont coplanaires $\iff [\vec{u}, \vec{v}, \vec{w}] = 0$. Sinon ils forment une base.`,
+                                R`<strong>Volume</strong> du parallélépipède construit sur $\vec{u}$, $\vec{v}$, $\vec{w}$ : $|[\vec{u}, \vec{v}, \vec{w}]|$.`,
+                                R`Plan passant par $A$, $B$, $C$ : $\vec{n} = \overrightarrow{AB}\wedge\overrightarrow{AC}$ est normal, puis $\overrightarrow{AM}\cdot\vec{n} = 0$.`
+                            ])
+                        ].join('')
+                    }
+                ]
+            }
+        });
         // ==========================================
         // Physique • bibliothèque de schémas (symboles, oscillogrammes)
         // ==========================================
