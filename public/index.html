@@ -650,6 +650,20 @@
             { num: "Chapitre n°7", titre: "BE, BM, APEF, gamme et contrat de phase", desc: "Services, documents de fabrication et contenu d'un contrat de phase.", lecon: "oi1-contrat" },
             { num: "Chapitre n°8", titre: "Les conditions de coupe", desc: "Vc, N, f, Vf, tableaux pour tournage, perçage, taraudage, alésage et fraisage.", lecon: "oi1-coupe" }
         ],
+        "ECO": [
+            { num: "Chapitre n°1", titre: "Typologie des entreprises", desc: "Taille, secteurs d'activité, statuts juridiques, contrôle du capital et concentration.", lecon: "eco1-typologie", exo: "eco1-typo" },
+            { num: "Chapitre n°2", titre: "Fonctions et structures d'entreprise", desc: "Grandes fonctions, structures hiérarchique, fonctionnelle, divisionnelle, matricielle.", lecon: "eco1-fonctions" },
+            { num: "Chapitre n°3", titre: "L'entreprise et son environnement", desc: "Marchés, circuit économique, PESTEL, concurrence et position concurrentielle.", lecon: "eco1-environnement" },
+            { num: "Chapitre n°4", titre: "Fournisseurs, clients et RH", desc: "Sélection des fournisseurs, coûts d'approvisionnement, CUMP, 4P, recrutement.", lecon: "eco1-partenaires", exo: "eco1-stocks" },
+            { num: "Chapitre n°5", titre: "Le processus productif", desc: "Valeur ajoutée, R&D, méthodes, ordonnancement, contrôle et qualité.", lecon: "eco1-processus" },
+            { num: "Chapitre n°6", titre: "Politique générale de production", desc: "Cycle de vie d'un produit, compétitivité-prix et hors prix.", lecon: "eco1-politique" },
+            { num: "Chapitre n°7", titre: "Coût de revient et seuil de rentabilité", desc: "Coûts d'achat, de production, de revient, marge sur coûts variables, point mort.", lecon: "eco1-couts", exo: "eco1-seuil" },
+            { num: "Chapitre n°8", titre: "Les amortissements", desc: "Amortissement linéaire, prorata temporis, non linéaire et dégressif.", lecon: "eco1-amortissements", exo: "eco1-amort" },
+            { num: "Chapitre n°9", titre: "Qu'est-ce qu'une entreprise ?", desc: "Moyens, activité, objectifs, flux réels et financiers, rôle de la comptabilité.", lecon: "eco1-entreprise" },
+            { num: "Chapitre n°10", titre: "Le bilan", desc: "Cours à venir." },
+            { num: "Chapitre n°11", titre: "Le compte de résultat", desc: "Cours à venir." },
+            { num: "Chapitre n°12", titre: "Les soldes intermédiaires de gestion", desc: "Cours à venir." }
+        ],
         "PHYS": [
             { num: "Chapitre n°1", titre: "Grandeurs électriques et lois fondamentales dans les circuits", desc: "Tension, courant, puissance, lois de Kirchhoff & Ohm.", lecon: "ph1-grandeurs" },
             { num: "Chapitre n°2", titre: "Dipôles électriques", desc: "Comportement des résistances, condensateurs et inductances.", lecon: "ph1-dipoles" },
@@ -6197,7 +6211,8 @@
                 const champ = document.getElementById(nom);
                 if (c.kind === 'select') { if (!champ.value) { vides++; champ.className = EXG_CLASSE + ETATS_CHAMP.vide; return; } const okS = champ.value === c.sol; champ.className = EXG_CLASSE + (okS ? ETATS_CHAMP.juste : ETATS_CHAMP.faux); if (!okS) faux++; return; }
                 if (champ.value.trim() === '') { vides++; champ.className = EXG_CLASSE + ETATS_CHAMP.vide; return; }
-                const r = comparerCentieme(champ.value, c.sol, c.modulo);
+                let r = comparerCentieme(champ.value, c.sol, c.modulo);
+                if (r !== 'juste' && c.alt !== undefined && comparerCentieme(champ.value, c.alt, c.modulo) === 'juste') r = 'juste';
                 const ok = r === 'juste';
                 champ.className = EXG_CLASSE + (ok ? ETATS_CHAMP.juste : ETATS_CHAMP.faux);
                 if (!ok) faux++;
@@ -6763,6 +6778,340 @@
                     }
                 ]
             }
+        });
+
+        // ==========================================
+        // Éco-gestion 1ère année : leçons 1 à 9 et exercices (ch. 1, 4, 7, 8)
+        // ==========================================
+        const eur = (x) => `${centiemeFR(x).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} €`;
+        const ecoSec = (titre, icone, ...blocs) => ({ titre, icone, contenu: blocs.join('') });
+        const ECO_BADGE = 'Éco-gestion • 1ère Année';
+
+        // ---------- exercices ----------
+        function ecoTaille() {
+            const cas = choisir([
+                ['tpe', () => gInt(1, 9), () => gInt(1, 19) * 100000],
+                ['pme', () => gInt(12, 240), () => gInt(3, 48) * 1000000],
+                ['eti', () => gInt(300, 4800), () => gInt(60, 1400) * 1000000],
+                ['ge', () => gInt(6000, 90000), () => gInt(2, 60) * 1000000000]]);
+            const n = cas[1](), ca = cas[2]();
+            const noms = { tpe: 'TPE', pme: 'PME', eti: 'ETI', ge: 'Grande entreprise' };
+            return { enonce: `<p>Une entreprise emploie <strong>${n.toLocaleString('fr-FR')}</strong> salariés et réalise un chiffre d'affaires de <strong>${eur(ca)}</strong>. Dans quelle catégorie la classer ?</p>`,
+                champs: [gChoix('c', cas[0], Object.entries(noms), { groupe: 'Catégorie' })],
+                correction: `<p>Repères : TPE moins de 10 salariés et CA jusqu'à 2 M€ ; PME moins de 250 salariés et CA jusqu'à 50 M€ ; ETI moins de 5 000 salariés et CA jusqu'à 1,5 Md€ ; au-delà, grande entreprise. Ici : <strong class="text-white">${noms[cas[0]]}</strong>.</p>` };
+        }
+        function ecoSecteur() {
+            const [act, s] = choisir([['une exploitation de céréales', 'primaire'], ['un chalutier de pêche', 'primaire'], ['une carrière de granit', 'primaire'], ['un constructeur de tracteurs', 'secondaire'], ['une entreprise de maçonnerie', 'secondaire'], ['une usine de semi-conducteurs', 'secondaire'], ['une agence bancaire', 'tertiaire'], ['une société de transport routier', 'tertiaire'], ['un cabinet de conseil en informatique', 'tertiaire'], ['une chaîne de supermarchés', 'tertiaire']]);
+            return { enonce: `<p>À quel secteur d'activité appartient ${act} ?</p>`,
+                champs: [gChoix('s', s, [['primaire', 'Primaire'], ['secondaire', 'Secondaire'], ['tertiaire', 'Tertiaire']], { groupe: 'Secteur' })],
+                correction: `<p>Primaire : exploitation des ressources naturelles (agriculture, pêche, mines). Secondaire : transformation (industrie, bâtiment). Tertiaire : services (commerce, transport, banque…). Ici : <strong class="text-white">${s}</strong>.</p>` };
+        }
+        function ecoConcentration() {
+            const [txt, t] = choisir([['Un fabricant de pneus rachète un autre fabricant de pneus.', 'horizontale'], ['Un constructeur automobile rachète son fournisseur de sièges.', 'verticale'], ['Un groupe de BTP achète une chaîne de télévision.', 'conglomerale'], ['Une marque de vêtements rachète une chaîne de magasins qui vend ses vêtements.', 'verticale'], ['Deux compagnies aériennes fusionnent.', 'horizontale'], ['Un groupe agroalimentaire prend le contrôle d\'un éditeur de jeux vidéo.', 'conglomerale']]);
+            const noms = { horizontale: 'Horizontale', verticale: 'Verticale', conglomerale: 'Conglomérale' };
+            return { enonce: `<p>${txt} De quel type de concentration s'agit-il ?</p>`,
+                champs: [gChoix('t', t, Object.entries(noms), { groupe: 'Concentration' })],
+                correction: `<p>Horizontale : même activité. Verticale : activités complémentaires de la même filière (fournisseur ou distributeur). Conglomérale : activités sans rapport. Ici : <strong class="text-white">${noms[t].toLowerCase()}</strong>.</p>` };
+        }
+        function ecoStockMoyen() {
+            const C = gInt(12, 90) * 10000, N = choisir([1, 2, 4, 5, 6, 8, 10, 12]), t = choisir([4, 5, 6, 8, 10, 12]), cp = choisir([15, 20, 25, 40, 60, 80]);
+            const SM = C / (2 * N), poss = SM * t / 100, gest = N * cp + poss;
+            return { enonce: `<p>Une entreprise prévoit une consommation annuelle de <strong>${eur(C)}</strong>, répartie en <strong>${N}</strong> commande${N > 1 ? 's' : ''} identique${N > 1 ? 's' : ''}. Le taux de possession du stock est de <strong>${t}&nbsp;%</strong> et chaque commande coûte <strong>${eur(cp)}</strong> à passer. Calcule le stock moyen, le coût de possession et le coût de gestion des approvisionnements.</p>`,
+                champs: [gNum('sm', 'Stock moyen =', SM, { unite: '€', groupe: 'Coûts', largeur: '7rem' }), gNum('po', 'Coût de possession =', poss, { unite: '€', groupe: 'Coûts', largeur: '7rem' }), gNum('ge', 'Coût de gestion =', gest, { unite: '€', groupe: 'Coûts', largeur: '7rem' })],
+                correction: `<p>Stock moyen $= \\dfrac{\\text{consommation}}{2N} = \\dfrac{${C}}{2 \\times ${N}}$ = <strong class="text-white">${eur(SM)}</strong>.</p><p>Coût de possession = stock moyen × taux = ${eur(SM)} × ${t}&nbsp;% = <strong class="text-white">${eur(poss)}</strong>.</p><p>Coût de gestion = coût de passation + coût de possession = ${N} × ${eur(cp)} + ${eur(poss)} = <strong class="text-white">${eur(gest)}</strong>.</p>` };
+        }
+        function ecoCUMP() {
+            const q0 = gInt(2, 8) * 50, p0 = gInt(80, 140) / 10, q1 = gInt(5, 20) * 100, p1 = Math.round((p0 + gInt(1, 8) / 10) * 100) / 100, q2 = gInt(5, 20) * 100, p2 = Math.round((p1 + gInt(1, 8) / 10) * 100) / 100;
+            const Q = q0 + q1 + q2, M = q0 * p0 + q1 * p1 + q2 * p2, cump = M / Q, cumpC = arrondiCentieme(cump), sorties = Math.floor(Q * gInt(70, 90) / 100 / 10) * 10, sf = Q - sorties;
+            return { enonce: `<p>Fiche de stock du mois (en kg) : stock initial ${q0} kg à ${eur(p0)} ; entrées : ${q1} kg à ${eur(p1)} puis ${q2} kg à ${eur(p2)} ; sorties : ${sorties} kg. Calcule le CUMP, la valeur des sorties et la valeur du stock final (avec le CUMP arrondi au centième).</p>`,
+                champs: [gNum('c', 'CUMP =', cump, { unite: '€/kg', groupe: 'Valorisation au CUMP', largeur: '6rem' }), gNum('s', 'Sorties =', sorties * cumpC, { unite: '€', alt: sorties * cump, groupe: 'Valorisation au CUMP', largeur: '7rem' }), gNum('f', 'Stock final =', sf * cumpC, { unite: '€', alt: sf * cump, groupe: 'Valorisation au CUMP', largeur: '7rem' })],
+                correction: `<p>Total des entrées (stock initial compris) : ${Q} kg pour ${eur(M)}.</p><p>CUMP = ${eur(M)} / ${Q} ≈ <strong class="text-white">${eur(cump)}</strong> par kg.</p><p>Sorties : ${sorties} × ${eur(cumpC)} = <strong class="text-white">${eur(sorties * cumpC)}</strong> ; stock final : ${sf} kg × ${eur(cumpC)} = <strong class="text-white">${eur(sf * cumpC)}</strong>.</p>` };
+        }
+        function ecoSeuil() {
+            const taux = choisir([20, 25, 30, 35, 40, 45, 50, 60]), pv = choisir([20, 40, 50, 80, 100, 120, 200, 400]), cvu = pv * (100 - taux) / 100;
+            const q = gInt(30, 160) * 100, CA = q * pv, MsCV = CA * taux / 100, CF = Math.round(MsCV * gInt(45, 85) / 100 / 1000) * 1000;
+            const SR = CF / (taux / 100), Sq = Math.ceil(CF / (pv - cvu)), pm = SR / CA * 360, MS = CA - SR, IS = MS / CA * 100;
+            return { enonce: `<p>Une entreprise vend <strong>${q.toLocaleString('fr-FR')}</strong> produits à <strong>${eur(pv)}</strong> HT pièce. Le coût variable unitaire est de <strong>${eur(cvu)}</strong> et les charges fixes s'élèvent à <strong>${eur(CF)}</strong>. L'activité est régulière sur 360 jours.</p>`,
+                champs: [gNum('m', 'MsCV =', MsCV, { unite: '€', groupe: 'Marge sur coûts variables', largeur: '7rem' }), gNum('t', 'Taux de MsCV =', taux, { unite: '%', groupe: 'Marge sur coûts variables' }),
+                    gNum('sr', 'SR =', SR, { unite: '€', groupe: 'Seuil de rentabilité', largeur: '7rem' }), gNum('sq', 'Quantité =', Sq, { unite: 'produits (unité supérieure)', groupe: 'Seuil de rentabilité' }),
+                    gNum('pm', 'Point mort =', pm, { unite: 'jours', groupe: 'Point mort' }), gNum('ms', 'Marge de sécurité =', MS, { unite: '€', groupe: 'Sécurité', largeur: '7rem' }), gNum('is', 'Indice de sécurité =', IS, { unite: '%', groupe: 'Sécurité' })],
+                correction: `<p>CA = ${q} × ${eur(pv)} = ${eur(CA)} ; CV = ${q} × ${eur(cvu)} = ${eur(q * cvu)} ; MsCV = CA − CV = <strong class="text-white">${eur(MsCV)}</strong>, soit un taux de <strong class="text-white">${taux}&nbsp;%</strong>.</p><p>SR = CF / taux de MsCV = ${eur(CF)} / ${taux}&nbsp;% = <strong class="text-white">${eur(SR)}</strong>. En quantité : CF / marge unitaire = ${CF} / ${centiemeFR(pv - cvu)} ≈ ${centiemeFR(CF / (pv - cvu))}, soit <strong class="text-white">${Sq} produits</strong>.</p><p>Point mort = SR / CA × 360 ≈ <strong class="text-white">${centiemeFR(pm)} jours</strong>, donc rentable à partir du ${Math.ceil(pm)}<sup>e</sup> jour.</p><p>Marge de sécurité = CA − SR = <strong class="text-white">${eur(MS)}</strong> ; indice = MS / CA × 100 ≈ <strong class="text-white">${centiemeFR(IS)}&nbsp;%</strong>.</p>` };
+        }
+        const ECO_MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+        function ecoLineaire() {
+            const base = gInt(4, 60) * 500, n = choisir([3, 4, 5, 8, 10]), m = gInt(1, 12), j = choisir([1, 1, 1, 10, 15, 16, 20]);
+            const jours = (12 - m) * 30 + (30 - j + 1), a = base / n, a1 = a * jours / 360, vnc1 = base - a1;
+            return { enonce: `<p>Une machine achetée <strong>${eur(base)}</strong> HT est mise en service le <strong>${j === 1 ? '1<sup>er</sup>' : j} ${ECO_MOIS[m - 1]}</strong> N. Durée d'utilisation : <strong>${n} ans</strong>, amortissement <strong>linéaire</strong> (année de 360 jours, mois de 30 jours).</p>`,
+                champs: [gNum('t', 'Taux =', 100 / n, { unite: '%', groupe: 'Plan d\'amortissement' }), gNum('a', 'Annuité complète =', a, { unite: '€', groupe: 'Plan d\'amortissement', largeur: '7rem' }), gNum('a1', '1re annuité (N) =', a1, { unite: '€', groupe: 'Plan d\'amortissement', largeur: '7rem' }), gNum('v', 'VNC fin N =', vnc1, { unite: '€', groupe: 'Plan d\'amortissement', largeur: '7rem' })],
+                correction: `<p>Taux = 100 / ${n} = <strong class="text-white">${centiemeFR(100 / n)}&nbsp;%</strong> ; annuité complète = ${eur(base)} / ${n} = <strong class="text-white">${eur(a)}</strong>.</p><p>Du ${j} ${ECO_MOIS[m - 1]} au 31 décembre : ${jours} jours (prorata temporis), donc 1re annuité = ${eur(a)} × ${jours} / 360 = <strong class="text-white">${eur(a1)}</strong>.</p><p>VNC fin N = ${eur(base)} − ${eur(a1)} = <strong class="text-white">${eur(vnc1)}</strong>. La dernière année (N+${n}) porte le complément : ${eur(a - a1)}.</p>` };
+        }
+        function ecoDegressif() {
+            const base = gInt(4, 60) * 500, n = choisir([3, 4, 5, 6, 8]), m = gInt(1, 12), coef = n <= 4 ? 1.25 : n <= 6 ? 1.75 : 2.25, mois = 12 - m + 1;
+            const td = 100 / n * coef, a1 = base * td / 100 * mois / 12, vnc1 = base - a1, t2 = Math.max(td, 100 / (n - 1)), a2 = vnc1 * t2 / 100;
+            const a1C = arrondiCentieme(a1), vnc1C = base - a1C;
+            return { enonce: `<p>Un matériel de <strong>${eur(base)}</strong> HT est acquis en <strong>${ECO_MOIS[m - 1]}</strong> N, amorti en <strong>dégressif</strong> sur <strong>${n} ans</strong> (coefficient : 1,25 pour 3 ou 4 ans, 1,75 pour 5 ou 6 ans, 2,25 au-delà).</p>`,
+                champs: [gNum('t', 'Taux dégressif =', td, { unite: '%', groupe: 'Année N' }), gNum('a1', '1re annuité =', a1, { unite: '€', groupe: 'Année N', largeur: '7rem' }), gNum('v', 'VNC fin N =', vnc1C, { unite: '€', alt: vnc1, groupe: 'Année N', largeur: '7rem' }), gNum('a2', 'Annuité N+1 =', vnc1C * t2 / 100, { unite: '€', alt: a2, groupe: 'Année N+1', largeur: '7rem' })],
+                correction: `<p>Taux dégressif = taux linéaire × coefficient = ${centiemeFR(100 / n)}&nbsp;% × ${String(coef).replace('.', ',')} = <strong class="text-white">${centiemeFR(td)}&nbsp;%</strong>.</p><p>En dégressif on compte en mois entiers depuis le mois d'acquisition : ${mois} mois. 1re annuité = ${eur(base)} × ${centiemeFR(td)}&nbsp;% × ${mois}/12 = <strong class="text-white">${eur(a1)}</strong> ; VNC fin N = <strong class="text-white">${eur(vnc1C)}</strong>.</p><p>En N+1, il reste ${n - 1} ans : taux linéaire 100 / ${n - 1} = ${centiemeFR(100 / (n - 1))}&nbsp;%. On garde le plus grand des deux taux (${centiemeFR(t2)}&nbsp;%) : annuité N+1 = ${eur(vnc1C)} × ${centiemeFR(t2)}&nbsp;% = <strong class="text-white">${eur(vnc1C * t2 / 100)}</strong>.</p>` };
+        }
+
+        const ECX = (id, chapitre, libelle, titre, fn, icone) => { EXOS[id] = { chapitre, libelle, badge: ECO_BADGE, titre, demarrer: () => exgLancer(fn.id, titre, icone, fn.types, fn.libelles) }; };
+        ECX('eco1-typo', 'eco1-typologie', 'Classer une entreprise', 'Typologie : taille, secteur, concentration', { id: 'ety', types: { taille: ecoTaille, secteur: ecoSecteur, conc: ecoConcentration }, libelles: { tout: 'Tout', taille: 'Taille', secteur: 'Secteur', conc: 'Concentration' } }, 'building-2');
+        ECX('eco1-stocks', 'eco1-partenaires', 'Stocks', 'Coûts d\'approvisionnement et CUMP', { id: 'est', types: { moyen: ecoStockMoyen, cump: ecoCUMP }, libelles: { tout: 'Tout', moyen: 'Coût de gestion', cump: 'CUMP' } }, 'package');
+        ECX('eco1-seuil', 'eco1-couts', 'Seuil de rentabilité', 'Seuil de rentabilité, point mort et sécurité', { id: 'esr', types: { sr: ecoSeuil } }, 'trending-up');
+        ECX('eco1-amort', 'eco1-amortissements', 'Amortissements', 'Plan d\'amortissement : linéaire et dégressif', { id: 'eam', types: { lin: ecoLineaire, deg: ecoDegressif }, libelles: { tout: 'Tout', lin: 'Linéaire', deg: 'Dégressif' } }, 'trending-down');
+
+        // ---------- leçons ----------
+        const svgCycleVie = () => {
+            const X = (t) => 30 + t * 2.9, Y = (v) => 170 - v * 1.3, f = (t) => (t < 75 ? 100 * Math.pow(Math.sin(Math.PI * t / 150), 2) : 100 - 0.035 * (t - 75) * (t - 75));
+            let d = ''; for (let t = 0; t <= 100; t += 2) d += (t ? 'L' : 'M') + X(t).toFixed(1) + ' ' + Y(Math.max(f(t), 8)).toFixed(1);
+            const zones = [[0, 22, 'Lancement'], [22, 50, 'Croissance'], [50, 80, 'Maturité'], [80, 100, 'Déclin']];
+            return `<svg viewBox="0 0 330 200" style="width:100%;max-width:420px;height:auto" role="img" aria-label="Courbe des ventes sur le cycle de vie d'un produit"><line x1="30" y1="170" x2="325" y2="170" stroke="${SVG_TRAIT}"/><line x1="30" y1="170" x2="30" y2="15" stroke="${SVG_TRAIT}"/>`
+                + zones.map(([a, b, n], i) => `${i ? `<line x1="${X(a)}" y1="25" x2="${X(a)}" y2="170" stroke="${SVG_DISCRET}" stroke-dasharray="3 3"/>` : ''}<text x="${(X(a) + X(b)) / 2}" y="188" text-anchor="middle" fill="${SVG_TEXTE}" font-size="10">${n}</text>`).join('')
+                + `<path d="${d}" fill="none" stroke="${SVG_ACCENT}" stroke-width="2.5"/><text x="36" y="22" fill="${SVG_DISCRET}" font-size="10">ventes</text><text x="322" y="164" text-anchor="end" fill="${SVG_DISCRET}" font-size="10">temps</text></svg>`;
+        };
+        Object.assign(LECONS, {
+            "eco1-typologie": { badge: ECO_BADGE, titre: "Typologie des entreprises", sections: () => [
+                ecoSec("1. Classer selon la taille", "ruler",
+                    H.tableau(["Catégorie", "Salariés", "Chiffre d'affaires"], [
+                        ["Entreprise individuelle", "le créateur seul", "—"],
+                        ["TPE (très petite entreprise)", "moins de 10", "≤ 2 M€"],
+                        ["PME (petite et moyenne entreprise)", "moins de 250", "≤ 50 M€"],
+                        ["ETI (entreprise de taille intermédiaire)", "moins de 5 000", "≤ 1,5 Md€"],
+                        ["GE (grande entreprise)", "5 000 et plus", "> 1,5 Md€"]
+                    ]),
+                    H.p("En France, l'immense majorité des entreprises sont des TPE (environ 9 sur 10), alors que les grandes entreprises, très peu nombreuses, emploient près d'un tiers des salariés.")),
+                ecoSec("2. Classer selon l'activité", "factory",
+                    H.liste([
+                        "<strong>Secteur primaire</strong> : on exploite directement la nature (agriculture, pêche, extraction minière).",
+                        "<strong>Secteur secondaire</strong> : on transforme (industrie, bâtiment).",
+                        "<strong>Secteur tertiaire</strong> : on rend des services (commerce, transport, banque, santé…). C'est de loin le plus gros employeur, plus de 70 % des salariés en France.",
+                        "<strong>Firme transnationale (FTN)</strong> : grande entreprise qui possède des <strong>filiales</strong> à l'étranger, contrôlées par une maison-mère restée dans le pays d'origine."
+                    ])),
+                ecoSec("3. Classer selon le statut juridique", "scale",
+                    H.p("Le statut juridique est la forme légale choisie par l'entreprise. Il dépend du nombre d'associés et des risques que chacun accepte de prendre sur ses biens personnels."),
+                    H.tableau(["Statut", "Associés", "À retenir"], [
+                        ["Entreprise individuelle (dont micro-entrepreneur)", "1", "patrimoine personnel protégé depuis 2023 ; micro-entreprise plafonnée en chiffre d'affaires"],
+                        ["SARL / EURL", "2 à 100 / 1", "responsabilité limitée aux apports"],
+                        ["SAS / SASU", "2 et plus / 1", "responsabilité limitée, statuts très souples"],
+                        ["SA", "au moins 7 actionnaires", "peut être cotée en bourse pour lever beaucoup de capitaux"],
+                        ["SNC", "au moins 2", "responsabilité solidaire et illimitée des associés"],
+                        ["SCOP", "salariés majoritaires", "gouvernance démocratique : 1 associé = 1 voix"]
+                    ], { nowrap: false })),
+                ecoSec("4. Classer selon le contrôle du capital", "landmark",
+                    H.liste([
+                        "<strong>Entreprise privée</strong> : le capital appartient à des personnes privées (un créateur, des associés, des actionnaires).",
+                        "<strong>Entreprise publique</strong> : l'État détient tout ou la majorité du capital.",
+                        "<strong>Concentration</strong> : les entreprises se regroupent, il y en a moins mais elles sont plus grosses."
+                    ]),
+                    H.tableau(["Concentration", "Principe", "Exemple type"], [
+                        ["Horizontale", "deux entreprises du même métier", "deux fabricants de pneus fusionnent"],
+                        ["Verticale", "deux maillons de la même filière", "un constructeur rachète son fournisseur de sièges"],
+                        ["Conglomérale", "deux activités sans rapport", "un groupe de BTP achète une chaîne de télévision"]
+                    ], { nowrap: false }))
+            ] },
+            "eco1-fonctions": { badge: ECO_BADGE, titre: "Fonctions et structures d'entreprise", sections: () => [
+                ecoSec("1. Les grandes fonctions", "network",
+                    H.p("Pour produire, l'entreprise s'appuie sur des fonctions différentes mais qui doivent travailler ensemble. Tout l'enjeu du management est de faire circuler l'information entre elles."),
+                    H.tableau(["Famille", "Fonctions"], [
+                        ["Préparer la production", "R&D (innover : nouveaux produits et procédés), achats (fournisseurs, sous-traitants)"],
+                        ["Produire", "fabrication du bien ou réalisation du service (robotisation, sous-traitance…)"],
+                        ["Vendre", "marketing (étudier le marché, adapter l'offre), négociation avec les distributeurs, relation client (SAV, conseil)"],
+                        ["Administrer et gérer", "direction, juridique et fiscal, finance et comptabilité, ressources humaines, logistique (transport, stockage)"]
+                    ], { nowrap: false })),
+                ecoSec("2. Les structures d'organisation", "git-fork",
+                    H.p("La structure décrit qui commande qui (liens hiérarchiques) et qui conseille qui (liens fonctionnels). Elle évolue avec la taille et la stratégie de l'entreprise : on passe en général de la plus simple à la plus complexe."),
+                    H.tableau(["Structure", "Principe", "Points forts", "Points faibles"], [
+                        ["Hiérarchique", "chaque salarié a un seul chef", "simple, responsabilités claires", "rigide, informations lentes, peu d'innovation"],
+                        ["Fonctionnelle", "autorité donnée aux spécialistes", "compétences, production en série", "plusieurs chefs pour une même personne"],
+                        ["Hiérarchico-fonctionnelle", "chefs qui décident + conseillers (état-major)", "unité de commandement éclairée", "conflits décideurs / conseillers"],
+                        ["Divisionnelle", "divisions autonomes par produit, marché ou zone", "réactive, adaptée aux grands groupes", "doublons de coûts, concurrence interne"],
+                        ["Matricielle", "double rattachement : métier + projet", "innovation, mobilisation des compétences", "conflits, communication délicate"]
+                    ], { nowrap: false }))
+            ] },
+            "eco1-environnement": { badge: ECO_BADGE, titre: "L'entreprise et son environnement", sections: () => [
+                ecoSec("1. Les trois marchés de l'entreprise", "store",
+                    H.liste([
+                        "<strong>Marché du travail</strong> : l'offre et la demande de travail s'y rencontrent, le salaire s'y fixe.",
+                        "<strong>Marché des capitaux</strong> : l'entreprise y trouve des fonds. Une <strong>action</strong> est un titre de propriété (elle peut rapporter des dividendes) ; une <strong>obligation</strong> est un titre de créance (elle rapporte des intérêts). Le financement participatif (crowdfunding) complète ces sources.",
+                        "<strong>Marché des biens et services</strong> : l'entreprise y vend sa production aux ménages et aux autres entreprises."
+                    ]),
+                    H.note("Dans le circuit économique, les <strong>ménages</strong> consomment et fournissent leur travail ; les <strong>entreprises</strong> produisent et versent les salaires. Les flux réels (travail, produits) et les flux monétaires (salaires, dépenses) circulent en sens inverse.")),
+                ecoSec("2. Le macro-environnement : le PESTEL", "globe",
+                    H.p("Les grandes tendances de la société, sur lesquelles l'entreprise n'a pas de prise, sont des <strong>opportunités</strong> à saisir ou des <strong>menaces</strong> à anticiper."),
+                    H.tableau(["Lettre", "Facteur", "Exemples"], [
+                        ["P", "Politique", "fiscalité, stabilité du gouvernement, commerce extérieur"],
+                        ["E", "Économique", "inflation, taux d'intérêt, chômage, pouvoir d'achat"],
+                        ["S", "Socioculturel", "démographie, modes de vie, habitudes de consommation"],
+                        ["T", "Technologique", "innovations, dépenses de R&D"],
+                        ["E", "Écologique", "énergies renouvelables, normes environnementales"],
+                        ["L", "Légal", "droit de la concurrence, droit du travail, sécurité des produits"]
+                    ], { nowrap: false })),
+                ecoSec("3. Le micro-environnement : les partenaires proches", "users",
+                    H.liste([
+                        "<strong>Concurrents</strong> : directs (même produit, par exemple deux compagnies de taxi) ou indirects (autre produit qui répond au même besoin, par exemple le métro face au taxi).",
+                        "<strong>Fournisseurs</strong> : être dépendant d'un seul est une menace ; pouvoir en changer facilement est une opportunité.",
+                        "<strong>Clients</strong> : un client qui pèse beaucoup et négocie fort est une menace.",
+                        "<strong>Sous-traitants</strong> : partenaires essentiels quand une partie de la production leur est confiée."
+                    ]),
+                    H.p("<strong>Part de marché</strong> = CA de l'entreprise / CA total du marché. Selon sa position, l'entreprise est <strong>leader</strong>, <strong>challenger</strong>, <strong>suiveur</strong> ou <strong>nouvel entrant</strong>."))
+            ] },
+            "eco1-partenaires": { badge: ECO_BADGE, titre: "Fournisseurs, clients et ressources humaines", sections: () => [
+                ecoSec("1. Choisir ses fournisseurs", "truck",
+                    H.listeNum([
+                        "Fixer les critères (prix, qualité, innovation, services, santé financière, fiabilité, conditions de paiement) dans un <strong>cahier des charges</strong>.",
+                        "Chercher des fournisseurs (internet, salons, réseau) puis comparer les devis.",
+                        "Négocier : prix, réductions, délais de livraison et de paiement.",
+                        "Signer le contrat, puis <strong>référencer</strong> le fournisseur (devis → commande → bon de livraison → facture, et suivi des problèmes)."
+                    ]),
+                    H.tableau(["Réduction", "Nature", "Quand ?"], [
+                        ["Remise", "commerciale", "immédiate, pour encourager l'achat (quantité, soldes)"],
+                        ["Rabais", "commerciale", "exceptionnelle, par exemple marchandise abîmée"],
+                        ["Ristourne", "commerciale", "calculée sur l'ensemble des achats d'une période"],
+                        ["Escompte", "financière", "pour un paiement rapide ou comptant"]
+                    ], { nowrap: false })),
+                ecoSec("2. Le coût des approvisionnements", "package",
+                    H.formule(R`\text{Stock moyen} = \dfrac{SI + SF}{2} = \dfrac{\text{consommation de la période}}{2N} \qquad (N = \text{nombre de commandes})`),
+                    H.liste([
+                        "<strong>Coût de possession</strong> : tout ce que coûte le fait d'avoir du stock (loyer de l'entrepôt, assurance, manutention, intérêts…). On l'exprime souvent par un taux : <strong>taux de possession = coût de possession / stock moyen</strong>.",
+                        "<strong>Coût de passation</strong> : ce que coûte chaque commande (préparation, envoi, suivi, personnel).",
+                        "<strong>Coût de gestion des approvisionnements = coût de passation + coût de possession</strong>. Plus on passe de commandes, plus le stock moyen (et donc la possession) baisse, mais plus la passation coûte : il faut trouver l'équilibre."
+                    ]),
+                    H.p("Exemple : consommation annuelle de 600 000 €, 3 commandes, taux de possession 5 %, 30 € par commande. Stock moyen = 600 000 / 6 = 100 000 € ; possession = 5 000 € ; gestion = 3 × 30 + 5 000 = 5 090 €.")),
+                ecoSec("3. Valoriser un stock au CUMP", "calculator",
+                    H.formule(R`\text{CUMP} = \dfrac{\text{valeur du stock initial} + \text{valeur des entrées}}{\text{quantité du stock initial} + \text{quantités entrées}}`),
+                    H.p("Toutes les sorties et le stock final sont ensuite valorisés à ce même coût unitaire moyen pondéré. Exemple : 200 kg à 10 € puis 300 kg à 11 € : CUMP = (2 000 + 3 300) / 500 = 10,60 € le kg.")),
+                ecoSec("4. Les clients : segmentation et plan de marchéage", "target",
+                    H.liste([
+                        "<strong>Segmenter</strong> les clients : par valeur, par taille (petits, moyens, gros), par la méthode RFM (récence, fréquence, montant des achats), par fidélité.",
+                        "<strong>Plan de marchéage (marketing mix, les 4 P)</strong> : produit, prix, communication (promotion) et distribution (place). Les quatre décisions doivent être cohérentes entre elles."
+                    ]),
+                    H.tableau(["P", "Décisions clés"], [
+                        ["Produit", "qualité, marque, design, emballage, garanties, SAV ; <strong>gamme</strong> : largeur = nombre de lignes, profondeur = nombre de modèles par ligne"],
+                        ["Prix", "écrémage (prix haut, peu de clients), alignement (prix du marché), pénétration (prix bas, beaucoup de clients)"],
+                        ["Communication", "médias (internet, TV, presse, radio, affichage) et hors médias (sponsoring, mécénat, salons, marketing direct, promotion)"],
+                        ["Distribution", "canal direct (0 intermédiaire), court (1), long (2 et plus) ; distribution exclusive, sélective ou intensive"]
+                    ], { nowrap: false }),
+                    H.p("<strong>Innover</strong> permet d'élargir la gamme ou de gagner de nouveaux marchés : innovation de produit, de procédé, de matières premières, de débouchés ou de management.")),
+                ecoSec("5. Recruter", "user-plus",
+                    H.listeNum(["Analyser le besoin (en nombre et en compétences).", "Formaliser le poste (contrat, fiche et profil de poste).", "Choisir les canaux (recrutement interne ou externe, sites d'emploi, réseaux sociaux).", "Rédiger et diffuser l'annonce.", "Recevoir et trier les candidatures (CV, tests, premiers échanges).", "Mener les entretiens et choisir.", "Intégrer et accompagner le nouveau salarié."]))
+            ] },
+            "eco1-processus": { badge: ECO_BADGE, titre: "Le processus productif", sections: () => [
+                ecoSec("1. Objectif : créer de la valeur ajoutée", "sparkles",
+                    H.p("La <strong>valeur ajoutée</strong> est la richesse créée par l'entreprise : la valeur de sa production moins celle des biens et services achetés à d'autres entreprises pour la réaliser.")),
+                ecoSec("2. Les étapes du processus", "workflow",
+                    H.tableau(["Étape", "Rôle", "Documents"], [
+                        ["Marketing puis R&D", "repérer le besoin, concevoir le produit et ses procédés", "plans, cahier des charges, articles (codifiés, par exemple EAN), <strong>nomenclature</strong> : liste des composants du produit"],
+                        ["Bureau des méthodes", "définir comment fabriquer", "<strong>gamme de fabrication</strong> : opérations dans l'ordre, ressources, temps"],
+                        ["Ordonnancement et lancement", "planifier pour tenir les délais avec peu de stock (MRP, Gantt, PERT)", "bons matières, bons de travail, fiches suiveuses"],
+                        ["Contrôle", "suivre l'avancement, la productivité, le budget et la qualité", "tableaux de bord"]
+                    ], { nowrap: false }),
+                    H.note("Ne pas confondre : la <strong>nomenclature</strong> dit de quoi le produit est fait, la <strong>gamme</strong> dit comment on le fabrique. La <strong>différenciation retardée</strong> (personnaliser le produit le plus tard possible, comme teindre un pull après le tricotage) réduit le nombre de nomenclatures à gérer.")),
+                ecoSec("3. De Taylor à la qualité totale", "history",
+                    H.liste([
+                        "<strong>Taylorisme</strong> : organisation scientifique du travail, séparation entre ceux qui conçoivent et ceux qui exécutent, gestes chronométrés, salaire à la pièce.",
+                        "<strong>Fordisme</strong> : travail à la chaîne et production de masse pour augmenter la productivité.",
+                        "Ces modèles ont des <strong>coûts cachés</strong> : trop de stocks, cycles longs, manipulations inutiles, retards, contrôle qualité coûteux en fin de chaîne. Les méthodes <strong>juste-à-temps</strong> les ont mis en évidence.",
+                        "<strong>Maîtrise de la qualité</strong> (Deming, Juran) : la non-qualité est l'écart entre la qualité visée et la qualité obtenue. On implique les opérateurs (cercles de qualité), on audite les fournisseurs (assurance qualité) et on s'appuie sur les normes ISO."
+                    ]))
+            ] },
+            "eco1-politique": { badge: ECO_BADGE, titre: "Politique générale de production", sections: () => [
+                ecoSec("1. Le cycle de vie d'un produit", "activity",
+                    H.figure(svgCycleVie(), "Évolution typique des ventes d'un produit"),
+                    H.tableau(["Phase", "Ventes et marché", "Priorité de l'entreprise"], [
+                        ["Lancement", "ventes faibles, bénéfices limités", "faire connaître le produit"],
+                        ["Croissance", "ventes et concurrents en hausse", "développer la marque, élargir le marché"],
+                        ["Maturité", "ventes stables, marché saturé, guerre des prix", "préparer le produit suivant"],
+                        ["Déclin", "ventes en baisse, prix en baisse, on écoule les stocks", "remplacer le produit"]
+                    ], { nowrap: false }),
+                    H.p("Toutes les phases ne sont pas toujours présentes, leur durée dépend du secteur (un produit saisonnier vit moins longtemps qu'une voiture), et une relance est parfois possible après le déclin.")),
+                ecoSec("2. La compétitivité", "medal",
+                    H.p("Être compétitif, c'est pouvoir garder ou gagner des parts de marché face à la concurrence. On le dit aussi d'un secteur ou d'un pays."),
+                    H.tableau(["", "Compétitivité-prix", "Compétitivité hors prix (structurelle)"], [
+                        ["Principe", "vendre moins cher à qualité équivalente", "imposer son produit malgré son prix"],
+                        ["Dépend de", "coûts de production, marges, charges", "qualité, innovation, SAV, image de marque, délais"],
+                        ["Délai", "peut changer vite", "se construit sur le long terme et demande des investissements"]
+                    ], { nowrap: false }))
+            ] },
+            "eco1-couts": { badge: ECO_BADGE, titre: "Coût de revient et seuil de rentabilité", sections: () => [
+                ecoSec("1. Le coût de revient complet", "layers",
+                    H.p("Le <strong>coût de revient</strong> regroupe toutes les charges d'un produit, de l'achat des matières jusqu'à la vente. Il sert à fixer un prix de vente et à prendre des décisions."),
+                    H.liste([
+                        "<strong>Charges directes</strong> : on sait à quel produit les affecter (matière, main-d'œuvre d'un poste précis).",
+                        "<strong>Charges indirectes</strong> : communes à plusieurs produits (salaire d'un chef d'atelier). On les répartit entre des centres d'analyse, puis vers les produits grâce à une <strong>unité d'œuvre</strong> : coût de l'unité d'œuvre = total du centre / nombre d'unités d'œuvre."
+                    ]),
+                    H.formule(R`\begin{aligned} \text{coût d'achat} &= \text{prix d'achat} + \text{frais d'approvisionnement} \\ \text{coût de production} &= \text{coût des matières consommées} + \text{frais de production} \\ \text{coût de revient} &= \text{coût de production des produits vendus} + \text{coûts hors production} \end{aligned}`),
+                    H.p("Les fiches de stock (au CUMP) permettent de passer d'une étape à l'autre. Résultat = chiffre d'affaires − coût de revient des produits vendus.")),
+                ecoSec("2. Charges variables et charges fixes", "split",
+                    H.liste(["<strong>Variables</strong> : elles suivent l'activité (achats de marchandises, matières, commissions des vendeurs).", "<strong>Fixes</strong> : elles ne dépendent pas des quantités vendues (loyer, amortissement linéaire, publicité)."]),
+                    H.tableau(["Compte de résultat différentiel", "Calcul"], [
+                        ["Chiffre d'affaires (CA)", "100 %"],
+                        ["− Charges variables (CV)", "CV / CA"],
+                        ["= Marge sur coûts variables (MsCV)", "taux de MsCV = MsCV / CA"],
+                        ["− Charges fixes (CF)", ""],
+                        ["= Résultat", ""]
+                    ])),
+                ecoSec("3. Seuil de rentabilité, point mort et sécurité", "target",
+                    H.formule(R`SR = \dfrac{CF}{\text{taux de } MsCV} \qquad SR_{\text{quantité}} = \dfrac{CF}{\text{marge unitaire}} = \dfrac{SR}{\text{prix de vente}} \qquad \text{point mort} = \dfrac{SR}{CA} \times 360 \text{ jours}`),
+                    H.liste([
+                        "Le <strong>seuil de rentabilité</strong> est le CA pour lequel le résultat est nul : au-dessus, l'entreprise fait du bénéfice.",
+                        "Le <strong>point mort</strong> est la date à laquelle ce seuil est atteint (activité régulière ; s'il y a une fermeture, on décale la date).",
+                        "<strong>Marge de sécurité</strong> = CA − SR ; <strong>indice de sécurité</strong> = marge de sécurité / CA × 100 : la baisse de CA que l'entreprise peut encaisser sans faire de perte."
+                    ]),
+                    H.p("Exemple : 2 000 articles à 50 €, coût variable 30 € par article, CF = 24 000 €. CA = 100 000 €, MsCV = 40 000 € (taux 40 %), SR = 24 000 / 0,40 = 60 000 € (1 200 articles), point mort = 60 000 / 100 000 × 360 = 216 jours, marge de sécurité = 40 000 € (indice 40 %)."))
+            ] },
+            "eco1-amortissements": { badge: ECO_BADGE, titre: "Les amortissements", sections: () => [
+                ecoSec("1. Définitions", "book-open",
+                    H.liste([
+                        "<strong>Amortissement</strong> : constatation d'une perte de valeur <strong>certaine</strong> d'une immobilisation, liée à son usure ou à son obsolescence (machine, véhicule, logiciel…).",
+                        "<strong>Dépréciation</strong> : perte <strong>probable</strong> (stocks, créances clients, titres…). À ne pas confondre.",
+                        "Une immobilisation n'est amortissable que si sa durée d'utilisation est limitée : un <strong>terrain</strong> ne s'amortit pas.",
+                        "Le <strong>plan d'amortissement</strong> répartit la perte de valeur sur la durée d'utilisation. <strong>Base amortissable</strong> = coût d'acquisition HT − valeur résiduelle (+ coûts de sortie éventuels).",
+                        "<strong>VNC</strong> (valeur nette comptable) = base − cumul des amortissements."
+                    ])),
+                ecoSec("2. Amortissement linéaire", "trending-down",
+                    H.formule(R`\text{taux} = \dfrac{100}{n} \qquad \text{annuité} = \dfrac{\text{base}}{n} \qquad 1^{\text{re}} \text{ annuité} = \text{annuité} \times \dfrac{\text{jours d'utilisation}}{360}`),
+                    H.liste([
+                        "Il commence à la <strong>date de mise en service</strong>. On compte des mois de 30 jours et des années de 360 jours (prorata temporis).",
+                        "Si la première année est incomplète, le plan a une ligne de plus : la dernière annuité complète la première (annuité − 1re annuité)."
+                    ]),
+                    H.p("Exemple : 9 000 € sur 3 ans, mis en service le 1er avril. Annuité = 3 000 € ; du 1er avril au 31 décembre = 270 jours ; 1re annuité = 3 000 × 270 / 360 = 2 250 € ; puis 3 000, 3 000 et 750 €.")),
+                ecoSec("3. Amortissement non linéaire et dégressif", "bar-chart-3",
+                    H.liste([
+                        "<strong>Non linéaire (unités d'œuvre)</strong> : l'annuité suit l'utilisation réelle. Exemple : une presse qui fera 500 000 pièces en tout et 80 000 la première année : annuité 1 = base × 80 000 / 500 000.",
+                        "<strong>Dégressif</strong> : annuités plus fortes au début (avantage fiscal), seulement pour certains biens. Il commence à la <strong>date d'acquisition</strong> et compte en <strong>mois entiers</strong>.",
+                        "Taux dégressif = taux linéaire × coefficient (1,25 pour 3 ou 4 ans ; 1,75 pour 5 ou 6 ans ; 2,25 au-delà de 6 ans).",
+                        "Chaque année : annuité = VNC de début × taux. On prend le <strong>plus grand</strong> entre le taux dégressif et le taux linéaire calculé sur les années restantes (100 / nombre d'années restantes). Le plan a toujours n lignes."
+                    ]),
+                    H.p("Exemple : 12 000 € sur 4 ans, acquis en octobre. Taux = 25 % × 1,25 = 31,25 %. Année 1 (3 mois) : 12 000 × 31,25 % × 3/12 = 937,50 € ; VNC = 11 062,50 €. Année 2 : taux linéaire restant 100/3 = 33,33 % > 31,25 %, donc 11 062,50 × 33,33 % ≈ 3 687,50 €."))
+            ] },
+            "eco1-entreprise": { badge: ECO_BADGE, titre: "Qu'est-ce qu'une entreprise ?", sections: () => [
+                ecoSec("1. Moyens, activité, objectifs", "building-2",
+                    H.p("Une entreprise est un <strong>système organisé et ouvert sur son environnement</strong> : elle combine des moyens pour mener une activité au service de ses objectifs."),
+                    H.tableau(["", "Contenu"], [
+                        ["Moyens humains", "les salariés"],
+                        ["Moyens techniques", "terrains, bâtiments, machines, véhicules, matériel informatique…"],
+                        ["Moyens financiers", "apports des associés, emprunts, richesse dégagée par l'activité"],
+                        ["Activité", "commerciale (revendre sans transformer) ou industrielle (produire des biens ou des services)"],
+                        ["Objectifs", "faire du bénéfice, gagner des parts de marché, s'internationaliser… ou simplement survivre"]
+                    ], { nowrap: false })),
+                ecoSec("2. Les flux avec les partenaires", "arrow-left-right",
+                    H.p("Chaque relation avec un partenaire comporte deux flux de sens opposés : un <strong>flux financier</strong> (de l'argent) et, en face, soit un <strong>flux réel</strong> (un bien, un service, du travail), soit un autre flux financier."),
+                    H.tableau(["Partenaire", "Ce que l'entreprise reçoit", "Ce qu'elle donne"], [
+                        ["Associés / créateur", "des apports (argent ou biens)", "une dette à long terme : le capital"],
+                        ["Fournisseurs", "biens, matières, services", "un paiement comptant ou à crédit (dette fournisseur)"],
+                        ["Clients", "un paiement comptant ou à crédit (créance client)", "marchandises, produits, services"],
+                        ["État", "parfois des subventions", "impôts et taxes"],
+                        ["Banques", "des prêts (dette) ou la garde de ses dépôts", "remboursements et intérêts"],
+                        ["Personnel", "son travail", "les salaires"]
+                    ], { nowrap: false })),
+                ecoSec("3. Le rôle de la comptabilité", "notebook-pen",
+                    H.liste([
+                        "La comptabilité classe et enregistre les opérations chiffrées pour donner une <strong>image fidèle</strong> du patrimoine, de la situation financière et du résultat de l'entreprise.",
+                        "Elle enregistre les flux réels comme les flux financiers, et chaque opération deux fois (ce qui entre et ce qui sort) : c'est la <strong>partie double</strong>.",
+                        "Une opération est enregistrée à la date de sa <strong>facture</strong>, pas à la date du paiement. Une entreprise peut donc être bénéficiaire tout en étant à découvert.",
+                        "Ses documents (<strong>bilan</strong>, <strong>compte de résultat</strong>, annexe) sont obligatoires et publics : ils servent au calcul des impôts, de preuve en droit, et informent tous les partenaires. D'où un vocabulaire et une présentation communs à tous."
+                    ]))
+            ] }
         });
         // ==========================================
         // Physique • bibliothèque de schémas (symboles, oscillogrammes)

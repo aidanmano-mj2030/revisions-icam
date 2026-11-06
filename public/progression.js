@@ -57,7 +57,8 @@
         'm1-limites': ['m1x-m1-limites'], 'm1-derivation': ['m1x-m1-derivation'],
         'm1-fonctions': ['m1x-m1-fonctions'], 'm1-complexes': ['m1x-m1-complexes'], 'm1-suites': ['m1x-m1-suites'],
         'm1-integrale': ['m1x-m1-integrale'], 'm1-edo': ['m1x-m1-edo'], 'm1-fourier': ['m1x-m1-fourier'],
-        'maths-geo-bary': ['gba'], 'maths-geo-scal': ['gsc'], 'maths-geo-vect': ['gve']
+        'maths-geo-bary': ['gba'], 'maths-geo-scal': ['gsc'], 'maths-geo-vect': ['gve'],
+        'eco1-typo': ['ety'], 'eco1-stocks': ['est'], 'eco1-seuil': ['esr'], 'eco1-amort': ['eam']
     };
     const CLES_PS = ['a2/cm/produit-scalaire/exo1', 'a2/cm/produit-scalaire/exo2'];
     const CLES_LIAISONS = ['a1/cm/liaisons/exo'];
