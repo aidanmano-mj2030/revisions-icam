@@ -690,7 +690,7 @@
             { num: "Chapitre n°4", titre: "L'inertie", desc: "Masse, centre d'inertie, moments et produits d'inertie, matrice d'inertie, Huygens et solides usuels.", lecon: "cm2-inertie", exo: "cm2-inertie" }
         ],
         "PHYS": [
-            { num: "Chapitre n°9", titre: "Réponse indicielle d'un SLI", desc: "Analyse temporelle des systèmes linéaires invariants & constante de temps." },
+            { num: "Chapitre n°9", titre: "Réponse indicielle d'un SLI", desc: "Analyse temporelle des systèmes linéaires invariants & constante de temps.", lecon: "phys-sli", exo: "phys-sli" },
             { num: "Chapitre n°10", titre: "Composants à semi-conducteurs", desc: "Diodes, transistors et composants de puissance.", lecon: "phys-semi" },
             { num: "Chapitre n°11", titre: "Redressement monophasé", desc: "Redressement non commandé et commandé.", lecon: "phys-redress" },
             { num: "Chapitre n°12", titre: "Hacheur", desc: "Conversion continu-continu, hacheur série et parallèle.", lecon: "phys-hacheur" }
@@ -7133,6 +7133,107 @@
                         "Une opération est enregistrée à la date de sa <strong>facture</strong>, pas à la date du paiement. Une entreprise peut donc être bénéficiaire tout en étant à découvert.",
                         "Ses documents (<strong>bilan</strong>, <strong>compte de résultat</strong>, annexe) sont obligatoires et publics : ils servent au calcul des impôts, de preuve en droit, et informent tous les partenaires. D'où un vocabulaire et une présentation communs à tous."
                     ]))
+            ] }
+        });
+
+        // ==========================================
+        // Physique A2, chapitre 9 : réponse indicielle (RC, RL, RLC) — leçon et exercices
+        // ==========================================
+        const ln9 = Math.log(9);
+        function sliRC() {
+            const R = choisir([100, 220, 470, 1000, 2200, 4700, 10000]), C = choisir([1, 2.2, 4.7, 10, 22, 47, 100]) * 1e-6, E = choisir([5, 6, 9, 10, 12, 15]);
+            const tau = R * C * 1000, t = choisir([0.5, 1, 2, 3]) * tau, uc = E * (1 - Math.exp(-t / tau));
+            const fR = R >= 1000 ? `${String(R / 1000).replace('.', ',')}\\,\\text{k}\\Omega` : `${R}\\,\\Omega`, fC = `${String(Math.round(C * 1e7) / 10).replace('.', ',')}\\,\\mu\\text{F}`;
+            return { enonce: `<p>Un condensateur déchargé ($C = ${fC}$) est chargé à travers $R = ${fR}$ par un échelon $E = ${E}$ V à $t = 0$. Calcule la constante de temps (en ms), la tension $u_C$ à $t = ${centiemeTeX(t)}$ ms, et le temps de montée $t_m$ (de 10 % à 90 %).</p>`,
+                champs: [gNum('tau', '$\\tau$ =', tau, { unite: 'ms', groupe: 'Charge RC' }), gNum('u', '$u_C$ =', uc, { unite: 'V', groupe: 'Charge RC' }), gNum('tm', '$t_m$ =', tau * ln9, { unite: 'ms', groupe: 'Charge RC' })],
+                correction: `<p>$\\tau = RC = ${centiemeTeX(tau)}$ ms.</p><p>$u_C(t) = E\\left(1 - e^{-t/\\tau}\\right) = ${E}\\left(1 - e^{-${centiemeTeX(t / tau)}}\\right) \\approx ${centiemeTeX(uc)}$ V.</p><p>$t_m = t_2 - t_1 = \\tau\\ln 9 \\approx 2{,}2\\,\\tau \\approx ${centiemeTeX(tau * ln9)}$ ms.</p>` };
+        }
+        function sliDecharge() {
+            const E = choisir([5, 10, 12, 24]), tau = choisir([2, 5, 10, 20, 50]), k = choisir([1, 2, 3, 0.5]), u = E * Math.exp(-k);
+            return { enonce: `<p>Un condensateur chargé sous $E = ${E}$ V se décharge dans une résistance ; la constante de temps vaut $\\tau = ${tau}$ ms. Quelle est la tension à ses bornes à $t = ${centiemeTeX(k * tau)}$ ms ?</p>`,
+                champs: [gNum('u', '$u_C$ =', u, { unite: 'V' })],
+                correction: `<p>Décharge : $u_C(t) = E\\,e^{-t/\\tau} = ${E}\\,e^{-${centiemeTeX(k)}} \\approx ${centiemeTeX(u)}$ V${k === 1 ? ' (37 % de E à t = τ)' : ''}.</p>` };
+        }
+        function sliRL() {
+            const L = choisir([0.1, 0.2, 0.5, 1, 2]), R = choisir([10, 20, 50, 100]), E = choisir([6, 10, 12, 24]);
+            const tau = L / R * 1000, I0 = E / R, t = choisir([1, 2, 3]) * tau, i = I0 * (1 - Math.exp(-t / tau));
+            return { enonce: `<p>Un dipôle RL ($L = ${centiemeTeX(L)}$ H, résistance totale $R = ${R}\\,\\Omega$) est soumis à un échelon $E = ${E}$ V. Calcule $\\tau$ (en ms), l'intensité en régime permanent $I_0$, et l'intensité à $t = ${centiemeTeX(t)}$ ms.</p>`,
+                champs: [gNum('tau', '$\\tau$ =', tau, { unite: 'ms', groupe: 'Établissement du courant' }), gNum('i0', '$I_0$ =', I0, { unite: 'A', groupe: 'Établissement du courant' }), gNum('i', '$i$ =', i, { unite: 'A', groupe: 'Établissement du courant' })],
+                correction: `<p>$\\tau = \\dfrac{L}{R} = \\dfrac{${centiemeTeX(L)}}{${R}} = ${centiemeTeX(tau)}$ ms ; $I_0 = \\dfrac{E}{R} = ${centiemeTeX(I0)}$ A.</p><p>$i(t) = I_0\\left(1 - e^{-t/\\tau}\\right) \\approx ${centiemeTeX(i)}$ A.</p>` };
+        }
+        function sliEnergie() {
+            if (Math.random() < 0.5) { const C = choisir([10, 47, 100, 470, 1000]), u = choisir([5, 12, 24, 50]); const W = 0.5 * C * 1e-6 * u * u * 1000;
+                return { enonce: `<p>Quelle énergie (en mJ) est stockée dans un condensateur de $${C}\\,\\mu$F chargé sous $${u}$ V ?</p>`, champs: [gNum('w', '$E_e$ =', W, { unite: 'mJ' })], correction: `<p>$E_e = \\dfrac12 C u^2 = \\dfrac12 \\times ${C}\\cdot10^{-6} \\times ${u}^2 \\approx ${centiemeTeX(W)}$ mJ.</p>` }; }
+            const L = choisir([0.05, 0.1, 0.5, 1, 2]), i = choisir([0.5, 1, 2, 3, 5]), W = 0.5 * L * i * i;
+            return { enonce: `<p>Quelle énergie (en J) est stockée dans une bobine de $${centiemeTeX(L)}$ H parcourue par $${centiemeTeX(i)}$ A ?</p>`, champs: [gNum('w', '$E_m$ =', W, { unite: 'J' })], correction: `<p>$E_m = \\dfrac12 L i^2 = \\dfrac12 \\times ${centiemeTeX(L)} \\times ${centiemeTeX(i)}^2 \\approx ${centiemeTeX(W)}$ J.</p>` };
+        }
+        function sliAssoc() {
+            const a = choisir([1, 2, 4, 10, 22]), b = choisir([1, 3, 4.7, 10, 47]), serie = Math.random() < 0.5, cond = Math.random() < 0.5;
+            const v = (serie === cond) ? a * b / (a + b) : a + b, n = cond ? 'condensateurs' : 'bobines', u = cond ? 'µF' : 'mH';
+            return { enonce: `<p>Deux ${n} de $${centiemeTeX(a)}$ et $${centiemeTeX(b)}$ ${u} sont associés en <strong>${serie ? 'série' : 'dérivation'}</strong>. Valeur équivalente ?</p>`, champs: [gNum('v', 'Équivalent =', v, { unite: u })],
+                correction: `<p>${cond ? (serie ? 'Condensateurs en série : $\\dfrac1{C_{eq}} = \\dfrac1{C_1} + \\dfrac1{C_2}$' : 'Condensateurs en dérivation : $C_{eq} = C_1 + C_2$') : (serie ? 'Bobines en série : $L_{eq} = L_1 + L_2$' : 'Bobines en dérivation : $\\dfrac1{L_{eq}} = \\dfrac1{L_1} + \\dfrac1{L_2}$')}, d'où <strong class="text-white">${centiemeFR(v)} ${u}</strong>. (Les condensateurs se combinent « à l'envers » des résistances, les bobines comme elles.)</p>` };
+        }
+        function sliRLC() {
+            const L = choisir([0.01, 0.05, 0.1, 0.5]), C = choisir([1, 4.7, 10, 22, 100]) * 1e-6, R = choisir([5, 10, 20, 50, 100, 220, 470]);
+            const w0 = 1 / Math.sqrt(L * C), Q = Math.sqrt(L / C) / R, m = 1 / (2 * Q), reg = m > 1.0001 ? 'aper' : m < 0.9999 ? 'pseudo' : 'crit';
+            return { enonce: `<p>Un circuit RLC série ($R = ${R}\\,\\Omega$, $L = ${centiemeTeX(L)}$ H, $C = ${String(Math.round(C * 1e7) / 10).replace('.', ',')}\\,\\mu$F) est soumis à un échelon. Calcule la pulsation propre $\\omega_0$, le facteur de qualité $Q$ et le coefficient d'amortissement $m$, puis donne le régime.</p>`,
+                champs: [gNum('w', '$\\omega_0$ =', w0, { unite: 'rad/s', groupe: 'Second ordre', largeur: '6.5rem' }), gNum('q', '$Q$ =', Q, { groupe: 'Second ordre', alt: Q }), gNum('m', '$m$ =', m, { groupe: 'Second ordre' }), gChoix('r', reg, [['pseudo', 'Pseudo-périodique'], ['crit', 'Critique'], ['aper', 'Apériodique']], { groupe: 'Régime' })],
+                correction: `<p>$\\omega_0 = \\dfrac{1}{\\sqrt{LC}} \\approx ${centiemeTeX(w0)}$ rad/s ; $Q = \\dfrac1R\\sqrt{\\dfrac LC} \\approx ${centiemeTeX(Q)}$ ; $m = \\dfrac{1}{2Q} = \\dfrac R2\\sqrt{\\dfrac CL} \\approx ${centiemeTeX(m)}$.</p><p>${reg === 'pseudo' ? '$m < 1$ : régime <strong class="text-white">pseudo-périodique</strong> (oscillations amorties).' : reg === 'aper' ? '$m > 1$ : régime <strong class="text-white">apériodique</strong> (pas d\'oscillation).' : '$m = 1$ : régime <strong class="text-white">critique</strong>.'}</p>` };
+        }
+        EXOS['phys-sli'] = { chapitre: 'phys-sli', libelle: 'Réponse indicielle', badge: 'Physique • 2ème Année', titre: 'Réponse indicielle : RC, RL, RLC', demarrer: () => { const fn = { id: 'sli', types: { rc: sliRC, dech: sliDecharge, rl: sliRL, ener: sliEnergie, assoc: sliAssoc, rlc: sliRLC }, libelles: { tout: 'Tout', rc: 'Charge RC', dech: 'Décharge', rl: 'Dipôle RL', ener: 'Énergie', assoc: 'Associations', rlc: 'RLC (2e ordre)' } }; exgLancer(fn.id, 'Réponse indicielle : RC, RL, RLC', 'activity', fn.types, fn.libelles); } };
+        Object.assign(LECONS, {
+            "phys-sli": { badge: "Physique • 2ème Année", titre: "Réponse indicielle des systèmes linéaires", sections: () => [
+                ecoSec("1. La réponse indicielle", "trending-up",
+                    H.p("Au chapitre 5, on soumettait un système linéaire à une tension sinusoïdale (réponse harmonique). Ici, on lui applique un <strong>échelon de tension</strong> et on observe comment il réagit au cours du temps :"),
+                    H.formule(R`e(t) = 0 \text{ pour } t < t_0 \qquad e(t) = E \text{ pour } t \geq t_0 \qquad (\text{souvent } t_0 = 0)`),
+                    H.p("La réponse comporte un <strong>régime transitoire</strong> (la grandeur évolue) puis un <strong>régime permanent</strong> (elle est stable).")),
+                ecoSec("2. Rappels sur le condensateur", "battery",
+                    H.liste([
+                        "Deux armatures séparées par un isolant (diélectrique). Elles portent des charges opposées : $q_A = -q_B$, et on appelle charge $q$ du condensateur la valeur positive.",
+                        R`L'intensité est un débit de charges : $i = \dfrac{dq}{dt}$ (l'armature qui porte $q$ est celle par laquelle entre le courant).`,
+                        R`En convention récepteur : $q = C\,u$ ($q$ en coulomb, $C$ en farad, $u$ en volt), donc $i = C\,\dfrac{du}{dt}$.`,
+                        R`Associations : <strong>en série</strong> $\dfrac{1}{C_{eq}} = \sum \dfrac{1}{C_i}$ ; <strong>en dérivation</strong> $C_{eq} = \sum C_i$.`,
+                        R`Énergie stockée : $E_e = \dfrac12 C u^2 = \dfrac{q^2}{2C}$. L'énergie ne peut pas varier instantanément, donc <strong>la tension aux bornes d'un condensateur est toujours continue</strong> : s'il est déchargé, $u_C(0) = 0$.`
+                    ])),
+                ecoSec("3. Charge du dipôle RC", "arrow-up-right",
+                    H.p(R`Loi des mailles : $E = u_R + u_C = R\,i + u_C$ avec $i = C\,\dfrac{du_C}{dt}$. En posant $\tau = RC$ (constante de temps, en secondes) :`),
+                    H.formule(R`\tau\,\dfrac{du_C}{dt} + u_C = E \qquad\Longrightarrow\qquad u_C(t) = E\left(1 - e^{-t/\tau}\right) \qquad i(t) = \dfrac{E}{R}\,e^{-t/\tau}`),
+                    H.figure(mfGraph({ w: 340, h: 200, xmin: -0.2, xmax: 5.4, lx: 't', ly: 'u_C', ymin: -0.1, ymax: 1.25, tx: [1, 2, 3, 4, 5], ty: [0.63, 1], fx: (v) => (v === 1 ? 'τ' : v + 'τ'), fy: (v) => (v === 1 ? 'E' : '0,63E'), courbes: [{ f: (x) => 1 - Math.exp(-x), col: '#f59e0b' }], droites: [{ f: (x) => x, col: '#38bdf8', xmax: 1.2 }, { f: () => 1, col: '#94a3b8' }] }), "Charge : la tangente à l'origine coupe u = E en t = τ ; u vaut 63 % de E à τ et plus de 99 % à 5τ."),
+                    H.liste([
+                        "Vérification : on dérive $E(1 - e^{-t/\\tau})$, on remplace dans l'équation, on trouve bien $E$ ; et $u_C(0) = 0$.",
+                        R`<strong>Analyse dimensionnelle</strong> : $R = u/i$ et $C = q/u = i\,t/u$, donc $RC$ s'exprime en $\dfrac{u}{i}\cdot\dfrac{i\,t}{u}$ = secondes.`,
+                        R`<strong>Trouver $\tau$</strong> : par le calcul ($\tau = RC$), ou graphiquement (tangente à l'origine, ou lecture de $u_C = 0{,}63\,E$).`,
+                        R`Après $5\tau$, on considère le condensateur chargé : c'est le régime permanent. Plus $RC$ est grand, plus la charge est lente.`
+                    ]),
+                    H.p(R`<strong>Temps de montée</strong> (de 10 % à 90 % de la valeur finale) : $u_C(t_1) = 0{,}1E$ donne $t_1 = \tau\ln\frac{10}{9}$, $u_C(t_2) = 0{,}9E$ donne $t_2 = \tau\ln 10$, d'où $t_m = t_2 - t_1 = \tau\ln 9 \approx 2{,}2\,\tau$.`)),
+                ecoSec("4. Décharge du condensateur", "arrow-down-right",
+                    H.p(R`Le condensateur, chargé sous $E$, se décharge dans la résistance : $R\,i + u_C = 0$, soit $\tau\,\dfrac{du_C}{dt} + u_C = 0$, et avec $t = 0$ au début de la décharge :`),
+                    H.formule(R`u_C(t) = E\,e^{-t/\tau} \qquad i(t) = -\dfrac{E}{R}\,e^{-t/\tau}`),
+                    H.p(R`La tangente à l'origine coupe l'axe $u_C = 0$ en $t = \tau$, et $u_C(\tau) = E\,e^{-1} \approx 0{,}37\,E$ : il reste 37 % de la tension. Le courant change de sens par rapport à la charge.`)),
+                ecoSec("5. La bobine et le dipôle RL", "spline",
+                    H.liste([
+                        R`Une bobine est un enroulement de fil (parfois autour d'un noyau de fer doux). Son <strong>inductance</strong> $L$ (en henry) traduit le fait qu'elle s'oppose aux variations du courant ; $r$ est sa résistance.`,
+                        R`En convention récepteur : $u = L\,\dfrac{di}{dt} + r\,i$. En courant continu, $u = r\,i$ (bobine parfaite : $u = 0$).`,
+                        R`Associations : <strong>en série</strong> $L_{eq} = \sum L_i$ ; <strong>en dérivation</strong> $\dfrac{1}{L_{eq}} = \sum \dfrac{1}{L_i}$.`,
+                        R`Énergie stockée : $E_m = \dfrac12 L i^2$. Elle ne peut pas varier instantanément : <strong>le courant dans une bobine est toujours continu</strong>.`
+                    ]),
+                    H.p(R`<strong>Établissement du courant</strong> (échelon $E$, résistance totale $R = r + r'$) : $E = L\,\dfrac{di}{dt} + R\,i$. Avec $\tau = \dfrac{L}{R}$ et $I_0 = \dfrac{E}{R}$ :`),
+                    H.formule(R`i(t) = I_0\left(1 - e^{-t/\tau}\right) \qquad u_{bobine}(t) = L\,\dfrac{di}{dt} + r\,i = E\,e^{-t/\tau} + r\,I_0\left(1 - e^{-t/\tau}\right)`),
+                    H.liste([
+                        "Le courant monte progressivement (63 % de $I_0$ à $\\tau$, plus de 99 % à $5\\tau$). Le transitoire est d'autant plus long que $L$ est grand et $R$ petit.",
+                        R`<strong>Rupture du courant</strong> : à l'ouverture, une <strong>diode de roue libre</strong> en parallèle sur la bobine laisse le courant continuer à circuler et évite l'étincelle aux bornes de l'interrupteur. L'énergie de la bobine se dissipe dans les résistances : $i(t) = I_0\,e^{-t/\tau}$ (37 % à $\tau$).`
+                    ])),
+                ecoSec("6. Système du 2e ordre : le circuit RLC série", "activity",
+                    H.p(R`Alimenté par $u_e(t)$, la loi des mailles $u_e = R\,i + L\,\dfrac{di}{dt} + u_C$ avec $i = C\,\dfrac{du_C}{dt}$ donne :`),
+                    H.formule(R`LC\,\dfrac{d^2u_C}{dt^2} + RC\,\dfrac{du_C}{dt} + u_C = u_e \qquad\Longleftrightarrow\qquad \dfrac{1}{\omega_0^2}\dfrac{d^2u_C}{dt^2} + \dfrac{2m}{\omega_0}\dfrac{du_C}{dt} + u_C = u_e`),
+                    H.formule(R`\omega_0 = \dfrac{1}{\sqrt{LC}} \qquad Q = \dfrac{1}{R}\sqrt{\dfrac{L}{C}} \qquad m = \dfrac{1}{2Q} = \dfrac{R}{2}\sqrt{\dfrac{C}{L}}`),
+                    H.liste([
+                        "C'est une équation différentielle linéaire du second ordre à coefficients constants. Sa solution est la somme de la solution sans second membre (le <strong>régime libre</strong>, ou transitoire : le circuit RLC mis en court-circuit sur lui-même) et d'une solution particulière (le <strong>régime permanent</strong> : pour un échelon E, $u_C = E$).",
+                        "<strong>m > 1 : apériodique</strong> — la tension rejoint E sans osciller.",
+                        "<strong>m = 1 : critique</strong> — le retour le plus rapide sans oscillation.",
+                        R`<strong>m < 1 : pseudo-périodique</strong> — oscillations amorties autour de E, de pseudo-pulsation $\omega = \omega_0\sqrt{1 - m^2}$ (pseudo-période $T = 2\pi/\omega$).`
+                    ]),
+                    H.figure(mfGraph({ w: 340, h: 200, xmin: -0.2, xmax: 10, lx: 't', ly: 'u_C', ymin: -0.1, ymax: 1.7, tx: [], ty: [1], fy: () => 'E', courbes: [{ f: (x) => 1 - Math.exp(-0.25 * x) * (Math.cos(0.97 * x) + 0.26 * Math.sin(0.97 * x)), col: '#f59e0b' }, { f: (x) => 1 - (1 + x) * Math.exp(-x), col: '#34d399' }, { f: (x) => 1 - 1.07 * Math.exp(-0.27 * x) + 0.07 * Math.exp(-3.73 * x), col: '#38bdf8' }] }), "Réponse à un échelon : pseudo-périodique (orange, m < 1), critique (vert, m = 1), apériodique (bleu, m > 1)."))
             ] }
         });
 
