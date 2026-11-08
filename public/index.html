@@ -7220,6 +7220,24 @@
         }
         ceX('ce1-mcc', 'Machines à courant continu', 'Machines à courant continu : bilans de puissance', 'cog', { mot: mccMoteur, gen: mccGeneratrice, fem: mccFem }, { tout: 'Tout', mot: 'Moteur', gen: 'Génératrice', fem: 'F.é.m. et vitesse' }, 'mcc');
 
+        // récapitulatif : moteur (flèches du haut, vers la droite) et génératrice (flèches du bas, vers la gauche)
+        const svgBilanDouble = () => {
+            const MOT = '#f59e0b', GEN = '#38bdf8', P = '#f87171', bx = [20, 215, 410], w = 130;
+            const boite = (x, l1, l2) => `<rect x="${x}" y="95" width="${w}" height="56" rx="8" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/><text x="${x + w / 2}" y="119" text-anchor="middle" fill="${SVG_TEXTE}" font-size="13" font-weight="bold">${l1}</text><text x="${x + w / 2}" y="138" text-anchor="middle" fill="${SVG_DISCRET}" font-size="11">${l2}</text>`;
+            const fleche = (x1, x2, y, c) => { const d = x2 > x1 ? -8 : 8; return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="2.5"/><polygon points="${x2},${y} ${x2 + d},${y - 5} ${x2 + d},${y + 5}" fill="${c}"/>`; };
+            const perte = (x, y1, y2, t, ty) => { const d = y2 < y1 ? 8 : -8; return `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${P}" stroke-width="2"/><polygon points="${x},${y2} ${x - 5},${y2 + d} ${x + 5},${y2 + d}" fill="${P}"/><text x="${x}" y="${ty}" text-anchor="middle" fill="${P}" font-size="11">${t}</text>`; };
+            let s = `<svg viewBox="0 0 560 250" style="width:100%;max-width:620px;height:auto" role="img" aria-label="Bilan des puissances d'une machine à courant continu, dans le sens moteur et dans le sens génératrice">`;
+            s += boite(bx[0], 'Électrique', 'U·I') + boite(bx[1], 'Pₑₘ = E·I', '= Tₑₘ·Ω') + boite(bx[2], 'Mécanique', 'T·Ω');
+            s += `<text x="280" y="16" text-anchor="middle" fill="${MOT}" font-size="13" font-weight="bold">MOTEUR : Pₐ = U·I  →  Pᵤ = Tᵤ·Ω</text>`;
+            s += fleche(bx[0] + w / 2, bx[1] + w / 2 - 10, 82, MOT) + fleche(bx[1] + w / 2 + 10, bx[2] + w / 2, 82, MOT);
+            s += `<line x1="${bx[0] + w / 2}" y1="82" x2="${bx[0] + w / 2}" y2="95" stroke="${MOT}" stroke-width="2.5"/><line x1="${bx[2] + w / 2}" y1="82" x2="${bx[2] + w / 2}" y2="95" stroke="${MOT}" stroke-width="2.5"/>`;
+            s += perte(182, 82, 40, 'p_J = R·I²', 32) + perte(377, 82, 40, 'p_c (fer + méca)', 32);
+            s += `<text x="280" y="244" text-anchor="middle" fill="${GEN}" font-size="13" font-weight="bold">GÉNÉRATRICE : Pₐ = T·Ω  →  Pᵤ = U·I</text>`;
+            s += fleche(bx[2] + w / 2, bx[1] + w / 2 + 10, 164, GEN) + fleche(bx[1] + w / 2 - 10, bx[0] + w / 2, 164, GEN);
+            s += `<line x1="${bx[0] + w / 2}" y1="151" x2="${bx[0] + w / 2}" y2="164" stroke="${GEN}" stroke-width="2.5"/><line x1="${bx[2] + w / 2}" y1="151" x2="${bx[2] + w / 2}" y2="164" stroke="${GEN}" stroke-width="2.5"/>`;
+            s += perte(377, 164, 206, 'p_c (fer + méca)', 222) + perte(182, 164, 206, 'p_J = R·I²', 222);
+            return s + '</svg>';
+        };
         const svgBilan = (moteur) => {
             const etapes = moteur ? [['Pₐ = U·I', 'électrique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = Tᵤ·Ω', 'mécanique utile']] : [['Pₐ = T·Ω', 'mécanique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = U·I', 'électrique utile']];
             const pertes = moteur ? ['p_J = R·I² (Joule induit)', 'p_c (fer + mécaniques)'] : ['p_c (fer + mécaniques)', 'p_J = R·I² (Joule induit)'];
@@ -7342,6 +7360,7 @@
                     ], { nowrap: false }),
                     H.p("À vide (I = 0), la tension aux bornes est égale à la f.é.m. : U = E. Plus la génératrice débite, plus sa tension baisse (chute R·I).")),
                 ecoSec("5. Moteur et génératrice : retenir", "repeat",
+                    H.figure(svgBilanDouble(), "La même machine, parcourue dans un sens ou dans l'autre. Moteur (en haut) : on perd d'abord la chaleur de l'induit, puis les pertes collectives. Génératrice (en bas) : l'inverse."),
                     H.tableau(["", "Moteur", "Génératrice"], [
                         ["Loi d'Ohm de l'induit", "$U = E + R\\,I$ ($U > E$)", "$U = E - R\\,I$ ($U < E$)"],
                         ["Absorbée", "électrique $U\\,I$", "mécanique $T\\,\\Omega$"],
