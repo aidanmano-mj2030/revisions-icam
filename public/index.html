@@ -611,7 +611,8 @@
     "1ère Année": {
         "CM": [
             { num: "Chapitre n°1", titre: "Liaisons & Torseurs associés", desc: "Modélisation des liaisons cinématiques, représentations 2D/3D, torseurs cinématiques et statiques.", interactifA1: true },
-            { num: "Chapitre n°2", titre: "Cinématique du solide indéformable", desc: "Trajectoires, translation, rotation, composition des vitesses, équiprojectivité et CIR.", lecon: "cm1-cinematique" }
+            { num: "Chapitre n°2", titre: "Cinématique du solide indéformable", desc: "Trajectoires, translation, rotation, composition des vitesses, équiprojectivité et CIR.", lecon: "cm1-cinematique", exo: "cm1-cinematique" },
+            { num: "Chapitre n°3", titre: "Statique du solide", desc: "Actions mécaniques, isolement, principe fondamental de la statique, méthodes analytique et graphique.", lecon: "cm1-statique", exo: "cm1-statique" }
         ],
         "AII": [
             { num: "Chapitre n°1", titre: "Les GRAFCET", desc: "Étapes, transitions, réceptivités, actions, règles d'évolution et structures.", lecon: "aii-grafcet", exo: "aii-grafcet" },
@@ -636,9 +637,9 @@
             { num: "Chapitre n°11", titre: "Séries de Fourier", desc: "Coefficients, harmoniques, spectre et formule de Parseval.", lecon: "m1-fourier", exo: "m1-fourier" }
         ],
         "CE": [
-            { num: "Chapitre n°1", titre: "Production-énergie électrique", desc: "Cours à venir." },
-            { num: "Chapitre n°2", titre: "Composants et schémas électriques", desc: "Cours à venir." },
-            { num: "Chapitre n°3", titre: "Moteurs à courant continu", desc: "Cours à venir." }
+            { num: "Chapitre n°1", titre: "Production et distribution de l'énergie électrique", desc: "Centrales, énergies renouvelables, réseau, transport et livraison, dangers du courant.", lecon: "ce1-production", exo: "ce1-production" },
+            { num: "Chapitre n°2", titre: "Composants et schémas électriques", desc: "Normes de représentation, repérage, appareillage (sectionneur, fusibles, disjoncteurs, contacteurs), installations domestiques.", lecon: "ce1-schemas", exo: "ce1-schemas" },
+            { num: "Chapitre n°3", titre: "Machines à courant continu", desc: "Constitution, f.é.m., moteur et génératrice : puissances, pertes, rendement.", lecon: "ce1-mcc", exo: "ce1-mcc" }
         ],
         "OI": [
             { num: "Chapitre n°1", titre: "Taylorisme, Fordisme et Toyotisme", desc: "Les grands courants d'organisation du travail, 5 zéros.", lecon: "oi1-courants" },
@@ -664,6 +665,12 @@
             { num: "Chapitre n°11", titre: "Le compte de résultat", desc: "Cours à venir." },
             { num: "Chapitre n°12", titre: "Les soldes intermédiaires de gestion", desc: "Cours à venir." }
         ],
+        "EST": [
+            { num: "Chapitre n°1", titre: "Analyse fonctionnelle", desc: "Besoin, bête à cornes, diagramme pieuvre, SAFE, FAST, caractérisation et hiérarchisation des fonctions.", lecon: "est1-af", exo: "est1-af" },
+            { num: "Chapitre n°2", titre: "Le dessin technique", desc: "Types de dessins, formats, cartouche, nomenclature, échelle et types de traits.", lecon: "est1-dessin", exo: "est1-dessin" },
+            { num: "Chapitre n°3", titre: "Les coupes", desc: "Principe de la coupe, hachures, indications de coupe sur une vue.", lecon: "est1-coupes" },
+            { num: "Chapitre n°4", titre: "Perspectives et vocabulaire technique", desc: "Perspectives cavalière et isométrique, formes usuelles des pièces, arbres et alésages.", lecon: "est1-formes" }
+        ],
         "PHYS": [
             { num: "Chapitre n°1", titre: "Grandeurs électriques et lois fondamentales dans les circuits", desc: "Tension, courant, puissance, lois de Kirchhoff & Ohm.", lecon: "ph1-grandeurs" },
             { num: "Chapitre n°2", titre: "Dipôles électriques", desc: "Comportement des résistances, condensateurs et inductances.", lecon: "ph1-dipoles" },
@@ -680,10 +687,10 @@
             { num: "Chapitre n°1", titre: "Les engrenages", desc: "Module, rapport de transmission, trains d'engrenages et trains épicycloïdaux.", lecon: "cm2-engrenages", exo: "cm2-trains" },
             { num: "Chapitre n°2", titre: "Produit scalaire & Produit vectoriel", desc: "Calcul vectoriel dans les repères R0, R1, R2, changement de bases & normes.", interactif: true },
             { num: "Chapitre n°3", titre: "Cinématique d'un point", desc: "Vecteurs position, vitesse et accélération, dans des repères fixes ou qui tournent.", lecon: "cm2-point", exo: "cm2-cinematique" },
-            { num: "Chapitre n°4", titre: "L'inertie", desc: "Masse, centre d'inertie, moments et produits d'inertie, matrice d'inertie, Huygens et solides usuels.", lecon: "cm2-inertie" }
+            { num: "Chapitre n°4", titre: "L'inertie", desc: "Masse, centre d'inertie, moments et produits d'inertie, matrice d'inertie, Huygens et solides usuels.", lecon: "cm2-inertie", exo: "cm2-inertie" }
         ],
         "PHYS": [
-            { num: "Chapitre n°9", titre: "Réponse indicielle d'un SLI", desc: "Analyse temporelle des systèmes linéaires invariants & constante de temps." },
+            { num: "Chapitre n°9", titre: "Réponse indicielle d'un SLI", desc: "Analyse temporelle des systèmes linéaires invariants & constante de temps.", lecon: "phys-sli", exo: "phys-sli" },
             { num: "Chapitre n°10", titre: "Composants à semi-conducteurs", desc: "Diodes, transistors et composants de puissance.", lecon: "phys-semi" },
             { num: "Chapitre n°11", titre: "Redressement monophasé", desc: "Redressement non commandé et commandé.", lecon: "phys-redress" },
             { num: "Chapitre n°12", titre: "Hacheur", desc: "Conversion continu-continu, hacheur série et parallèle.", lecon: "phys-hacheur" }
@@ -696,7 +703,8 @@
         "OI": [
             { num: "Introduction", titre: "Management de la qualité", desc: "Définition, SMQ, certification, outils (Pareto, Ishikawa, PDCA, AMDEC) et coûts de la qualité.", lecon: "oi-qualite" },
             { num: "Chapitre n°2", titre: "Kanban et MRP", desc: "Flux poussé et flux tiré, calcul MRP, kanbans, juste-à-temps.", lecon: "oi-kanban" },
-            { num: "Chapitre n°3", titre: "La maîtrise statistique des procédés", desc: "Loi normale, droite de Henry, cartes de contrôle, capabilité Cm et Cmk.", lecon: "oi-msp" }
+            { num: "Chapitre n°3", titre: "La maîtrise statistique des procédés", desc: "Loi normale, droite de Henry, cartes de contrôle, capabilité Cm et Cmk.", lecon: "oi-msp" },
+            { num: "Chapitre n°4", titre: "La cotation GPS", desc: "Principe d'indépendance, ajustements, rugosité, tolérances géométriques, enveloppe et maximum de matière.", lecon: "oi2-gps", exo: "oi2-gps" }
         ],
         "MATHS": [
             { num: "Fonction", titre: "Développement Limité", desc: "Étude de x -> 0, ordre 1, 2, 3...", lecon: "maths-dl", exo: "maths-dl-usuels" },
@@ -4705,7 +4713,11 @@
                             H.formule(R`\int_{P\in\Sigma} \overrightarrow{GP}\,dm = \vec{0}`),
                             H.p(R`Pour trois masses : $M_1\,\overrightarrow{GP_1} + M_2\,\overrightarrow{GP_2} + M_3\,\overrightarrow{GP_3} = \vec{0}$. On écrit $\overrightarrow{GP_i} = \overrightarrow{GO} + \overrightarrow{OP_i}$ et on obtient :`),
                             H.formule(R`\overrightarrow{OG} = \dfrac{M_1\,\overrightarrow{OP_1} + M_2\,\overrightarrow{OP_2} + M_3\,\overrightarrow{OP_3}}{M_1 + M_2 + M_3}`),
-                            H.p(R`Pour un solide indéformable, le point $G$ est <strong>unique</strong>.`)
+                            H.p(R`Pour un solide indéformable, le point $G$ est <strong>unique</strong> et ne dépend pas du temps.`),
+                            H.liste([
+                                R`Si le solide est homogène et possède un élément de symétrie (plan, axe, centre), $G$ est sur cet élément.`,
+                                R`En mécanique générale, le centre d'inertie est confondu avec le centre de gravité.`
+                            ])
                         ].join('')
                     },
                     {
@@ -4757,7 +4769,10 @@
                             H.p(R`On la retrouve avec le produit vectoriel, pour un axe $\Delta$ passant par $A$ :`),
                             H.formule(R`J(A,\Delta)\,\vec{\Delta} = \int_D \overrightarrow{AP} \wedge \left(\vec{\Delta} \wedge \overrightarrow{AP}\right)\rho\,dv`),
                             H.p(R`D'où la <strong>matrice d'inertie</strong> du solide $S$ au point $O$, dans la base $(\vec{x}, \vec{y}, \vec{z})$ :`),
-                            H.formule(R`I_O(S) = \begin{pmatrix} A & -F & -E \\ -F & B & -D \\ -E & -D & C \end{pmatrix}_{(O;\,\vec{x},\vec{y},\vec{z})}`)
+                            H.formule(R`I_O(S) = \begin{pmatrix} A & -F & -E \\ -F & B & -D \\ -E & -D & C \end{pmatrix}_{(O;\,\vec{x},\vec{y},\vec{z})}`),
+                            H.p(R`<strong>Moment d'inertie par rapport à un axe quelconque</strong> $\Delta$ passant par $O$, de vecteur unitaire $\vec{u} = \alpha\,\vec{x} + \beta\,\vec{y} + \gamma\,\vec{z}$ : $I_\Delta = \int PH^2\,dm$ ($H$ projeté de $P$ sur l'axe), et avec la matrice :`),
+                            H.formule(R`I_\Delta = \vec{u} \cdot \left(I_O(S)\,\vec{u}\right) = A\,\alpha^2 + B\,\beta^2 + C\,\gamma^2 - 2D\,\beta\gamma - 2E\,\gamma\alpha - 2F\,\alpha\beta`),
+                            H.note(R`La matrice d'inertie est symétrique, donc diagonalisable : il existe une base $(\vec{x}_1, \vec{y}_1, \vec{z}_1)$, les <strong>axes principaux d'inertie</strong>, dans laquelle elle s'écrit $\mathrm{diag}(A_1, B_1, C_1)$ (les <strong>moments principaux</strong>). Les produits d'inertie y sont nuls.`)
                         ].join('')
                     },
                     {
@@ -4780,7 +4795,8 @@
                             H.formule(R`D = D_G + m\,(b\,c) \qquad E = E_G + m\,(c\,a) \qquad F = F_G + m\,(a\,b)`),
                             H.p(R`<strong>Théorème de König</strong> : même idée, écrite avec des matrices :`),
                             H.formule(R`[I_O(S)] = [I_G(S)] + [I_O(m \text{ concentrée en } G)]`),
-                            H.note(R`Attention : on n'a pas le droit d'additionner des matrices d'inertie écrites en deux points différents. Il faut d'abord les ramener au même point avec Huygens.`)
+                            H.p(R`Pour les moments par rapport aux plans : $A' = A'_G + m\,a^2$, $B' = B'_G + m\,b^2$, $C' = C'_G + m\,c^2$. Cas le plus utilisé, un axe $\Delta$ parallèle à un axe passant par $G$, à la distance $d$ : $I_\Delta = I_{G} + m\,d^2$.`),
+                            H.note(R`Attention : on n'a pas le droit d'additionner des matrices d'inertie écrites en deux points différents, ni dans deux bases différentes. Il faut d'abord les ramener au même point (avec Huygens) et à la même base.`)
                         ].join('')
                     },
                     {
@@ -4809,7 +4825,13 @@
                             H.p(R`<strong>Sphère pleine</strong> de rayon $R$ (la matrice est la même dans toutes les bases) :`),
                             H.formule(R`[I_G(S)] = \begin{pmatrix} \frac{2 m R^2}{5} & 0 & 0 \\ 0 & \frac{2 m R^2}{5} & 0 \\ 0 & 0 & \frac{2 m R^2}{5} \end{pmatrix}`),
                             H.p(R`<strong>Sphère creuse</strong> (coque mince) de rayon $R$ :`),
-                            H.formule(R`[I_G(S)] = \begin{pmatrix} \frac{2 m R^2}{3} & 0 & 0 \\ 0 & \frac{2 m R^2}{3} & 0 \\ 0 & 0 & \frac{2 m R^2}{3} \end{pmatrix}`)
+                            H.formule(R`[I_G(S)] = \begin{pmatrix} \frac{2 m R^2}{3} & 0 & 0 \\ 0 & \frac{2 m R^2}{3} & 0 \\ 0 & 0 & \frac{2 m R^2}{3} \end{pmatrix}`),
+                            H.p(R`<strong>Demi-anneau</strong> de rayon $R$ et de centre $O$, dans le plan $(\vec{x}, \vec{y})$ : $\overrightarrow{OG} = \dfrac{2R}{\pi}\,\vec{y}$ et, au point $O$, la même matrice que l'anneau complet (toute la masse est à la distance $R$ de $O$) :`),
+                            H.formule(R`[I_O(S)] = \begin{pmatrix} \frac{m R^2}{2} & 0 & 0 \\ 0 & \frac{m R^2}{2} & 0 \\ 0 & 0 & m R^2 \end{pmatrix}`),
+                            H.liste([
+                                R`<strong>Cylindre creux mince</strong> (tube de rayon $R$, hauteur $H$) : $A_G = B_G = m\left(\dfrac{R^2}{2} + \dfrac{H^2}{12}\right)$ et $C_G = m R^2$.`,
+                                R`<strong>Cône plein</strong> exprimé au sommet $S$ (axe $\vec{z}$) : $A_S = B_S = \dfrac{3m\,(R^2 + 4H^2)}{20}$ et $C_S = \dfrac{3 m R^2}{10}$ ; son centre d'inertie est aux trois quarts de la hauteur en partant du sommet.`
+                            ])
                         ].join('')
                     }
                 ]
@@ -6065,7 +6087,7 @@
             const grille = `<table style="border-collapse:separate;border-spacing:6px">${Array.from({ length: n }, (_, i) => `<tr>${Array.from({ length: p }, (_, j) => `<td><input id="mt-c-${i}-${j}" type="text" inputmode="decimal" autocomplete="off" style="width:4.6rem" class="${MX_CLASSE}${ETATS_CHAMP.neutre}"></td>`).join('')}</tr>`).join('')}</table>`;
             const special = q.special ? `<label class="flex items-center gap-2 text-sm text-slate-200 cursor-pointer"><input id="mt-special" type="checkbox" class="w-4 h-4 accent-amber-400"> ${q.special.libelle}</label>` : '';
             document.getElementById('bloc-mt-corps').innerHTML = `
-                <div class="flex flex-wrap items-center gap-2">${chips}<span id="mt-score" class="ml-auto text-xs text-slate-400">Réussies : ${MX.reussies}</span></div>
+                <div class="flex flex-wrap items-center gap-2">${chips}</div>
                 <div class="rounded-xl bg-slate-950 border border-slate-800 p-4 space-y-3">${q.enonce}</div>
                 <div class="space-y-2"><p class="text-sm font-semibold text-slate-200">Ta réponse${q.type === 'systeme' ? ' (X)' : ''} :</p>
                     <div class="flex flex-wrap items-center gap-4"><div style="display:inline-block;border-left:2px solid #94a3b8;border-right:2px solid #94a3b8;border-radius:8px;padding:0 4px">${grille}</div>${special}</div>
@@ -6119,7 +6141,7 @@
             }
             bilan.className = 'text-sm min-h-[1.25rem] ' + (ok ? 'text-emerald-300' : 'text-amber-300');
             bilan.textContent = texte;
-            if (ok && !MX.compte && !MX.utilisee) { MX.compte = true; MX.reussies++; document.getElementById('mt-score').textContent = `Réussies : ${MX.reussies}`; }
+            if (ok && !MX.compte && !MX.utilisee) { MX.compte = true; MX.reussies++; }
         }
         function mxReinit() {
             const q = MX.q;
@@ -6167,7 +6189,7 @@
         }
         function exgDessiner(id) {
             const e = EXG[id], q = e.q;
-            const chips = e.libelles ? `<div class="flex flex-wrap items-center gap-2">${Object.keys(e.libelles).map(k => `<button type="button" data-filtre="${k}" class="px-3 py-1.5 rounded-full text-xs font-semibold border ${e.filtre === k ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700'}">${e.libelles[k]}</button>`).join('')}<span id="${id}-score" class="ml-auto text-xs text-slate-400">Réussies : ${e.reussies}</span></div>` : `<div class="flex justify-end"><span id="${id}-score" class="text-xs text-slate-400">Réussies : ${e.reussies}</span></div>`;
+            const chips = e.libelles ? `<div class="flex flex-wrap items-center gap-2">${Object.keys(e.libelles).map(k => `<button type="button" data-filtre="${k}" class="px-3 py-1.5 rounded-full text-xs font-semibold border ${e.filtre === k ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700'}">${e.libelles[k]}</button>`).join('')}</div>` : '';
             const corps = document.getElementById(`bloc-${id}-corps`);
             corps.innerHTML = `${chips}
                 <div class="rounded-xl bg-slate-950 border border-slate-800 p-4 space-y-3 text-sm text-slate-300 leading-relaxed overflow-x-auto">${q.enonce}</div>
@@ -6224,7 +6246,7 @@
             else if (faux) texte = `${faux} réponse${faux > 1 ? 's sont fausses' : ' est fausse'}.${decimales ? ' ' + MSG_DECIMALES : ''}`;
             else { ok = true; texte = total > 1 ? 'Bravo, tout est juste !' : 'Bravo, c\'est juste !'; }
             bilan.className = 'text-sm min-h-[1.25rem] ' + (ok ? 'text-emerald-300' : 'text-amber-300'); bilan.textContent = texte;
-            if (ok && !e.compte && !e.utilisee) { e.compte = true; e.reussies++; document.getElementById(`${id}-score`).textContent = `Réussies : ${e.reussies}`; }
+            if (ok && !e.compte && !e.utilisee) { e.compte = true; e.reussies++; }
         }
         function exgReinit(id) {
             const q = EXG[id].q, corps = document.getElementById(`bloc-${id}-corps`);
@@ -7111,6 +7133,715 @@
                         "Une opération est enregistrée à la date de sa <strong>facture</strong>, pas à la date du paiement. Une entreprise peut donc être bénéficiaire tout en étant à découvert.",
                         "Ses documents (<strong>bilan</strong>, <strong>compte de résultat</strong>, annexe) sont obligatoires et publics : ils servent au calcul des impôts, de preuve en droit, et informent tous les partenaires. D'où un vocabulaire et une présentation communs à tous."
                     ]))
+            ] }
+        });
+
+        // ==========================================
+        // CE A1 : production d'énergie, composants et schémas, machines à courant continu
+        // ==========================================
+        const ceX = (id, libelle, titre, icone, types, libelles, lettres) => { EXOS[id] = { chapitre: id, libelle, badge: 'CE • 1ère Année', titre, demarrer: () => exgLancer(lettres, titre, icone, types, libelles) }; };
+        const qcm = (q, sol, opts) => ({ enonce: `<p>${q}</p>`, champs: [gChoix('r', sol, opts, { groupe: 'Réponse' })], correction: `<p>Réponse : <strong class="text-white">${opts.find(o => o[0] === sol)[1]}</strong>.</p>` });
+        // ---------- production ----------
+        function ceEnergieAn() {
+            const [nom, P, ru] = choisir([['un réacteur nucléaire de 1 400 MW', 1400, 82], ['un barrage de 90 MW', 90, 70], ['une centrale thermique de 600 MW', 600, 80], ['un parc de 10 éoliennes de 1 MW', 10, 20]]);
+            const E = P * 8760 * ru / 100;
+            return { enonce: `<p>Quelle énergie (en MWh) produit en un an ${nom}, avec un rendement d'utilisation de ${ru} % ? (une année = 8 760 h)</p>`,
+                champs: [gNum('e', '$W$ =', E, { unite: 'MWh', largeur: '8rem' })],
+                correction: `<p>$W = P \\times 8\\,760 \\times ${centiemeTeX(ru / 100)} = ${P} \\times 8\\,760 \\times ${centiemeTeX(ru / 100)} = ${centiemeTeX(E)}$ MWh.</p>` };
+        }
+        function ceSolaire() {
+            const S = choisir([20, 50, 100, 1000, 10000]), r = 17;
+            return { enonce: `<p>Un panneau en silicium a un rendement de ${r} % : 1 m² fournit 170 Wc et produit environ 170 kWh par an (1 000 kWh par kWc en France). Quelle énergie (en kWh/an) produisent $${S}$ m² de panneaux ?</p>`,
+                champs: [gNum('e', '$W$ =', 170 * S, { unite: 'kWh/an', largeur: '8rem' })],
+                correction: `<p>$W = 0{,}17 \\text{ kWc/m}^2 \\times ${S} \\text{ m}^2 \\times 1\\,000 \\text{ kWh/kWc} = ${170 * S}$ kWh/an.</p>` };
+        }
+        function ceCourantCorps() {
+            const U = choisir([50, 120, 230, 400]), R = choisir([1000, 2000, 5000]);
+            return { enonce: `<p>Une personne touche une tension de $${U}$ V ; la résistance de son corps vaut $${R}\\,\\Omega$ (${R <= 1000 ? 'peau humide' : 'peau sèche'}). Quelle intensité (en mA) traverse son corps ?</p>`,
+                champs: [gNum('i', '$I$ =', U / R * 1000, { unite: 'mA' })],
+                correction: `<p>$I = \\dfrac{U}{R} = \\dfrac{${U}}{${R}} = ${centiemeTeX(U / R * 1000)}$ mA. Au-delà de quelques dizaines de mA, il y a risque de contractions musculaires, puis d'arrêt cardiaque.</p>` };
+        }
+        function ceSource() {
+            const q = choisir([
+                ['Quelle machine transforme l\'énergie mécanique en énergie électrique dans presque toutes les centrales ?', 'a', [['a', 'l\'alternateur'], ['t', 'le transformateur'], ['p', 'la pile à combustible']]],
+                ['Pourquoi élève-t-on la tension (jusqu\'à 400 kV) pour transporter l\'électricité ?', 'j', [['j', 'pour limiter les pertes par effet Joule dans les lignes'], ['v', 'pour aller plus vite'], ['s', 'pour la sécurité des usagers']]],
+                ['Quelle source a le meilleur rendement de conversion ?', 'h', [['h', 'l\'hydraulique (environ 90 %)'], ['c', 'la centrale thermique à flamme (environ 35 %)'], ['s', 'le photovoltaïque (environ 17 %)']]],
+                ['Quel est l\'inconvénient principal d\'une centrale au fil de l\'eau ?', 'd', [['d', 'la production dépend du débit, sans stockage possible'], ['g', 'elle émet beaucoup de CO₂'], ['r', 'elle produit des déchets radioactifs']]],
+                ['Qui gère le transport de l\'électricité sur les longues distances en France ?', 'rte', [['rte', 'RTE'], ['erdf', 'Enedis (ex-ERDF)'], ['cre', 'la CRE']]],
+                ['Au-delà de quelle puissance un client est-il livré en haute tension (HTA) ?', '250', [['250', '250 kVA'], ['36', '36 kVA'], ['1250', '1 250 kVA']]],
+                ['Le tarif bleu correspond à une puissance…', 'b', [['b', 'jusqu\'à 36 kVA'], ['j', 'entre 36 et 250 kVA'], ['h', 'supérieure à 250 kVA']]]]);
+            return qcm(...q);
+        }
+        ceX('ce1-production', 'Production d\'énergie', 'Production et distribution de l\'énergie électrique', 'zap', { energie: ceEnergieAn, solaire: ceSolaire, danger: ceCourantCorps, cours: ceSource }, { tout: 'Tout', energie: 'Énergie annuelle', solaire: 'Solaire', danger: 'Courant dans le corps', cours: 'Questions de cours' }, 'cep');
+        // ---------- composants et schémas ----------
+        function ceSchemaQ() {
+            const q = choisir([
+                ['Le sectionneur…', 'n', [['n', 'n\'a pas de pouvoir de coupure : on le manœuvre à vide'], ['c', 'coupe les courts-circuits'], ['d', 'protège les personnes']]],
+                ['Un fusible de code aM sert…', 'm', [['m', 'à protéger un moteur contre les courts-circuits (il tolère les pointes de démarrage)'], ['d', 'à l\'usage domestique'], ['s', 'à protéger les semi-conducteurs']]],
+                ['Un fusible gG (ancien gI) protège…', 'g', [['g', 'contre les surcharges et les courts-circuits (usage industriel général)'], ['m', 'uniquement les moteurs'], ['p', 'les personnes']]],
+                ['Le déclencheur thermique d\'un disjoncteur protège contre…', 's', [['s', 'les surcharges (bilame chauffé par effet Joule)'], ['c', 'les courts-circuits'], ['f', 'les fuites à la terre']]],
+                ['Le déclencheur magnétique d\'un disjoncteur protège contre…', 'c', [['c', 'les courts-circuits (coupure en 10 à 20 ms)'], ['s', 'les surcharges lentes'], ['f', 'les fuites à la terre']]],
+                ['Le disjoncteur différentiel protège…', 'p', [['p', 'les personnes, en détectant un courant de fuite'], ['m', 'les moteurs contre les surcharges'], ['c', 'les câbles contre l\'échauffement']]],
+                ['Sur un contacteur, un contact auxiliaire repéré 13-14 est…', 'f', [['f', 'un contact à fermeture (NO)'], ['o', 'un contact à ouverture (NC)'], ['p', 'un contact de puissance']]],
+                ['Sur un contacteur, un contact auxiliaire repéré 21-22 est…', 'o', [['o', 'un contact à ouverture (NC)'], ['f', 'un contact à fermeture (NO)'], ['b', 'la bobine']]],
+                ['Les bornes de la bobine d\'un contacteur sont repérées…', 'a', [['a', 'A1 et A2'], ['l', 'L1 et L2'], ['u', 'U et V']]],
+                ['Dans un schéma unifilaire…', 'u', [['u', 'plusieurs conducteurs sont représentés par un seul trait'], ['m', 'chaque conducteur a son trait'], ['t', 'on représente l\'implantation réelle']]],
+                ['La représentation développée sert à…', 'd', [['d', 'suivre facilement chaque circuit (c\'est la norme des schémas de commande)'], ['t', 'montrer la place réelle du matériel'], ['a', 'regrouper tous les éléments d\'un appareil']]],
+                ['Le fusible se place…', 'ph', [['ph', 'sur la phase (jamais sur le conducteur de protection)'], ['pe', 'sur la terre'], ['n', 'seulement sur le neutre']]],
+                ['Selon la NF C 15-100, combien de points d\'éclairage au maximum sur un même circuit ?', '8', [['8', '8'], ['5', '5'], ['12', '12']]],
+                ['Un circuit de prises 16 A en 1,5 mm² est protégé par…', 'c16', [['c16', 'un disjoncteur 16 A, avec au plus 5 prises'], ['c20', 'un disjoncteur 20 A, avec 8 prises'], ['f', 'un fusible 32 A']]],
+                ['Le conducteur de protection (terre) a la couleur…', 'vj', [['vj', 'vert et jaune'], ['b', 'bleu'], ['r', 'rouge']]],
+                ['Le montage qui commande une lampe depuis deux endroits s\'appelle…', 'vv', [['vv', 'va-et-vient'], ['da', 'double allumage'], ['sa', 'simple allumage']]],
+                ['Pour commander un éclairage depuis plus de deux endroits, on utilise…', 'tl', [['tl', 'un télérupteur (ou une minuterie)'], ['vv', 'un va-et-vient'], ['da', 'un double allumage']]]]);
+            return qcm(...q);
+        }
+        ceX('ce1-schemas', 'Composants et schémas', 'Composants et schémas électriques', 'cable', { q: ceSchemaQ }, null, 'ces');
+        // ---------- machines à courant continu ----------
+        function mccMoteur() {
+            const U = choisir([110, 220, 230, 240, 440]), R = choisir([0.2, 0.4, 0.5, 0.8, 1, 1.5]), I = choisir([5, 8, 10, 15, 20, 25, 40]), n = choisir([1000, 1200, 1450, 1500, 2000, 3000]), pc = choisir([80, 100, 150, 200, 250]);
+            const E = U - R * I, Pa = U * I, pJ = R * I * I, Pe = E * I, Pu = Pe - pc, om = 2 * Math.PI * n / 60, eta = Pu / Pa * 100, Tu = Pu / om;
+            if (Pu <= 0) return mccMoteur();
+            return { enonce: `<p>Un moteur à courant continu à excitation indépendante (on néglige l'excitation) est alimenté sous $U = ${U}$ V et absorbe $I = ${I}$ A. Résistance de l'induit : $R = ${centiemeTeX(R)}\\,\\Omega$ ; pertes collectives (fer + mécaniques) : $p_c = ${pc}$ W ; vitesse : $${n}$ tr/min.</p>`,
+                champs: [gNum('e', '$E$ =', E, { unite: 'V', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pa', '$P_a$ =', Pa, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pj', '$p_J$ =', pJ, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pe', '$P_{em}$ =', Pe, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pu', '$P_u$ =', Pu, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('eta', '$\\eta$ =', eta, { unite: '%', groupe: 'Rendement et couple', largeur: '6rem' }), gNum('tu', '$T_u$ =', Tu, { unite: 'N·m', groupe: 'Rendement et couple', largeur: '6rem' })],
+                correction: `<p>$E = U - R\\,I = ${U} - ${centiemeTeX(R)} \\times ${I} = ${centiemeTeX(E)}$ V.</p><p>$P_a = U\\,I = ${Pa}$ W ; $p_J = R\\,I^2 = ${centiemeTeX(pJ)}$ W ; $P_{em} = E\\,I = P_a - p_J = ${centiemeTeX(Pe)}$ W.</p><p>$P_u = P_{em} - p_c = ${centiemeTeX(Pu)}$ W ; $\\eta = \\dfrac{P_u}{P_a} \\approx ${centiemeTeX(eta)}$ %.</p><p>$\\Omega = \\dfrac{2\\pi n}{60} \\approx ${centiemeTeX(om)}$ rad/s et $T_u = \\dfrac{P_u}{\\Omega} \\approx ${centiemeTeX(Tu)}$ N·m.</p>` };
+        }
+        function mccGeneratrice() {
+            const E = choisir([120, 230, 250, 260, 460]), R = choisir([0.2, 0.3, 0.5, 0.8, 1]), I = choisir([5, 10, 15, 20, 30]), pc = choisir([100, 150, 200, 300]);
+            const U = E - R * I, Pu = U * I, pJ = R * I * I, Pe = E * I, Pa = Pe + pc, eta = Pu / Pa * 100;
+            return { enonce: `<p>Une génératrice à courant continu (excitation indépendante, négligée) a une f.é.m. $E = ${E}$ V et débite $I = ${I}$ A dans une charge. Résistance de l'induit : $R = ${centiemeTeX(R)}\\,\\Omega$ ; pertes collectives : $p_c = ${pc}$ W.</p>`,
+                champs: [gNum('u', '$U$ =', U, { unite: 'V', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('pu', '$P_u$ =', Pu, { unite: 'W', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('pj', '$p_J$ =', pJ, { unite: 'W', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('pe', '$P_{em}$ =', Pe, { unite: 'W', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('pa', '$P_a$ =', Pa, { unite: 'W', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('eta', '$\\eta$ =', eta, { unite: '%', groupe: 'Rendement', largeur: '6rem' })],
+                correction: `<p>$U = E - R\\,I = ${E} - ${centiemeTeX(R)} \\times ${I} = ${centiemeTeX(U)}$ V ; $P_u = U\\,I = ${centiemeTeX(Pu)}$ W (puissance électrique fournie à la charge).</p><p>$p_J = R\\,I^2 = ${centiemeTeX(pJ)}$ W ; $P_{em} = E\\,I = P_u + p_J = ${centiemeTeX(Pe)}$ W.</p><p>$P_a = P_{em} + p_c = ${centiemeTeX(Pa)}$ W (puissance mécanique reçue) ; $\\eta = \\dfrac{P_u}{P_a} \\approx ${centiemeTeX(eta)}$ %.</p>` };
+        }
+        function mccFem() {
+            const k = choisir([0.5, 0.8, 1, 1.2, 1.5, 2]), n1 = choisir([1000, 1200, 1500]), E1 = Math.round(k * 2 * Math.PI * n1 / 60), n2 = choisir([600, 800, 1800, 2000, 2400]);
+            return { enonce: `<p>À flux constant, la f.é.m. d'une machine à courant continu est proportionnelle à sa vitesse. Elle vaut $${E1}$ V à $${n1}$ tr/min. Que vaut-elle à $${n2}$ tr/min ?</p>`,
+                champs: [gNum('e', '$E_2$ =', E1 * n2 / n1, { unite: 'V' })],
+                correction: `<p>$E = K\\,\\Omega$ donc $E_2 = E_1 \\times \\dfrac{n_2}{n_1} = ${E1} \\times \\dfrac{${n2}}{${n1}} = ${centiemeTeX(E1 * n2 / n1)}$ V.</p>` };
+        }
+        ceX('ce1-mcc', 'Machines à courant continu', 'Machines à courant continu : bilans de puissance', 'cog', { mot: mccMoteur, gen: mccGeneratrice, fem: mccFem }, { tout: 'Tout', mot: 'Moteur', gen: 'Génératrice', fem: 'F.é.m. et vitesse' }, 'mcc');
+
+        // récapitulatif : moteur (flèches du haut, vers la droite) et génératrice (flèches du bas, vers la gauche)
+        const svgBilanDouble = () => {
+            const MOT = '#f59e0b', GEN = '#38bdf8', P = '#f87171', bx = [20, 215, 410], w = 130;
+            const boite = (x, l1, l2) => `<rect x="${x}" y="95" width="${w}" height="56" rx="8" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/><text x="${x + w / 2}" y="119" text-anchor="middle" fill="${SVG_TEXTE}" font-size="13" font-weight="bold">${l1}</text><text x="${x + w / 2}" y="138" text-anchor="middle" fill="${SVG_DISCRET}" font-size="11">${l2}</text>`;
+            const fleche = (x1, x2, y, c) => { const d = x2 > x1 ? -8 : 8; return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="2.5"/><polygon points="${x2},${y} ${x2 + d},${y - 5} ${x2 + d},${y + 5}" fill="${c}"/>`; };
+            const perte = (x, y1, y2, t, ty) => { const d = y2 < y1 ? 8 : -8; return `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${P}" stroke-width="2"/><polygon points="${x},${y2} ${x - 5},${y2 + d} ${x + 5},${y2 + d}" fill="${P}"/><text x="${x}" y="${ty}" text-anchor="middle" fill="${P}" font-size="11">${t}</text>`; };
+            let s = `<svg viewBox="0 0 560 250" style="width:100%;max-width:620px;height:auto" role="img" aria-label="Bilan des puissances d'une machine à courant continu, dans le sens moteur et dans le sens génératrice">`;
+            s += boite(bx[0], 'Électrique', 'U·I') + boite(bx[1], 'Pₑₘ = E·I', '= Tₑₘ·Ω') + boite(bx[2], 'Mécanique', 'T·Ω');
+            s += `<text x="280" y="16" text-anchor="middle" fill="${MOT}" font-size="13" font-weight="bold">MOTEUR : Pₐ = U·I  →  Pᵤ = Tᵤ·Ω</text>`;
+            s += fleche(bx[0] + w / 2, bx[1] + w / 2 - 10, 82, MOT) + fleche(bx[1] + w / 2 + 10, bx[2] + w / 2, 82, MOT);
+            s += `<line x1="${bx[0] + w / 2}" y1="82" x2="${bx[0] + w / 2}" y2="95" stroke="${MOT}" stroke-width="2.5"/><line x1="${bx[2] + w / 2}" y1="82" x2="${bx[2] + w / 2}" y2="95" stroke="${MOT}" stroke-width="2.5"/>`;
+            s += perte(182, 82, 40, 'p_J = R·I²', 32) + perte(377, 82, 40, 'p_c (fer + méca)', 32);
+            s += `<text x="280" y="244" text-anchor="middle" fill="${GEN}" font-size="13" font-weight="bold">GÉNÉRATRICE : Pₐ = T·Ω  →  Pᵤ = U·I</text>`;
+            s += fleche(bx[2] + w / 2, bx[1] + w / 2 + 10, 164, GEN) + fleche(bx[1] + w / 2 - 10, bx[0] + w / 2, 164, GEN);
+            s += `<line x1="${bx[0] + w / 2}" y1="151" x2="${bx[0] + w / 2}" y2="164" stroke="${GEN}" stroke-width="2.5"/><line x1="${bx[2] + w / 2}" y1="151" x2="${bx[2] + w / 2}" y2="164" stroke="${GEN}" stroke-width="2.5"/>`;
+            s += perte(377, 164, 206, 'p_c (fer + méca)', 222) + perte(182, 164, 206, 'p_J = R·I²', 222);
+            return s + '</svg>';
+        };
+        const svgBilan = (moteur) => {
+            const etapes = moteur ? [['Pₐ = U·I', 'électrique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = Tᵤ·Ω', 'mécanique utile']] : [['Pₐ = T·Ω', 'mécanique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = U·I', 'électrique utile']];
+            const pertes = moteur ? ['p_J = R·I² (Joule induit)', 'p_c (fer + mécaniques)'] : ['p_c (fer + mécaniques)', 'p_J = R·I² (Joule induit)'];
+            let s = `<svg viewBox="0 0 520 150" style="width:100%;max-width:560px;height:auto" role="img" aria-label="Bilan des puissances ${moteur ? 'du moteur' : 'de la génératrice'}">`;
+            etapes.forEach(([a, b], i) => { const x = 10 + i * 190; s += `<rect x="${x}" y="20" width="130" height="50" rx="8" fill="none" stroke="${SVG_ACCENT}" stroke-width="2"/><text x="${x + 65}" y="42" text-anchor="middle" fill="${SVG_TEXTE}" font-size="13" font-weight="bold">${a}</text><text x="${x + 65}" y="60" text-anchor="middle" fill="${SVG_DISCRET}" font-size="10">${b}</text>`; });
+            pertes.forEach((p, i) => { const x = 140 + i * 190; s += `<line x1="${x}" y1="45" x2="${x + 60}" y2="45" stroke="${SVG_TRAIT}" stroke-width="2"/><polygon points="${x + 60},40 ${x + 60},50 ${x + 70},45" fill="${SVG_TRAIT}"/><line x1="${x + 30}" y1="45" x2="${x + 30}" y2="105" stroke="#f87171" stroke-width="2"/><polygon points="${x + 25},100 ${x + 35},100 ${x + 30},110" fill="#f87171"/><text x="${x + 30}" y="128" text-anchor="middle" fill="#f87171" font-size="11">${p}</text>`; });
+            return s + '</svg>';
+        };
+        Object.assign(LECONS, {
+            "ce1-production": { badge: "CE • 1ère Année", titre: "Production et distribution de l'énergie électrique", sections: () => [
+                ecoSec("1. D'où vient le courant ?", "atom",
+                    H.p("Un atome est fait d'un noyau (protons et neutrons) et d'électrons. Dans un <strong>conducteur</strong> (métaux), certains électrons sont libres et peuvent se déplacer : c'est le courant électrique. Dans un <strong>isolant</strong>, ils ne le peuvent pas."),
+                    H.p("L'électricité est surtout une forme d'énergie <strong>facile à transporter et à distribuer</strong>. On la produit principalement en convertissant de l'énergie mécanique grâce à un <strong>alternateur</strong> : un rotor (inducteur, électro-aimant) tourne dans un stator (induit) dont les enroulements voient un champ magnétique variable, ce qui y induit des tensions alternatives triphasées (loi de Faraday).")),
+                ecoSec("2. Les moyens de production", "factory",
+                    H.tableau(["Source", "Principe", "Ordres de grandeur", "Points forts / faibles"], [
+                        ["Nucléaire", "fission de l'uranium 235 → chaleur → vapeur → turbine → alternateur", "≈ 1 400 MW par réacteur (EPR : 1 600 MW)", "pas de CO₂, très puissant / déchets radioactifs, risque d'accident"],
+                        ["Hydraulique (barrage)", "l'eau d'une retenue passe dans une conduite forcée et entraîne une turbine", "rendement ≈ 90 %", "production à la demande (pointe), énergie gratuite / sites en montagne, paysage"],
+                        ["Hydraulique au fil de l'eau", "turbine sur le cours d'eau", "dizaines de kW à centaines de MW", "moins d'impact / dépend du débit, pas de stockage"],
+                        ["Thermique à flamme", "combustion (gaz, charbon, fioul) → vapeur détendue dans une turbine", "jusqu'à 600 MW, rendement ≈ 35 %", "maîtrisé / CO₂, ressources fossiles"],
+                        ["Éolien", "le vent fait tourner les pales ; multiplicateur, alternateur, convertisseur 50 Hz", "≈ 1 MW par éolienne, $P = k\\,S\\,v^3$", "renouvelable / intermittent, visuel"],
+                        ["Photovoltaïque", "cellules à semi-conducteurs (≈ 0,5 V chacune) qui transforment directement la lumière", "rendement ≈ 17 %, ≈ 1 000 kWh/an par kWc en France", "silencieux / dépend de l'ensoleillement, surface"],
+                        ["Hydrolienne", "turbine dans les courants de marée", "≈ 1 MW pour 20 m de diamètre à 2,5 m/s", "prévisible / technique difficile"],
+                        ["Biogaz, géothermie, hydrogène", "méthanisation des déchets ; chaleur du sous-sol ; pile à combustible (H₂ + ½O₂ → H₂O)", "géothermie : 3 à 6 MW par site", "renouvelables ou stockables / coûts"]
+                    ], { nowrap: false }),
+                    H.p("Énergie produite sur un an : $W = P \\times 8\\,760 \\text{ h} \\times$ taux d'utilisation. Exemple : une éolienne de 1 MW utilisée à 25 % produit $1 \\times 8\\,760 \\times 0{,}25 = 2\\,190$ MWh par an."),
+                    H.note("La fusion nucléaire (réacteur ITER à Cadarache) vise une énergie concentrée et pauvre en déchets, mais n'est pas attendue avant le milieu du siècle.")),
+                ecoSec("3. Transport et distribution", "network",
+                    H.liste([
+                        "L'alternateur sort environ 20 kV ; un transformateur élève à <strong>400 kV</strong> (THT) pour transporter sur de longues distances avec peu de pertes par effet Joule (RTE), puis on abaisse par étapes (225 kV, 90 kV, 20 kV en HTA, 400/230 V en BT, distribution par Enedis).",
+                        "Le <strong>transformateur</strong> change la tension d'un courant alternatif par induction entre deux enroulements, sans changer la fréquence.",
+                        "<strong>Livraison HTA</strong> (au-delà de 250 kVA) : le client possède son poste HTA/BT et choisit son régime de neutre. <strong>Livraison BT</strong> (jusqu'à 250 kVA) : tarif bleu jusqu'à 36 kVA, tarif jaune de 36 à 250 kVA, neutre à la terre (schéma TT)."
+                    ])),
+                ecoSec("4. Les dangers du courant", "triangle-alert",
+                    H.p("L'effet sur le corps dépend surtout de l'intensité qui le traverse, du temps de passage, du trajet, et de l'état de la peau. Avec $I = U/R$ : sous 230 V, une peau sèche (≈ 5 000 Ω) laisse passer ≈ 46 mA, une peau humide (≈ 1 000 Ω) ≈ 230 mA."),
+                    H.liste(["Faible courant : aucune réaction, puis pas d'effet dangereux.", "Quelques dizaines de mA : contractions musculaires, difficultés respiratoires.", "Au-delà : risque d'arrêt cardiaque et de brûlures graves. D'où les protections différentielles 30 mA."]))
+            ] },
+            "ce1-schemas": { badge: "CE • 1ère Année", titre: "Composants et schémas électriques", sections: () => [
+                ecoSec("1. Pourquoi des schémas normalisés ?", "file-text",
+                    H.p("Un schéma électrique représente avec des symboles normalisés les éléments d'une installation et leurs liaisons. Il sert à expliquer le fonctionnement, à réaliser l'installation, à la mettre en service et à la dépanner."),
+                    H.tableau(["Représentation", "Principe"], [
+                        ["Unifilaire", "plusieurs conducteurs sur un seul trait (le nombre est indiqué par des petits traits obliques)"],
+                        ["Multifilaire", "un trait par conducteur"],
+                        ["Assemblée", "les éléments d'un même appareil sont dessinés ensemble"],
+                        ["Rangée", "les éléments sont séparés mais alignés pour montrer leurs liaisons mécaniques"],
+                        ["Développée", "chaque circuit se lit facilement de haut en bas : c'est la norme pour les schémas de commande"],
+                        ["Architecturale (topographique)", "la position réelle du matériel dans le local"]
+                    ], { nowrap: false })),
+                ecoSec("2. Repérer les éléments et les bornes", "tag",
+                    H.liste([
+                        "Chaque élément porte une lettre de type, un numéro et parfois une fonction : <strong>KM</strong> contacteur moteur, <strong>KA</strong> contacteur auxiliaire, <strong>FU</strong> fusible, <strong>FT</strong> relais thermique, <strong>Q</strong> sectionneur…",
+                        "Bornes : lettres majuscules et chiffres (sans O ni I). En triphasé : L1, L2, L3 pour le réseau, U, V, W côté moteur ; N neutre, PE terre.",
+                        "<strong>Contacts principaux</strong> (puissance) : un seul chiffre (1-2, 3-4, 5-6).",
+                        "<strong>Contacts auxiliaires</strong> : deux chiffres. Les unités donnent la fonction (1-2 à ouverture NC, 3-4 à fermeture NO, 5-6 / 7-8 spéciaux), les dizaines le numéro d'ordre : 13-14 est le 1er contact NO, 21-22 le 2e contact NC.",
+                        "<strong>Bobines</strong> : A1-A2 (et B1-B2 s'il y a un 2e enroulement)."
+                    ])),
+                ecoSec("3. Commande et puissance", "split",
+                    H.p("Une installation industrielle se divise en deux circuits, chacun avec sa propre alimentation :"),
+                    H.tableau(["", "Circuit de commande", "Circuit de puissance"], [
+                        ["Rôle", "donner les ordres", "alimenter les récepteurs"],
+                        ["Contenu", "alimentation (souvent 24 V), isolement, protection, boutons et capteurs, bobines de contacteurs", "réseau triphasé, sectionneur, fusibles et relais de protection, contacts de puissance, moteurs"]
+                    ], { nowrap: false }),
+                    H.p("Un départ moteur doit toujours assurer quatre fonctions : <strong>sectionnement</strong>, <strong>protection</strong> contre les courts-circuits et les surcharges, <strong>commande</strong>, et <strong>arrêt d'urgence</strong>.")),
+                ecoSec("4. L'appareillage", "toggle-right",
+                    H.tableau(["Appareil", "Rôle"], [
+                        ["Sectionneur", "isoler un circuit ; <strong>aucun pouvoir de coupure</strong>, manœuvre à vide, souvent avec fusibles"],
+                        ["Interrupteur-sectionneur", "isoler et couper en charge (mise en service, arrêt)"],
+                        ["Fusible", "fusion d'un fil en cas de surintensité ; toujours sur la phase, jamais sur la terre. <strong>gF</strong> domestique, <strong>gG</strong> industriel (surcharges + courts-circuits), <strong>aM</strong> accompagnement moteur (courts-circuits seulement, tolère le démarrage)"],
+                        ["Disjoncteur magnéto-thermique", "<strong>thermique</strong> (bilame) contre les surcharges, <strong>magnétique</strong> (bobine) contre les courts-circuits en 10 à 20 ms ; réarmable"],
+                        ["Disjoncteur différentiel", "compare le courant aller et retour : s'il y a une fuite (vers la terre, ou une personne), il coupe. Protège les <strong>personnes</strong> (30 mA)"],
+                        ["Contacteur", "commander à distance un récepteur de puissance par sa bobine ; contacts auxiliaires pour l'auto-maintien"],
+                        ["Relais temporisé", "contacts qui basculent après un retard, au travail ou au repos"]
+                    ], { nowrap: false })),
+                ecoSec("5. Installations domestiques (NF C 15-100)", "home",
+                    H.liste([
+                        "<strong>Simple allumage</strong> : un interrupteur, un endroit. <strong>Double allumage</strong> : deux circuits depuis un endroit. <strong>Va-et-vient</strong> : un circuit depuis deux endroits. <strong>Télérupteur</strong> ou <strong>minuterie</strong> : depuis autant d'endroits que voulu, avec des boutons poussoirs.",
+                        "Éclairage : au moins 2 circuits, au plus 8 points par circuit, câble 1,5 mm² protégé par un disjoncteur 16 A ; commandes entre 0,90 et 1,30 m de haut.",
+                        "Prises : toujours avec terre ; 5 prises 16 A en 1,5 mm² (disjoncteur 16 A) ou 8 en 2,5 mm² (disjoncteur 20 A).",
+                        "Couleurs : phase rouge, noire ou marron ; neutre bleu ; terre vert et jaune.",
+                        "Tableau : disjoncteur d'abonné, parafoudre, interrupteurs différentiels 30 mA, puis disjoncteurs divisionnaires ; le tout dans la <strong>GTL</strong> (gaine technique logement)."
+                    ]))
+            ] },
+            "ce1-mcc": { badge: "CE • 1ère Année", titre: "Machines à courant continu", sections: () => [
+                ecoSec("1. Constitution et réversibilité", "cog",
+                    H.liste([
+                        "<strong>Inducteur</strong> (au stator) : aimants ou bobinage parcouru par un courant d'excitation $I_e$ ; il crée le flux magnétique $\\Phi$.",
+                        "<strong>Induit</strong> (au rotor) : conducteurs dans lesquels circule le courant $I$ ; il est relié au circuit extérieur par le <strong>collecteur</strong> et les <strong>balais</strong>, qui redressent mécaniquement le courant.",
+                        "La machine est <strong>réversible</strong> : elle fonctionne en <strong>moteur</strong> (électrique → mécanique) ou en <strong>génératrice</strong> (mécanique → électrique), par exemple lors d'un freinage récupératif."
+                    ])),
+                ecoSec("2. Force électromotrice et couple", "zap",
+                    H.formule(R`E = k\,\Phi\,\Omega \qquad T_{em} = k\,\Phi\,I \qquad \Omega = \dfrac{2\pi n}{60} \;(n \text{ en tr/min})`),
+                    H.liste([
+                        R`À flux constant (aimants, ou excitation indépendante constante) : $E = K\,\Omega$ et $T_{em} = K\,I$, avec le <strong>même</strong> $K$ (en V·s/rad = N·m/A).`,
+                        "La f.é.m. est donc proportionnelle à la vitesse, et le couple au courant.",
+                        R`<strong>Puissance électromagnétique</strong> : c'est celle qui passe de la forme électrique à la forme mécanique (ou l'inverse), $P_{em} = E\,I = T_{em}\,\Omega$.`
+                    ])),
+                ecoSec("3. Le moteur", "arrow-right",
+                    H.formule(R`U = E + R\,I \qquad\text{(l'induit est un récepteur)}`),
+                    H.figure(svgBilan(true), "Bilan des puissances du moteur : de la puissance électrique absorbée à la puissance mécanique utile."),
+                    H.tableau(["Grandeur", "Expression", "Signification"], [
+                        ["Puissance absorbée $P_a$", "$U\\,I$ (+ $U_e\\,I_e$ si l'excitation est comptée)", "électrique, prise au réseau"],
+                        ["Pertes Joule de l'induit $p_J$", "$R\\,I^2$", "échauffement des conducteurs"],
+                        ["Pertes Joule de l'inducteur", "$U_e\\,I_e = r\\,I_e^2$", "si l'excitation est alimentée par la même source"],
+                        ["Puissance électromagnétique $P_{em}$", "$E\\,I = P_a - p_J = T_{em}\\,\\Omega$", "convertie en mécanique"],
+                        ["Pertes collectives $p_c$", "pertes fer + pertes mécaniques (frottements, ventilation)", "à peu près constantes à vitesse donnée ; on les mesure par un essai à vide"],
+                        ["Puissance utile $P_u$", "$P_{em} - p_c = T_u\\,\\Omega$", "mécanique, sur l'arbre"],
+                        ["Rendement", "$\\eta = \\dfrac{P_u}{P_a}$", "toujours inférieur à 1"]
+                    ], { nowrap: false }),
+                    H.p(R`Exemple : $U = 220$ V, $I = 10$ A, $R = 1\,\Omega$, $p_c = 100$ W. $E = 220 - 10 = 210$ V ; $P_a = 2\,200$ W ; $p_J = 100$ W ; $P_{em} = 2\,100$ W ; $P_u = 2\,000$ W ; $\eta \approx 90{,}9$ %.`),
+                    H.note("Au démarrage, Ω = 0 donc E = 0 : le courant vaut U/R, beaucoup trop fort. On démarre donc sous tension réduite (rhéostat ou variateur). Et un moteur à excitation série ne doit jamais tourner à vide (il s'emballe).")),
+                ecoSec("4. La génératrice", "arrow-left",
+                    H.formule(R`U = E - R\,I \qquad\text{(l'induit est un générateur)}`),
+                    H.figure(svgBilan(false), "Bilan des puissances de la génératrice : de la puissance mécanique reçue à la puissance électrique utile."),
+                    H.tableau(["Grandeur", "Expression", "Signification"], [
+                        ["Puissance absorbée $P_a$", "$T\\,\\Omega$ (+ $U_e\\,I_e$ pour l'excitation)", "mécanique, fournie par le moteur d'entraînement"],
+                        ["Pertes collectives $p_c$", "fer + mécaniques", "perdues avant la conversion"],
+                        ["Puissance électromagnétique $P_{em}$", "$P_a - p_c = E\\,I$", "convertie en électrique"],
+                        ["Pertes Joule de l'induit $p_J$", "$R\\,I^2$", ""],
+                        ["Puissance utile $P_u$", "$P_{em} - p_J = U\\,I$", "électrique, fournie à la charge"],
+                        ["Rendement", "$\\eta = \\dfrac{P_u}{P_a}$", ""]
+                    ], { nowrap: false }),
+                    H.p("À vide (I = 0), la tension aux bornes est égale à la f.é.m. : U = E. Plus la génératrice débite, plus sa tension baisse (chute R·I).")),
+                ecoSec("5. Moteur et génératrice : retenir", "repeat",
+                    H.figure(svgBilanDouble(), "La même machine, parcourue dans un sens ou dans l'autre. Moteur (en haut) : on perd d'abord la chaleur de l'induit, puis les pertes collectives. Génératrice (en bas) : l'inverse."),
+                    H.tableau(["", "Moteur", "Génératrice"], [
+                        ["Loi d'Ohm de l'induit", "$U = E + R\\,I$ ($U > E$)", "$U = E - R\\,I$ ($U < E$)"],
+                        ["Absorbée", "électrique $U\\,I$", "mécanique $T\\,\\Omega$"],
+                        ["Utile", "mécanique $T_u\\,\\Omega$", "électrique $U\\,I$"],
+                        ["Ordre des pertes", "$p_J$ puis $p_c$", "$p_c$ puis $p_J$"],
+                        ["Commun", "$P_{em} = E\\,I = T_{em}\\,\\Omega$ et $\\eta = P_u/P_a$", "$P_{em} = E\\,I = T_{em}\\,\\Omega$ et $\\eta = P_u/P_a$"]
+                    ], { nowrap: false }))
+            ] }
+        });
+
+        // ==========================================
+        // Physique A2, chapitre 9 : réponse indicielle (RC, RL, RLC) — leçon et exercices
+        // ==========================================
+        const ln9 = Math.log(9);
+        function sliRC() {
+            const R = choisir([100, 220, 470, 1000, 2200, 4700, 10000]), C = choisir([1, 2.2, 4.7, 10, 22, 47, 100]) * 1e-6, E = choisir([5, 6, 9, 10, 12, 15]);
+            const tau = R * C * 1000, t = choisir([0.5, 1, 2, 3]) * tau, uc = E * (1 - Math.exp(-t / tau));
+            const fR = R >= 1000 ? `${String(R / 1000).replace('.', ',')}\\,\\text{k}\\Omega` : `${R}\\,\\Omega`, fC = `${String(Math.round(C * 1e7) / 10).replace('.', ',')}\\,\\mu\\text{F}`;
+            return { enonce: `<p>Un condensateur déchargé ($C = ${fC}$) est chargé à travers $R = ${fR}$ par un échelon $E = ${E}$ V à $t = 0$. Calcule la constante de temps (en ms), la tension $u_C$ à $t = ${centiemeTeX(t)}$ ms, et le temps de montée $t_m$ (de 10 % à 90 %).</p>`,
+                champs: [gNum('tau', '$\\tau$ =', tau, { unite: 'ms', groupe: 'Charge RC' }), gNum('u', '$u_C$ =', uc, { unite: 'V', groupe: 'Charge RC' }), gNum('tm', '$t_m$ =', tau * ln9, { unite: 'ms', groupe: 'Charge RC' })],
+                correction: `<p>$\\tau = RC = ${centiemeTeX(tau)}$ ms.</p><p>$u_C(t) = E\\left(1 - e^{-t/\\tau}\\right) = ${E}\\left(1 - e^{-${centiemeTeX(t / tau)}}\\right) \\approx ${centiemeTeX(uc)}$ V.</p><p>$t_m = t_2 - t_1 = \\tau\\ln 9 \\approx 2{,}2\\,\\tau \\approx ${centiemeTeX(tau * ln9)}$ ms.</p>` };
+        }
+        function sliDecharge() {
+            const E = choisir([5, 10, 12, 24]), tau = choisir([2, 5, 10, 20, 50]), k = choisir([1, 2, 3, 0.5]), u = E * Math.exp(-k);
+            return { enonce: `<p>Un condensateur chargé sous $E = ${E}$ V se décharge dans une résistance ; la constante de temps vaut $\\tau = ${tau}$ ms. Quelle est la tension à ses bornes à $t = ${centiemeTeX(k * tau)}$ ms ?</p>`,
+                champs: [gNum('u', '$u_C$ =', u, { unite: 'V' })],
+                correction: `<p>Décharge : $u_C(t) = E\\,e^{-t/\\tau} = ${E}\\,e^{-${centiemeTeX(k)}} \\approx ${centiemeTeX(u)}$ V${k === 1 ? ' (37 % de E à t = τ)' : ''}.</p>` };
+        }
+        function sliRL() {
+            const L = choisir([0.1, 0.2, 0.5, 1, 2]), R = choisir([10, 20, 50, 100]), E = choisir([6, 10, 12, 24]);
+            const tau = L / R * 1000, I0 = E / R, t = choisir([1, 2, 3]) * tau, i = I0 * (1 - Math.exp(-t / tau));
+            return { enonce: `<p>Un dipôle RL ($L = ${centiemeTeX(L)}$ H, résistance totale $R = ${R}\\,\\Omega$) est soumis à un échelon $E = ${E}$ V. Calcule $\\tau$ (en ms), l'intensité en régime permanent $I_0$, et l'intensité à $t = ${centiemeTeX(t)}$ ms.</p>`,
+                champs: [gNum('tau', '$\\tau$ =', tau, { unite: 'ms', groupe: 'Établissement du courant' }), gNum('i0', '$I_0$ =', I0, { unite: 'A', groupe: 'Établissement du courant' }), gNum('i', '$i$ =', i, { unite: 'A', groupe: 'Établissement du courant' })],
+                correction: `<p>$\\tau = \\dfrac{L}{R} = \\dfrac{${centiemeTeX(L)}}{${R}} = ${centiemeTeX(tau)}$ ms ; $I_0 = \\dfrac{E}{R} = ${centiemeTeX(I0)}$ A.</p><p>$i(t) = I_0\\left(1 - e^{-t/\\tau}\\right) \\approx ${centiemeTeX(i)}$ A.</p>` };
+        }
+        function sliEnergie() {
+            if (Math.random() < 0.5) { const C = choisir([10, 47, 100, 470, 1000]), u = choisir([5, 12, 24, 50]); const W = 0.5 * C * 1e-6 * u * u * 1000;
+                return { enonce: `<p>Quelle énergie (en mJ) est stockée dans un condensateur de $${C}\\,\\mu$F chargé sous $${u}$ V ?</p>`, champs: [gNum('w', '$E_e$ =', W, { unite: 'mJ' })], correction: `<p>$E_e = \\dfrac12 C u^2 = \\dfrac12 \\times ${C}\\cdot10^{-6} \\times ${u}^2 \\approx ${centiemeTeX(W)}$ mJ.</p>` }; }
+            const L = choisir([0.05, 0.1, 0.5, 1, 2]), i = choisir([0.5, 1, 2, 3, 5]), W = 0.5 * L * i * i;
+            return { enonce: `<p>Quelle énergie (en J) est stockée dans une bobine de $${centiemeTeX(L)}$ H parcourue par $${centiemeTeX(i)}$ A ?</p>`, champs: [gNum('w', '$E_m$ =', W, { unite: 'J' })], correction: `<p>$E_m = \\dfrac12 L i^2 = \\dfrac12 \\times ${centiemeTeX(L)} \\times ${centiemeTeX(i)}^2 \\approx ${centiemeTeX(W)}$ J.</p>` };
+        }
+        function sliAssoc() {
+            const a = choisir([1, 2, 4, 10, 22]), b = choisir([1, 3, 4.7, 10, 47]), serie = Math.random() < 0.5, cond = Math.random() < 0.5;
+            const v = (serie === cond) ? a * b / (a + b) : a + b, n = cond ? 'condensateurs' : 'bobines', u = cond ? 'µF' : 'mH';
+            return { enonce: `<p>Deux ${n} de $${centiemeTeX(a)}$ et $${centiemeTeX(b)}$ ${u} sont associés en <strong>${serie ? 'série' : 'dérivation'}</strong>. Valeur équivalente ?</p>`, champs: [gNum('v', 'Équivalent =', v, { unite: u })],
+                correction: `<p>${cond ? (serie ? 'Condensateurs en série : $\\dfrac1{C_{eq}} = \\dfrac1{C_1} + \\dfrac1{C_2}$' : 'Condensateurs en dérivation : $C_{eq} = C_1 + C_2$') : (serie ? 'Bobines en série : $L_{eq} = L_1 + L_2$' : 'Bobines en dérivation : $\\dfrac1{L_{eq}} = \\dfrac1{L_1} + \\dfrac1{L_2}$')}, d'où <strong class="text-white">${centiemeFR(v)} ${u}</strong>. (Les condensateurs se combinent « à l'envers » des résistances, les bobines comme elles.)</p>` };
+        }
+        function sliRLC() {
+            const L = choisir([0.01, 0.05, 0.1, 0.5]), C = choisir([1, 4.7, 10, 22, 100]) * 1e-6, R = choisir([5, 10, 20, 50, 100, 220, 470]);
+            const w0 = 1 / Math.sqrt(L * C), Q = Math.sqrt(L / C) / R, m = 1 / (2 * Q), reg = m > 1.0001 ? 'aper' : m < 0.9999 ? 'pseudo' : 'crit';
+            return { enonce: `<p>Un circuit RLC série ($R = ${R}\\,\\Omega$, $L = ${centiemeTeX(L)}$ H, $C = ${String(Math.round(C * 1e7) / 10).replace('.', ',')}\\,\\mu$F) est soumis à un échelon. Calcule la pulsation propre $\\omega_0$, le facteur de qualité $Q$ et le coefficient d'amortissement $m$, puis donne le régime.</p>`,
+                champs: [gNum('w', '$\\omega_0$ =', w0, { unite: 'rad/s', groupe: 'Second ordre', largeur: '6.5rem' }), gNum('q', '$Q$ =', Q, { groupe: 'Second ordre', alt: Q }), gNum('m', '$m$ =', m, { groupe: 'Second ordre' }), gChoix('r', reg, [['pseudo', 'Pseudo-périodique'], ['crit', 'Critique'], ['aper', 'Apériodique']], { groupe: 'Régime' })],
+                correction: `<p>$\\omega_0 = \\dfrac{1}{\\sqrt{LC}} \\approx ${centiemeTeX(w0)}$ rad/s ; $Q = \\dfrac1R\\sqrt{\\dfrac LC} \\approx ${centiemeTeX(Q)}$ ; $m = \\dfrac{1}{2Q} = \\dfrac R2\\sqrt{\\dfrac CL} \\approx ${centiemeTeX(m)}$.</p><p>${reg === 'pseudo' ? '$m < 1$ : régime <strong class="text-white">pseudo-périodique</strong> (oscillations amorties).' : reg === 'aper' ? '$m > 1$ : régime <strong class="text-white">apériodique</strong> (pas d\'oscillation).' : '$m = 1$ : régime <strong class="text-white">critique</strong>.'}</p>` };
+        }
+        EXOS['phys-sli'] = { chapitre: 'phys-sli', libelle: 'Réponse indicielle', badge: 'Physique • 2ème Année', titre: 'Réponse indicielle : RC, RL, RLC', demarrer: () => { const fn = { id: 'sli', types: { rc: sliRC, dech: sliDecharge, rl: sliRL, ener: sliEnergie, assoc: sliAssoc, rlc: sliRLC }, libelles: { tout: 'Tout', rc: 'Charge RC', dech: 'Décharge', rl: 'Dipôle RL', ener: 'Énergie', assoc: 'Associations', rlc: 'RLC (2e ordre)' } }; exgLancer(fn.id, 'Réponse indicielle : RC, RL, RLC', 'activity', fn.types, fn.libelles); } };
+        Object.assign(LECONS, {
+            "phys-sli": { badge: "Physique • 2ème Année", titre: "Réponse indicielle des systèmes linéaires", sections: () => [
+                ecoSec("1. La réponse indicielle", "trending-up",
+                    H.p("Au chapitre 5, on soumettait un système linéaire à une tension sinusoïdale (réponse harmonique). Ici, on lui applique un <strong>échelon de tension</strong> et on observe comment il réagit au cours du temps :"),
+                    H.formule(R`e(t) = 0 \text{ pour } t < t_0 \qquad e(t) = E \text{ pour } t \geq t_0 \qquad (\text{souvent } t_0 = 0)`),
+                    H.p("La réponse comporte un <strong>régime transitoire</strong> (la grandeur évolue) puis un <strong>régime permanent</strong> (elle est stable).")),
+                ecoSec("2. Rappels sur le condensateur", "battery",
+                    H.liste([
+                        "Deux armatures séparées par un isolant (diélectrique). Elles portent des charges opposées : $q_A = -q_B$, et on appelle charge $q$ du condensateur la valeur positive.",
+                        R`L'intensité est un débit de charges : $i = \dfrac{dq}{dt}$ (l'armature qui porte $q$ est celle par laquelle entre le courant).`,
+                        R`En convention récepteur : $q = C\,u$ ($q$ en coulomb, $C$ en farad, $u$ en volt), donc $i = C\,\dfrac{du}{dt}$.`,
+                        R`Associations : <strong>en série</strong> $\dfrac{1}{C_{eq}} = \sum \dfrac{1}{C_i}$ ; <strong>en dérivation</strong> $C_{eq} = \sum C_i$.`,
+                        R`Énergie stockée : $E_e = \dfrac12 C u^2 = \dfrac{q^2}{2C}$. L'énergie ne peut pas varier instantanément, donc <strong>la tension aux bornes d'un condensateur est toujours continue</strong> : s'il est déchargé, $u_C(0) = 0$.`
+                    ])),
+                ecoSec("3. Charge du dipôle RC", "arrow-up-right",
+                    H.p(R`Loi des mailles : $E = u_R + u_C = R\,i + u_C$ avec $i = C\,\dfrac{du_C}{dt}$. En posant $\tau = RC$ (constante de temps, en secondes) :`),
+                    H.formule(R`\tau\,\dfrac{du_C}{dt} + u_C = E \qquad\Longrightarrow\qquad u_C(t) = E\left(1 - e^{-t/\tau}\right) \qquad i(t) = \dfrac{E}{R}\,e^{-t/\tau}`),
+                    H.figure(mfGraph({ w: 340, h: 200, xmin: -0.2, xmax: 5.4, lx: 't', ly: 'u_C', ymin: -0.1, ymax: 1.25, tx: [1, 2, 3, 4, 5], ty: [0.63, 1], fx: (v) => (v === 1 ? 'τ' : v + 'τ'), fy: (v) => (v === 1 ? 'E' : '0,63E'), courbes: [{ f: (x) => 1 - Math.exp(-x), col: '#f59e0b' }], droites: [{ f: (x) => x, col: '#38bdf8', xmax: 1.2 }, { f: () => 1, col: '#94a3b8' }] }), "Charge : la tangente à l'origine coupe u = E en t = τ ; u vaut 63 % de E à τ et plus de 99 % à 5τ."),
+                    H.liste([
+                        "Vérification : on dérive $E(1 - e^{-t/\\tau})$, on remplace dans l'équation, on trouve bien $E$ ; et $u_C(0) = 0$.",
+                        R`<strong>Analyse dimensionnelle</strong> : $R = u/i$ et $C = q/u = i\,t/u$, donc $RC$ s'exprime en $\dfrac{u}{i}\cdot\dfrac{i\,t}{u}$ = secondes.`,
+                        R`<strong>Trouver $\tau$</strong> : par le calcul ($\tau = RC$), ou graphiquement (tangente à l'origine, ou lecture de $u_C = 0{,}63\,E$).`,
+                        R`Après $5\tau$, on considère le condensateur chargé : c'est le régime permanent. Plus $RC$ est grand, plus la charge est lente.`
+                    ]),
+                    H.p(R`<strong>Temps de montée</strong> (de 10 % à 90 % de la valeur finale) : $u_C(t_1) = 0{,}1E$ donne $t_1 = \tau\ln\frac{10}{9}$, $u_C(t_2) = 0{,}9E$ donne $t_2 = \tau\ln 10$, d'où $t_m = t_2 - t_1 = \tau\ln 9 \approx 2{,}2\,\tau$.`)),
+                ecoSec("4. Décharge du condensateur", "arrow-down-right",
+                    H.p(R`Le condensateur, chargé sous $E$, se décharge dans la résistance : $R\,i + u_C = 0$, soit $\tau\,\dfrac{du_C}{dt} + u_C = 0$, et avec $t = 0$ au début de la décharge :`),
+                    H.formule(R`u_C(t) = E\,e^{-t/\tau} \qquad i(t) = -\dfrac{E}{R}\,e^{-t/\tau}`),
+                    H.p(R`La tangente à l'origine coupe l'axe $u_C = 0$ en $t = \tau$, et $u_C(\tau) = E\,e^{-1} \approx 0{,}37\,E$ : il reste 37 % de la tension. Le courant change de sens par rapport à la charge.`)),
+                ecoSec("5. La bobine et le dipôle RL", "spline",
+                    H.liste([
+                        R`Une bobine est un enroulement de fil (parfois autour d'un noyau de fer doux). Son <strong>inductance</strong> $L$ (en henry) traduit le fait qu'elle s'oppose aux variations du courant ; $r$ est sa résistance.`,
+                        R`En convention récepteur : $u = L\,\dfrac{di}{dt} + r\,i$. En courant continu, $u = r\,i$ (bobine parfaite : $u = 0$).`,
+                        R`Associations : <strong>en série</strong> $L_{eq} = \sum L_i$ ; <strong>en dérivation</strong> $\dfrac{1}{L_{eq}} = \sum \dfrac{1}{L_i}$.`,
+                        R`Énergie stockée : $E_m = \dfrac12 L i^2$. Elle ne peut pas varier instantanément : <strong>le courant dans une bobine est toujours continu</strong>.`
+                    ]),
+                    H.p(R`<strong>Établissement du courant</strong> (échelon $E$, résistance totale $R = r + r'$) : $E = L\,\dfrac{di}{dt} + R\,i$. Avec $\tau = \dfrac{L}{R}$ et $I_0 = \dfrac{E}{R}$ :`),
+                    H.formule(R`i(t) = I_0\left(1 - e^{-t/\tau}\right) \qquad u_{bobine}(t) = L\,\dfrac{di}{dt} + r\,i = E\,e^{-t/\tau} + r\,I_0\left(1 - e^{-t/\tau}\right)`),
+                    H.liste([
+                        "Le courant monte progressivement (63 % de $I_0$ à $\\tau$, plus de 99 % à $5\\tau$). Le transitoire est d'autant plus long que $L$ est grand et $R$ petit.",
+                        R`<strong>Rupture du courant</strong> : à l'ouverture, une <strong>diode de roue libre</strong> en parallèle sur la bobine laisse le courant continuer à circuler et évite l'étincelle aux bornes de l'interrupteur. L'énergie de la bobine se dissipe dans les résistances : $i(t) = I_0\,e^{-t/\tau}$ (37 % à $\tau$).`
+                    ])),
+                ecoSec("6. Système du 2e ordre : le circuit RLC série", "activity",
+                    H.p(R`Alimenté par $u_e(t)$, la loi des mailles $u_e = R\,i + L\,\dfrac{di}{dt} + u_C$ avec $i = C\,\dfrac{du_C}{dt}$ donne :`),
+                    H.formule(R`LC\,\dfrac{d^2u_C}{dt^2} + RC\,\dfrac{du_C}{dt} + u_C = u_e \qquad\Longleftrightarrow\qquad \dfrac{1}{\omega_0^2}\dfrac{d^2u_C}{dt^2} + \dfrac{2m}{\omega_0}\dfrac{du_C}{dt} + u_C = u_e`),
+                    H.formule(R`\omega_0 = \dfrac{1}{\sqrt{LC}} \qquad Q = \dfrac{1}{R}\sqrt{\dfrac{L}{C}} \qquad m = \dfrac{1}{2Q} = \dfrac{R}{2}\sqrt{\dfrac{C}{L}}`),
+                    H.liste([
+                        "C'est une équation différentielle linéaire du second ordre à coefficients constants. Sa solution est la somme de la solution sans second membre (le <strong>régime libre</strong>, ou transitoire : le circuit RLC mis en court-circuit sur lui-même) et d'une solution particulière (le <strong>régime permanent</strong> : pour un échelon E, $u_C = E$).",
+                        "<strong>m > 1 : apériodique</strong> — la tension rejoint E sans osciller.",
+                        "<strong>m = 1 : critique</strong> — le retour le plus rapide sans oscillation.",
+                        R`<strong>m < 1 : pseudo-périodique</strong> — oscillations amorties autour de E, de pseudo-pulsation $\omega = \omega_0\sqrt{1 - m^2}$ (pseudo-période $T = 2\pi/\omega$).`
+                    ]),
+                    H.figure(mfGraph({ w: 340, h: 200, xmin: -0.2, xmax: 10, lx: 't', ly: 'u_C', ymin: -0.1, ymax: 1.7, tx: [], ty: [1], fy: () => 'E', courbes: [{ f: (x) => 1 - Math.exp(-0.25 * x) * (Math.cos(0.97 * x) + 0.26 * Math.sin(0.97 * x)), col: '#f59e0b' }, { f: (x) => 1 - (1 + x) * Math.exp(-x), col: '#34d399' }, { f: (x) => 1 - 1.07 * Math.exp(-0.27 * x) + 0.07 * Math.exp(-3.73 * x), col: '#38bdf8' }] }), "Réponse à un échelon : pseudo-périodique (orange, m < 1), critique (vert, m = 1), apériodique (bleu, m > 1)."))
+            ] }
+        });
+
+        // ==========================================
+        // CM A1 (statique, cinématique), CM A2 (inertie), EST A1, OI A2 (GPS) : leçons et exercices
+        // ==========================================
+        const G_PESANTEUR = 9.81;
+        const unitesFR = (x, u) => `${centiemeFR(x).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ${u}`;
+        const EXB = (id, chapitre, badge, libelle, titre, fn, icone) => { EXOS[id] = { chapitre, libelle, badge, titre, demarrer: () => exgLancer(fn.id, titre, icone, fn.types, fn.libelles) }; };
+
+        // ---------- statique (CM A1) ----------
+        function stPoids() {
+            const m = choisir([2, 5, 8, 12, 25, 40, 75, 120, 350, 1200]) + choisir([0, 0, 0.5]);
+            return { enonce: `<p>Quel est le poids d'un objet de masse $${String(m).replace('.', '{,}')}$ kg ? (on prend $g = 9{,}81$ m/s²)</p>`,
+                champs: [gNum('p', '$P$ =', m * G_PESANTEUR, { unite: 'N', largeur: '6.5rem' })],
+                correction: `<p>$P = m \\times g = ${String(m).replace('.', '{,}')} \\times 9{,}81 \\approx ${centiemeTeX(m * G_PESANTEUR)}$ N, appliqué au centre de gravité, vertical vers le bas.</p>` };
+        }
+        function stPression() {
+            const D = choisir([16, 20, 25, 32, 40, 50, 63, 80, 100]), p = choisir([2, 4, 5, 6, 8, 10]);
+            const S = Math.PI * D * D / 4, F = p * 0.1 * S;
+            return { enonce: `<p>Un vérin a un piston de diamètre $${D}$ mm et est alimenté sous $${p}$ bar. Calcule la surface du piston puis l'effort de poussée ($1$ bar $= 0{,}1$ MPa $= 0{,}1$ N/mm²).</p>`,
+                champs: [gNum('s', '$S$ =', S, { unite: 'mm²', groupe: 'Vérin', largeur: '6.5rem' }), gNum('f', '$F$ =', p * 0.1 * arrondiCentieme(S), { unite: 'N', alt: F, groupe: 'Vérin', largeur: '6.5rem' })],
+                correction: `<p>$S = \\dfrac{\\pi D^2}{4} = \\dfrac{\\pi \\times ${D}^2}{4} \\approx ${centiemeTeX(S)}$ mm².</p><p>$F = p \\times S = ${centiemeTeX(p * 0.1)} \\times ${centiemeTeX(S)} \\approx ${centiemeTeX(p * 0.1 * arrondiCentieme(S))}$ N.</p>` };
+        }
+        function stMoment() {
+            const F = choisir([20, 35, 50, 80, 120, 150, 200]), d = choisir([0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1.2]);
+            return { enonce: `<p>On pousse une porte avec une force de $${F}$ N, perpendiculaire à la porte, à $${String(d).replace('.', '{,}')}$ m de l'axe des gonds. Quel est le moment de cette force par rapport à l'axe ?</p>`,
+                champs: [gNum('m', '$M$ =', F * d, { unite: 'N·m' })],
+                correction: `<p>$M = F \\times d = ${F} \\times ${String(d).replace('.', '{,}')} = ${centiemeTeX(F * d)}$ N·m. Plus on pousse loin de l'axe, plus le moment est grand.</p>` };
+        }
+        function stAscenseur() {
+            const p1 = gInt(55, 110) * 10, p2 = gInt(20, 60) * 100;
+            return { enonce: `<p>Un ascenseur de poids $${p2}$ N transporte un passager de poids $${p1}$ N. L'ensemble est immobile. Quelle est la tension $T$ du câble ?</p>`,
+                champs: [gNum('t', '$T$ =', p1 + p2, { unite: 'N' })],
+                correction: `<p>On isole l'ascenseur avec le passager : trois forces alignées sur l'axe vertical. Théorème des forces : $\\vec{T} + \\vec{P_1} + \\vec{P_2} = \\vec{0}$, soit en projection sur l'axe vertical vers le haut : $T - ${p1} - ${p2} = 0$, donc $T = ${p1 + p2}$ N.</p>` };
+        }
+        function stLevier() {
+            // levier horizontal articulé en A, charge P2 en G2, contrepoids P1 en G1 de l'autre côté, appui vertical en B
+            const a1 = choisir([0.5, 0.8, 1]), a2 = choisir([2, 2.5, 3]), ab = a2 + choisir([1.5, 2, 3.5]);
+            const P2 = gInt(15, 40) * 10, P1 = gInt(1, Math.floor((a2 * P2) / a1 / 100)) * 100 - 0, B = (a2 * P2 - a1 * P1) / ab;
+            if (B <= 0) return stLevier();
+            const A = P1 + P2 - B;
+            const m = (x) => String(x).replace('.', '{,}');
+            return { enonce: `<p>Une barrière (lisse horizontale) est articulée en $A$. Son contrepoids $P_1 = ${P1}$ N est à $${m(a1)}$ m à gauche de $A$, son poids propre $P_2 = ${P2}$ N est appliqué à $${m(a2)}$ m à droite de $A$, et elle repose sur une butée $B$ à $${m(ab)}$ m à droite de $A$. Toutes les forces sont verticales. Calcule l'action de la butée $B$ puis celle de l'articulation $A$.</p>`,
+                champs: [gNum('b', '$B_{0 \\to 2}$ =', B, { unite: 'N', groupe: 'Actions', largeur: '6.5rem' }), gNum('a', '$A_{0 \\to 2}$ =', P1 + P2 - arrondiCentieme(B), { unite: 'N', alt: A, groupe: 'Actions', largeur: '6.5rem' })],
+                correction: `<p>Les forces sont parallèles : on écrit le théorème des moments en $A$ (sens trigonométrique positif). $A_{0\\to2}$ passe par $A$, son moment est nul :</p><p>$${m(a1)} \\times ${P1} - ${m(a2)} \\times ${P2} + ${m(ab)} \\times B = 0$, donc $B = \\dfrac{${m(a2)} \\times ${P2} - ${m(a1)} \\times ${P1}}{${m(ab)}} \\approx ${centiemeTeX(B)}$ N.</p><p>Théorème des forces (vertical) : $A + B - P_1 - P_2 = 0$, donc $A = ${P1} + ${P2} - ${centiemeTeX(B)} \\approx ${centiemeTeX(P1 + P2 - arrondiCentieme(B))}$ N.</p>` };
+        }
+        function stDeuxForces() {
+            const q = choisir([
+                ['Un solide soumis à deux forces est en équilibre. Ces deux forces…', 'a', [['a', 'ont même droite d\'action, même norme et des sens opposés'], ['b', 'sont perpendiculaires'], ['c', 'sont concourantes en un point quelconque']]],
+                ['Un solide soumis à trois forces non parallèles est en équilibre. Leurs droites d\'action…', 'b', [['a', 'sont parallèles'], ['b', 'sont concourantes en un même point'], ['c', 'passent toutes par le centre de gravité']]],
+                ['On isole le solide 1. L\'action du solide 2 sur le solide 1 se note…', 'b', [['a', '$\\vec{B}_{1\\to2}$'], ['b', '$\\vec{B}_{2\\to1}$'], ['c', '$\\vec{M}_{B}$']]],
+                ['Entre deux solides 1 et 3, on a toujours…', 'a', [['a', '$\\vec{D}_{1\\to3} = -\\vec{D}_{3\\to1}$'], ['b', '$\\vec{D}_{1\\to3} = \\vec{D}_{3\\to1}$'], ['c', '$\\vec{D}_{1\\to3} = \\vec{0}$']]],
+                ['Une liaison laisse une translation libre selon $\\vec{x}$. Selon $\\vec{x}$, elle transmet…', 'c', [['a', 'une force'], ['b', 'un moment'], ['c', 'aucune force']]],
+                ['Le moment d\'un champ « glisseur » exprimé en un point de sa droite d\'action est…', 'a', [['a', 'nul'], ['b', 'égal à la résultante'], ['c', 'maximal']]]]);
+            return { enonce: `<p>${q[0]}</p>`, champs: [gChoix('r', q[1], q[2], { groupe: 'Réponse' })],
+                correction: `<p>Réponse : <strong class="text-white">${q[2].find(o => o[0] === q[1])[1]}</strong>.</p>` };
+        }
+        EXB('cm1-statique', 'cm1-statique', 'CM • 1ère Année', 'Statique', 'Statique du solide : calculs d\'actions', { id: 'cst', types: { poids: stPoids, pression: stPression, moment: stMoment, forces: stAscenseur, levier: stLevier, cours: stDeuxForces }, libelles: { tout: 'Tout', poids: 'Poids', pression: 'Pression', moment: 'Moment', forces: 'Théorème des forces', levier: 'Théorème des moments', cours: 'Questions de cours' } }, 'scale');
+
+        // ---------- cinématique (CM A1) ----------
+        function ccOmega() {
+            const N = choisir([300, 750, 900, 1000, 1450, 1500, 2800, 3000]);
+            return { enonce: `<p>Un moteur tourne à $${N}$ tr/min. Donne sa vitesse angulaire $\\omega$.</p>`,
+                champs: [gNum('w', '$\\omega$ =', 2 * Math.PI * N / 60, { unite: 'rad/s' })],
+                correction: `<p>$\\omega = \\dfrac{2\\pi N}{60} = \\dfrac{2\\pi \\times ${N}}{60} \\approx ${centiemeTeX(2 * Math.PI * N / 60)}$ rad/s.</p>` };
+        }
+        function ccVitesse() {
+            const N = choisir([60, 120, 300, 500, 750, 1000]), R = choisir([0.05, 0.1, 0.15, 0.2, 0.25, 0.4]);
+            const w = 2 * Math.PI * N / 60, wC = arrondiCentieme(w);
+            return { enonce: `<p>Une poulie de rayon $${String(R).replace('.', '{,}')}$ m tourne à $${N}$ tr/min autour d'un axe fixe. Calcule $\\omega$, puis la vitesse d'un point de la périphérie et son accélération normale.</p>`,
+                champs: [gNum('w', '$\\omega$ =', w, { unite: 'rad/s', groupe: 'Rotation', largeur: '6rem' }), gNum('v', '$V$ =', R * wC, { unite: 'm/s', alt: R * w, groupe: 'Rotation', largeur: '6rem' }), gNum('a', '$a_n$ =', R * wC * wC, { unite: 'm/s²', alt: R * w * w, groupe: 'Rotation', largeur: '6rem' })],
+                correction: `<p>$\\omega = \\dfrac{2\\pi N}{60} \\approx ${centiemeTeX(w)}$ rad/s ; $V = R\\,\\omega = ${String(R).replace('.', '{,}')} \\times ${centiemeTeX(w)} \\approx ${centiemeTeX(R * wC)}$ m/s ; $a_n = R\\,\\omega^2 \\approx ${centiemeTeX(R * wC * wC)}$ m/s² (dirigée vers le centre).</p>` };
+        }
+        function ccTranslation() {
+            const v0 = choisir([0, 0, 2, 5]), a = choisir([0.5, 1, 1.5, 2, 2.5, 3]), t = gInt(2, 10);
+            const v = v0 + a * t, x = v0 * t + a * t * t / 2;
+            return { enonce: `<p>Un chariot en translation rectiligne part avec une vitesse de $${v0}$ m/s et accélère uniformément à $${String(a).replace('.', '{,}')}$ m/s². Au bout de $${t}$ s, quelle est sa vitesse et quelle distance a-t-il parcourue ?</p>`,
+                champs: [gNum('v', '$v$ =', v, { unite: 'm/s', groupe: 'Mouvement uniformément accéléré' }), gNum('x', '$x$ =', x, { unite: 'm', groupe: 'Mouvement uniformément accéléré' })],
+                correction: `<p>$v = v_0 + a\\,t = ${v0} + ${String(a).replace('.', '{,}')} \\times ${t} = ${centiemeTeX(v)}$ m/s ; $x = v_0\\,t + \\dfrac12 a\\,t^2 = ${centiemeTeX(x)}$ m.</p>` };
+        }
+        EXB('cm1-cinematique', 'cm1-cinematique', 'CM • 1ère Année', 'Cinématique', 'Cinématique : rotation et translation', { id: 'cci', types: { omega: ccOmega, rot: ccVitesse, trans: ccTranslation }, libelles: { tout: 'Tout', omega: 'tr/min → rad/s', rot: 'Rotation', trans: 'Translation' } }, 'rotate-cw');
+
+        // ---------- inertie (CM A2) ----------
+        function inMasse() {
+            const [nom, rho] = choisir([['acier', 7850], ['aluminium', 2700], ['laiton', 8500]]), D = choisir([20, 30, 40, 50, 60, 80]), L = choisir([100, 150, 200, 250, 300]);
+            const V = Math.PI * (D / 1000) ** 2 / 4 * (L / 1000), m = rho * V;
+            return { enonce: `<p>Un cylindre plein en ${nom} ($\\rho = ${rho}$ kg/m³) a un diamètre de $${D}$ mm et une longueur de $${L}$ mm. Calcule sa masse.</p>`,
+                champs: [gNum('m', '$m$ =', m, { unite: 'kg' })],
+                correction: `<p>$V = \\dfrac{\\pi D^2}{4} L = \\dfrac{\\pi \\times ${centiemeTeX(D / 1000)}^2}{4} \\times ${centiemeTeX(L / 1000)}$ m³ et $m = \\rho\\,V \\approx ${centiemeTeX(m)}$ kg.</p>` };
+        }
+        function inUsuel() {
+            const cas = choisir(['cyl', 'tige', 'sphere']), m = choisir([2, 4, 5, 8, 10, 20]), r = choisir([0.1, 0.2, 0.25, 0.3, 0.5]), L = choisir([0.4, 0.6, 0.8, 1, 1.2, 2]);
+            const v = cas === 'cyl' ? m * r * r / 2 : cas === 'tige' ? m * L * L / 12 : 2 * m * r * r / 5;
+            const txt = { cyl: `un cylindre plein de masse $${m}$ kg et de rayon $${centiemeTeX(r)}$ m, par rapport à son axe de révolution`, tige: `une tige fine de masse $${m}$ kg et de longueur $${centiemeTeX(L)}$ m, par rapport à un axe perpendiculaire passant par son milieu`, sphere: `une sphère pleine de masse $${m}$ kg et de rayon $${centiemeTeX(r)}$ m, par rapport à un axe passant par son centre` };
+            const f = { cyl: R`\dfrac{m R^2}{2}`, tige: R`\dfrac{m L^2}{12}`, sphere: R`\dfrac{2 m R^2}{5}` };
+            return { enonce: `<p>Calcule le moment d'inertie d'${txt[cas]}.</p>`, champs: [gNum('i', '$I$ =', v, { unite: 'kg·m²', alt: v })],
+                correction: `<p>$I = ${f[cas]} \\approx ${centiemeTeX(v)}$ kg·m².</p>` };
+        }
+        function inHuygens() {
+            const m = choisir([2, 3, 5, 8, 10]), IG = choisir([0.02, 0.05, 0.1, 0.12, 0.25]), d = choisir([0.1, 0.2, 0.3, 0.5]);
+            return { enonce: `<p>Un solide de masse $${m}$ kg a un moment d'inertie $I_G = ${centiemeTeX(IG)}$ kg·m² autour d'un axe passant par son centre d'inertie $G$. Calcule son moment d'inertie autour d'un axe parallèle situé à $${centiemeTeX(d)}$ m de $G$.</p>`,
+                champs: [gNum('i', '$I_\\Delta$ =', IG + m * d * d, { unite: 'kg·m²' })],
+                correction: `<p>Théorème de Huygens : $I_\\Delta = I_G + m\\,d^2 = ${centiemeTeX(IG)} + ${m} \\times ${centiemeTeX(d)}^2 = ${centiemeTeX(IG + m * d * d)}$ kg·m².</p>` };
+        }
+        EXB('cm2-inertie', 'cm2-inertie', 'CM • 2ème Année', 'Inertie', 'Inertie : masse, solides usuels, Huygens', { id: 'iner', types: { masse: inMasse, usuel: inUsuel, huy: inHuygens }, libelles: { tout: 'Tout', masse: 'Masse', usuel: 'Solides usuels', huy: 'Huygens' } }, 'disc');
+
+        // ---------- EST A1 ----------
+        function afFonction() {
+            const q = choisir([
+                ['« Permettre à l\'utilisateur de laver son linge » pour une machine à laver est une fonction…', 'p', 'principale'],
+                ['« Résister à l\'eau et aux projections » est une fonction…', 'c', 'de contrainte'],
+                ['« Respecter les normes de sécurité électrique » est une fonction…', 'c', 'de contrainte'],
+                ['« Plaire à l\'œil de l\'utilisateur » est une fonction…', 's', 'secondaire'],
+                ['« Guider le tambour en rotation » (choix du concepteur, interne au produit) est une fonction…', 't', 'technique'],
+                ['« Être silencieuse » est une fonction…', 's', 'secondaire']]);
+            return { enonce: `<p>${q[0]}</p>`, champs: [gChoix('f', q[1], [['p', 'Principale'], ['s', 'Secondaire'], ['c', 'De contrainte'], ['t', 'Technique']], { groupe: 'Type de fonction' })],
+                correction: `<p>C'est une fonction <strong class="text-white">${q[2]}</strong>. Principale : répond au besoin fondamental ; secondaire : confort, esthétique, ergonomie ; de contrainte : imposée par l'environnement ou la réglementation ; technique : interne au produit, choisie par le concepteur.</p>` };
+        }
+        function afBete() {
+            const q = choisir([
+                ['Dans la bête à cornes, la question « À qui le produit rend-il service ? » désigne…', 'u', [['u', 'l\'utilisateur'], ['m', 'la matière d\'œuvre'], ['b', 'le but']]],
+                ['Dans la bête à cornes, « Sur quoi agit-il ? » désigne…', 'm', [['u', 'l\'utilisateur'], ['m', 'ce sur quoi le produit agit'], ['b', 'le but']]],
+                ['Une fonction s\'exprime par…', 'v', [['v', 'un verbe d\'action suivi d\'un complément'], ['n', 'un nom de pièce'], ['c', 'une cote']]],
+                ['Une flexibilité F0 signifie…', 'f0', [['f0', 'niveau impératif, non négociable'], ['f3', 'niveau très négociable'], ['f1', 'aucun critère']]],
+                ['Dans un diagramme FAST, en allant vers la droite on répond à la question…', 'c', [['c', 'Comment ?'], ['p', 'Pourquoi ?'], ['q', 'Quand ?']]],
+                ['Le diagramme pieuvre (des interacteurs) sert à…', 'e', [['e', 'trouver les fonctions en étudiant l\'environnement du produit'], ['h', 'hiérarchiser les fonctions'], ['s', 'décomposer le produit en éléments']]]]);
+            return { enonce: `<p>${q[0]}</p>`, champs: [gChoix('r', q[1], q[2], { groupe: 'Réponse' })],
+                correction: `<p>Réponse : <strong class="text-white">${q[2].find(o => o[0] === q[1])[1]}</strong>.</p>` };
+        }
+        EXB('est1-af', 'est1-af', 'EST • 1ère Année', 'Analyse fonctionnelle', 'Analyse fonctionnelle : fonctions et outils', { id: 'eaf', types: { fct: afFonction, outils: afBete }, libelles: { tout: 'Tout', fct: 'Type de fonction', outils: 'Outils et vocabulaire' } }, 'workflow');
+        function dtEchelle() {
+            const [num, den] = choisir([[1, 2], [1, 5], [1, 10], [2, 1], [5, 1], [1, 1]]), reel = gInt(2, 40) * 5;
+            const des = reel * num / den;
+            return Math.random() < 0.5
+                ? { enonce: `<p>Une pièce mesure réellement $${reel}$ mm. Sur le dessin, elle mesure $${centiemeTeX(des)}$ mm. Quelle est l'échelle ? (donne $\\dfrac{\\text{dessin}}{\\text{réel}}$, par exemple $0{,}5$ pour $1:2$)</p>`,
+                    champs: [gNum('e', 'Échelle =', num / den)], correction: `<p>Échelle $= \\dfrac{\\text{dimension dessinée}}{\\text{dimension réelle}} = \\dfrac{${centiemeTeX(des)}}{${reel}} = ${centiemeTeX(num / den)}$, soit <strong class="text-white">${num}:${den}</strong> (${num < den ? 'réduction' : num > den ? 'agrandissement' : 'vraie grandeur'}).</p>` }
+                : { enonce: `<p>Un dessin est à l'échelle $${num}:${den}$. Une cote réelle de $${reel}$ mm mesure combien sur le dessin ?</p>`,
+                    champs: [gNum('d', 'Longueur dessinée =', des, { unite: 'mm' })], correction: `<p>Dessin = réel × échelle = $${reel} \\times \\dfrac{${num}}{${den}} = ${centiemeTeX(des)}$ mm.</p>` };
+        }
+        function dtFormat() {
+            const F = ['A0', 'A1', 'A2', 'A3', 'A4'], dims = [[1189, 841], [841, 594], [594, 420], [420, 297], [297, 210]], i = gInt(0, 4);
+            return { enonce: `<p>Quelles sont les dimensions du format <strong>${F[i]}</strong> (en mm) ?</p>`,
+                champs: [gNum('l', 'Longueur =', dims[i][0], { unite: 'mm', groupe: 'Format ' + F[i] }), gNum('w', 'Largeur =', dims[i][1], { unite: 'mm', groupe: 'Format ' + F[i] })],
+                correction: `<p>${F[i]} : <strong class="text-white">${dims[i][0]} × ${dims[i][1]} mm</strong>. On passe d'un format au suivant en pliant la longueur en deux (le A0 fait 1 m²).</p>` };
+        }
+        function dtTrait() {
+            const q = choisir([
+                ['les arêtes et contours visibles', 'cf', 'Trait continu fort'], ['les arêtes et contours cachés', 'if', 'Trait interrompu fin'], ['les axes et plans de symétrie', 'mf', 'Trait mixte fin'],
+                ['les hachures et les lignes de cote', 'cfi', 'Trait continu fin'], ['les contours des pièces voisines', 'm2', 'Trait mixte fin à deux tirets'], ['le cadre et le cartouche', 'cf', 'Trait continu fort']]);
+            return { enonce: `<p>Quel trait utilise-t-on pour représenter ${q[0]} ?</p>`,
+                champs: [gChoix('t', q[1], [['cf', 'Continu fort'], ['cfi', 'Continu fin'], ['if', 'Interrompu fin'], ['mf', 'Mixte fin'], ['m2', 'Mixte fin à deux tirets']], { groupe: 'Type de trait' })],
+                correction: `<p><strong class="text-white">${q[2]}</strong>. Rappel : deux traits forts ne se croisent jamais, et les hachures (continu fin) ne traversent jamais un trait fort.</p>` };
+        }
+        EXB('est1-dessin', 'est1-dessin', 'EST • 1ère Année', 'Dessin technique', 'Dessin technique : échelles, formats, traits', { id: 'edt', types: { ech: dtEchelle, fmt: dtFormat, trait: dtTrait }, libelles: { tout: 'Tout', ech: 'Échelle', fmt: 'Formats', trait: 'Traits' } }, 'pencil-ruler');
+
+        // ---------- GPS (OI A2) ----------
+        function gpsAjustement() {
+            const D = choisir([10, 16, 20, 25, 32, 40, 50]);
+            const al = choisir([[0, 21], [0, 25], [0, 30]]), ar = choisir([[-7, -20], [-20, -41], [2, -9], [15, 2], [35, 22], [48, 35]]);
+            const Amax = D + al[1] / 1000, Amin = D + al[0] / 1000, amax = D + ar[0] / 1000, amin = D + ar[1] / 1000;
+            const jmax = (Amax - amin) * 1000, jmin = (Amin - amax) * 1000, type = jmin >= 0 ? 'jeu' : jmax <= 0 ? 'serre' : 'incertain';
+            const e = (x) => (x >= 0 ? '+' : '') + String(x / 1000).replace('.', ',');
+            return { enonce: `<p>Un alésage $\\varnothing ${D}$ a pour écarts ${e(al[1])} / ${e(al[0])} mm et l'arbre $\\varnothing ${D}$ a pour écarts ${e(ar[0])} / ${e(ar[1])} mm. Calcule le jeu maximal et le jeu minimal (en µm, négatif s'il s'agit d'un serrage), puis donne le type d'ajustement.</p>`,
+                champs: [gNum('jM', 'Jeu max =', Math.round(jmax), { unite: 'µm', groupe: 'Ajustement' }), gNum('jm', 'Jeu min =', Math.round(jmin), { unite: 'µm', groupe: 'Ajustement' }), gChoix('t', type, [['jeu', 'Avec jeu'], ['incertain', 'Incertain'], ['serre', 'Serré']], { groupe: 'Type' })],
+                correction: `<p>Jeu max = alésage max − arbre min = $${Math.round(jmax)}$ µm ; jeu min = alésage min − arbre max = $${Math.round(jmin)}$ µm.</p><p>${type === 'jeu' ? 'Les deux jeux sont positifs : ajustement <strong class="text-white">avec jeu</strong>.' : type === 'serre' ? 'Les deux sont négatifs : ajustement <strong class="text-white">serré</strong> (montage à la presse).' : 'Un jeu positif et un négatif : ajustement <strong class="text-white">incertain</strong>.'}</p>` };
+        }
+        function gpsMaxMatiere() {
+            const D = choisir([20, 30, 40, 60]), it = choisir([0.1, 0.15, 0.2]), t = choisir([0.02, 0.05, 0.08]), dmin = D + choisir([0.1, 0.2, 0.3]);
+            const reel = Math.round((dmin + Math.random() * it) * 100) / 100, tol = t + (reel - dmin);
+            return { enonce: `<p>Un alésage est coté entre $${centiemeTeX(dmin)}$ et $${centiemeTeX(dmin + it)}$ mm, avec une tolérance de perpendicularité de $${centiemeTeX(t)}$ mm <strong>au maximum de matière</strong> (Ⓜ). La pièce mesurée a un diamètre de $${centiemeTeX(reel)}$ mm. Quelle tolérance de perpendicularité est alors acceptée ?</p>`,
+                champs: [gNum('t', 'Tolérance =', tol, { unite: 'mm' })],
+                correction: `<p>Au maximum de matière (alésage au plus petit, $${centiemeTeX(dmin)}$), le défaut permis est $${centiemeTeX(t)}$. L'alésage est plus grand de $${centiemeTeX(reel - dmin)}$ mm : ce gain s'ajoute. Tolérance $= ${centiemeTeX(t)} + ${centiemeTeX(reel - dmin)} = ${centiemeTeX(tol)}$ mm (au plus $${centiemeTeX(t + it)}$ au minimum de matière).</p>` };
+        }
+        function gpsFamille() {
+            const q = choisir([['la planéité', 'f'], ['la rectitude', 'f'], ['la circularité', 'f'], ['la cylindricité', 'f'], ['le parallélisme', 'o'], ['la perpendicularité', 'o'], ['l\'inclinaison', 'o'], ['la localisation', 'p'], ['la coaxialité', 'p'], ['la symétrie', 'p'], ['le battement total', 'b']]);
+            const noms = { f: 'Forme (sans référence)', o: 'Orientation', p: 'Position', b: 'Battement' };
+            return { enonce: `<p>À quelle famille de tolérances géométriques appartient <strong>${q[0]}</strong> ?</p>`, champs: [gChoix('f', q[1], Object.entries(noms), { groupe: 'Famille' })],
+                correction: `<p><strong class="text-white">${noms[q[1]]}</strong>. Les tolérances de forme n'ont pas de référence spécifiée ; orientation, position et battement en demandent une.</p>` };
+        }
+        EXB('oi2-gps', 'oi2-gps', 'OI • 2ème Année', 'Cotation GPS', 'Cotation GPS : ajustements et tolérances', { id: 'gps', types: { aj: gpsAjustement, mm: gpsMaxMatiere, fam: gpsFamille }, libelles: { tout: 'Tout', aj: 'Ajustements', mm: 'Maximum de matière', fam: 'Familles de tolérances' } }, 'ruler');
+
+        // ---------- leçons ----------
+        const svgLevier = () => `<svg viewBox="0 0 360 150" style="width:100%;max-width:420px;height:auto" role="img" aria-label="Barrière articulée en A avec contrepoids, poids propre et butée B">
+            <line x1="20" y1="60" x2="340" y2="60" stroke="${SVG_TRAIT}" stroke-width="6"/><rect x="22" y="48" width="26" height="24" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>
+            <circle cx="80" cy="60" r="6" fill="${SVG_FOND}" stroke="${SVG_ACCENT}" stroke-width="2"/><line x1="80" y1="66" x2="80" y2="120" stroke="${SVG_DISCRET}" stroke-width="3"/>
+            <line x1="320" y1="66" x2="320" y2="120" stroke="${SVG_DISCRET}" stroke-width="3"/><line x1="10" y1="122" x2="350" y2="122" stroke="${SVG_DISCRET}"/>
+            <line x1="35" y1="62" x2="35" y2="105" stroke="#f87171" stroke-width="2.5"/><polygon points="30,98 40,98 35,108" fill="#f87171"/><text x="20" y="118" fill="#f87171" font-size="12">P₁</text>
+            <line x1="190" y1="62" x2="190" y2="105" stroke="#f87171" stroke-width="2.5"/><polygon points="185,98 195,98 190,108" fill="#f87171"/><text x="196" y="104" fill="#f87171" font-size="12">P₂</text>
+            <line x1="80" y1="58" x2="80" y2="18" stroke="#34d399" stroke-width="2.5"/><polygon points="75,24 85,24 80,14" fill="#34d399"/><text x="86" y="24" fill="#34d399" font-size="12">A₀→₂</text>
+            <line x1="320" y1="58" x2="320" y2="22" stroke="#34d399" stroke-width="2.5"/><polygon points="315,28 325,28 320,18" fill="#34d399"/><text x="282" y="22" fill="#34d399" font-size="12">B₀→₂</text>
+            <text x="80" y="140" text-anchor="middle" fill="${SVG_TEXTE}" font-size="12">A</text><text x="320" y="140" text-anchor="middle" fill="${SVG_TEXTE}" font-size="12">B</text></svg>`;
+        Object.assign(LECONS, {
+            "cm1-statique": { badge: "CM • 1ère Année", titre: "Statique du solide", sections: () => [
+                ecoSec("1. Objet de la statique et actions mécaniques", "scale",
+                    H.p("La statique étudie les <strong>actions mécaniques</strong> qui s'exercent sur des solides <strong>indéformables</strong> et <strong>en équilibre</strong>. Une action mécanique est tout ce qui peut maintenir un corps au repos, créer ou modifier son mouvement, ou le déformer."),
+                    H.tableau(["", "Force", "Moment (ou couple)"], [
+                        ["Effet", "pousser ou tirer selon une direction", "faire tourner ou tordre autour d'un axe"],
+                        ["Unité", "newton (N)", "newton-mètre (N·m)"],
+                        ["Notation", R`$\vec{F}_{A,1\to2}$ ou $\vec{A}_{1\to2}$ : force en $A$ exercée par 1 sur 2`, R`$\vec{M}_{B}(\vec{A}_{1\to2})$ : moment en $B$ de l'action en $A$ de 1 sur 2`],
+                        ["Calcul simple", "—", R`$M = F \times d$ ($d$ : distance entre l'axe et la droite d'action)`]
+                    ], { nowrap: false }),
+                    H.p(R`Un <strong>couple</strong> est une action qui ne fait que tourner, sans force résultante : deux forces opposées décalées (clé de roue), arbre de moteur, vis qu'on visse.`)),
+                ecoSec("2. Les deux familles d'actions", "layers",
+                    H.liste([
+                        R`<strong>À distance</strong> : le poids $P = m\,g$ ($g = 9{,}81$ m/s²), appliqué au centre de gravité, vertical vers le bas ; les actions magnétiques (aimants, bobines, moteurs).`,
+                        R`<strong>De contact</strong> (dans les liaisons) : ponctuelle, répartie sur une ligne ($F = q \times \ell$) ou répartie sur une surface ($F = p \times S$, par exemple un fluide sous pression, modélisée par une force unique au centre de pression).`,
+                        R`Unités cohérentes pour $F = p \times S$ : N, MPa (N/mm²), mm² ; ou daN, bar, cm². Et $1$ bar $= 0{,}1$ MPa.`
+                    ])),
+                ecoSec("3. Isoler un solide et faire le bilan", "scissors",
+                    H.p("<strong>Isoler</strong> un solide, c'est l'entourer d'une frontière, retirer tout ce qui l'entoure et remplacer chaque élément retiré par l'action qu'il exerce sur le solide. Le <strong>graphe des liaisons</strong> aide : chaque liaison coupée par la frontière donne une action, et il ne faut pas oublier les actions à distance (le poids)."),
+                    H.liste([
+                        "On peut isoler plusieurs solides à la fois : les liaisons à l'intérieur de la frontière sont des actions intérieures, on les ignore.",
+                        R`<strong>Actions mutuelles</strong> : $\vec{D}_{1\to3} = -\vec{D}_{3\to1}$ (même droite d'action, sens opposés).`
+                    ])),
+                ecoSec("4. Le principe fondamental de la statique (PFS)", "anchor",
+                    H.p("Un solide est en équilibre lorsque sa vitesse est constante. Dans un repère galiléen, pour un système isolé en équilibre :"),
+                    H.formule(R`\sum \vec{F}_{ext} = \vec{0} \quad\text{(théorème des forces)} \qquad \sum \vec{M}_{A}(\vec{F}_{ext}) = \vec{0} \quad\text{(théorème des moments, en tout point } A)`),
+                    H.listeNum(["Isoler le système (graphe des liaisons).", "Faire le bilan des actions extérieures (nom, point d'application, direction et sens, intensité).", "Choisir la méthode : analytique ou graphique.", "Résoudre, en faisant attention aux signes par rapport aux axes choisis."])),
+                ecoSec("5. Méthodes analytiques", "calculator",
+                    H.liste([
+                        "<strong>Théorème des forces</strong> : quand toutes les forces sont alignées. Exemple : un ascenseur de 2 500 N avec un passager de 800 N, immobile : la tension du câble vaut 2 500 + 800 = 3 300 N.",
+                        "<strong>Théorème des moments</strong> : quand les forces sont parallèles. On écrit les moments en un point bien choisi (souvent une articulation, dont l'action a un moment nul), avec un sens positif."
+                    ]),
+                    H.figure(svgLevier(), "Barrière : contrepoids P₁, poids propre P₂, articulation A et butée B (forces parallèles)"),
+                    H.p(R`Exemple : contrepoids $P_1 = 800$ N à $0{,}5$ m à gauche de $A$, poids $P_2 = 300$ N à $2$ m à droite, butée à $5$ m. Moments en $A$ : $0{,}5 \times 800 - 2 \times 300 + 5\,B = 0$, donc $B = 40$ N, puis $A = 800 + 300 - 40 = 1\,060$ N.`)),
+                ecoSec("6. Torseurs et méthode générale (3D)", "box",
+                    H.p(R`Une action mécanique se décrit complètement par son <strong>torseur</strong> en un point : sa résultante $\vec{R}(X, Y, Z)$ et son moment $\vec{M}_A(L, M, N)$. Un <strong>glisseur</strong> a un moment nul (point sur la droite d'action) ; un <strong>couple</strong> a une résultante nulle.`),
+                    H.liste([
+                        "Une liaison ne transmet aucun effort dans la direction d'un degré de liberté : par exemple, l'appui-plan de normale z transmet Z, L et M (3 inconnues).",
+                        R`Pour additionner des torseurs, il faut les écrire <strong>au même point</strong>. Transport : la résultante ne change pas et $\vec{M}_B = \vec{M}_A + \vec{R} \wedge \overrightarrow{AB}$.`,
+                        "Le PFS donne alors 6 équations (3 de résultante, 3 de moment)."
+                    ])),
+                ecoSec("7. Problèmes plans et statique graphique", "pen-tool",
+                    H.liste([
+                        "<strong>Problème plan</strong> (plan x, y) : forces dans le plan et moments selon z seulement. Chaque torseur se réduit à 3 inconnues (X, Y, N), et le PFS à 3 équations.",
+                        "<strong>Solide soumis à deux forces</strong> : elles ont même droite d'action (celle qui passe par leurs deux points d'application), même norme et des sens opposés.",
+                        "<strong>Solide soumis à trois forces non parallèles</strong> : leurs droites d'action sont concourantes et, mises bout à bout, les forces forment un triangle fermé, le <strong>dynamique</strong>. On trace le point de concours, puis le dynamique à l'échelle pour lire les intensités inconnues."
+                    ]))
+            ] },
+            "est1-af": { badge: "EST • 1ère Année", titre: "Analyse fonctionnelle", sections: () => [
+                ecoSec("1. Besoin, fonctions, produit", "lightbulb",
+                    H.p("Le <strong>besoin</strong> est le problème posé (un désir ou une nécessité de l'utilisateur), les <strong>fonctions</strong> décrivent comment y répondre, le <strong>produit</strong> est la réponse concrète. Exprimer le besoin en fonctions plutôt qu'en solutions laisse de la place à l'innovation et facilite le dialogue entre client et fournisseur."),
+                    H.tableau(["Besoin", "Nature", "Rôle"], [["Primaire", "vital : se nourrir, se protéger, communiquer", "déclenche l'achat"], ["Secondaire", "plaisir : goût, esthétique, affirmation de soi", "oriente le choix"], ["Tertiaire", "ergonomie, sécurité, absence de nuisance", "oriente le choix"]]),
+                    H.note("Il y a souvent un écart entre le besoin réel, ce que le client demande, ce que l'entreprise propose et ce qui est finalement livré : l'analyse fonctionnelle sert à réduire ces écarts.")),
+                ecoSec("2. Vocabulaire", "book-open",
+                    H.liste([
+                        "<strong>Utilisateur</strong> : celui dont le besoin justifie le produit ; <strong>usager</strong> : toute personne en relation avec le produit.",
+                        "<strong>Milieu environnant</strong> : tout ce qui entoure le produit pendant son utilisation, son entretien… Ses actions sont des <strong>contraintes</strong>.",
+                        "<strong>Fonctions de service</strong> : principales (le besoin fondamental), secondaires (confort, esthétique, sécurité) et de contrainte (réglementation, environnement).",
+                        "<strong>Fonctions techniques</strong> : internes au produit, elles résultent des choix du concepteur."
+                    ])),
+                ecoSec("3. Énoncer et valider le besoin", "target",
+                    H.p("La <strong>bête à cornes</strong> pose trois questions : <em>À qui</em> le produit rend-il service ? <em>Sur quoi</em> agit-il ? <em>Dans quel but</em> ? Exemple pour un taille-haie : il rend service au jardinier, agit sur la haie, dans le but de la tailler proprement."),
+                    H.p("Pour <strong>valider</strong> le besoin, on se demande pourquoi il existe, ce qui pourrait le faire disparaître ou évoluer, et avec quel risque. Si le risque est faible à l'horizon visé, le besoin est validé.")),
+                ecoSec("4. Rechercher les fonctions", "search",
+                    H.liste([
+                        "<strong>Brainstorming</strong>, étude de produits proches, normes et réglementations.",
+                        "<strong>Diagramme pieuvre (des interacteurs)</strong> : le produit au centre, les éléments de son environnement autour. Une fonction principale relie deux interacteurs <em>à travers</em> le produit ; une fonction de contrainte relie le produit à un seul interacteur.",
+                        "<strong>SAFE</strong> : on décompose le produit en éléments, de l'entrée à la sortie, et on associe à chacun sa fonction.",
+                        "<strong>FAST</strong> : on enchaîne les fonctions de gauche à droite en répondant à <em>Comment ?</em> (de droite à gauche : <em>Pourquoi ?</em> ; verticalement : <em>Quand ?</em>), jusqu'aux solutions techniques."
+                    ])),
+                ecoSec("5. Caractériser et hiérarchiser", "list-checks",
+                    H.p("Chaque fonction s'écrit avec <strong>un verbe d'action et un complément</strong>, puis on lui associe des critères d'appréciation, un niveau et une flexibilité :"),
+                    H.tableau(["Flexibilité", "Sens"], [["F0", "nulle : niveau impératif"], ["F1", "faible : peu négociable"], ["F2", "bonne : négociable"], ["F3", "forte : très négociable"]]),
+                    H.p("Pour hiérarchiser, on compare les fonctions <strong>deux à deux</strong> dans une matrice, en notant la plus importante et un poids de 1 (pas important) à 5 (très important). On additionne les poids pour obtenir le palmarès des fonctions, souvent présenté en histogramme."))
+            ] },
+            "est1-dessin": { badge: "EST • 1ère Année", titre: "Le dessin technique", sections: () => [
+                ecoSec("1. Un langage normalisé", "pencil-ruler",
+                    H.p("Le dessin technique permet à tous les intervenants industriels de représenter un objet sans ambiguïté, grâce à des règles normalisées."),
+                    H.tableau(["Type de dessin", "À quoi il sert"], [
+                        ["Schéma", "comprendre le fonctionnement avec des symboles (mouvements, liaisons)"],
+                        ["Dessin d'ensemble", "montrer la disposition et la forme des pièces assemblées, avec la nomenclature"],
+                        ["Dessin de définition", "définir complètement une pièce (formes, cotes) pour la fabriquer ; il fait foi au contrôle"],
+                        ["Perspective", "voir l'objet en volume (les dimensions ne sont pas toutes respectées)"],
+                        ["Vue éclatée", "perspective avec les pièces écartées, pour comprendre le montage"]
+                    ], { nowrap: false })),
+                ecoSec("2. Formats et éléments permanents", "file",
+                    H.tableau(["Format", "A0", "A1", "A2", "A3", "A4"], [["Dimensions (mm)", "1189 × 841", "841 × 594", "594 × 420", "420 × 297", "297 × 210"]]),
+                    H.liste([
+                        "Le A0 fait 1 m² ; chaque format s'obtient en pliant le précédent en deux dans sa longueur.",
+                        "<strong>Cadre</strong> à 10 mm du bord (A4 à A2), <strong>coordonnées</strong> en bord de feuille pour repérer une zone, <strong>repère d'orientation</strong> dirigé vers soi.",
+                        "<strong>Cartouche</strong> (en bas) : la carte d'identité du dessin (titre, échelle, auteur, date, format, établissement, indice de mise à jour, symbole de disposition des vues).",
+                        "<strong>Nomenclature</strong> : liste des pièces, liée au dessin par les repères, en 5 colonnes : repère, nombre, désignation, matière, observations."
+                    ])),
+                ecoSec("3. L'échelle", "scaling",
+                    H.formule(R`\text{échelle} = \dfrac{\text{dimension mesurée sur le dessin}}{\text{dimension réelle}}`),
+                    H.p("On écrit 1:1 pour la vraie grandeur, 1:x pour une réduction (1:2 : le dessin est deux fois plus petit) et x:1 pour un agrandissement. Exemple : 120 mm réels dessinés sur 60 mm → échelle 1:2.")),
+                ecoSec("4. Les traits", "minus",
+                    H.tableau(["Trait", "Utilisation"], [
+                        ["Continu fort", "arêtes et contours visibles, cadre, cartouche"],
+                        ["Continu fin", "lignes de cote et d'attache, hachures"],
+                        ["Continu fin ondulé ou en zigzag", "limites de vues ou de coupes partielles"],
+                        ["Interrompu fin", "arêtes et contours cachés"],
+                        ["Mixte fin", "axes, plans de symétrie, plans de coupe"],
+                        ["Mixte fin à deux tirets", "contours de pièces voisines, parties en avant du plan de coupe"]
+                    ], { nowrap: false }),
+                    H.note("À retenir : <strong>deux traits forts ne se croisent jamais</strong>."))
+            ] },
+            "est1-coupes": { badge: "EST • 1ère Année", titre: "Les coupes", sections: () => [
+                ecoSec("1. Pourquoi une coupe ?", "scissors",
+                    H.p("Sur une vue extérieure, les formes intérieures n'apparaissent qu'en traits cachés, peu lisibles. La coupe permet de les montrer clairement, en traits visibles.")),
+                ecoSec("2. Le principe en quatre étapes", "list-ordered",
+                    H.listeNum(["Choisir un plan de coupe (P).", "Couper la pièce suivant ce plan.", "Retirer la partie située entre l'observateur et le plan.", "Projeter la partie restante sur le plan : la matière coupée est hachurée."])),
+                ecoSec("3. Les règles des hachures", "hash",
+                    H.liste(["Les hachures représentent uniquement la <strong>matière coupée</strong>.", "Elles sont en <strong>trait continu fin</strong>.", "Elles ne traversent jamais un trait fort.", "Elles ne s'arrêtent jamais sur un trait interrompu (caché)."])),
+                ecoSec("4. Indiquer la coupe sur le dessin", "pen-tool",
+                    H.listeNum([
+                        "Tracer le plan de coupe sur une vue existante en trait mixte fin, terminé par deux petits traits forts.",
+                        "Indiquer le sens d'observation par des flèches (elles désignent la vue qui recevra les hachures).",
+                        "Nommer le plan par une lettre majuscule à chaque extrémité (par exemple A).",
+                        "Titrer la vue coupée avec ces deux lettres : « A-A ».",
+                        "Dessiner la vue coupée : les formes intérieures deviennent visibles, la matière coupée est hachurée."
+                    ]),
+                    H.p("On rencontre ainsi sur les vues en coupe les perçages, fraisures et lamages (chambrages), qui seraient sinon cachés."))
+            ] },
+            "est1-formes": { badge: "EST • 1ère Année", titre: "Perspectives et vocabulaire technique", sections: () => [
+                ecoSec("1. Les perspectives", "box",
+                    H.tableau(["Perspective", "Principe", "Usage"], [
+                        ["Cavalière", "la face avant est dessinée en vraie grandeur ; les fuyantes partent en biais (souvent à 45°) avec un coefficient de réduction (souvent 0,5)", "rapide à tracer, idéale pour une pièce qui a une face principale"],
+                        ["Axonométrique", "l'objet est projeté sur un plan incliné par rapport à ses trois faces : aucune face n'est en vraie grandeur", "rendu plus réaliste"],
+                        ["Isométrique (cas particulier)", "les trois axes font 120° entre eux, les trois directions sont réduites de la même façon", "la plus utilisée en mécanique et en CAO"]
+                    ], { nowrap: false })),
+                ecoSec("2. Générer des volumes", "rotate-3d",
+                    H.liste(["<strong>Extrusion</strong> : un profil plan est déplacé suivant une direction (un prisme, une plaque).", "<strong>Révolution</strong> : un profil tourne autour d'un axe (un arbre, une poulie).", "Les pièces sont des combinaisons de volumes élémentaires : prismes, cylindres, cônes, sphères…"])),
+                ecoSec("3. Formes usuelles", "shapes",
+                    H.tableau(["Forme", "Description"], [
+                        ["Chanfrein", "petite surface plane inclinée qui casse une arête"], ["Congé / arrondi", "arrondi d'une arête intérieure (congé) ou extérieure (arrondi)"],
+                        ["Tenon", "partie en saillie destinée à entrer dans une rainure"], ["Rainure", "entaille longue : droite, en T, en V, en queue d'aronde"],
+                        ["Bossage", "surépaisseur locale pour limiter la surface usinée"], ["Nervure", "paroi mince qui rigidifie une pièce"], ["Trou oblong", "trou allongé (lumière) qui permet un réglage"]
+                    ], { nowrap: false })),
+                ecoSec("4. Sur les arbres et les alésages", "circle-dot",
+                    H.tableau(["Sur un arbre", "Sur un alésage"], [
+                        ["<strong>Épaulement</strong> : changement de diamètre qui sert d'appui", "<strong>Épaulement intérieur</strong>"],
+                        ["<strong>Collet</strong> : anneau en saillie sur l'arbre", "<strong>Chambrage</strong> : creux intérieur d'un alésage"],
+                        ["<strong>Gorge</strong> : rainure circulaire (pour un circlip, un joint)", "<strong>Lamage</strong> : logement pour une tête de vis"],
+                        ["<strong>Méplat</strong> : surface plane sur un cylindre", "<strong>Fraisure</strong> : chanfrein intérieur conique (vis à tête fraisée)"],
+                        ["<strong>Rainure de clavette</strong>", "<strong>Trou débouchant</strong> (traverse la pièce) ou <strong>borgne</strong> (non)"]
+                    ], { nowrap: false }))
+            ] },
+            "oi2-gps": { badge: "OI • 2ème Année", titre: "La cotation GPS", sections: () => [
+                ecoSec("1. Le concept GPS", "globe",
+                    H.p("La <strong>spécification géométrique des produits</strong> (GPS, normes ISO) est un langage commun et sans ambiguïté, né du besoin d'unifier les normes nationales avec la sous-traitance et l'internationalisation. Elle couvre la <strong>spécification</strong> (définir les exigences fonctionnelles) et la <strong>vérification</strong> (contrôler que la pièce les respecte)."),
+                    H.p("On raisonne sur une pièce <strong>non idéale</strong> (le « skin model ») : on en extrait les surfaces utiles, on leur associe des éléments idéaux (plan, cylindre, droite…) selon des critères précis, puis on définit des zones de tolérance.")),
+                ecoSec("2. Le principe d'indépendance", "unlink",
+                    H.p("Chaque exigence dimensionnelle ou géométrique s'applique <strong>seule</strong>, sauf indication contraire (ISO 8015). Respecter le diamètre d'un cylindre ne garantit donc pas sa cylindricité : une pièce peut avoir toutes ses dimensions locales bonnes et un grand défaut de forme."),
+                    H.p("Une <strong>cote encadrée</strong> est une dimension théorique exacte : elle n'a pas de tolérance propre, c'est une tolérance géométrique qui la limite.")),
+                ecoSec("3. Tolérances dimensionnelles et ajustements", "ruler",
+                    H.liste([
+                        "Notation ISO : ∅ 25 H7 pour un alésage (lettre majuscule), ∅ 32 g6 pour un arbre (minuscule). La lettre place l'intervalle de tolérance par rapport à la cote nominale, le chiffre donne la qualité (plus il est petit, plus l'IT est serré).",
+                        "<strong>Jeu max</strong> = alésage max − arbre min ; <strong>jeu min</strong> = alésage min − arbre max.",
+                        "Ajustement <strong>avec jeu</strong> (jeu min ≥ 0), <strong>incertain</strong>, ou <strong>serré</strong> (jeu max ≤ 0).",
+                        "On utilise surtout le système de l'<strong>alésage normal</strong> (H) : H/f, g, h → jeu ; H/k, m → montage au maillet ; H/p, s → montage à la presse."
+                    ])),
+                ecoSec("4. Rugosité", "waves",
+                    H.p("Elle caractérise l'état de surface : <strong>Ra</strong> est l'écart moyen arithmétique entre pics et creux, <strong>Rt</strong> l'écart total entre le plus haut pic et le creux le plus bas. Le symbole de rugosité porte la valeur et parfois une exigence d'usage (FG : frottement de glissement, ED : étanchéité dynamique…).")),
+                ecoSec("5. Tolérances géométriques", "shapes",
+                    H.p("Elles définissent une zone dans laquelle l'élément réel doit se trouver. Un cadre de tolérance contient le symbole, la valeur de la zone et, si besoin, les références."),
+                    H.tableau(["Famille", "Exemples", "Référence ?"], [
+                        ["Forme", "rectitude, planéité, circularité, cylindricité", "non"],
+                        ["Orientation", "parallélisme, perpendicularité, inclinaison", "oui"],
+                        ["Position", "localisation, coaxialité, symétrie", "oui"],
+                        ["Battement", "simple (une section) ou total (toute la surface), pièce en rotation autour d'un axe de référence", "oui"]
+                    ], { nowrap: false }),
+                    H.liste(["Une référence peut être <strong>simple</strong>, <strong>commune</strong> (plusieurs éléments associés ensemble, par exemple A-B) ou un <strong>système de références</strong> ordonné (primaire, secondaire, tertiaire).", "<strong>CZ</strong> (zone commune) : plusieurs éléments doivent tenir dans une même zone de tolérance."])),
+                ecoSec("6. Enveloppe et maximum de matière", "maximize",
+                    H.liste([
+                        "<strong>Exigence d'enveloppe</strong> (Ⓔ) : la surface ne doit pas dépasser l'enveloppe de forme parfaite au maximum de matière. Elle lie la dimension à la forme (utile pour garantir un assemblage).",
+                        "<strong>Exigence du maximum de matière</strong> (Ⓜ) : elle lie la dimension à l'orientation ou à la position. La partie de l'IT dimensionnel non utilisée s'ajoute à la tolérance géométrique."
+                    ]),
+                    H.p("Exemple : alésage entre 40,20 et 40,40, perpendicularité 0,05 Ⓜ. Si l'alésage mesure 40,30, il est plus grand de 0,10 que le minimum : la perpendicularité acceptée devient 0,05 + 0,10 = 0,15 (au plus 0,25 à 40,40).")),
+                ecoSec("7. Métrologie", "gauge",
+                    H.liste(["Qualités d'un instrument : <strong>fidélité</strong> (faible dispersion), <strong>justesse</strong> (moyenne égale à la vraie valeur), <strong>sensibilité</strong>, <strong>précision</strong> (qualité globale).", "En plus du pied à coulisse, du comparateur ou du marbre, la <strong>MMT</strong> (machine à mesurer tridimensionnelle) palpe la pièce en 3D : structure à trois guidages, système de palpage, électronique et logiciel qui exécute les gammes de contrôle."]))
             ] }
         });
         // ==========================================
@@ -10930,7 +11661,24 @@
                             R`Définir un mouvement, c'est donner <strong>le solide étudié</strong> et <strong>le solide de référence</strong>.`
                         ]),
                         H.formule(R`\vec{V}(B \in 1/0) = \vec{V}_B(1/0) \qquad \text{vitesse du point } B \text{ du solide 1 par rapport au solide 0}`),
-                        H.note(R`Trajectoire, position, vitesse et accélération se définissent pour <strong>un point</strong>, avec le solide auquel il appartient et le repère de référence.`)
+                        H.note(R`Trajectoire, position, vitesse et accélération se définissent pour <strong>un point</strong>, avec le solide auquel il appartient et le repère de référence.`),
+                        H.liste([
+                            R`Un <strong>référentiel</strong>, c'est un repère d'espace et un repère de temps. Le mouvement est <strong>absolu</strong> s'il est défini par rapport à un référentiel galiléen (en mécanique, la Terre) et <strong>relatif</strong> sinon.`,
+                            R`Un solide a un <strong>mouvement plan</strong> si tous ses points se déplacent dans des plans parallèles : on l'étudie alors comme une figure plane.`,
+                            R`<strong>Points coïncidents</strong> : à un instant donné, un même point géométrique $M$ peut être vu comme lié au solide 0, 1 ou 2 ($M_0$, $M_1$, $M_2$). Ils sont confondus à cet instant mais n'ont pas la même vitesse : c'est pour cela qu'on précise toujours $M \in 1$.`
+                        ])
+                    ].join('') },
+                    { titre: "1 bis. Position, vitesse et accélération d'un point", icone: "navigation", contenu: [
+                        H.liste([
+                            R`<strong>Trajectoire</strong> : la courbe décrite par les positions successives du point dans le repère de référence.`,
+                            R`<strong>Vecteur position</strong> $\overrightarrow{OM}$ ; <strong>déplacement</strong> entre $t_1$ et $t_2$ : $\overrightarrow{M_1M_2} = \overrightarrow{OM_2} - \overrightarrow{OM_1}$.`
+                        ]),
+                        H.formule(R`\vec{V}_M = \dfrac{d\overrightarrow{OM}}{dt} \qquad \vec{a}_M = \dfrac{d\vec{V}_M}{dt} = \dfrac{d^2\overrightarrow{OM}}{dt^2} = \vec{a}_t + \vec{a}_n`),
+                        H.liste([
+                            R`La vitesse est toujours <strong>tangente</strong> à la trajectoire (c'est la limite de la vitesse moyenne $\overrightarrow{MM'}/\Delta t$ quand $\Delta t \to 0$).`,
+                            R`$\vec{a}_t$ est portée par la tangente (elle change la norme de la vitesse) ; $\vec{a}_n$ est perpendiculaire et toujours dirigée vers l'intérieur de la courbe (elle change la direction).`,
+                            R`Pour repérer un solide, il faut la position d'un de ses points et un ou plusieurs angles.`
+                        ])
                     ].join('') },
                     { titre: "2. Mouvement de translation", icone: "move-right", contenu: [
                         H.p(R`Un solide $S$ est en <strong>translation</strong> par rapport à $R_0$ si, à chaque instant, tous ses points ont le même vecteur vitesse (et la même accélération) :`),
@@ -10944,7 +11692,8 @@
                     ].join('') },
                     { titre: "3. Rotation autour d'un axe fixe", icone: "rotate-cw", contenu: [
                         H.p(R`Les trajectoires sont des <strong>cercles concentriques</strong> centrés sur l'axe. L'arbre d'entrée du compresseur est en rotation par rapport au bâti. Soit $\theta$ l'angle de rotation :`),
-                        H.formule(R`\omega = \dot{\theta} \;(\text{rad/s}) \qquad \alpha = \dot{\omega} = \ddot{\theta} \;(\text{rad/s}^2)`),
+                        H.formule(R`\omega = \dot{\theta} \;(\text{rad/s}) \qquad \alpha = \dot{\omega} = \ddot{\theta} \;(\text{rad/s}^2) \qquad \omega = \dfrac{2\pi N}{60} = \dfrac{\pi N}{30} \;(N \text{ en tr/min})`),
+                    H.p(R`Rappel : $1$ tour $= 2\pi$ rad $= 360^\circ$. Il n'y a pas besoin d'un axe fixe pour qu'un solide tourne : on repère sa rotation par l'angle d'une droite qui lui est liée.`),
                         H.tableau(["Rotation", "Relations"], [
                             ["Uniforme ($\\alpha = 0$)", "$\\omega = \\omega_0 = \\text{cte}$ ; $\\theta = \\omega\\,t + \\theta_0$"],
                             ["Uniformément variée ($\\alpha = \\text{cte}$)", "$\\omega = \\alpha\\,t + \\omega_0$ ; $\\theta = \\dfrac{\\alpha\\,t^2}{2} + \\omega_0\\,t + \\theta_0$ ; $\\omega^2 = \\omega_0^2 + 2\\alpha\\,(\\theta - \\theta_0)$"]
@@ -10960,7 +11709,12 @@
                         H.formule(R`\{\mathcal{V}(S/0)\} = \left\{ \begin{array}{l} \vec{\Omega}(S/0) \\ \vec{V}(A \in S/0) \end{array} \right\}_A`),
                         H.p(R`Champ des vecteurs vitesses : pour tous points $A$ et $B$ du solide,`),
                         H.formule(R`\vec{V}(B \in S/0) = \vec{V}(A \in S/0) + \vec{\Omega}(S/0) \wedge \overrightarrow{AB}`),
-                        H.note(R`Cas particuliers : <strong>translation</strong> si $\vec{\Omega} = \vec{0}$ ; <strong>rotation</strong> si la vitesse est nulle en un point (l'axe de rotation).`)
+                        H.note(R`Cas particuliers : <strong>translation</strong> si $\vec{\Omega} = \vec{0}$ ; <strong>rotation</strong> si la vitesse est nulle en un point (l'axe de rotation).`),
+                        H.p(R`<strong>D'où vient cette relation ?</strong> La formule de Bour (dérivation dans un autre repère) donne $\left.\dfrac{d\overrightarrow{AB}}{dt}\right|_{0} = \left.\dfrac{d\overrightarrow{AB}}{dt}\right|_{S} + \vec{\Omega}(S/0) \wedge \overrightarrow{AB}$. Comme $A$ et $B$ sont fixes dans $S$, le premier terme est nul, et $\left.\dfrac{d\overrightarrow{AB}}{dt}\right|_0 = \vec{V}(B \in S/0) - \vec{V}(A \in S/0)$.`),
+                        H.liste([
+                            R`<strong>Invariants</strong> (ils ne dépendent pas du point choisi) : la résultante $\vec{\Omega}(S/0)$, et le produit scalaire $\vec{\Omega}(S/0) \cdot \vec{V}(A \in S/0)$.`,
+                            R`<strong>Axe central</strong> : l'ensemble des points $C$ dont la vitesse est parallèle à $\vec{\Omega}$ ($\vec{V}_C = \lambda\,\vec{\Omega}$, $\lambda$ étant le pas). Ils ont tous la même vitesse et l'axe est parallèle à $\vec{\Omega}$. Il passe par le point $C_0$ tel que $\overrightarrow{AC_0} = \dfrac{\vec{\Omega} \wedge \vec{V}_A}{\Omega^2}$.`
+                        ])
                     ].join('') },
                     { titre: "5. Composition des mouvements", icone: "git-merge", contenu: [
                         H.p(R`Si un solide 2 se déplace par rapport à un solide 1, lui-même en mouvement par rapport à 0 (rivière, bateau, berge) :`),
@@ -10978,6 +11732,14 @@
                         H.formule(R`\vec{V}(A \in S/0) \cdot \overrightarrow{AB} = \vec{V}(B \in S/0) \cdot \overrightarrow{AB}`),
                         H.p(R`<strong>Utilisation</strong> : connaissant la vitesse en $A$ et la direction de la vitesse en $B$, on trouve la norme de $\vec{V}(B \in S/0)$. Pour le compresseur : on connaît $\vec{V}(B \in 1/0) = \vec{V}(B \in 2/0)$ et la direction de $\vec{V}(C \in 3/0) = \vec{V}(C \in 2/0)$ (parallèle à $(AC)$) ; l'équiprojectivité sur la bielle 2 donne :`),
                         H.formule(R`\vec{V}(B \in 2/0) \cdot \overrightarrow{BC} = \vec{V}(C \in 2/0) \cdot \overrightarrow{BC}`),
+                    H.p(R`<strong>Construction graphique</strong> (on connaît $\vec{V}_A$ et la direction de $\vec{V}_B$) :`),
+                    H.listeNum([
+                        "Tracer la figure à l'échelle et choisir une échelle des vitesses.",
+                        R`Projeter $\vec{V}_A$ sur la droite $(AB)$ : on obtient le segment $AH$.`,
+                        R`Reporter la même longueur à partir de $B$, du même côté : segment $BK$.`,
+                        R`Tracer la perpendiculaire à $(AB)$ passant par $K$ : elle coupe la direction de $\vec{V}_B$ à l'extrémité du vecteur cherché. On mesure sa longueur et on applique l'échelle.`
+                    ]),
+                    H.p(R`Avec deux vitesses connues $\vec{V}_A$ et $\vec{V}_B$, une <strong>double équiprojectivité</strong> donne la vitesse d'un troisième point $C$ dont on ne connaît ni la direction ni la norme.`),
                         H.note(R`<strong>Démonstration</strong> : le solide est indéformable, donc $AB^2 = \overrightarrow{AB} \cdot \overrightarrow{AB} = \text{cte}$. En dérivant : $\overrightarrow{AB} \cdot \dfrac{d\overrightarrow{AB}}{dt} = 0$. Avec Chasles $\overrightarrow{AB} = \overrightarrow{AO} + \overrightarrow{OB}$, la dérivée vaut $\vec{V}(B \in S/0) - \vec{V}(A \in S/0)$, d'où $\overrightarrow{AB} \cdot \big(\vec{V}(B) - \vec{V}(A)\big) = 0$.`)
                     ].join('') },
                     { titre: "7. Centre instantané de rotation (CIR)", icone: "crosshair", contenu: [
@@ -10988,7 +11750,25 @@
                             R`On est ramené à une <strong>rotation de centre $I$</strong> : la vitesse d'un point $M$ est perpendiculaire à $IM$ et de norme $\omega\,IM$.`
                         ]),
                         H.formule(R`\|\vec{V}(A \in S/0)\| = IA\,\omega_{S/0} \qquad \|\vec{V}(B \in S/0)\| = IB\,\omega_{S/0}`),
-                        H.note(R`Le CIR change à chaque instant : il décrit des courbes appelées base et roulante. En pratique, on le construit sur l'instant étudié.`)
+                        H.note(R`Le CIR change à chaque instant : il décrit des courbes appelées base et roulante. En pratique, on le construit sur l'instant étudié.`),
+                        H.p(R`<strong>Par le calcul</strong> : pour un point $P$ quelconque du solide, le CIR $I$ vérifie $\vec{V}_I = \vec{0}$, ce qui donne :`),
+                        H.formule(R`\overrightarrow{PI} = \dfrac{\vec{\Omega} \wedge \vec{V}_P}{\Omega^2}`),
+                        H.liste([
+                            R`$I$ est dans le plan du mouvement et $\overrightarrow{PI}$ est perpendiculaire à $\vec{V}_P$.`,
+                            R`Si $\Omega \neq 0$ : à cet instant, le mouvement est une rotation autour de $I$. Si $\Omega = 0$ : c'est une translation, et le CIR est rejeté à l'infini, perpendiculairement à la vitesse.`,
+                            "Il suffit donc de connaître la vitesse d'un point et la direction de la vitesse d'un autre point pour trouver la vitesse de n'importe quel point du solide."
+                        ])
+                    ].join('') },
+                    { titre: "8. Glissement, roulement et pivotement", icone: "circle-dashed", contenu: [
+                        H.p(R`La composition vaut aussi pour les rotations : $\vec{\Omega}(1/0) = \vec{\Omega}(1/2) + \vec{\Omega}(2/0)$. Au point de contact $A$ entre deux solides 1 et 2 :`),
+                        H.liste([
+                            R`$\vec{V}(A \in 1/2)$ est la <strong>vitesse de glissement</strong> ; elle est toujours dans le plan tangent au contact. Si elle est nulle, il y a <strong>adhérence</strong> (roulement sans glissement).`,
+                            R`La composante de $\vec{\Omega}(1/2)$ dans le plan tangent est le <strong>roulement</strong> ; sa composante selon la normale au contact est le <strong>pivotement</strong>.`
+                        ]),
+                        H.tableau(["", "Ni roulement ni pivotement", "Roulement", "Pivotement", "Roulement et pivotement"], [
+                            ["Sans glissement", "adhérence (pas de mouvement relatif)", "roulement sans glissement", "pivotement", "roulement avec pivotement"],
+                            ["Avec glissement", "glissement", "roulement avec glissement", "glissement avec pivotement", "glissement, roulement et pivotement"]
+                        ], { nowrap: false })
                     ].join('') }
                 ]
             }
