@@ -637,9 +637,9 @@
             { num: "Chapitre n°11", titre: "Séries de Fourier", desc: "Coefficients, harmoniques, spectre et formule de Parseval.", lecon: "m1-fourier", exo: "m1-fourier" }
         ],
         "CE": [
-            { num: "Chapitre n°1", titre: "Production-énergie électrique", desc: "Cours à venir." },
-            { num: "Chapitre n°2", titre: "Composants et schémas électriques", desc: "Cours à venir." },
-            { num: "Chapitre n°3", titre: "Moteurs à courant continu", desc: "Cours à venir." }
+            { num: "Chapitre n°1", titre: "Production et distribution de l'énergie électrique", desc: "Centrales, énergies renouvelables, réseau, transport et livraison, dangers du courant.", lecon: "ce1-production", exo: "ce1-production" },
+            { num: "Chapitre n°2", titre: "Composants et schémas électriques", desc: "Normes de représentation, repérage, appareillage (sectionneur, fusibles, disjoncteurs, contacteurs), installations domestiques.", lecon: "ce1-schemas", exo: "ce1-schemas" },
+            { num: "Chapitre n°3", titre: "Machines à courant continu", desc: "Constitution, f.é.m., moteur et génératrice : puissances, pertes, rendement.", lecon: "ce1-mcc", exo: "ce1-mcc" }
         ],
         "OI": [
             { num: "Chapitre n°1", titre: "Taylorisme, Fordisme et Toyotisme", desc: "Les grands courants d'organisation du travail, 5 zéros.", lecon: "oi1-courants" },
@@ -7133,6 +7133,222 @@
                         "Une opération est enregistrée à la date de sa <strong>facture</strong>, pas à la date du paiement. Une entreprise peut donc être bénéficiaire tout en étant à découvert.",
                         "Ses documents (<strong>bilan</strong>, <strong>compte de résultat</strong>, annexe) sont obligatoires et publics : ils servent au calcul des impôts, de preuve en droit, et informent tous les partenaires. D'où un vocabulaire et une présentation communs à tous."
                     ]))
+            ] }
+        });
+
+        // ==========================================
+        // CE A1 : production d'énergie, composants et schémas, machines à courant continu
+        // ==========================================
+        const ceX = (id, libelle, titre, icone, types, libelles, lettres) => { EXOS[id] = { chapitre: id, libelle, badge: 'CE • 1ère Année', titre, demarrer: () => exgLancer(lettres, titre, icone, types, libelles) }; };
+        const qcm = (q, sol, opts) => ({ enonce: `<p>${q}</p>`, champs: [gChoix('r', sol, opts, { groupe: 'Réponse' })], correction: `<p>Réponse : <strong class="text-white">${opts.find(o => o[0] === sol)[1]}</strong>.</p>` });
+        // ---------- production ----------
+        function ceEnergieAn() {
+            const [nom, P, ru] = choisir([['un réacteur nucléaire de 1 400 MW', 1400, 82], ['un barrage de 90 MW', 90, 70], ['une centrale thermique de 600 MW', 600, 80], ['un parc de 10 éoliennes de 1 MW', 10, 20]]);
+            const E = P * 8760 * ru / 100;
+            return { enonce: `<p>Quelle énergie (en MWh) produit en un an ${nom}, avec un rendement d'utilisation de ${ru} % ? (une année = 8 760 h)</p>`,
+                champs: [gNum('e', '$W$ =', E, { unite: 'MWh', largeur: '8rem' })],
+                correction: `<p>$W = P \\times 8\\,760 \\times ${centiemeTeX(ru / 100)} = ${P} \\times 8\\,760 \\times ${centiemeTeX(ru / 100)} = ${centiemeTeX(E)}$ MWh.</p>` };
+        }
+        function ceSolaire() {
+            const S = choisir([20, 50, 100, 1000, 10000]), r = 17;
+            return { enonce: `<p>Un panneau en silicium a un rendement de ${r} % : 1 m² fournit 170 Wc et produit environ 170 kWh par an (1 000 kWh par kWc en France). Quelle énergie (en kWh/an) produisent $${S}$ m² de panneaux ?</p>`,
+                champs: [gNum('e', '$W$ =', 170 * S, { unite: 'kWh/an', largeur: '8rem' })],
+                correction: `<p>$W = 0{,}17 \\text{ kWc/m}^2 \\times ${S} \\text{ m}^2 \\times 1\\,000 \\text{ kWh/kWc} = ${170 * S}$ kWh/an.</p>` };
+        }
+        function ceCourantCorps() {
+            const U = choisir([50, 120, 230, 400]), R = choisir([1000, 2000, 5000]);
+            return { enonce: `<p>Une personne touche une tension de $${U}$ V ; la résistance de son corps vaut $${R}\\,\\Omega$ (${R <= 1000 ? 'peau humide' : 'peau sèche'}). Quelle intensité (en mA) traverse son corps ?</p>`,
+                champs: [gNum('i', '$I$ =', U / R * 1000, { unite: 'mA' })],
+                correction: `<p>$I = \\dfrac{U}{R} = \\dfrac{${U}}{${R}} = ${centiemeTeX(U / R * 1000)}$ mA. Au-delà de quelques dizaines de mA, il y a risque de contractions musculaires, puis d'arrêt cardiaque.</p>` };
+        }
+        function ceSource() {
+            const q = choisir([
+                ['Quelle machine transforme l\'énergie mécanique en énergie électrique dans presque toutes les centrales ?', 'a', [['a', 'l\'alternateur'], ['t', 'le transformateur'], ['p', 'la pile à combustible']]],
+                ['Pourquoi élève-t-on la tension (jusqu\'à 400 kV) pour transporter l\'électricité ?', 'j', [['j', 'pour limiter les pertes par effet Joule dans les lignes'], ['v', 'pour aller plus vite'], ['s', 'pour la sécurité des usagers']]],
+                ['Quelle source a le meilleur rendement de conversion ?', 'h', [['h', 'l\'hydraulique (environ 90 %)'], ['c', 'la centrale thermique à flamme (environ 35 %)'], ['s', 'le photovoltaïque (environ 17 %)']]],
+                ['Quel est l\'inconvénient principal d\'une centrale au fil de l\'eau ?', 'd', [['d', 'la production dépend du débit, sans stockage possible'], ['g', 'elle émet beaucoup de CO₂'], ['r', 'elle produit des déchets radioactifs']]],
+                ['Qui gère le transport de l\'électricité sur les longues distances en France ?', 'rte', [['rte', 'RTE'], ['erdf', 'Enedis (ex-ERDF)'], ['cre', 'la CRE']]],
+                ['Au-delà de quelle puissance un client est-il livré en haute tension (HTA) ?', '250', [['250', '250 kVA'], ['36', '36 kVA'], ['1250', '1 250 kVA']]],
+                ['Le tarif bleu correspond à une puissance…', 'b', [['b', 'jusqu\'à 36 kVA'], ['j', 'entre 36 et 250 kVA'], ['h', 'supérieure à 250 kVA']]]]);
+            return qcm(...q);
+        }
+        ceX('ce1-production', 'Production d\'énergie', 'Production et distribution de l\'énergie électrique', 'zap', { energie: ceEnergieAn, solaire: ceSolaire, danger: ceCourantCorps, cours: ceSource }, { tout: 'Tout', energie: 'Énergie annuelle', solaire: 'Solaire', danger: 'Courant dans le corps', cours: 'Questions de cours' }, 'cep');
+        // ---------- composants et schémas ----------
+        function ceSchemaQ() {
+            const q = choisir([
+                ['Le sectionneur…', 'n', [['n', 'n\'a pas de pouvoir de coupure : on le manœuvre à vide'], ['c', 'coupe les courts-circuits'], ['d', 'protège les personnes']]],
+                ['Un fusible de code aM sert…', 'm', [['m', 'à protéger un moteur contre les courts-circuits (il tolère les pointes de démarrage)'], ['d', 'à l\'usage domestique'], ['s', 'à protéger les semi-conducteurs']]],
+                ['Un fusible gG (ancien gI) protège…', 'g', [['g', 'contre les surcharges et les courts-circuits (usage industriel général)'], ['m', 'uniquement les moteurs'], ['p', 'les personnes']]],
+                ['Le déclencheur thermique d\'un disjoncteur protège contre…', 's', [['s', 'les surcharges (bilame chauffé par effet Joule)'], ['c', 'les courts-circuits'], ['f', 'les fuites à la terre']]],
+                ['Le déclencheur magnétique d\'un disjoncteur protège contre…', 'c', [['c', 'les courts-circuits (coupure en 10 à 20 ms)'], ['s', 'les surcharges lentes'], ['f', 'les fuites à la terre']]],
+                ['Le disjoncteur différentiel protège…', 'p', [['p', 'les personnes, en détectant un courant de fuite'], ['m', 'les moteurs contre les surcharges'], ['c', 'les câbles contre l\'échauffement']]],
+                ['Sur un contacteur, un contact auxiliaire repéré 13-14 est…', 'f', [['f', 'un contact à fermeture (NO)'], ['o', 'un contact à ouverture (NC)'], ['p', 'un contact de puissance']]],
+                ['Sur un contacteur, un contact auxiliaire repéré 21-22 est…', 'o', [['o', 'un contact à ouverture (NC)'], ['f', 'un contact à fermeture (NO)'], ['b', 'la bobine']]],
+                ['Les bornes de la bobine d\'un contacteur sont repérées…', 'a', [['a', 'A1 et A2'], ['l', 'L1 et L2'], ['u', 'U et V']]],
+                ['Dans un schéma unifilaire…', 'u', [['u', 'plusieurs conducteurs sont représentés par un seul trait'], ['m', 'chaque conducteur a son trait'], ['t', 'on représente l\'implantation réelle']]],
+                ['La représentation développée sert à…', 'd', [['d', 'suivre facilement chaque circuit (c\'est la norme des schémas de commande)'], ['t', 'montrer la place réelle du matériel'], ['a', 'regrouper tous les éléments d\'un appareil']]],
+                ['Le fusible se place…', 'ph', [['ph', 'sur la phase (jamais sur le conducteur de protection)'], ['pe', 'sur la terre'], ['n', 'seulement sur le neutre']]],
+                ['Selon la NF C 15-100, combien de points d\'éclairage au maximum sur un même circuit ?', '8', [['8', '8'], ['5', '5'], ['12', '12']]],
+                ['Un circuit de prises 16 A en 1,5 mm² est protégé par…', 'c16', [['c16', 'un disjoncteur 16 A, avec au plus 5 prises'], ['c20', 'un disjoncteur 20 A, avec 8 prises'], ['f', 'un fusible 32 A']]],
+                ['Le conducteur de protection (terre) a la couleur…', 'vj', [['vj', 'vert et jaune'], ['b', 'bleu'], ['r', 'rouge']]],
+                ['Le montage qui commande une lampe depuis deux endroits s\'appelle…', 'vv', [['vv', 'va-et-vient'], ['da', 'double allumage'], ['sa', 'simple allumage']]],
+                ['Pour commander un éclairage depuis plus de deux endroits, on utilise…', 'tl', [['tl', 'un télérupteur (ou une minuterie)'], ['vv', 'un va-et-vient'], ['da', 'un double allumage']]]]);
+            return qcm(...q);
+        }
+        ceX('ce1-schemas', 'Composants et schémas', 'Composants et schémas électriques', 'cable', { q: ceSchemaQ }, null, 'ces');
+        // ---------- machines à courant continu ----------
+        function mccMoteur() {
+            const U = choisir([110, 220, 230, 240, 440]), R = choisir([0.2, 0.4, 0.5, 0.8, 1, 1.5]), I = choisir([5, 8, 10, 15, 20, 25, 40]), n = choisir([1000, 1200, 1450, 1500, 2000, 3000]), pc = choisir([80, 100, 150, 200, 250]);
+            const E = U - R * I, Pa = U * I, pJ = R * I * I, Pe = E * I, Pu = Pe - pc, om = 2 * Math.PI * n / 60, eta = Pu / Pa * 100, Tu = Pu / om;
+            if (Pu <= 0) return mccMoteur();
+            return { enonce: `<p>Un moteur à courant continu à excitation indépendante (on néglige l'excitation) est alimenté sous $U = ${U}$ V et absorbe $I = ${I}$ A. Résistance de l'induit : $R = ${centiemeTeX(R)}\\,\\Omega$ ; pertes collectives (fer + mécaniques) : $p_c = ${pc}$ W ; vitesse : $${n}$ tr/min.</p>`,
+                champs: [gNum('e', '$E$ =', E, { unite: 'V', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pa', '$P_a$ =', Pa, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pj', '$p_J$ =', pJ, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pe', '$P_{em}$ =', Pe, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pu', '$P_u$ =', Pu, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('eta', '$\\eta$ =', eta, { unite: '%', groupe: 'Rendement et couple', largeur: '6rem' }), gNum('tu', '$T_u$ =', Tu, { unite: 'N·m', groupe: 'Rendement et couple', largeur: '6rem' })],
+                correction: `<p>$E = U - R\\,I = ${U} - ${centiemeTeX(R)} \\times ${I} = ${centiemeTeX(E)}$ V.</p><p>$P_a = U\\,I = ${Pa}$ W ; $p_J = R\\,I^2 = ${centiemeTeX(pJ)}$ W ; $P_{em} = E\\,I = P_a - p_J = ${centiemeTeX(Pe)}$ W.</p><p>$P_u = P_{em} - p_c = ${centiemeTeX(Pu)}$ W ; $\\eta = \\dfrac{P_u}{P_a} \\approx ${centiemeTeX(eta)}$ %.</p><p>$\\Omega = \\dfrac{2\\pi n}{60} \\approx ${centiemeTeX(om)}$ rad/s et $T_u = \\dfrac{P_u}{\\Omega} \\approx ${centiemeTeX(Tu)}$ N·m.</p>` };
+        }
+        function mccGeneratrice() {
+            const E = choisir([120, 230, 250, 260, 460]), R = choisir([0.2, 0.3, 0.5, 0.8, 1]), I = choisir([5, 10, 15, 20, 30]), pc = choisir([100, 150, 200, 300]);
+            const U = E - R * I, Pu = U * I, pJ = R * I * I, Pe = E * I, Pa = Pe + pc, eta = Pu / Pa * 100;
+            return { enonce: `<p>Une génératrice à courant continu (excitation indépendante, négligée) a une f.é.m. $E = ${E}$ V et débite $I = ${I}$ A dans une charge. Résistance de l'induit : $R = ${centiemeTeX(R)}\\,\\Omega$ ; pertes collectives : $p_c = ${pc}$ W.</p>`,
+                champs: [gNum('u', '$U$ =', U, { unite: 'V', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('pu', '$P_u$ =', Pu, { unite: 'W', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('pj', '$p_J$ =', pJ, { unite: 'W', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('pe', '$P_{em}$ =', Pe, { unite: 'W', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('pa', '$P_a$ =', Pa, { unite: 'W', groupe: 'Bilan de la génératrice', largeur: '6rem' }), gNum('eta', '$\\eta$ =', eta, { unite: '%', groupe: 'Rendement', largeur: '6rem' })],
+                correction: `<p>$U = E - R\\,I = ${E} - ${centiemeTeX(R)} \\times ${I} = ${centiemeTeX(U)}$ V ; $P_u = U\\,I = ${centiemeTeX(Pu)}$ W (puissance électrique fournie à la charge).</p><p>$p_J = R\\,I^2 = ${centiemeTeX(pJ)}$ W ; $P_{em} = E\\,I = P_u + p_J = ${centiemeTeX(Pe)}$ W.</p><p>$P_a = P_{em} + p_c = ${centiemeTeX(Pa)}$ W (puissance mécanique reçue) ; $\\eta = \\dfrac{P_u}{P_a} \\approx ${centiemeTeX(eta)}$ %.</p>` };
+        }
+        function mccFem() {
+            const k = choisir([0.5, 0.8, 1, 1.2, 1.5, 2]), n1 = choisir([1000, 1200, 1500]), E1 = Math.round(k * 2 * Math.PI * n1 / 60), n2 = choisir([600, 800, 1800, 2000, 2400]);
+            return { enonce: `<p>À flux constant, la f.é.m. d'une machine à courant continu est proportionnelle à sa vitesse. Elle vaut $${E1}$ V à $${n1}$ tr/min. Que vaut-elle à $${n2}$ tr/min ?</p>`,
+                champs: [gNum('e', '$E_2$ =', E1 * n2 / n1, { unite: 'V' })],
+                correction: `<p>$E = K\\,\\Omega$ donc $E_2 = E_1 \\times \\dfrac{n_2}{n_1} = ${E1} \\times \\dfrac{${n2}}{${n1}} = ${centiemeTeX(E1 * n2 / n1)}$ V.</p>` };
+        }
+        ceX('ce1-mcc', 'Machines à courant continu', 'Machines à courant continu : bilans de puissance', 'cog', { mot: mccMoteur, gen: mccGeneratrice, fem: mccFem }, { tout: 'Tout', mot: 'Moteur', gen: 'Génératrice', fem: 'F.é.m. et vitesse' }, 'mcc');
+
+        const svgBilan = (moteur) => {
+            const etapes = moteur ? [['Pₐ = U·I', 'électrique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = Tᵤ·Ω', 'mécanique utile']] : [['Pₐ = T·Ω', 'mécanique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = U·I', 'électrique utile']];
+            const pertes = moteur ? ['p_J = R·I² (Joule induit)', 'p_c (fer + mécaniques)'] : ['p_c (fer + mécaniques)', 'p_J = R·I² (Joule induit)'];
+            let s = `<svg viewBox="0 0 520 150" style="width:100%;max-width:560px;height:auto" role="img" aria-label="Bilan des puissances ${moteur ? 'du moteur' : 'de la génératrice'}">`;
+            etapes.forEach(([a, b], i) => { const x = 10 + i * 190; s += `<rect x="${x}" y="20" width="130" height="50" rx="8" fill="none" stroke="${SVG_ACCENT}" stroke-width="2"/><text x="${x + 65}" y="42" text-anchor="middle" fill="${SVG_TEXTE}" font-size="13" font-weight="bold">${a}</text><text x="${x + 65}" y="60" text-anchor="middle" fill="${SVG_DISCRET}" font-size="10">${b}</text>`; });
+            pertes.forEach((p, i) => { const x = 140 + i * 190; s += `<line x1="${x}" y1="45" x2="${x + 60}" y2="45" stroke="${SVG_TRAIT}" stroke-width="2"/><polygon points="${x + 60},40 ${x + 60},50 ${x + 70},45" fill="${SVG_TRAIT}"/><line x1="${x + 30}" y1="45" x2="${x + 30}" y2="105" stroke="#f87171" stroke-width="2"/><polygon points="${x + 25},100 ${x + 35},100 ${x + 30},110" fill="#f87171"/><text x="${x + 30}" y="128" text-anchor="middle" fill="#f87171" font-size="11">${p}</text>`; });
+            return s + '</svg>';
+        };
+        Object.assign(LECONS, {
+            "ce1-production": { badge: "CE • 1ère Année", titre: "Production et distribution de l'énergie électrique", sections: () => [
+                ecoSec("1. D'où vient le courant ?", "atom",
+                    H.p("Un atome est fait d'un noyau (protons et neutrons) et d'électrons. Dans un <strong>conducteur</strong> (métaux), certains électrons sont libres et peuvent se déplacer : c'est le courant électrique. Dans un <strong>isolant</strong>, ils ne le peuvent pas."),
+                    H.p("L'électricité est surtout une forme d'énergie <strong>facile à transporter et à distribuer</strong>. On la produit principalement en convertissant de l'énergie mécanique grâce à un <strong>alternateur</strong> : un rotor (inducteur, électro-aimant) tourne dans un stator (induit) dont les enroulements voient un champ magnétique variable, ce qui y induit des tensions alternatives triphasées (loi de Faraday).")),
+                ecoSec("2. Les moyens de production", "factory",
+                    H.tableau(["Source", "Principe", "Ordres de grandeur", "Points forts / faibles"], [
+                        ["Nucléaire", "fission de l'uranium 235 → chaleur → vapeur → turbine → alternateur", "≈ 1 400 MW par réacteur (EPR : 1 600 MW)", "pas de CO₂, très puissant / déchets radioactifs, risque d'accident"],
+                        ["Hydraulique (barrage)", "l'eau d'une retenue passe dans une conduite forcée et entraîne une turbine", "rendement ≈ 90 %", "production à la demande (pointe), énergie gratuite / sites en montagne, paysage"],
+                        ["Hydraulique au fil de l'eau", "turbine sur le cours d'eau", "dizaines de kW à centaines de MW", "moins d'impact / dépend du débit, pas de stockage"],
+                        ["Thermique à flamme", "combustion (gaz, charbon, fioul) → vapeur détendue dans une turbine", "jusqu'à 600 MW, rendement ≈ 35 %", "maîtrisé / CO₂, ressources fossiles"],
+                        ["Éolien", "le vent fait tourner les pales ; multiplicateur, alternateur, convertisseur 50 Hz", "≈ 1 MW par éolienne, $P = k\\,S\\,v^3$", "renouvelable / intermittent, visuel"],
+                        ["Photovoltaïque", "cellules à semi-conducteurs (≈ 0,5 V chacune) qui transforment directement la lumière", "rendement ≈ 17 %, ≈ 1 000 kWh/an par kWc en France", "silencieux / dépend de l'ensoleillement, surface"],
+                        ["Hydrolienne", "turbine dans les courants de marée", "≈ 1 MW pour 20 m de diamètre à 2,5 m/s", "prévisible / technique difficile"],
+                        ["Biogaz, géothermie, hydrogène", "méthanisation des déchets ; chaleur du sous-sol ; pile à combustible (H₂ + ½O₂ → H₂O)", "géothermie : 3 à 6 MW par site", "renouvelables ou stockables / coûts"]
+                    ], { nowrap: false }),
+                    H.p("Énergie produite sur un an : $W = P \\times 8\\,760 \\text{ h} \\times$ taux d'utilisation. Exemple : une éolienne de 1 MW utilisée à 25 % produit $1 \\times 8\\,760 \\times 0{,}25 = 2\\,190$ MWh par an."),
+                    H.note("La fusion nucléaire (réacteur ITER à Cadarache) vise une énergie concentrée et pauvre en déchets, mais n'est pas attendue avant le milieu du siècle.")),
+                ecoSec("3. Transport et distribution", "network",
+                    H.liste([
+                        "L'alternateur sort environ 20 kV ; un transformateur élève à <strong>400 kV</strong> (THT) pour transporter sur de longues distances avec peu de pertes par effet Joule (RTE), puis on abaisse par étapes (225 kV, 90 kV, 20 kV en HTA, 400/230 V en BT, distribution par Enedis).",
+                        "Le <strong>transformateur</strong> change la tension d'un courant alternatif par induction entre deux enroulements, sans changer la fréquence.",
+                        "<strong>Livraison HTA</strong> (au-delà de 250 kVA) : le client possède son poste HTA/BT et choisit son régime de neutre. <strong>Livraison BT</strong> (jusqu'à 250 kVA) : tarif bleu jusqu'à 36 kVA, tarif jaune de 36 à 250 kVA, neutre à la terre (schéma TT)."
+                    ])),
+                ecoSec("4. Les dangers du courant", "triangle-alert",
+                    H.p("L'effet sur le corps dépend surtout de l'intensité qui le traverse, du temps de passage, du trajet, et de l'état de la peau. Avec $I = U/R$ : sous 230 V, une peau sèche (≈ 5 000 Ω) laisse passer ≈ 46 mA, une peau humide (≈ 1 000 Ω) ≈ 230 mA."),
+                    H.liste(["Faible courant : aucune réaction, puis pas d'effet dangereux.", "Quelques dizaines de mA : contractions musculaires, difficultés respiratoires.", "Au-delà : risque d'arrêt cardiaque et de brûlures graves. D'où les protections différentielles 30 mA."]))
+            ] },
+            "ce1-schemas": { badge: "CE • 1ère Année", titre: "Composants et schémas électriques", sections: () => [
+                ecoSec("1. Pourquoi des schémas normalisés ?", "file-text",
+                    H.p("Un schéma électrique représente avec des symboles normalisés les éléments d'une installation et leurs liaisons. Il sert à expliquer le fonctionnement, à réaliser l'installation, à la mettre en service et à la dépanner."),
+                    H.tableau(["Représentation", "Principe"], [
+                        ["Unifilaire", "plusieurs conducteurs sur un seul trait (le nombre est indiqué par des petits traits obliques)"],
+                        ["Multifilaire", "un trait par conducteur"],
+                        ["Assemblée", "les éléments d'un même appareil sont dessinés ensemble"],
+                        ["Rangée", "les éléments sont séparés mais alignés pour montrer leurs liaisons mécaniques"],
+                        ["Développée", "chaque circuit se lit facilement de haut en bas : c'est la norme pour les schémas de commande"],
+                        ["Architecturale (topographique)", "la position réelle du matériel dans le local"]
+                    ], { nowrap: false })),
+                ecoSec("2. Repérer les éléments et les bornes", "tag",
+                    H.liste([
+                        "Chaque élément porte une lettre de type, un numéro et parfois une fonction : <strong>KM</strong> contacteur moteur, <strong>KA</strong> contacteur auxiliaire, <strong>FU</strong> fusible, <strong>FT</strong> relais thermique, <strong>Q</strong> sectionneur…",
+                        "Bornes : lettres majuscules et chiffres (sans O ni I). En triphasé : L1, L2, L3 pour le réseau, U, V, W côté moteur ; N neutre, PE terre.",
+                        "<strong>Contacts principaux</strong> (puissance) : un seul chiffre (1-2, 3-4, 5-6).",
+                        "<strong>Contacts auxiliaires</strong> : deux chiffres. Les unités donnent la fonction (1-2 à ouverture NC, 3-4 à fermeture NO, 5-6 / 7-8 spéciaux), les dizaines le numéro d'ordre : 13-14 est le 1er contact NO, 21-22 le 2e contact NC.",
+                        "<strong>Bobines</strong> : A1-A2 (et B1-B2 s'il y a un 2e enroulement)."
+                    ])),
+                ecoSec("3. Commande et puissance", "split",
+                    H.p("Une installation industrielle se divise en deux circuits, chacun avec sa propre alimentation :"),
+                    H.tableau(["", "Circuit de commande", "Circuit de puissance"], [
+                        ["Rôle", "donner les ordres", "alimenter les récepteurs"],
+                        ["Contenu", "alimentation (souvent 24 V), isolement, protection, boutons et capteurs, bobines de contacteurs", "réseau triphasé, sectionneur, fusibles et relais de protection, contacts de puissance, moteurs"]
+                    ], { nowrap: false }),
+                    H.p("Un départ moteur doit toujours assurer quatre fonctions : <strong>sectionnement</strong>, <strong>protection</strong> contre les courts-circuits et les surcharges, <strong>commande</strong>, et <strong>arrêt d'urgence</strong>.")),
+                ecoSec("4. L'appareillage", "toggle-right",
+                    H.tableau(["Appareil", "Rôle"], [
+                        ["Sectionneur", "isoler un circuit ; <strong>aucun pouvoir de coupure</strong>, manœuvre à vide, souvent avec fusibles"],
+                        ["Interrupteur-sectionneur", "isoler et couper en charge (mise en service, arrêt)"],
+                        ["Fusible", "fusion d'un fil en cas de surintensité ; toujours sur la phase, jamais sur la terre. <strong>gF</strong> domestique, <strong>gG</strong> industriel (surcharges + courts-circuits), <strong>aM</strong> accompagnement moteur (courts-circuits seulement, tolère le démarrage)"],
+                        ["Disjoncteur magnéto-thermique", "<strong>thermique</strong> (bilame) contre les surcharges, <strong>magnétique</strong> (bobine) contre les courts-circuits en 10 à 20 ms ; réarmable"],
+                        ["Disjoncteur différentiel", "compare le courant aller et retour : s'il y a une fuite (vers la terre, ou une personne), il coupe. Protège les <strong>personnes</strong> (30 mA)"],
+                        ["Contacteur", "commander à distance un récepteur de puissance par sa bobine ; contacts auxiliaires pour l'auto-maintien"],
+                        ["Relais temporisé", "contacts qui basculent après un retard, au travail ou au repos"]
+                    ], { nowrap: false })),
+                ecoSec("5. Installations domestiques (NF C 15-100)", "home",
+                    H.liste([
+                        "<strong>Simple allumage</strong> : un interrupteur, un endroit. <strong>Double allumage</strong> : deux circuits depuis un endroit. <strong>Va-et-vient</strong> : un circuit depuis deux endroits. <strong>Télérupteur</strong> ou <strong>minuterie</strong> : depuis autant d'endroits que voulu, avec des boutons poussoirs.",
+                        "Éclairage : au moins 2 circuits, au plus 8 points par circuit, câble 1,5 mm² protégé par un disjoncteur 16 A ; commandes entre 0,90 et 1,30 m de haut.",
+                        "Prises : toujours avec terre ; 5 prises 16 A en 1,5 mm² (disjoncteur 16 A) ou 8 en 2,5 mm² (disjoncteur 20 A).",
+                        "Couleurs : phase rouge, noire ou marron ; neutre bleu ; terre vert et jaune.",
+                        "Tableau : disjoncteur d'abonné, parafoudre, interrupteurs différentiels 30 mA, puis disjoncteurs divisionnaires ; le tout dans la <strong>GTL</strong> (gaine technique logement)."
+                    ]))
+            ] },
+            "ce1-mcc": { badge: "CE • 1ère Année", titre: "Machines à courant continu", sections: () => [
+                ecoSec("1. Constitution et réversibilité", "cog",
+                    H.liste([
+                        "<strong>Inducteur</strong> (au stator) : aimants ou bobinage parcouru par un courant d'excitation $I_e$ ; il crée le flux magnétique $\\Phi$.",
+                        "<strong>Induit</strong> (au rotor) : conducteurs dans lesquels circule le courant $I$ ; il est relié au circuit extérieur par le <strong>collecteur</strong> et les <strong>balais</strong>, qui redressent mécaniquement le courant.",
+                        "La machine est <strong>réversible</strong> : elle fonctionne en <strong>moteur</strong> (électrique → mécanique) ou en <strong>génératrice</strong> (mécanique → électrique), par exemple lors d'un freinage récupératif."
+                    ])),
+                ecoSec("2. Force électromotrice et couple", "zap",
+                    H.formule(R`E = k\,\Phi\,\Omega \qquad T_{em} = k\,\Phi\,I \qquad \Omega = \dfrac{2\pi n}{60} \;(n \text{ en tr/min})`),
+                    H.liste([
+                        R`À flux constant (aimants, ou excitation indépendante constante) : $E = K\,\Omega$ et $T_{em} = K\,I$, avec le <strong>même</strong> $K$ (en V·s/rad = N·m/A).`,
+                        "La f.é.m. est donc proportionnelle à la vitesse, et le couple au courant.",
+                        R`<strong>Puissance électromagnétique</strong> : c'est celle qui passe de la forme électrique à la forme mécanique (ou l'inverse), $P_{em} = E\,I = T_{em}\,\Omega$.`
+                    ])),
+                ecoSec("3. Le moteur", "arrow-right",
+                    H.formule(R`U = E + R\,I \qquad\text{(l'induit est un récepteur)}`),
+                    H.figure(svgBilan(true), "Bilan des puissances du moteur : de la puissance électrique absorbée à la puissance mécanique utile."),
+                    H.tableau(["Grandeur", "Expression", "Signification"], [
+                        ["Puissance absorbée $P_a$", "$U\\,I$ (+ $U_e\\,I_e$ si l'excitation est comptée)", "électrique, prise au réseau"],
+                        ["Pertes Joule de l'induit $p_J$", "$R\\,I^2$", "échauffement des conducteurs"],
+                        ["Pertes Joule de l'inducteur", "$U_e\\,I_e = r\\,I_e^2$", "si l'excitation est alimentée par la même source"],
+                        ["Puissance électromagnétique $P_{em}$", "$E\\,I = P_a - p_J = T_{em}\\,\\Omega$", "convertie en mécanique"],
+                        ["Pertes collectives $p_c$", "pertes fer + pertes mécaniques (frottements, ventilation)", "à peu près constantes à vitesse donnée ; on les mesure par un essai à vide"],
+                        ["Puissance utile $P_u$", "$P_{em} - p_c = T_u\\,\\Omega$", "mécanique, sur l'arbre"],
+                        ["Rendement", "$\\eta = \\dfrac{P_u}{P_a}$", "toujours inférieur à 1"]
+                    ], { nowrap: false }),
+                    H.p(R`Exemple : $U = 220$ V, $I = 10$ A, $R = 1\,\Omega$, $p_c = 100$ W. $E = 220 - 10 = 210$ V ; $P_a = 2\,200$ W ; $p_J = 100$ W ; $P_{em} = 2\,100$ W ; $P_u = 2\,000$ W ; $\eta \approx 90{,}9$ %.`),
+                    H.note("Au démarrage, Ω = 0 donc E = 0 : le courant vaut U/R, beaucoup trop fort. On démarre donc sous tension réduite (rhéostat ou variateur). Et un moteur à excitation série ne doit jamais tourner à vide (il s'emballe).")),
+                ecoSec("4. La génératrice", "arrow-left",
+                    H.formule(R`U = E - R\,I \qquad\text{(l'induit est un générateur)}`),
+                    H.figure(svgBilan(false), "Bilan des puissances de la génératrice : de la puissance mécanique reçue à la puissance électrique utile."),
+                    H.tableau(["Grandeur", "Expression", "Signification"], [
+                        ["Puissance absorbée $P_a$", "$T\\,\\Omega$ (+ $U_e\\,I_e$ pour l'excitation)", "mécanique, fournie par le moteur d'entraînement"],
+                        ["Pertes collectives $p_c$", "fer + mécaniques", "perdues avant la conversion"],
+                        ["Puissance électromagnétique $P_{em}$", "$P_a - p_c = E\\,I$", "convertie en électrique"],
+                        ["Pertes Joule de l'induit $p_J$", "$R\\,I^2$", ""],
+                        ["Puissance utile $P_u$", "$P_{em} - p_J = U\\,I$", "électrique, fournie à la charge"],
+                        ["Rendement", "$\\eta = \\dfrac{P_u}{P_a}$", ""]
+                    ], { nowrap: false }),
+                    H.p("À vide (I = 0), la tension aux bornes est égale à la f.é.m. : U = E. Plus la génératrice débite, plus sa tension baisse (chute R·I).")),
+                ecoSec("5. Moteur et génératrice : retenir", "repeat",
+                    H.tableau(["", "Moteur", "Génératrice"], [
+                        ["Loi d'Ohm de l'induit", "$U = E + R\\,I$ ($U > E$)", "$U = E - R\\,I$ ($U < E$)"],
+                        ["Absorbée", "électrique $U\\,I$", "mécanique $T\\,\\Omega$"],
+                        ["Utile", "mécanique $T_u\\,\\Omega$", "électrique $U\\,I$"],
+                        ["Ordre des pertes", "$p_J$ puis $p_c$", "$p_c$ puis $p_J$"],
+                        ["Commun", "$P_{em} = E\\,I = T_{em}\\,\\Omega$ et $\\eta = P_u/P_a$", "$P_{em} = E\\,I = T_{em}\\,\\Omega$ et $\\eta = P_u/P_a$"]
+                    ], { nowrap: false }))
             ] }
         });
 

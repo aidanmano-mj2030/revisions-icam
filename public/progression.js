@@ -60,7 +60,8 @@
         'maths-geo-bary': ['gba'], 'maths-geo-scal': ['gsc'], 'maths-geo-vect': ['gve'],
         'eco1-typo': ['ety'], 'eco1-stocks': ['est'], 'eco1-seuil': ['esr'], 'eco1-amort': ['eam'],
         'cm1-statique': ['cst'], 'cm1-cinematique': ['cci'], 'cm2-inertie': ['iner'], 'est1-af': ['eaf'],
-        'est1-dessin': ['edt'], 'oi2-gps': ['gps'], 'phys-sli': ['sli']
+        'est1-dessin': ['edt'], 'oi2-gps': ['gps'], 'phys-sli': ['sli'],
+        'ce1-production': ['cep'], 'ce1-schemas': ['ces'], 'ce1-mcc': ['mcc']
     };
     const CLES_PS = ['a2/cm/produit-scalaire/exo1', 'a2/cm/produit-scalaire/exo2'];
     const CLES_LIAISONS = ['a1/cm/liaisons/exo'];
