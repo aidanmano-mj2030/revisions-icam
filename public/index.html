@@ -845,13 +845,15 @@
                     if (chap.interactifA1) { actionLecon = "ouvrirChapitreA1Interactif('lecon')"; actionExo = "ouvrirChapitreA1Interactif('exo')"; }
                     if (chap.lecon) { actionLecon = "ouvrirLecon('" + chap.lecon + "')"; actionExo = chap.exo ? "ouvrirExercice('" + chap.exo + "')" : "afficherToast('Les exercices de ce chapitre arrivent bientôt.')"; }
 
+                    // pas encore d'exercices pour ce chapitre : on n'affiche que la leçon
+                    const aDesExos = chap.interactif || chap.interactifA1 || (chap.exo && EXOS[chap.exo]);
                     let boutonsHTML = `
-                        <button onclick="${actionLecon}" class="px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                        <button onclick="${actionLecon}" class="${aDesExos ? '' : 'col-span-2 '}px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-semibold flex items-center justify-center gap-2 transition-all">
                             <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Leçon
                         </button>
-                        <button onclick="${actionExo}" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center justify-center gap-2 transition-all">
+                        ${aDesExos ? `<button onclick="${actionExo}" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center justify-center gap-2 transition-all">
                             <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Exercices
-                        </button>
+                        </button>` : ''}
                     `;
 
                     card.innerHTML = `
@@ -4878,7 +4880,7 @@
         }
         // Valeurs attendues des champs décimaux, ajoutées à la fin d'une correction.
         function lignesCentiemes(champs) {
-            const dec = champs.filter(c => (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol));
+            const dec = champs.filter(c => !c.enGrille && (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol));
             if (!dec.length) return '';
             return `<p class="pt-1 text-violet-200">Valeurs attendues (au centième) : ${dec.map(c => `${c.label ? c.label.replace(/\s*[:=]\s*$/, '') + ' = ' : ''}<strong class="text-white">${centiemeFR(c.sol)}</strong>`).join(' ; ')}</p>`;
         }
@@ -6178,7 +6180,7 @@
             return `<label class="inline-flex items-center gap-1.5 text-sm text-slate-300">${c.label ? `<span>${c.label}</span>` : ''}<input id="${nom}" type="text" inputmode="decimal" autocomplete="off" placeholder="${c.indice || ''}" style="width:${c.largeur || '5.2rem'}" class="${EXG_CLASSE}${ETATS_CHAMP.neutre}">${c.unite ? `<span class="text-slate-400">${c.unite}</span>` : ''}</label>`;
         }
         function exgChamps(id, q) {
-            let html = '', i = 0; const ch = q.champs;
+            let html = '', i = 0; const ch = q.champs.filter(c => !c.enGrille);
             while (i < ch.length) {
                 const g = ch[i].groupe; let j = i + 1;
                 if (g !== undefined) while (j < ch.length && ch[j].groupe === g) j++;
@@ -6188,14 +6190,26 @@
             }
             return html;
         }
+        // tableau à compléter : lignes = [libellé, cellule...] ; une cellule est un texte fixe ou un champ gNum
+        function gGrille(entetes, lignes) {
+            const champs = [];
+            lignes.forEach(l => l.slice(1).forEach(c => { if (c && typeof c === 'object') { c.enGrille = true; champs.push(c); } }));
+            return { grille: { entetes, lignes }, champs };
+        }
+        function exgGrille(id, g) {
+            const cel = (c) => (c && typeof c === 'object'
+                ? `<td class="px-1 py-1"><input id="${id}-f-${c.cle}" type="text" inputmode="decimal" autocomplete="off" aria-label="${c.label || c.cle}" style="width:${c.largeur || '3.8rem'}" class="${EXG_CLASSE}${ETATS_CHAMP.neutre}"></td>`
+                : `<td class="px-2 py-1 text-center font-mono text-slate-300">${c === undefined || c === null ? '' : c}</td>`);
+            return `<div class="overflow-x-auto"><table class="text-sm border border-slate-800"><thead><tr class="bg-slate-900/80">${g.entetes.map(h => `<th class="px-2 py-1.5 text-center text-slate-200 font-semibold whitespace-nowrap">${h}</th>`).join('')}</tr></thead><tbody>${g.lignes.map(l => `<tr class="border-t border-slate-800"><td class="px-2 py-1 text-left text-slate-200 font-semibold whitespace-nowrap">${l[0]}</td>${l.slice(1).map(cel).join('')}</tr>`).join('')}</tbody></table></div>`;
+        }
         function exgDessiner(id) {
             const e = EXG[id], q = e.q;
             const chips = e.libelles ? `<div class="flex flex-wrap items-center gap-2">${Object.keys(e.libelles).map(k => `<button type="button" data-filtre="${k}" class="px-3 py-1.5 rounded-full text-xs font-semibold border ${e.filtre === k ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700'}">${e.libelles[k]}</button>`).join('')}</div>` : '';
             const corps = document.getElementById(`bloc-${id}-corps`);
             corps.innerHTML = `${chips}
                 <div class="rounded-xl bg-slate-950 border border-slate-800 p-4 space-y-3 text-sm text-slate-300 leading-relaxed overflow-x-auto">${q.enonce}</div>
-                ${q.champs.some(c => (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol)) ? CONSIGNE_CENTIEME : ''}
-                <div class="space-y-3">${exgChamps(id, q)}<p id="${id}-bilan" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p></div>
+                ${q.champs.some(c => c.chiffres === 3) ? CONSIGNE_CENTIEME.replace('centième', 'centième, ou au millième pour les mesures en mm').replace('2 chiffres', '2 ou 3 chiffres') : q.champs.some(c => (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol)) ? CONSIGNE_CENTIEME : ''}
+                <div class="space-y-3">${exgChamps(id, q)}${q.grille ? exgGrille(id, q.grille) : ''}<p id="${id}-bilan" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p></div>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" id="${id}-verifier" class="px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
                     <button type="button" id="${id}-reinitialiser" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser</button>
@@ -7801,7 +7815,16 @@
             return { bn, st, rec, ol };
         }
         const mrpTable = (lignes) => `<div class="overflow-x-auto"><table class="mx-auto text-xs text-center border border-slate-800"><thead><tr class="bg-slate-900/80"><th class="px-2 py-1">Semaine</th>${S6.map(t => `<th class="px-2 py-1">${t}</th>`).join('')}</tr></thead><tbody>${lignes.map(([n, v]) => `<tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">${n}</td>${v.map(x => `<td class="px-2 py-1">${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
-        const mrpChamps = (r) => [].concat(S6.map(t => gNum('bn' + t, 'S' + t, r.bn[t - 1], { groupe: 'Besoins nets', largeur: '3.6rem' })), S6.map(t => gNum('st' + t, 'S' + t, r.st[t - 1], { groupe: 'Stock en fin de semaine', largeur: '3.6rem' })), S6.map(t => gNum('ol' + t, 'S' + t, r.ol[t - 1], { groupe: 'Ordres lancés', largeur: '3.6rem' })));
+        // tableau MRP complet à remplir (bbDonnes : les besoins bruts sont déjà écrits)
+        const mrpGrille = (bb, s0, r, bbDonnes) => {
+            const ligne = (nom, cle, v) => [nom, ''].concat(S6.map(t => gNum(cle + t, `${nom} S${t}`, v[t - 1])));
+            return gGrille(['Semaine', 'Départ'].concat(S6.map(t => 'S' + t)), [
+                bbDonnes ? ['Besoins bruts', ''].concat(bb) : ligne('Besoins bruts', 'bb', bb),
+                ligne('Besoins nets', 'bn', r.bn),
+                ligne('Réceptions', 'rc', r.rec),
+                ['Stock fin', s0].concat(S6.map(t => gNum('st' + t, `Stock fin S${t}`, r.st[t - 1]))),
+                ligne('Ordres lancés', 'ol', r.ol)]);
+        };
         const mrpCorrection = (bb, r) => `<p>On part du stock de début de semaine. Besoin net = besoin brut − stock disponible (s'il est positif). On reçoit alors la quantité commandée, lancée « délai » semaines plus tôt.</p>${mrpTable([['Besoins bruts', bb], ['Besoins nets', r.bn], ['Réceptions', r.rec], ['Stock fin', r.st], ['Ordres lancés', r.ol]])}`;
         function mrpArticle() {
             for (let k = 0; k < 300; k++) {
@@ -7809,8 +7832,8 @@
                 const lotPourLot = Math.random() < 0.4, Q = lotPourLot ? 0 : choisir([20, 25, 30, 50]), ss = lotPourLot ? 0 : choisir([0, 5, 10]);
                 const r = mrpCalcul(bb, s0, L, Q, ss);
                 if (!r || r.ol.every(x => x === 0)) continue;
-                return { enonce: `<p>Article A : stock initial <strong>${s0}</strong>, délai d'obtention <strong>${L} semaine${L > 1 ? 's' : ''}</strong>, ${lotPourLot ? '<strong>lot pour lot</strong> (on commande juste le besoin), pas de stock de sécurité' : `commandes par lots de <strong>${Q}</strong> (ou multiples), stock de sécurité <strong>${ss}</strong>`}.</p>${mrpTable([['Besoins bruts', bb]])}<p>Complète le calcul des besoins (stocks en fin de semaine).</p>`,
-                    champs: mrpChamps(r), correction: mrpCorrection(bb, r) };
+                return { enonce: `<p>Article A : stock initial <strong>${s0}</strong>, délai d'obtention <strong>${L} semaine${L > 1 ? 's' : ''}</strong>, ${lotPourLot ? '<strong>lot pour lot</strong> (on commande juste le besoin), pas de stock de sécurité' : `commandes par lots de <strong>${Q}</strong> (ou multiples), stock de sécurité <strong>${ss}</strong>`}.</p><p>Complète tout le tableau du calcul des besoins (stocks en fin de semaine ; une case à 0 se remplit avec 0).</p>`,
+                    ...mrpGrille(bb, s0, r, true), correction: mrpCorrection(bb, r) };
             }
         }
         function mrpComposant() {
@@ -7818,8 +7841,8 @@
                 const olA = S6.map(() => choisir([0, 0, 10, 15, 20, 30])), c = choisir([2, 3, 4]), bb = olA.map(x => x * c), s0 = gInt(4, 20) * 5, L = gInt(1, 2), Q = choisir([25, 50, 60, 100]), ss = choisir([0, 5, 10]);
                 const r = mrpCalcul(bb, s0, L, Q, ss);
                 if (!r || r.ol.every(x => x === 0)) continue;
-                return { enonce: `<p>Un produit A contient <strong>${c}</strong> composants B. Les ordres lancés de A sont :</p>${mrpTable([['Ordres lancés de A', olA]])}<p>Composant B : stock initial <strong>${s0}</strong>, délai <strong>${L} semaine${L > 1 ? 's' : ''}</strong>, lots de <strong>${Q}</strong>, stock de sécurité <strong>${ss}</strong>. Les besoins bruts de B sont les ordres de A × ${c}. Complète le calcul des besoins de B.</p>`,
-                    champs: mrpChamps(r), correction: `<p>Besoins bruts de B = ${c} × ordres lancés de A : ${bb.join(', ')}.</p>` + mrpCorrection(bb, r) };
+                return { enonce: `<p>Un produit A contient <strong>${c}</strong> composants B. Les ordres lancés de A sont :</p>${mrpTable([['Ordres lancés de A', olA]])}<p>Composant B : stock initial <strong>${s0}</strong>, délai <strong>${L} semaine${L > 1 ? 's' : ''}</strong>, lots de <strong>${Q}</strong>, stock de sécurité <strong>${ss}</strong>. Complète tout le tableau du calcul des besoins de B, en commençant par ses besoins bruts (une case à 0 se remplit avec 0).</p>`,
+                    ...mrpGrille(bb, s0, r, false), correction: `<p>Besoins bruts de B = ${c} × ordres lancés de A : ${bb.join(', ')}.</p>` + mrpCorrection(bb, r) };
             }
         }
         function kanban() {
@@ -7851,14 +7874,19 @@
             if (eff.reduce((a, b) => a + b, 0) !== n) return mspHenry();
             const cum = []; eff.reduce((a, b, i) => (cum[i] = (a + b) / n * 100, a + b), 0);
             const f = (x) => (precis ? x.toFixed(3) : String(x)).replace('.', ',');
-            const tri = [...data].sort((a, b) => a - b);
-            return { enonce: `<p>On a relevé ${n} mesures${precis ? ' de diamètre (mm)' : ' de temps (s)'} :</p><p class="font-mono text-xs leading-relaxed">${data.map(f).join(' ; ')}</p><p>Nombre de classes : ${formule === 'racine' ? '$k = \\sqrt{n}$' : '$k = 1 + 3{,}3\\log n$'}, arrondi à l'entier supérieur. L'amplitude d'une classe est l'étendue divisée par $k$, arrondie au-dessus à la résolution des mesures (${f(unite)}). La première classe commence à la plus petite valeur (borne inférieure incluse, supérieure exclue).</p>`,
-                champs: [gNum('k', 'Classes $k$ =', k, { groupe: 'Classes' }), gNum('e', 'Étendue =', et, { groupe: 'Classes', chiffres: precis ? 3 : 2 }), gNum('w', 'Amplitude =', Math.round(w * 1000) / 1000, { groupe: 'Classes', chiffres: precis ? 3 : 2 })]
-                    .concat(eff.map((v, i) => gNum('n' + i, 'C' + (i + 1), v, { groupe: 'Effectifs par classe', largeur: '3.4rem' })))
-                    .concat(cum.map((v, i) => gNum('c' + i, 'C' + (i + 1), v, { groupe: 'Fréquences cumulées (%)', largeur: '4.2rem' }))),
+            const tri = [...data].sort((a, b) => a - b), ch3 = { chiffres: precis ? 3 : 2, largeur: precis ? '5.2rem' : '4rem' };
+            const borne = (i) => Math.round((mn + i * w) * 1000) / 1000;
+            let ec = 0;
+            const grille = gGrille(['Classe', 'Borne inf.', 'Borne sup.', 'Effectif', 'Effectif cumulé', 'Fréquence cumulée (%)'], eff.map((v, i) => {
+                ec += v;
+                return ['C' + (i + 1), gNum('bi' + i, `C${i + 1} borne inf.`, borne(i), ch3), gNum('bs' + i, `C${i + 1} borne sup.`, borne(i + 1), ch3), gNum('n' + i, `C${i + 1} effectif`, v, { largeur: '3.4rem' }), gNum('ec' + i, `C${i + 1} effectif cumulé`, ec, { largeur: '3.6rem' }), gNum('c' + i, `C${i + 1} fréquence cumulée`, cum[i], { largeur: '4.4rem' })];
+            }));
+            return { enonce: `<p>On a relevé ${n} mesures${precis ? ' de diamètre (mm)' : ' de temps (s)'} :</p><p class="font-mono text-xs leading-relaxed">${data.map(f).join(' ; ')}</p><p>Nombre de classes : ${formule === 'racine' ? '$k = \\sqrt{n}$' : '$k = 1 + 3{,}3\\log n$'}, arrondi à l'entier supérieur. L'amplitude d'une classe est l'étendue divisée par $k$, arrondie au-dessus à la résolution des mesures (${f(unite)}). La première classe commence à la plus petite valeur (borne inférieure incluse, supérieure exclue).</p><p>Complète ensuite tout le tableau des classes : fréquence cumulée = effectif cumulé ÷ ${n} × 100. Ce sont les points de la droite de Henry (borne sup. ; fréquence cumulée).</p>`,
+                champs: [gNum('k', 'Classes $k$ =', k, { groupe: 'Classes' }), gNum('e', 'Étendue =', et, { groupe: 'Classes', chiffres: precis ? 3 : 2 }), gNum('w', 'Amplitude =', Math.round(w * 1000) / 1000, { groupe: 'Classes', chiffres: precis ? 3 : 2 })].concat(grille.champs),
+                grille: grille.grille,
                 correction: `<p>Valeurs triées : <span class="font-mono text-xs">${tri.map(f).join(' ; ')}</span></p><p>$k = ${formule === 'racine' ? `\\sqrt{${n}}` : `1 + 3{,}3\\log ${n}`} \\approx ${centiemeTeX(formule === 'racine' ? Math.sqrt(n) : 1 + 3.3 * Math.log10(n))}$, donc $k = ${k}$ ; étendue $= ${f(mx)} - ${f(mn)} = ${f(et)}$ ; amplitude $= ${f(et)} / ${k} \\approx ${String(Math.round(et / k * 10000) / 10000).replace('.', '{,}')}$, arrondie à <strong class="text-white">${f(w)}</strong>.</p>${mrpTableH(eff, cum, mn, w, f)}<p>Pour la droite de Henry, on place chaque fréquence cumulée en face de la borne supérieure de sa classe sur papier gausso-arithmétique : si les points sont alignés, la distribution est normale ; la moyenne se lit à 50 % et l'écart type est la distance entre 50 % et 84 %.</p>` };
         }
-        const mrpTableH = (eff, cum, mn, w, f) => `<div class="overflow-x-auto"><table class="mx-auto text-xs text-center border border-slate-800"><thead><tr class="bg-slate-900/80"><th class="px-2 py-1">Classe</th>${eff.map((_, i) => `<th class="px-2 py-1">${i + 1}</th>`).join('')}</tr></thead><tbody><tr><td class="px-2 py-1 text-left">Bornes</td>${eff.map((_, i) => `<td class="px-2 py-1">[${f(Math.round((mn + i * w) * 1000) / 1000)} ; ${f(Math.round((mn + (i + 1) * w) * 1000) / 1000)}[</td>`).join('')}</tr><tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">Effectif</td>${eff.map(v => `<td class="px-2 py-1">${v}</td>`).join('')}</tr><tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">Cumul %</td>${cum.map(v => `<td class="px-2 py-1">${centiemeFR(v)}</td>`).join('')}</tr></tbody></table></div>`;
+        const mrpTableH = (eff, cum, mn, w, f) => `<div class="overflow-x-auto"><table class="mx-auto text-xs text-center border border-slate-800"><thead><tr class="bg-slate-900/80"><th class="px-2 py-1">Classe</th>${eff.map((_, i) => `<th class="px-2 py-1">${i + 1}</th>`).join('')}</tr></thead><tbody><tr><td class="px-2 py-1 text-left">Bornes</td>${eff.map((_, i) => `<td class="px-2 py-1">[${f(Math.round((mn + i * w) * 1000) / 1000)} ; ${f(Math.round((mn + (i + 1) * w) * 1000) / 1000)}[</td>`).join('')}</tr><tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">Effectif</td>${eff.map(v => `<td class="px-2 py-1">${v}</td>`).join('')}</tr><tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">Effectif cumulé</td>${eff.map((_, i) => `<td class="px-2 py-1">${eff.slice(0, i + 1).reduce((a, b) => a + b, 0)}</td>`).join('')}</tr><tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">Cumul %</td>${cum.map(v => `<td class="px-2 py-1">${centiemeFR(v)}</td>`).join('')}</tr></tbody></table></div>`;
         function mspCause() {
             const [txt, sol] = choisir([
                 ['Une légère variation normale de la dureté de la matière première.', 'al'], ['Un capteur de température défectueux.', 'as'], ['De petites vibrations habituelles pendant l\'usinage.', 'al'],
