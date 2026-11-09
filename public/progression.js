@@ -61,7 +61,7 @@
         'eco1-typo': ['ety'], 'eco1-stocks': ['est'], 'eco1-seuil': ['esr'], 'eco1-amort': ['eam'],
         'cm1-statique': ['cst'], 'cm1-cinematique': ['cci'], 'cm2-inertie': ['iner'], 'est1-af': ['eaf'],
         'est1-dessin': ['edt'], 'oi2-gps': ['gps'], 'phys-sli': ['sli'],
-        'ce1-production': ['cep'], 'ce1-schemas': ['ces'], 'ce1-mcc': ['mcc'], 'oi2-mrp': ['mrp'], 'oi2-msp': ['msp']
+        'ce1-production': ['cep'], 'ce1-schemas': ['ces'], 'ce1-mcc': ['mcc'], 'oi2-mrp': ['mrp'], 'oi2-msp': ['msp'], 'oi1-projet': ['proj'], 'oi1-coupe': ['coupe'], 'oi1-mipmap': ['mip'], 'oi1-contrat': ['contrat'], 'oi1-production': ['prod'], 'ce2-dimensions': ['dim'], 'ce2-triphase': ['tri'], 'ce2-magneto': ['mag'], 'ce2-choix': ['chx'], 'ce2-asynchrone': ['asy'], 'ce2-synchrone': ['syn'], 'ce2-variateurs': ['var'], 'ce2-polaires': ['pol']
     };
     const CLES_PS = ['a2/cm/produit-scalaire/exo1', 'a2/cm/produit-scalaire/exo2'];
     const CLES_LIAISONS = ['a1/cm/liaisons/exo'];
@@ -291,6 +291,8 @@
             if (!champ || champ.value.trim() === '') vides++;
             else if (etatChamp(champ) === 'juste') justes++;
         });
+        // partie dessinée (Gantt, PERT) : une réponse de plus
+        if (e.q.extra) { total++; if (e.q.extra.ok) justes++; else if (e.q.extra.vide) vides++; }
         if (!total || vides === total) return;
         enregistrer(cleCourante(id), justes === total, 100 * justes / total);
     });
