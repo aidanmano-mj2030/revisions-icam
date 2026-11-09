@@ -702,8 +702,8 @@
         ],
         "OI": [
             { num: "Introduction", titre: "Management de la qualité", desc: "Définition, SMQ, certification, outils (Pareto, Ishikawa, PDCA, AMDEC) et coûts de la qualité.", lecon: "oi-qualite" },
-            { num: "Chapitre n°2", titre: "Kanban et MRP", desc: "Flux poussé et flux tiré, calcul MRP, kanbans, juste-à-temps.", lecon: "oi-kanban" },
-            { num: "Chapitre n°3", titre: "La maîtrise statistique des procédés", desc: "Loi normale, droite de Henry, cartes de contrôle, capabilité Cm et Cmk.", lecon: "oi-msp" },
+            { num: "Chapitre n°2", titre: "Kanban et MRP", desc: "Flux poussé et flux tiré, calcul MRP, kanbans, juste-à-temps.", lecon: "oi-kanban", exo: "oi2-mrp" },
+            { num: "Chapitre n°3", titre: "La maîtrise statistique des procédés", desc: "Loi normale, droite de Henry, cartes de contrôle, capabilité Cm et Cmk.", lecon: "oi-msp", exo: "oi2-msp" },
             { num: "Chapitre n°4", titre: "La cotation GPS", desc: "Principe d'indépendance, ajustements, rugosité, tolérances géométriques, enveloppe et maximum de matière.", lecon: "oi2-gps", exo: "oi2-gps" }
         ],
         "MATHS": [
@@ -845,13 +845,15 @@
                     if (chap.interactifA1) { actionLecon = "ouvrirChapitreA1Interactif('lecon')"; actionExo = "ouvrirChapitreA1Interactif('exo')"; }
                     if (chap.lecon) { actionLecon = "ouvrirLecon('" + chap.lecon + "')"; actionExo = chap.exo ? "ouvrirExercice('" + chap.exo + "')" : "afficherToast('Les exercices de ce chapitre arrivent bientôt.')"; }
 
+                    // pas encore d'exercices pour ce chapitre : on n'affiche que la leçon
+                    const aDesExos = chap.interactif || chap.interactifA1 || (chap.exo && EXOS[chap.exo]);
                     let boutonsHTML = `
-                        <button onclick="${actionLecon}" class="px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                        <button onclick="${actionLecon}" class="${aDesExos ? '' : 'col-span-2 '}px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-semibold flex items-center justify-center gap-2 transition-all">
                             <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Leçon
                         </button>
-                        <button onclick="${actionExo}" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center justify-center gap-2 transition-all">
+                        ${aDesExos ? `<button onclick="${actionExo}" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center justify-center gap-2 transition-all">
                             <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Exercices
-                        </button>
+                        </button>` : ''}
                     `;
 
                     card.innerHTML = `
@@ -4862,22 +4864,23 @@
         const CONSIGNE_CENTIEME = '<p class="text-xs text-slate-400"><i data-lucide="info" class="w-3.5 h-3.5 inline -mt-0.5"></i> Valeurs décimales : arrondis au <strong class="text-slate-200">centième</strong> (2 chiffres après la virgule au maximum).</p>';
         const estDecimal = (x) => typeof x === 'number' && Math.abs(arrondiCentieme(x) - Math.round(x)) > 1e-9;
         // 'juste', 'decimales', 'faux' ou 'illisible'
-        function comparerCentieme(txt, sol, modulo) {
+        function comparerCentieme(txt, sol, modulo, chiffres = 2) {
             const v = lireNombre(txt);
             if (Number.isNaN(v)) return 'illisible';
             let s = sol;
             if (modulo) s = sol + Math.round((v - sol) / modulo) * modulo;
             if (txt.includes('/')) return Math.abs(v - s) < 1e-6 ? 'juste' : 'faux';
             const m = /[.,](\d+)\s*$/.exec(txt.trim()), d = m ? m[1].length : 0;
-            if (d > 2) return 'decimales';
-            if (Math.abs(v - arrondiCentieme(s)) < 1e-9) return 'juste';
+            if (d > chiffres) return 'decimales';
+            const q = 10 ** chiffres, cible = Math.sign(s) * Math.round(Number(Math.abs(s * q).toPrecision(12))) / q;
+            if (Math.abs(v - cible) < 1e-9) return 'juste';
             const p = 10 ** d;
-            if (d < 2 && Math.abs(v - Math.round(s * p) / p) < 1e-9) return 'decimales';
+            if (d < chiffres && Math.abs(v - Math.round(s * p) / p) < 1e-9) return 'decimales';
             return 'faux';
         }
         // Valeurs attendues des champs décimaux, ajoutées à la fin d'une correction.
         function lignesCentiemes(champs) {
-            const dec = champs.filter(c => (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol));
+            const dec = champs.filter(c => !c.enGrille && (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol));
             if (!dec.length) return '';
             return `<p class="pt-1 text-violet-200">Valeurs attendues (au centième) : ${dec.map(c => `${c.label ? c.label.replace(/\s*[:=]\s*$/, '') + ' = ' : ''}<strong class="text-white">${centiemeFR(c.sol)}</strong>`).join(' ; ')}</p>`;
         }
@@ -6177,7 +6180,7 @@
             return `<label class="inline-flex items-center gap-1.5 text-sm text-slate-300">${c.label ? `<span>${c.label}</span>` : ''}<input id="${nom}" type="text" inputmode="decimal" autocomplete="off" placeholder="${c.indice || ''}" style="width:${c.largeur || '5.2rem'}" class="${EXG_CLASSE}${ETATS_CHAMP.neutre}">${c.unite ? `<span class="text-slate-400">${c.unite}</span>` : ''}</label>`;
         }
         function exgChamps(id, q) {
-            let html = '', i = 0; const ch = q.champs;
+            let html = '', i = 0; const ch = q.champs.filter(c => !c.enGrille);
             while (i < ch.length) {
                 const g = ch[i].groupe; let j = i + 1;
                 if (g !== undefined) while (j < ch.length && ch[j].groupe === g) j++;
@@ -6187,14 +6190,26 @@
             }
             return html;
         }
+        // tableau à compléter : lignes = [libellé, cellule...] ; une cellule est un texte fixe ou un champ gNum
+        function gGrille(entetes, lignes) {
+            const champs = [];
+            lignes.forEach(l => l.slice(1).forEach(c => { if (c && typeof c === 'object') { c.enGrille = true; champs.push(c); } }));
+            return { grille: { entetes, lignes }, champs };
+        }
+        function exgGrille(id, g) {
+            const cel = (c) => (c && typeof c === 'object'
+                ? `<td class="px-1 py-1"><input id="${id}-f-${c.cle}" type="text" inputmode="decimal" autocomplete="off" aria-label="${c.label || c.cle}" style="width:${c.largeur || '3.8rem'}" class="${EXG_CLASSE}${ETATS_CHAMP.neutre}"></td>`
+                : `<td class="px-2 py-1 text-center font-mono text-slate-300">${c === undefined || c === null ? '' : c}</td>`);
+            return `<div class="overflow-x-auto"><table class="text-sm border border-slate-800"><thead><tr class="bg-slate-900/80">${g.entetes.map(h => `<th class="px-2 py-1.5 text-center text-slate-200 font-semibold whitespace-nowrap">${h}</th>`).join('')}</tr></thead><tbody>${g.lignes.map(l => `<tr class="border-t border-slate-800"><td class="px-2 py-1 text-left text-slate-200 font-semibold whitespace-nowrap">${l[0]}</td>${l.slice(1).map(cel).join('')}</tr>`).join('')}</tbody></table></div>`;
+        }
         function exgDessiner(id) {
             const e = EXG[id], q = e.q;
             const chips = e.libelles ? `<div class="flex flex-wrap items-center gap-2">${Object.keys(e.libelles).map(k => `<button type="button" data-filtre="${k}" class="px-3 py-1.5 rounded-full text-xs font-semibold border ${e.filtre === k ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700'}">${e.libelles[k]}</button>`).join('')}</div>` : '';
             const corps = document.getElementById(`bloc-${id}-corps`);
             corps.innerHTML = `${chips}
                 <div class="rounded-xl bg-slate-950 border border-slate-800 p-4 space-y-3 text-sm text-slate-300 leading-relaxed overflow-x-auto">${q.enonce}</div>
-                ${q.champs.some(c => (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol)) ? CONSIGNE_CENTIEME : ''}
-                <div class="space-y-3">${exgChamps(id, q)}<p id="${id}-bilan" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p></div>
+                ${q.champs.some(c => c.chiffres === 3) ? CONSIGNE_CENTIEME.replace('centième', 'centième, ou au millième pour les mesures en mm').replace('2 chiffres', '2 ou 3 chiffres') : q.champs.some(c => (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol)) ? CONSIGNE_CENTIEME : ''}
+                <div class="space-y-3">${exgChamps(id, q)}${q.grille ? exgGrille(id, q.grille) : ''}<p id="${id}-bilan" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p></div>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" id="${id}-verifier" class="px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Vérifier</button>
                     <button type="button" id="${id}-reinitialiser" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Réinitialiser</button>
@@ -6233,8 +6248,8 @@
                 const champ = document.getElementById(nom);
                 if (c.kind === 'select') { if (!champ.value) { vides++; champ.className = EXG_CLASSE + ETATS_CHAMP.vide; return; } const okS = champ.value === c.sol; champ.className = EXG_CLASSE + (okS ? ETATS_CHAMP.juste : ETATS_CHAMP.faux); if (!okS) faux++; return; }
                 if (champ.value.trim() === '') { vides++; champ.className = EXG_CLASSE + ETATS_CHAMP.vide; return; }
-                let r = comparerCentieme(champ.value, c.sol, c.modulo);
-                if (r !== 'juste' && c.alt !== undefined && comparerCentieme(champ.value, c.alt, c.modulo) === 'juste') r = 'juste';
+                let r = comparerCentieme(champ.value, c.sol, c.modulo, c.chiffres);
+                if (r !== 'juste' && c.alt !== undefined && comparerCentieme(champ.value, c.alt, c.modulo, c.chiffres) === 'juste') r = 'juste';
                 const ok = r === 'juste';
                 champ.className = EXG_CLASSE + (ok ? ETATS_CHAMP.juste : ETATS_CHAMP.faux);
                 if (!ok) faux++;
@@ -7173,7 +7188,109 @@
             return qcm(...q);
         }
         ceX('ce1-production', 'Production d\'énergie', 'Production et distribution de l\'énergie électrique', 'zap', { energie: ceEnergieAn, solaire: ceSolaire, danger: ceCourantCorps, cours: ceSource }, { tout: 'Tout', energie: 'Énergie annuelle', solaire: 'Solaire', danger: 'Courant dans le corps', cours: 'Questions de cours' }, 'cep');
+        // ---------- symboles électriques normalisés (IEC 60617), conducteurs verticaux ----------
+        // Chaque fonction dessine un symbole dont la borne haute est en (x, y) et la borne basse en (x, y + 80).
+        const SE = {
+            t: (x, y, txt, opt = {}) => `<text x="${x}" y="${y}" text-anchor="${opt.a || 'middle'}" fill="${opt.c || SVG_TEXTE}" font-size="${opt.s || 11}"${opt.b ? ' font-weight="bold"' : ''}>${txt}</text>`,
+            l: (x1, y1, x2, y2, opt = {}) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${opt.c || SVG_TRAIT}" stroke-width="${opt.w || 2}"${opt.d ? ' stroke-dasharray="4 3"' : ''}/>`,
+            // contact à fermeture (NO) ; marque : 'contacteur' (demi-cercle), 'sectionneur' (barre), 'disjoncteur' (croix)
+            no(x, y, marque) {
+                let s = this.l(x, y, x, y + 25) + this.l(x, y + 55, x, y + 80) + this.l(x, y + 55, x - 15, y + 27);
+                if (marque === 'contacteur') s += `<path d="M ${x - 5} ${y + 25} A 5 5 0 0 0 ${x + 5} ${y + 25}" fill="none" stroke="${SVG_TRAIT}" stroke-width="1.8"/>`;
+                if (marque === 'sectionneur') s += this.l(x - 6, y + 25, x + 6, y + 25);
+                if (marque === 'disjoncteur') s += this.l(x - 5, y + 20, x + 5, y + 30) + this.l(x - 5, y + 30, x + 5, y + 20);
+                return s;
+            },
+            // contact à ouverture (NC)
+            nc(x, y) { return this.l(x, y, x, y + 25) + this.l(x, y + 25, x + 13, y + 25) + this.l(x, y + 55, x, y + 80) + this.l(x, y + 55, x + 17, y + 21); },
+            fusible(x, y) { return this.l(x, y, x, y + 80) + `<rect x="${x - 7}" y="${y + 22}" width="14" height="36" fill="${SVG_FOND}" stroke="${SVG_TRAIT}" stroke-width="2"/>` + this.l(x, y + 22, x, y + 58); },
+            sectFusible(x, y) { return this.l(x, y, x, y + 25) + this.l(x - 6, y + 25, x + 6, y + 25) + this.l(x, y + 62, x, y + 80) + `<g transform="rotate(-25 ${x} ${y + 62})"><line x1="${x}" y1="${y + 62}" x2="${x}" y2="${y + 28}" stroke="${SVG_TRAIT}" stroke-width="2"/><rect x="${x - 6}" y="${y + 33}" width="12" height="22" fill="${SVG_FOND}" stroke="${SVG_TRAIT}" stroke-width="2"/></g>`; },
+            bobine(x, y) { return this.l(x, y, x, y + 25) + this.l(x, y + 55, x, y + 80) + `<rect x="${x - 15}" y="${y + 25}" width="30" height="30" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>`; },
+            thermique(x, y) { return this.l(x, y, x, y + 28) + this.l(x, y + 52, x, y + 80) + `<rect x="${x - 13}" y="${y + 22}" width="26" height="36" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/><path d="M ${x} ${y + 28} V ${y + 36} H ${x + 7} V ${y + 44} H ${x} V ${y + 52}" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>`; },
+            // bouton poussoir : 'no' ou 'nc'
+            bp(x, y, type) {
+                const c = type === 'nc' ? this.nc(x, y) : this.no(x, y);
+                const mx = type === 'nc' ? x + 8 : x - 8, my = y + 40;
+                return c + this.l(mx, my, x - 32, my, { d: true }) + this.l(x - 32, my - 8, x - 32, my + 8) + this.l(x - 32, my - 8, x - 27, my - 8) + this.l(x - 32, my + 8, x - 27, my + 8);
+            },
+            moteur(x, y, txt = '3~') { return this.l(x, y, x, y + 18) + `<circle cx="${x}" cy="${y + 40}" r="22" fill="${SVG_FOND}" stroke="${SVG_TRAIT}" stroke-width="2"/>` + this.t(x, y + 39, 'M', { s: 14, b: true }) + this.t(x, y + 53, txt, { s: 10 }); },
+            lampe(x, y) { return this.l(x, y, x, y + 26) + this.l(x, y + 54, x, y + 80) + `<circle cx="${x}" cy="${y + 40}" r="14" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>` + this.l(x - 10, y + 30, x + 10, y + 50) + this.l(x - 10, y + 50, x + 10, y + 30); },
+            terre(x, y) { return this.l(x, y, x, y + 40) + this.l(x - 16, y + 40, x + 16, y + 40) + this.l(x - 10, y + 47, x + 10, y + 47) + this.l(x - 4, y + 54, x + 4, y + 54); },
+            prise(x, y) { return this.l(x, y, x, y + 34) + `<path d="M ${x - 16} ${y + 50} A 16 16 0 0 1 ${x + 16} ${y + 50}" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>` + this.l(x - 16, y + 34, x + 16, y + 34); },
+            transfo(x, y) { return this.l(x, y, x, y + 16) + this.l(x, y + 64, x, y + 80) + `<circle cx="${x}" cy="${y + 30}" r="14" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/><circle cx="${x}" cy="${y + 50}" r="14" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>`; },
+            differentiel(x, y) { return this.no(x, y, 'disjoncteur') + `<ellipse cx="${x}" cy="${y + 68}" rx="11" ry="4" fill="none" stroke="${SVG_ACCENT}" stroke-width="1.8"/>` + this.t(x + 22, y + 72, 'IΔ', { s: 10, c: SVG_ACCENT, a: 'start' }); },
+            inverseur(x, y) { return this.l(x, y + 55, x, y + 80) + this.l(x, y + 55, x - 14, y + 26) + this.l(x - 18, y + 25, x - 18, y) + this.l(x + 18, y + 25, x + 18, y) + this.l(x - 18, y + 25, x - 10, y + 25) + this.l(x + 18, y + 25, x + 10, y + 25); },
+            borne(x, y, txt, cote = 'g') { return this.t(cote === 'g' ? x - 8 : x + 8, y + 4, txt, { s: 9.5, c: SVG_DISCRET, a: cote === 'g' ? 'end' : 'start' }); },
+            // symbole seul, centré dans une case de 120 × 130 avec son nom
+            case(fn, nom, ...args) { return `<svg viewBox="0 0 120 130" style="width:100%;max-width:120px;height:auto" role="img" aria-label="${nom}">${fn.call(SE, 60, 12, ...args)}</svg>`; }
+        };
+        const CE_SYMBOLES = [
+            ['no', 'Contact à fermeture (NO)', []], ['nc', 'Contact à ouverture (NC)', []],
+            ['no', 'Contact de puissance d\'un contacteur', ['contacteur']], ['no', 'Sectionneur', ['sectionneur']],
+            ['fusible', 'Fusible', []], ['sectFusible', 'Sectionneur porte-fusible', []],
+            ['no', 'Disjoncteur', ['disjoncteur']], ['differentiel', 'Disjoncteur différentiel', []],
+            ['bobine', 'Bobine (contacteur, relais)', []], ['thermique', 'Relais thermique', []],
+            ['bp', 'Bouton poussoir à fermeture', ['no']], ['bp', 'Bouton poussoir à ouverture', ['nc']],
+            ['moteur', 'Moteur triphasé', ['3~']], ['lampe', 'Lampe', []],
+            ['prise', 'Prise de courant', []], ['terre', 'Terre', []],
+            ['transfo', 'Transformateur', []], ['inverseur', 'Interrupteur va-et-vient (inverseur)', []]
+        ];
+        const planceSymboles = () => `<div class="grid grid-cols-3 sm:grid-cols-6 gap-3">${CE_SYMBOLES.map(([f, nom, a]) => `<figure class="bg-slate-950 border border-slate-800 rounded-xl p-2 flex flex-col items-center gap-1">${SE.case(SE[f], nom, ...a)}<figcaption class="text-[11px] text-slate-300 text-center leading-tight">${nom}</figcaption></figure>`).join('')}</div>`;
+
+        // démarrage direct d'un moteur asynchrone : puissance (à gauche) et commande développée (à droite)
+        const svgDemarrageDirect = () => {
+            const X = [50, 90, 130];
+            let s = `<svg viewBox="0 0 470 500" style="width:100%;max-width:520px;height:auto" role="img" aria-label="Schéma de démarrage direct d'un moteur triphasé : circuit de puissance et circuit de commande">`;
+            s += SE.t(90, 16, 'Puissance', { b: true, c: SVG_ACCENT });
+            X.forEach((x, i) => { s += SE.t(x, 34, 'L' + (i + 1), { s: 10 }) + SE.l(x, 38, x, 50) + SE.sectFusible(x, 50) + SE.l(x, 130, x, 150) + SE.no(x, 150, 'contacteur') + SE.l(x, 230, x, 250) + SE.l(x, 250, x, 278) + SE.l(x, 302, x, 330) + SE.l(x, 330, x, 360); });
+            s += SE.l(X[0] - 18, 90, X[2] - 14, 90, { d: true }) + SE.t(25, 96, 'Q1', { b: true, a: 'end' });
+            s += SE.l(X[0] - 10, 192, X[2] - 14, 192, { d: true }) + SE.t(25, 196, 'KM1', { b: true, a: 'end' });
+            X.forEach((x, i) => { s += SE.borne(x, 158, String(2 * i + 1), 'd') + SE.borne(x, 222, String(2 * i + 2), 'd'); });
+            s += `<rect x="${X[0] - 14}" y="272" width="${X[2] - X[0] + 28}" height="36" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>`;
+            X.forEach((x) => { s += `<path d="M ${x} 278 V 285 H ${x + 7} V 295 H ${x} V 302" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>`; });
+            s += SE.t(25, 294, 'F1', { b: true, a: 'end' });
+            s += SE.l(X[0], 360, 72, 400) + SE.l(X[1], 360, X[1], 400) + SE.l(X[2], 360, 108, 400) + SE.moteur(90, 382);
+            s += SE.t(90, 470, 'M1', { b: true });
+            // commande
+            const xc = 330, xm = 400;
+            s += SE.t(365, 16, 'Commande', { b: true, c: SVG_ACCENT }) + SE.t(xc, 34, 'L (24 V)', { s: 10 }) + SE.l(xc, 38, xc, 44);
+            s += SE.fusible(xc, 44) + SE.t(xc - 14, 86, 'F2', { b: true, a: 'end' });
+            s += SE.nc(xc, 124) + SE.t(xc - 14, 166, 'F1', { b: true, a: 'end' }) + SE.borne(xc, 132, '95', 'g') + SE.borne(xc, 196, '96', 'g');
+            s += SE.bp(xc, 204, 'nc') + SE.t(xc - 40, 248, 'S1', { b: true, a: 'end' }) + SE.t(xc + 24, 248, 'Arrêt', { s: 9.5, c: SVG_DISCRET, a: 'start' });
+            s += SE.bp(xc, 284, 'no') + SE.t(xc - 40, 328, 'S2', { b: true, a: 'end' }) + SE.t(xc - 40, 342, 'Marche', { s: 9.5, c: SVG_DISCRET, a: 'end' });
+            s += SE.l(xc, 284, xm, 284) + SE.no(xm, 284) + SE.l(xm, 364, xc, 364) + SE.t(xm + 14, 328, 'KM1', { b: true, a: 'start' }) + SE.borne(xm, 292, '13', 'd') + SE.borne(xm, 356, '14', 'd');
+            s += SE.bobine(xc, 364) + SE.t(xc + 20, 408, 'KM1', { b: true, a: 'start' }) + SE.borne(xc, 389, 'A1', 'g') + SE.borne(xc, 419, 'A2', 'g');
+            s += SE.t(xc, 460, 'N', { s: 10 }) + SE.t(xm, 382, 'auto-maintien', { s: 9, c: SVG_DISCRET });
+            return s + '</svg>';
+        };
+        // éclairage : simple allumage et va-et-vient en schéma développé
+        const svgEclairage = () => {
+            let s = `<svg viewBox="0 0 420 380" style="width:100%;max-width:460px;height:auto" role="img" aria-label="Schémas développés d'un simple allumage et d'un va-et-vient">`;
+            s += SE.t(100, 16, 'Simple allumage', { b: true, c: SVG_ACCENT }) + SE.t(100, 32, 'L', { s: 10 }) + SE.l(100, 36, 100, 40) + SE.fusible(100, 40) + SE.no(100, 120) + SE.l(100, 200, 100, 280) + SE.lampe(100, 280) + SE.t(100, 374, 'N', { s: 10 });
+            s += SE.t(120, 84, 'F1', { a: 'start', b: true }) + SE.t(120, 164, 'S1', { a: 'start', b: true }) + SE.t(122, 324, 'H1', { a: 'start', b: true });
+            s += SE.t(310, 16, 'Va-et-vient', { b: true, c: SVG_ACCENT }) + SE.t(310, 32, 'L', { s: 10 }) + SE.l(310, 36, 310, 40) + SE.fusible(310, 40);
+            s += `<g transform="translate(0 ${2 * 120 + 80}) scale(1 -1)">${SE.inverseur(310, 120)}</g>` + SE.inverseur(310, 200) + SE.lampe(310, 280) + SE.t(310, 374, 'N', { s: 10 });
+            s += SE.t(338, 84, 'F1', { a: 'start', b: true }) + SE.t(340, 150, 'S1', { a: 'start', b: true }) + SE.t(340, 236, 'S2', { a: 'start', b: true }) + SE.t(332, 324, 'H1', { a: 'start', b: true });
+            s += SE.t(240, 205, 'navettes', { s: 9.5, c: SVG_DISCRET });
+            return s + '</svg>';
+        };
+        // unifilaire / multifilaire
+        const svgUniMulti = () => {
+            let s = `<svg viewBox="0 0 420 120" style="width:100%;max-width:460px;height:auto" role="img" aria-label="Même liaison triphasée avec neutre et terre, en unifilaire puis en multifilaire">`;
+            s += SE.t(95, 16, 'Unifilaire', { b: true, c: SVG_ACCENT }) + SE.l(20, 60, 170, 60) + [0, 1, 2, 3, 4].map(i => SE.l(60 + i * 10, 68, 70 + i * 10, 52)).join('') + SE.t(95, 95, '3 phases + N + PE sur un seul trait :', { s: 10, c: SVG_DISCRET }) + SE.t(95, 108, 'un petit trait oblique par fil', { s: 10, c: SVG_DISCRET });
+            s += SE.t(320, 16, 'Multifilaire', { b: true, c: SVG_ACCENT }) + ['L1', 'L2', 'L3', 'N', 'PE'].map((n, i) => SE.l(250, 32 + i * 16, 390, 32 + i * 16, { c: n === 'PE' ? '#34d399' : n === 'N' ? '#60a5fa' : SVG_TRAIT }) + SE.t(244, 36 + i * 16, n, { s: 10, a: 'end' })).join('');
+            return s + '</svg>';
+        };
+
         // ---------- composants et schémas ----------
+        function ceSymbole() {
+            const i = gInt(0, CE_SYMBOLES.length - 1), [f, nom, a] = CE_SYMBOLES[i];
+            const autres = CE_SYMBOLES.map(x => x[1]).filter(n => n !== nom).sort(() => Math.random() - 0.5).slice(0, 3);
+            const opts = [nom, ...autres].sort(() => Math.random() - 0.5).map((n, k) => [String(k), n]);
+            const sol = opts.find(o => o[1] === nom)[0];
+            return { enonce: `<p>Quel composant représente ce symbole ?</p><div class="flex justify-center"><div class="w-28 bg-slate-900 rounded-xl border border-slate-800 p-2">${SE.case(SE[f], 'symbole à reconnaître', ...a)}</div></div>`,
+                champs: [gChoix('s', sol, opts, { groupe: 'Composant' })], correction: `<p>C'est le symbole <strong class="text-white">${nom}</strong>.</p>` };
+        }
         function ceSchemaQ() {
             const q = choisir([
                 ['Le sectionneur…', 'n', [['n', 'n\'a pas de pouvoir de coupure : on le manœuvre à vide'], ['c', 'coupe les courts-circuits'], ['d', 'protège les personnes']]],
@@ -7195,15 +7312,15 @@
                 ['Pour commander un éclairage depuis plus de deux endroits, on utilise…', 'tl', [['tl', 'un télérupteur (ou une minuterie)'], ['vv', 'un va-et-vient'], ['da', 'un double allumage']]]]);
             return qcm(...q);
         }
-        ceX('ce1-schemas', 'Composants et schémas', 'Composants et schémas électriques', 'cable', { q: ceSchemaQ }, null, 'ces');
+        ceX('ce1-schemas', 'Composants et schémas', 'Composants et schémas électriques', 'cable', { sym: ceSymbole, q: ceSchemaQ }, { tout: 'Tout', sym: 'Reconnaître un symbole', q: 'Appareillage et normes' }, 'ces');
         // ---------- machines à courant continu ----------
         function mccMoteur() {
             const U = choisir([110, 220, 230, 240, 440]), R = choisir([0.2, 0.4, 0.5, 0.8, 1, 1.5]), I = choisir([5, 8, 10, 15, 20, 25, 40]), n = choisir([1000, 1200, 1450, 1500, 2000, 3000]), pc = choisir([80, 100, 150, 200, 250]);
             const E = U - R * I, Pa = U * I, pJ = R * I * I, Pe = E * I, Pu = Pe - pc, om = 2 * Math.PI * n / 60, eta = Pu / Pa * 100, Tu = Pu / om;
             if (Pu <= 0) return mccMoteur();
             return { enonce: `<p>Un moteur à courant continu à excitation indépendante (on néglige l'excitation) est alimenté sous $U = ${U}$ V et absorbe $I = ${I}$ A. Résistance de l'induit : $R = ${centiemeTeX(R)}\\,\\Omega$ ; pertes collectives (fer + mécaniques) : $p_c = ${pc}$ W ; vitesse : $${n}$ tr/min.</p>`,
-                champs: [gNum('e', '$E$ =', E, { unite: 'V', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pa', '$P_a$ =', Pa, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pj', '$p_J$ =', pJ, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pe', '$P_{em}$ =', Pe, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pu', '$P_u$ =', Pu, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('eta', '$\\eta$ =', eta, { unite: '%', groupe: 'Rendement et couple', largeur: '6rem' }), gNum('tu', '$T_u$ =', Tu, { unite: 'N·m', groupe: 'Rendement et couple', largeur: '6rem' })],
-                correction: `<p>$E = U - R\\,I = ${U} - ${centiemeTeX(R)} \\times ${I} = ${centiemeTeX(E)}$ V.</p><p>$P_a = U\\,I = ${Pa}$ W ; $p_J = R\\,I^2 = ${centiemeTeX(pJ)}$ W ; $P_{em} = E\\,I = P_a - p_J = ${centiemeTeX(Pe)}$ W.</p><p>$P_u = P_{em} - p_c = ${centiemeTeX(Pu)}$ W ; $\\eta = \\dfrac{P_u}{P_a} \\approx ${centiemeTeX(eta)}$ %.</p><p>$\\Omega = \\dfrac{2\\pi n}{60} \\approx ${centiemeTeX(om)}$ rad/s et $T_u = \\dfrac{P_u}{\\Omega} \\approx ${centiemeTeX(Tu)}$ N·m.</p>` };
+                champs: [gNum('e', '$E$ =', E, { unite: 'V', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pa', '$P_a$ =', Pa, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pj', '$p_J$ =', pJ, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pe', '$P_{em}$ =', Pe, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('pu', '$P_u$ =', Pu, { unite: 'W', groupe: 'Bilan du moteur', largeur: '6rem' }), gNum('eta', '$\\eta$ =', eta, { unite: '%', groupe: 'Rendement et couple', largeur: '6rem' }), gNum('tu', '$C_u$ =', Tu, { unite: 'N·m', groupe: 'Rendement et couple', largeur: '6rem' })],
+                correction: `<p>$E = U - R\\,I = ${U} - ${centiemeTeX(R)} \\times ${I} = ${centiemeTeX(E)}$ V.</p><p>$P_a = U\\,I = ${Pa}$ W ; $p_J = R\\,I^2 = ${centiemeTeX(pJ)}$ W ; $P_{em} = E\\,I = P_a - p_J = ${centiemeTeX(Pe)}$ W.</p><p>$P_u = P_{em} - p_c = ${centiemeTeX(Pu)}$ W ; $\\eta = \\dfrac{P_u}{P_a} \\approx ${centiemeTeX(eta)}$ %.</p><p>$\\Omega = \\dfrac{2\\pi n}{60} \\approx ${centiemeTeX(om)}$ rad/s et $C_u = \\dfrac{P_u}{\\Omega} \\approx ${centiemeTeX(Tu)}$ N·m.</p>` };
         }
         function mccGeneratrice() {
             const E = choisir([120, 230, 250, 260, 460]), R = choisir([0.2, 0.3, 0.5, 0.8, 1]), I = choisir([5, 10, 15, 20, 30]), pc = choisir([100, 150, 200, 300]);
@@ -7227,19 +7344,19 @@
             const fleche = (x1, x2, y, c) => { const d = x2 > x1 ? -8 : 8; return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="2.5"/><polygon points="${x2},${y} ${x2 + d},${y - 5} ${x2 + d},${y + 5}" fill="${c}"/>`; };
             const perte = (x, y1, y2, t, ty) => { const d = y2 < y1 ? 8 : -8; return `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${P}" stroke-width="2"/><polygon points="${x},${y2} ${x - 5},${y2 + d} ${x + 5},${y2 + d}" fill="${P}"/><text x="${x}" y="${ty}" text-anchor="middle" fill="${P}" font-size="11">${t}</text>`; };
             let s = `<svg viewBox="0 0 560 250" style="width:100%;max-width:620px;height:auto" role="img" aria-label="Bilan des puissances d'une machine à courant continu, dans le sens moteur et dans le sens génératrice">`;
-            s += boite(bx[0], 'Électrique', 'U·I') + boite(bx[1], 'Pₑₘ = E·I', '= Tₑₘ·Ω') + boite(bx[2], 'Mécanique', 'T·Ω');
-            s += `<text x="280" y="16" text-anchor="middle" fill="${MOT}" font-size="13" font-weight="bold">MOTEUR : Pₐ = U·I  →  Pᵤ = Tᵤ·Ω</text>`;
+            s += boite(bx[0], 'Électrique', 'U·I') + boite(bx[1], 'Pₑₘ = E·I', '= Cₑₘ·Ω') + boite(bx[2], 'Mécanique', 'C·Ω');
+            s += `<text x="280" y="16" text-anchor="middle" fill="${MOT}" font-size="13" font-weight="bold">MOTEUR : Pₐ = U·I  →  Pᵤ = Cᵤ·Ω</text>`;
             s += fleche(bx[0] + w / 2, bx[1] + w / 2 - 10, 82, MOT) + fleche(bx[1] + w / 2 + 10, bx[2] + w / 2, 82, MOT);
             s += `<line x1="${bx[0] + w / 2}" y1="82" x2="${bx[0] + w / 2}" y2="95" stroke="${MOT}" stroke-width="2.5"/><line x1="${bx[2] + w / 2}" y1="82" x2="${bx[2] + w / 2}" y2="95" stroke="${MOT}" stroke-width="2.5"/>`;
             s += perte(182, 82, 40, 'p_J = R·I²', 32) + perte(377, 82, 40, 'p_c (fer + méca)', 32);
-            s += `<text x="280" y="244" text-anchor="middle" fill="${GEN}" font-size="13" font-weight="bold">GÉNÉRATRICE : Pₐ = T·Ω  →  Pᵤ = U·I</text>`;
+            s += `<text x="280" y="244" text-anchor="middle" fill="${GEN}" font-size="13" font-weight="bold">GÉNÉRATRICE : Pₐ = C·Ω  →  Pᵤ = U·I</text>`;
             s += fleche(bx[2] + w / 2, bx[1] + w / 2 + 10, 164, GEN) + fleche(bx[1] + w / 2 - 10, bx[0] + w / 2, 164, GEN);
             s += `<line x1="${bx[0] + w / 2}" y1="151" x2="${bx[0] + w / 2}" y2="164" stroke="${GEN}" stroke-width="2.5"/><line x1="${bx[2] + w / 2}" y1="151" x2="${bx[2] + w / 2}" y2="164" stroke="${GEN}" stroke-width="2.5"/>`;
             s += perte(377, 164, 206, 'p_c (fer + méca)', 222) + perte(182, 164, 206, 'p_J = R·I²', 222);
             return s + '</svg>';
         };
         const svgBilan = (moteur) => {
-            const etapes = moteur ? [['Pₐ = U·I', 'électrique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = Tᵤ·Ω', 'mécanique utile']] : [['Pₐ = T·Ω', 'mécanique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = U·I', 'électrique utile']];
+            const etapes = moteur ? [['Pₐ = U·I', 'électrique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = Cᵤ·Ω', 'mécanique utile']] : [['Pₐ = C·Ω', 'mécanique absorbée'], ['P_em = E·I', 'électromagnétique'], ['Pᵤ = U·I', 'électrique utile']];
             const pertes = moteur ? ['p_J = R·I² (Joule induit)', 'p_c (fer + mécaniques)'] : ['p_c (fer + mécaniques)', 'p_J = R·I² (Joule induit)'];
             let s = `<svg viewBox="0 0 520 150" style="width:100%;max-width:560px;height:auto" role="img" aria-label="Bilan des puissances ${moteur ? 'du moteur' : 'de la génératrice'}">`;
             etapes.forEach(([a, b], i) => { const x = 10 + i * 190; s += `<rect x="${x}" y="20" width="130" height="50" rx="8" fill="none" stroke="${SVG_ACCENT}" stroke-width="2"/><text x="${x + 65}" y="42" text-anchor="middle" fill="${SVG_TEXTE}" font-size="13" font-weight="bold">${a}</text><text x="${x + 65}" y="60" text-anchor="middle" fill="${SVG_DISCRET}" font-size="10">${b}</text>`; });
@@ -7284,7 +7401,8 @@
                         ["Rangée", "les éléments sont séparés mais alignés pour montrer leurs liaisons mécaniques"],
                         ["Développée", "chaque circuit se lit facilement de haut en bas : c'est la norme pour les schémas de commande"],
                         ["Architecturale (topographique)", "la position réelle du matériel dans le local"]
-                    ], { nowrap: false })),
+                    ], { nowrap: false }),
+                    H.figure(svgUniMulti(), "La même liaison (3 phases, neutre et terre) en unifilaire et en multifilaire. Couleurs : neutre bleu, terre vert et jaune.")),
                 ecoSec("2. Repérer les éléments et les bornes", "tag",
                     H.liste([
                         "Chaque élément porte une lettre de type, un numéro et parfois une fonction : <strong>KM</strong> contacteur moteur, <strong>KA</strong> contacteur auxiliaire, <strong>FU</strong> fusible, <strong>FT</strong> relais thermique, <strong>Q</strong> sectionneur…",
@@ -7299,8 +7417,11 @@
                         ["Rôle", "donner les ordres", "alimenter les récepteurs"],
                         ["Contenu", "alimentation (souvent 24 V), isolement, protection, boutons et capteurs, bobines de contacteurs", "réseau triphasé, sectionneur, fusibles et relais de protection, contacts de puissance, moteurs"]
                     ], { nowrap: false }),
-                    H.p("Un départ moteur doit toujours assurer quatre fonctions : <strong>sectionnement</strong>, <strong>protection</strong> contre les courts-circuits et les surcharges, <strong>commande</strong>, et <strong>arrêt d'urgence</strong>.")),
+                    H.p("Un départ moteur doit toujours assurer quatre fonctions : <strong>sectionnement</strong>, <strong>protection</strong> contre les courts-circuits et les surcharges, <strong>commande</strong>, et <strong>arrêt d'urgence</strong>."),
+                    H.figure(svgDemarrageDirect(), "Démarrage direct : Q1 sectionne et protège, KM1 commande, F1 protège contre les surcharges. En commande, S2 (Marche) alimente la bobine de KM1 ; le contact 13-14 de KM1 la garde alimentée quand on relâche S2 (auto-maintien). S1 (Arrêt) ou le contact 95-96 de F1 coupent la bobine.")),
                 ecoSec("4. L'appareillage", "toggle-right",
+                    H.p("Voici les symboles normalisés à connaître. Sur un schéma, chaque contact est dessiné <strong>au repos</strong> (bobine non alimentée, bouton non appuyé)."),
+                    planceSymboles(),
                     H.tableau(["Appareil", "Rôle"], [
                         ["Sectionneur", "isoler un circuit ; <strong>aucun pouvoir de coupure</strong>, manœuvre à vide, souvent avec fusibles"],
                         ["Interrupteur-sectionneur", "isoler et couper en charge (mise en service, arrêt)"],
@@ -7311,6 +7432,7 @@
                         ["Relais temporisé", "contacts qui basculent après un retard, au travail ou au repos"]
                     ], { nowrap: false })),
                 ecoSec("5. Installations domestiques (NF C 15-100)", "home",
+                    H.figure(svgEclairage(), "Schémas développés. Simple allumage : un interrupteur coupe la phase. Va-et-vient : deux inverseurs reliés par deux fils (les navettes) ; chaque interrupteur peut allumer ou éteindre."),
                     H.liste([
                         "<strong>Simple allumage</strong> : un interrupteur, un endroit. <strong>Double allumage</strong> : deux circuits depuis un endroit. <strong>Va-et-vient</strong> : un circuit depuis deux endroits. <strong>Télérupteur</strong> ou <strong>minuterie</strong> : depuis autant d'endroits que voulu, avec des boutons poussoirs.",
                         "Éclairage : au moins 2 circuits, au plus 8 points par circuit, câble 1,5 mm² protégé par un disjoncteur 16 A ; commandes entre 0,90 et 1,30 m de haut.",
@@ -7327,11 +7449,11 @@
                         "La machine est <strong>réversible</strong> : elle fonctionne en <strong>moteur</strong> (électrique → mécanique) ou en <strong>génératrice</strong> (mécanique → électrique), par exemple lors d'un freinage récupératif."
                     ])),
                 ecoSec("2. Force électromotrice et couple", "zap",
-                    H.formule(R`E = k\,\Phi\,\Omega \qquad T_{em} = k\,\Phi\,I \qquad \Omega = \dfrac{2\pi n}{60} \;(n \text{ en tr/min})`),
+                    H.formule(R`E = k\,\Phi\,\Omega \qquad C_{em} = k\,\Phi\,I \qquad \Omega = \dfrac{2\pi n}{60} \;(n \text{ en tr/min})`),
                     H.liste([
-                        R`À flux constant (aimants, ou excitation indépendante constante) : $E = K\,\Omega$ et $T_{em} = K\,I$, avec le <strong>même</strong> $K$ (en V·s/rad = N·m/A).`,
+                        R`À flux constant (aimants, ou excitation indépendante constante) : $E = K\,\Omega$ et $C_{em} = K\,I$, avec le <strong>même</strong> $K$ (en V·s/rad = N·m/A).`,
                         "La f.é.m. est donc proportionnelle à la vitesse, et le couple au courant.",
-                        R`<strong>Puissance électromagnétique</strong> : c'est celle qui passe de la forme électrique à la forme mécanique (ou l'inverse), $P_{em} = E\,I = T_{em}\,\Omega$.`
+                        R`<strong>Puissance électromagnétique</strong> : c'est celle qui passe de la forme électrique à la forme mécanique (ou l'inverse), $P_{em} = E\,I = C_{em}\,\Omega$.`
                     ])),
                 ecoSec("3. Le moteur", "arrow-right",
                     H.formule(R`U = E + R\,I \qquad\text{(l'induit est un récepteur)}`),
@@ -7340,9 +7462,9 @@
                         ["Puissance absorbée $P_a$", "$U\\,I$ (+ $U_e\\,I_e$ si l'excitation est comptée)", "électrique, prise au réseau"],
                         ["Pertes Joule de l'induit $p_J$", "$R\\,I^2$", "échauffement des conducteurs"],
                         ["Pertes Joule de l'inducteur", "$U_e\\,I_e = r\\,I_e^2$", "si l'excitation est alimentée par la même source"],
-                        ["Puissance électromagnétique $P_{em}$", "$E\\,I = P_a - p_J = T_{em}\\,\\Omega$", "convertie en mécanique"],
+                        ["Puissance électromagnétique $P_{em}$", "$E\\,I = P_a - p_J = C_{em}\\,\\Omega$", "convertie en mécanique"],
                         ["Pertes collectives $p_c$", "pertes fer + pertes mécaniques (frottements, ventilation)", "à peu près constantes à vitesse donnée ; on les mesure par un essai à vide"],
-                        ["Puissance utile $P_u$", "$P_{em} - p_c = T_u\\,\\Omega$", "mécanique, sur l'arbre"],
+                        ["Puissance utile $P_u$", "$P_{em} - p_c = C_u\\,\\Omega$", "mécanique, sur l'arbre"],
                         ["Rendement", "$\\eta = \\dfrac{P_u}{P_a}$", "toujours inférieur à 1"]
                     ], { nowrap: false }),
                     H.p(R`Exemple : $U = 220$ V, $I = 10$ A, $R = 1\,\Omega$, $p_c = 100$ W. $E = 220 - 10 = 210$ V ; $P_a = 2\,200$ W ; $p_J = 100$ W ; $P_{em} = 2\,100$ W ; $P_u = 2\,000$ W ; $\eta \approx 90{,}9$ %.`),
@@ -7351,7 +7473,7 @@
                     H.formule(R`U = E - R\,I \qquad\text{(l'induit est un générateur)}`),
                     H.figure(svgBilan(false), "Bilan des puissances de la génératrice : de la puissance mécanique reçue à la puissance électrique utile."),
                     H.tableau(["Grandeur", "Expression", "Signification"], [
-                        ["Puissance absorbée $P_a$", "$T\\,\\Omega$ (+ $U_e\\,I_e$ pour l'excitation)", "mécanique, fournie par le moteur d'entraînement"],
+                        ["Puissance absorbée $P_a$", "$C\\,\\Omega$ (+ $U_e\\,I_e$ pour l'excitation)", "mécanique, fournie par le moteur d'entraînement"],
                         ["Pertes collectives $p_c$", "fer + mécaniques", "perdues avant la conversion"],
                         ["Puissance électromagnétique $P_{em}$", "$P_a - p_c = E\\,I$", "convertie en électrique"],
                         ["Pertes Joule de l'induit $p_J$", "$R\\,I^2$", ""],
@@ -7363,10 +7485,10 @@
                     H.figure(svgBilanDouble(), "La même machine, parcourue dans un sens ou dans l'autre. Moteur (en haut) : on perd d'abord la chaleur de l'induit, puis les pertes collectives. Génératrice (en bas) : l'inverse."),
                     H.tableau(["", "Moteur", "Génératrice"], [
                         ["Loi d'Ohm de l'induit", "$U = E + R\\,I$ ($U > E$)", "$U = E - R\\,I$ ($U < E$)"],
-                        ["Absorbée", "électrique $U\\,I$", "mécanique $T\\,\\Omega$"],
-                        ["Utile", "mécanique $T_u\\,\\Omega$", "électrique $U\\,I$"],
+                        ["Absorbée", "électrique $U\\,I$", "mécanique $C\\,\\Omega$"],
+                        ["Utile", "mécanique $C_u\\,\\Omega$", "électrique $U\\,I$"],
                         ["Ordre des pertes", "$p_J$ puis $p_c$", "$p_c$ puis $p_J$"],
-                        ["Commun", "$P_{em} = E\\,I = T_{em}\\,\\Omega$ et $\\eta = P_u/P_a$", "$P_{em} = E\\,I = T_{em}\\,\\Omega$ et $\\eta = P_u/P_a$"]
+                        ["Commun", "$P_{em} = E\\,I = C_{em}\\,\\Omega$ et $\\eta = P_u/P_a$", "$P_{em} = E\\,I = C_{em}\\,\\Omega$ et $\\eta = P_u/P_a$"]
                     ], { nowrap: false }))
             ] }
         });
@@ -7649,7 +7771,149 @@
             return { enonce: `<p>À quelle famille de tolérances géométriques appartient <strong>${q[0]}</strong> ?</p>`, champs: [gChoix('f', q[1], Object.entries(noms), { groupe: 'Famille' })],
                 correction: `<p><strong class="text-white">${noms[q[1]]}</strong>. Les tolérances de forme n'ont pas de référence spécifiée ; orientation, position et battement en demandent une.</p>` };
         }
-        EXB('oi2-gps', 'oi2-gps', 'OI • 2ème Année', 'Cotation GPS', 'Cotation GPS : ajustements et tolérances', { id: 'gps', types: { aj: gpsAjustement, mm: gpsMaxMatiere, fam: gpsFamille }, libelles: { tout: 'Tout', aj: 'Ajustements', mm: 'Maximum de matière', fam: 'Familles de tolérances' } }, 'ruler');
+        // tolérancement dimensionnel : lire une cote tolérancée
+        function gpsCote() {
+            const N = choisir([5, 6.25, 12, 18, 25, 30, 40, 52]), cas = choisir(['pm', 'plus', 'moins', 'mixte']);
+            let es, ei, txt;
+            if (cas === 'pm') { const t = choisir([0.05, 0.1, 0.2, 0.3]); es = t; ei = -t; txt = `${centiemeTeX(N)} \\pm ${centiemeTeX(t)}`; }
+            else if (cas === 'plus') { es = choisir([0.1, 0.2, 0.3]); ei = choisir([0, 0, 0.05]); txt = `${centiemeTeX(N)}\\,^{+${centiemeTeX(es)}}_{${ei ? '+' + centiemeTeX(ei) : '0'}}`; }
+            else if (cas === 'moins') { ei = -choisir([0.1, 0.2, 0.3]); es = choisir([0, 0, -0.05]); txt = `${centiemeTeX(N)}\\,^{${es ? centiemeTeX(es) : '0'}}_{${centiemeTeX(ei)}}`; }
+            else { es = choisir([0.05, 0.1]); ei = -choisir([0.05, 0.15, 0.2]); txt = `${centiemeTeX(N)}\\,^{+${centiemeTeX(es)}}_{${centiemeTeX(ei)}}`; }
+            const mx = N + es, mn = N + ei;
+            return { enonce: `<p>Sur un dessin de définition, on lit la cote $${txt}$. Complète la lecture de cette spécification (en mm ; la moyenne peut avoir 3 décimales).</p>`,
+                champs: [gNum('n', 'Nominale =', N, { groupe: 'Cote' }), gNum('it', 'IT =', es - ei, { groupe: 'Cote' }), gNum('mn', 'Mini =', mn, { groupe: 'Cote' }), gNum('mx', 'Maxi =', mx, { groupe: 'Cote' }), gNum('moy', 'Moyenne =', Math.round((mn + mx) / 2 * 1000) / 1000, { groupe: 'Cote', chiffres: 3 })],
+                correction: `<p>Écart supérieur $es = ${centiemeTeX(es)}$, écart inférieur $ei = ${centiemeTeX(ei)}$. Maxi = nominale + es = $${centiemeTeX(mx)}$ ; mini = nominale + ei = $${centiemeTeX(mn)}$ ; IT = maxi − mini = $${centiemeTeX(es - ei)}$ ; moyenne = $${((mn + mx) / 2).toFixed(3).replace('.', '{,}')}$ (au millième ; c'est souvent la cote visée en fabrication).</p>` };
+        }
+        // ajustement ISO avec un tableau d'écarts (diamètres de 10 à 18 mm), comme dans le TD
+        const GPS_ECARTS = { H6: [11, 0], H7: [18, 0], H8: [27, 0], g6: [-6, -17], e8: [-32, -59], k6: [12, 1], p5: [26, 18] };
+        function gpsIso() {
+            const [al, ar] = choisir([['H7', 'g6'], ['H8', 'e8'], ['H7', 'k6'], ['H6', 'p5']]), D = choisir([12, 14, 16, 18]);
+            const [AS, AI] = GPS_ECARTS[al], [as, ai] = GPS_ECARTS[ar];
+            const jM = AS - ai, jm = AI - as, type = jm >= 0 ? 'jeu' : jM <= 0 ? 'serre' : 'incertain';
+            const tab = Object.entries(GPS_ECARTS).map(([k, [s, i]]) => `<td class="px-2 py-1 text-center">${k}</td><td class="px-2 py-1 text-center">${s > 0 ? '+' : ''}${s} / ${i > 0 ? '+' : ''}${i}</td>`);
+            return { enonce: `<p>On étudie l'ajustement <strong>⌀ ${D} ${al}/${ar}</strong>. Écarts en µm pour les diamètres de 10 à 18 mm (écart supérieur / écart inférieur) :</p><div class="overflow-x-auto"><table class="mx-auto text-xs border border-slate-800"><tbody>${[0, 1, 2, 3].map(r => `<tr class="border-b border-slate-800">${tab.slice(r * 2, r * 2 + 2).join('')}</tr>`).join('')}</tbody></table></div><p>Calcule les cotes limites (en mm, au millième), puis le jeu maxi et mini et l'IT du jeu (en µm ; un jeu négatif est un serrage).</p>`,
+                champs: [gNum('aM', 'Alésage maxi =', Math.round((D + AS / 1000) * 1000) / 1000, { groupe: 'Alésage ' + al, largeur: '6rem', chiffres: 3 }), gNum('am', 'Alésage mini =', Math.round((D + AI / 1000) * 1000) / 1000, { groupe: 'Alésage ' + al, largeur: '6rem', chiffres: 3 }),
+                    gNum('bM', 'Arbre maxi =', Math.round((D + as / 1000) * 1000) / 1000, { groupe: 'Arbre ' + ar, largeur: '6rem', chiffres: 3 }), gNum('bm', 'Arbre mini =', Math.round((D + ai / 1000) * 1000) / 1000, { groupe: 'Arbre ' + ar, largeur: '6rem', chiffres: 3 }),
+                    gNum('jM', 'Jeu maxi =', jM, { unite: 'µm', groupe: 'Jeu' }), gNum('jm', 'Jeu mini =', jm, { unite: 'µm', groupe: 'Jeu' }), gNum('it', 'IT du jeu =', jM - jm, { unite: 'µm', groupe: 'Jeu' }),
+                    gChoix('t', type, [['jeu', 'Avec jeu'], ['incertain', 'Incertain'], ['serre', 'Serré']], { groupe: 'Nature' })],
+                correction: `<p>Alésage ${al} : ${D} + ${(AS / 1000).toFixed(3).replace('.', ',')} = <strong class="text-white">${(D + AS / 1000).toFixed(3).replace('.', ',')}</strong> et ${(D + AI / 1000).toFixed(3).replace('.', ',')} mm ; arbre ${ar} : <strong class="text-white">${(D + as / 1000).toFixed(3).replace('.', ',')}</strong> et ${(D + ai / 1000).toFixed(3).replace('.', ',')} mm.</p><p>Jeu maxi = alésage maxi − arbre mini = ${AS} − (${ai}) = <strong class="text-white">${jM} µm</strong> ; jeu mini = alésage mini − arbre maxi = ${AI} − (${as}) = <strong class="text-white">${jm} µm</strong> ; IT du jeu = ${jM - jm} µm (= IT alésage + IT arbre).</p><p>${type === 'jeu' ? 'Les IT ne se chevauchent pas, l\'arbre est toujours plus petit : ajustement <strong class="text-white">avec jeu</strong>.' : type === 'serre' ? 'L\'arbre est toujours plus gros : ajustement <strong class="text-white">serré</strong> (montage à la presse).' : 'Les IT se chevauchent : ajustement <strong class="text-white">incertain</strong>.'}</p>` };
+        }
+        EXB('oi2-gps', 'oi2-gps', 'OI • 2ème Année', 'Cotation GPS', 'Cotation GPS : tolérances et ajustements', { id: 'gps', types: { cote: gpsCote, iso: gpsIso, aj: gpsAjustement, mm: gpsMaxMatiere, fam: gpsFamille }, libelles: { tout: 'Tout', cote: 'Lire une cote', iso: 'Ajustement ISO', aj: 'Jeux', mm: 'Maximum de matière', fam: 'Familles de tolérances' } }, 'ruler');
+
+        // ---------- OI A2 : MRP et Kanban ----------
+        const S6 = [1, 2, 3, 4, 5, 6];
+        // calcul MRP d'un article : bb besoins bruts (6 semaines), s0 stock initial, L délai, Q lot (0 = lot pour lot), ss stock de sécurité
+        function mrpCalcul(bb, s0, L, Q, ss) {
+            const bn = [], st = [], rec = [0, 0, 0, 0, 0, 0], ol = [0, 0, 0, 0, 0, 0]; let s = s0;
+            for (let t = 0; t < 6; t++) {
+                const besoin = Math.max(0, bb[t] - s); bn.push(besoin);
+                let r = 0;
+                if (s - bb[t] < ss) { const manque = ss + bb[t] - s; r = Q ? Math.ceil(manque / Q) * Q : manque; if (t - L < 0) return null; ol[t - L] = r; }
+                if (r && besoin === 0) return null;   // on évite les cas où le stock de sécurité seul déclenche l'ordre
+                rec[t] = r; s = s + r - bb[t]; st.push(s);
+            }
+            return { bn, st, rec, ol };
+        }
+        const mrpTable = (lignes) => `<div class="overflow-x-auto"><table class="mx-auto text-xs text-center border border-slate-800"><thead><tr class="bg-slate-900/80"><th class="px-2 py-1">Semaine</th>${S6.map(t => `<th class="px-2 py-1">${t}</th>`).join('')}</tr></thead><tbody>${lignes.map(([n, v]) => `<tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">${n}</td>${v.map(x => `<td class="px-2 py-1">${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+        // tableau MRP complet à remplir (bbDonnes : les besoins bruts sont déjà écrits)
+        const mrpGrille = (bb, s0, r, bbDonnes) => {
+            const ligne = (nom, cle, v) => [nom, ''].concat(S6.map(t => gNum(cle + t, `${nom} S${t}`, v[t - 1])));
+            return gGrille(['Semaine', 'Départ'].concat(S6.map(t => 'S' + t)), [
+                bbDonnes ? ['Besoins bruts', ''].concat(bb) : ligne('Besoins bruts', 'bb', bb),
+                ligne('Besoins nets', 'bn', r.bn),
+                ligne('Réceptions', 'rc', r.rec),
+                ['Stock fin', s0].concat(S6.map(t => gNum('st' + t, `Stock fin S${t}`, r.st[t - 1]))),
+                ligne('Ordres lancés', 'ol', r.ol)]);
+        };
+        const mrpCorrection = (bb, r) => `<p>On part du stock de début de semaine. Besoin net = besoin brut − stock disponible (s'il est positif). On reçoit alors la quantité commandée, lancée « délai » semaines plus tôt.</p>${mrpTable([['Besoins bruts', bb], ['Besoins nets', r.bn], ['Réceptions', r.rec], ['Stock fin', r.st], ['Ordres lancés', r.ol]])}`;
+        function mrpArticle() {
+            for (let k = 0; k < 300; k++) {
+                const bb = S6.map(() => choisir([0, 5, 10, 15, 20, 30, 40])), s0 = gInt(2, 8) * 5, L = gInt(1, 2);
+                const lotPourLot = Math.random() < 0.4, Q = lotPourLot ? 0 : choisir([20, 25, 30, 50]), ss = lotPourLot ? 0 : choisir([0, 5, 10]);
+                const r = mrpCalcul(bb, s0, L, Q, ss);
+                if (!r || r.ol.every(x => x === 0)) continue;
+                return { enonce: `<p>Article A : stock initial <strong>${s0}</strong>, délai d'obtention <strong>${L} semaine${L > 1 ? 's' : ''}</strong>, ${lotPourLot ? '<strong>lot pour lot</strong> (on commande juste le besoin), pas de stock de sécurité' : `commandes par lots de <strong>${Q}</strong> (ou multiples), stock de sécurité <strong>${ss}</strong>`}.</p><p>Complète tout le tableau du calcul des besoins (stocks en fin de semaine ; une case à 0 se remplit avec 0).</p>`,
+                    ...mrpGrille(bb, s0, r, true), correction: mrpCorrection(bb, r) };
+            }
+        }
+        function mrpComposant() {
+            for (let k = 0; k < 300; k++) {
+                const olA = S6.map(() => choisir([0, 0, 10, 15, 20, 30])), c = choisir([2, 3, 4]), bb = olA.map(x => x * c), s0 = gInt(4, 20) * 5, L = gInt(1, 2), Q = choisir([25, 50, 60, 100]), ss = choisir([0, 5, 10]);
+                const r = mrpCalcul(bb, s0, L, Q, ss);
+                if (!r || r.ol.every(x => x === 0)) continue;
+                return { enonce: `<p>Un produit A contient <strong>${c}</strong> composants B. Les ordres lancés de A sont :</p>${mrpTable([['Ordres lancés de A', olA]])}<p>Composant B : stock initial <strong>${s0}</strong>, délai <strong>${L} semaine${L > 1 ? 's' : ''}</strong>, lots de <strong>${Q}</strong>, stock de sécurité <strong>${ss}</strong>. Complète tout le tableau du calcul des besoins de B, en commençant par ses besoins bruts (une case à 0 se remplit avec 0).</p>`,
+                    ...mrpGrille(bb, s0, r, false), correction: `<p>Besoins bruts de B = ${c} × ordres lancés de A : ${bb.join(', ')}.</p>` + mrpCorrection(bb, r) };
+            }
+        }
+        function kanban() {
+            if (Math.random() < 0.5) {
+                const D = choisir([120, 240, 300, 500, 600]), Lm = choisir([20, 30, 45, 60, 90]), C = choisir([20, 25, 40, 50]), G = choisir([0, 10, 20, 30]);
+                const n = (D * Lm / 60 + G) / C;
+                return { enonce: `<p>Demande : $${D}$ pièces/heure ; délai total du cycle : $${Lm}$ min ; capacité d'un conteneur : $${C}$ pièces ; stock de sécurité : $${G}$ pièces. Combien d'étiquettes kanban faut-il ? (arrondi à l'entier supérieur)</p>`,
+                    champs: [gNum('n', '$n$ =', Math.ceil(n - 1e-9), { unite: 'kanbans' })],
+                    correction: `<p>$L = ${Lm}$ min $= ${centiemeTeX(Lm / 60)}$ h. $n = \\dfrac{D \\times L + G}{C} = \\dfrac{${D} \\times ${centiemeTeX(Lm / 60)} + ${G}}{${C}} = ${centiemeTeX(n)}$, soit <strong class="text-white">${Math.ceil(n - 1e-9)} kanbans</strong> (on arrondit toujours au-dessus).</p>` };
+            }
+            const op = choisir([4, 5, 6, 8, 10]), att = choisir([30, 45, 60]), tr = choisir([60, 90, 120]), Dj = choisir([1200, 1800, 2400, 3000]), C = choisir([8, 10, 11, 12, 15]), G = choisir([0, 5, 10]);
+            const L = op / 60 + att / 3600 + tr / 3600, D = Dj / 8, n = (D * L + G) / C;
+            return { enonce: `<p>Temps d'opération : $${op}$ min par unité ; attente : $${att}$ s ; transport : $${tr}$ s. Demande : $${Dj}$ pièces par journée de 8 h ; conteneur de $${C}$ pièces ; stock de sécurité : $${G}$ pièces. Calcule la demande horaire, le délai du cycle en heures, puis le nombre de kanbans.</p>`,
+                champs: [gNum('d', '$D$ =', D, { unite: 'pièces/h', groupe: 'Données' }), gNum('l', '$L$ =', L, { unite: 'h', groupe: 'Données', alt: L }), gNum('n', '$n$ =', Math.ceil((D * arrondiCentieme(L) + G) / C - 1e-9), { unite: 'kanbans', alt: Math.ceil(n - 1e-9), groupe: 'Résultat' })],
+                correction: `<p>$D = \\dfrac{${Dj}}{8} = ${centiemeTeX(D)}$ pièces/h ; $L = ${op}$ min $+ ${att}$ s $+ ${tr}$ s $= ${centiemeTeX(L * 60)}$ min $\\approx ${centiemeTeX(L)}$ h.</p><p>$n = \\dfrac{D \\times L + G}{C} \\approx ${centiemeTeX(n)}$, soit <strong class="text-white">${Math.ceil(n - 1e-9)} kanbans</strong>.</p>` };
+        }
+        EXB('oi2-mrp', 'oi-kanban', 'OI • 2ème Année', 'MRP et Kanban', 'Calcul des besoins (MRP) et kanbans', { id: 'mrp', types: { art: mrpArticle, comp: mrpComposant, kan: kanban }, libelles: { tout: 'Tout', art: 'MRP : un article', comp: 'MRP : composant', kan: 'Kanban' } }, 'boxes');
+
+        // ---------- OI A2 : maîtrise statistique des procédés ----------
+        function mspHenry() {
+            const precis = Math.random() < 0.5, n = choisir([30, 36, 40, 49, 50]), formule = Math.random() < 0.5 ? 'racine' : 'sturges';
+            const unite = precis ? 0.001 : 1, base = precis ? 35 : 20, sig = precis ? 0.0025 : 3.5;
+            const gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += Math.random(); return u - 3; };
+            const data = Array.from({ length: n }, () => Math.round((base + sig * gauss() * 1.41) / unite) * unite).map(x => Math.round(x * 1000) / 1000);
+            const mn = Math.min(...data), mx = Math.max(...data), et = Math.round((mx - mn) * 1000) / 1000;
+            const k = formule === 'racine' ? Math.ceil(Math.sqrt(n) - 1e-9) : Math.ceil(1 + 3.3 * Math.log10(n));
+            const w = Math.max(unite, Math.ceil(et / k / unite - 1e-9) * unite);
+            const eff = Array.from({ length: k }, (_, i) => data.filter(x => x >= mn + i * w - 1e-9 && x < mn + (i + 1) * w - 1e-9).length);
+            if (eff.reduce((a, b) => a + b, 0) !== n) return mspHenry();
+            const cum = []; eff.reduce((a, b, i) => (cum[i] = (a + b) / n * 100, a + b), 0);
+            const f = (x) => (precis ? x.toFixed(3) : String(x)).replace('.', ',');
+            const tri = [...data].sort((a, b) => a - b), ch3 = { chiffres: precis ? 3 : 2, largeur: precis ? '5.2rem' : '4rem' };
+            const borne = (i) => Math.round((mn + i * w) * 1000) / 1000;
+            let ec = 0;
+            const grille = gGrille(['Classe', 'Borne inf.', 'Borne sup.', 'Effectif', 'Effectif cumulé', 'Fréquence cumulée (%)'], eff.map((v, i) => {
+                ec += v;
+                return ['C' + (i + 1), gNum('bi' + i, `C${i + 1} borne inf.`, borne(i), ch3), gNum('bs' + i, `C${i + 1} borne sup.`, borne(i + 1), ch3), gNum('n' + i, `C${i + 1} effectif`, v, { largeur: '3.4rem' }), gNum('ec' + i, `C${i + 1} effectif cumulé`, ec, { largeur: '3.6rem' }), gNum('c' + i, `C${i + 1} fréquence cumulée`, cum[i], { largeur: '4.4rem' })];
+            }));
+            return { enonce: `<p>On a relevé ${n} mesures${precis ? ' de diamètre (mm)' : ' de temps (s)'} :</p><p class="font-mono text-xs leading-relaxed">${data.map(f).join(' ; ')}</p><p>Nombre de classes : ${formule === 'racine' ? '$k = \\sqrt{n}$' : '$k = 1 + 3{,}3\\log n$'}, arrondi à l'entier supérieur. L'amplitude d'une classe est l'étendue divisée par $k$, arrondie au-dessus à la résolution des mesures (${f(unite)}). La première classe commence à la plus petite valeur (borne inférieure incluse, supérieure exclue).</p><p>Complète ensuite tout le tableau des classes : fréquence cumulée = effectif cumulé ÷ ${n} × 100. Ce sont les points de la droite de Henry (borne sup. ; fréquence cumulée).</p>`,
+                champs: [gNum('k', 'Classes $k$ =', k, { groupe: 'Classes' }), gNum('e', 'Étendue =', et, { groupe: 'Classes', chiffres: precis ? 3 : 2 }), gNum('w', 'Amplitude =', Math.round(w * 1000) / 1000, { groupe: 'Classes', chiffres: precis ? 3 : 2 })].concat(grille.champs),
+                grille: grille.grille,
+                correction: `<p>Valeurs triées : <span class="font-mono text-xs">${tri.map(f).join(' ; ')}</span></p><p>$k = ${formule === 'racine' ? `\\sqrt{${n}}` : `1 + 3{,}3\\log ${n}`} \\approx ${centiemeTeX(formule === 'racine' ? Math.sqrt(n) : 1 + 3.3 * Math.log10(n))}$, donc $k = ${k}$ ; étendue $= ${f(mx)} - ${f(mn)} = ${f(et)}$ ; amplitude $= ${f(et)} / ${k} \\approx ${String(Math.round(et / k * 10000) / 10000).replace('.', '{,}')}$, arrondie à <strong class="text-white">${f(w)}</strong>.</p>${mrpTableH(eff, cum, mn, w, f)}<p>Pour la droite de Henry, on place chaque fréquence cumulée en face de la borne supérieure de sa classe sur papier gausso-arithmétique : si les points sont alignés, la distribution est normale ; la moyenne se lit à 50 % et l'écart type est la distance entre 50 % et 84 %.</p>` };
+        }
+        const mrpTableH = (eff, cum, mn, w, f) => `<div class="overflow-x-auto"><table class="mx-auto text-xs text-center border border-slate-800"><thead><tr class="bg-slate-900/80"><th class="px-2 py-1">Classe</th>${eff.map((_, i) => `<th class="px-2 py-1">${i + 1}</th>`).join('')}</tr></thead><tbody><tr><td class="px-2 py-1 text-left">Bornes</td>${eff.map((_, i) => `<td class="px-2 py-1">[${f(Math.round((mn + i * w) * 1000) / 1000)} ; ${f(Math.round((mn + (i + 1) * w) * 1000) / 1000)}[</td>`).join('')}</tr><tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">Effectif</td>${eff.map(v => `<td class="px-2 py-1">${v}</td>`).join('')}</tr><tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">Effectif cumulé</td>${eff.map((_, i) => `<td class="px-2 py-1">${eff.slice(0, i + 1).reduce((a, b) => a + b, 0)}</td>`).join('')}</tr><tr class="border-t border-slate-800"><td class="px-2 py-1 text-left">Cumul %</td>${cum.map(v => `<td class="px-2 py-1">${centiemeFR(v)}</td>`).join('')}</tr></tbody></table></div>`;
+        function mspCause() {
+            const [txt, sol] = choisir([
+                ['Une légère variation normale de la dureté de la matière première.', 'al'], ['Un capteur de température défectueux.', 'as'], ['De petites vibrations habituelles pendant l\'usinage.', 'al'],
+                ['Un opérateur saisit une mauvaise valeur de réglage.', 'as'], ['Une dérive progressive due à l\'usure de l\'outil, non compensée.', 'as'], ['La machine se dérègle brusquement.', 'as'],
+                ['De petites différences normales entre les pièces.', 'al'], ['La température de l\'atelier varie légèrement au cours de la journée.', 'al'], ['Une plaquette de coupe s\'ébrèche pendant la fabrication.', 'as'],
+                ['Le refroidissement tombe en panne et le diamètre augmente.', 'as'], ['Les mesures fluctuent légèrement autour de la cible, sans événement particulier.', 'al'], ['Un outil se desserre.', 'as'],
+                ['Un nouveau lot de matière, hors spécification, est utilisé.', 'as'], ['Le procédé varie légèrement sans aucun signal anormal sur la carte.', 'al']]);
+            return { enonce: `<p>${txt}</p>`, champs: [gChoix('c', sol, [['al', 'Cause aléatoire (commune)'], ['as', 'Cause assignable (spéciale)']], { groupe: 'Type de cause' })],
+                correction: `<p><strong class="text-white">${sol === 'al' ? 'Cause aléatoire' : 'Cause assignable'}</strong>. ${sol === 'al' ? 'Elle fait partie du fonctionnement normal du procédé : on surveille sans retoucher les réglages à chaque variation.' : 'C\'est un événement précis, identifiable et corrigeable : on cherche la cause, on la corrige, puis on vérifie le retour à la stabilité.'}</p>` };
+        }
+        function mspCarte() {
+            for (let k = 0; k < 200; k++) {
+                const nom = choisir([20, 25, 50]), d = choisir([0.01, 0.02]), LSS = 6.5 * d, LSC = 10 * d, debut = gInt(5, 9), pente = choisir([0, d, 1.5 * d]);
+                const m = Array.from({ length: 15 }, (_, i) => { const bruit = choisir([-2, -1, 0, 1, 2]) * d; return Math.round((nom + bruit + (i + 1 >= debut ? (i + 2 - debut) * pente : 0)) * 100) / 100; });
+                const ecart = m.map(x => Math.abs(x - nom) + 1e-9);
+                const iS = ecart.findIndex(e => e > LSS), iC = ecart.findIndex(e => e > LSC);
+                if (pente > 0 && iS < 0) continue;
+                const etat = iC >= 0 ? 'hors' : iS >= 0 ? 'derive' : 'stable';
+                const lim = `LSC = ${centiemeFR(nom + LSC)} ; LSS = ${centiemeFR(nom + LSS)} ; valeur centrale = ${centiemeFR(nom)} ; LIS = ${centiemeFR(nom - LSS)} ; LIC = ${centiemeFR(nom - LSC)}`;
+                return { enonce: `<p>Moyennes de 15 prélèvements successifs (mm), pour un diamètre nominal de ${nom} mm :</p>${mrpTableC(m)}<p>Limites : ${lim}.</p><p>Indique le premier prélèvement qui sort des limites de surveillance, puis le premier qui sort des limites de contrôle (0 s'il n'y en a pas), et la conclusion.</p>`,
+                    champs: [gNum('s', 'Hors surveillance n°', iS + 1, { groupe: 'Lecture de la carte' }), gNum('c', 'Hors contrôle n°', iC + 1, { groupe: 'Lecture de la carte' }),
+                        gChoix('e', etat, [['stable', 'Procédé stable : on ne touche pas aux réglages'], ['derive', 'Zone de vigilance / dérive : chercher la cause avant la sortie'], ['hors', 'Hors contrôle : arrêter, trouver et corriger la cause']], { groupe: 'Conclusion' })],
+                    correction: `<p>${iS >= 0 ? `Le prélèvement ${iS + 1} dépasse une limite de surveillance` : 'Aucun point ne sort des limites de surveillance'}${iC >= 0 ? `, et le prélèvement ${iC + 1} dépasse une limite de contrôle : le procédé est hors contrôle statistique` : ''}.</p><p>${pente > 0 ? `Les moyennes augmentent régulièrement à partir du prélèvement ${debut} environ : c'est une <strong class="text-white">dérive</strong> (cause assignable, par exemple l'usure d'un outil), à corriger même si tous les points ne sont pas encore hors contrôle.` : 'Les variations restent aléatoires autour de la valeur centrale : on surveille sans modifier les réglages.'}</p>` };
+            }
+        }
+        const mrpTableC = (m) => `<div class="overflow-x-auto"><table class="mx-auto text-xs text-center border border-slate-800"><tbody><tr class="bg-slate-900/80">${m.map((_, i) => `<td class="px-1.5 py-1">${i + 1}</td>`).join('')}</tr><tr>${m.map(x => `<td class="px-1.5 py-1 font-mono">${centiemeFR(x)}</td>`).join('')}</tr></tbody></table></div>`;
+        EXB('oi2-msp', 'oi-msp', 'OI • 2ème Année', 'MSP', 'Maîtrise statistique des procédés', { id: 'msp', types: { henry: mspHenry, cause: mspCause, carte: mspCarte }, libelles: { tout: 'Tout', henry: 'Classes / droite de Henry', cause: 'Aléatoire ou assignable', carte: 'Carte de contrôle' } }, 'line-chart');
 
         // ---------- leçons ----------
         const svgLevier = () => `<svg viewBox="0 0 360 150" style="width:100%;max-width:420px;height:auto" role="img" aria-label="Barrière articulée en A avec contrepoids, poids propre et butée B">
