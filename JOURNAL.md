@@ -71,3 +71,8 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 6. Le moteur asynchrone.
 7. Le moteur synchrone et l'alternateur.
 8. Les variateurs de vitesse.
+
+### Confort et corrections
+- Bouton jour / nuit (soleil / lune en haut à droite) : mode clair complet, y compris les fonds propres à chaque domaine et les schémas ; le choix est mémorisé, sinon le site suit le réglage de l'appareil.
+- Chaque correction se termine par « À revoir dans la leçon : » avec un lien vers la partie précise de la leçon ; le lien ouvre la leçon sur cette partie, et un bouton ramène à l'exercice tel qu'on l'a laissé.
+- Les exercices ne donnent plus d'astuces (bascules, GRAFCET, droite de Henry, PERT, flux, vecteurs, conditions de coupe) : seules les données de l'énoncé restent.

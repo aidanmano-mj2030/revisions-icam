@@ -16,7 +16,68 @@
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { transition: none !important; animation: none !important; }
     }
+
+    /* ---------- Mode clair (bouton jour/nuit) ----------
+       Le site est écrit en classes sombres ; en mode clair (classe "clair" sur <html>), on remplace
+       ces couleurs : fonds, textes, bordures, accents assombris pour rester lisibles, traits des schémas. */
+    .icone-theme-nuit { display: none; }
+    html.clair .icone-theme-jour { display: none; }
+    html.clair .icone-theme-nuit { display: inline-block; }
+    html.clair { color-scheme: light; }
+    html.clair body, html.clair body::before, html.clair .bg-darkbg { background: #f1f5f9; color: #1e293b; }
+    /* fonds d'ambiance posés par domaine (techniques / sciences) : versions claires teintées */
+    html.clair .bg-\[\#0c0d12\] { background-color: #f7f4ee; }
+    html.clair .bg-\[\#080f14\] { background-color: #eef5f2; }
+    html.clair .bg-darkcard { background-color: #ffffff; }
+    html.clair .bg-darkcard\/60 { background-color: rgba(255, 255, 255, .85); }
+    html.clair .border-darkborder, html.clair .border-darkborder\/60 { border-color: #e2e8f0; }
+    html.clair .bg-slate-950, html.clair .bg-slate-950\/80, html.clair .bg-slate-950\/70, html.clair .bg-slate-950\/60, html.clair .bg-slate-950\/50, html.clair .bg-slate-950\/40 { background-color: #f8fafc; }
+    html.clair .bg-slate-900, html.clair .bg-slate-900\/90, html.clair .bg-slate-900\/80, html.clair .bg-slate-900\/60 { background-color: #f1f5f9; }
+    html.clair .bg-slate-800, html.clair .bg-slate-800\/80, html.clair .hover\:bg-slate-800\/80:hover, html.clair .hover\:bg-slate-800\/50:hover, html.clair .hover\:bg-slate-800:hover { background-color: #e2e8f0; }
+    html.clair .hover\:bg-slate-700:hover { background-color: #cbd5e1; }
+    html.clair .border-slate-900, html.clair .border-slate-800, html.clair .divide-slate-800\/80 > * + * { border-color: #e2e8f0; }
+    html.clair .border-slate-700 { border-color: #cbd5e1; }
+    html.clair .border-slate-600, html.clair .hover\:border-slate-500:hover { border-color: #94a3b8; }
+    html.clair .text-white, html.clair .hover\:text-white:hover, html.clair .text-slate-100 { color: #0f172a; }
+    html.clair .text-slate-200 { color: #1e293b; }
+    html.clair .text-slate-300 { color: #334155; }
+    html.clair .text-slate-400 { color: #475569; }
+    html.clair .text-slate-500, html.clair .text-slate-600 { color: #64748b; }
+    html.clair .placeholder\:text-slate-600::placeholder { color: #94a3b8; }
+    html.clair .text-amber-100\/90, html.clair .text-amber-200, html.clair .text-amber-200\/70, html.clair .text-amber-300, html.clair .text-amber-400, html.clair .text-amber-500, html.clair .hover\:text-amber-400:hover { color: #b45309; }
+    html.clair .text-emerald-200, html.clair .text-emerald-200\/70, html.clair .text-emerald-300, html.clair .text-emerald-400, html.clair .text-emerald-500, html.clair .hover\:text-emerald-400:hover { color: #047857; }
+    html.clair .text-blue-300, html.clair .text-blue-400, html.clair .hover\:text-blue-400:hover { color: #1d4ed8; }
+    html.clair .text-indigo-400, html.clair .hover\:text-indigo-400:hover { color: #4338ca; }
+    html.clair .text-sky-300 { color: #0369a1; }
+    html.clair .text-violet-100, html.clair .text-violet-200, html.clair .text-violet-300, html.clair .text-violet-300\/80 { color: #5b21b6; }
+    html.clair .text-red-200, html.clair .text-red-300, html.clair .text-red-400, html.clair .hover\:text-red-300:hover { color: #b91c1c; }
+    html.clair .from-blue-400 { --tw-gradient-from: #2563eb var(--tw-gradient-from-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+    html.clair .to-indigo-400 { --tw-gradient-to: #4f46e5 var(--tw-gradient-to-position); }
+    html.clair .shadow-xl, html.clair .shadow-2xl, html.clair .shadow-lg, html.clair .shadow-md { --tw-shadow-color: rgba(15, 23, 42, .08); }
+    html.clair .bg-gradient-to-tr.text-white, html.clair .bg-gradient-to-tr .text-white { color: #ffffff; }
+    /* schémas SVG : traits et textes clairs → foncés, fonds sombres → clairs */
+    html.clair svg [fill="#e2e8f0"], html.clair svg [fill="#cbd5e1"] { fill: #1e293b; }
+    html.clair svg [stroke="#e2e8f0"], html.clair svg [stroke="#cbd5e1"] { stroke: #334155; }
+    html.clair svg [fill="#94a3b8"] { fill: #475569; }
+    html.clair svg [stroke="#94a3b8"], html.clair svg [stroke="#64748b"], html.clair svg [stroke="#475569"] { stroke: #64748b; }
+    html.clair svg [fill="#1e293b"], html.clair svg [fill="#0f172a"], html.clair svg [fill="#161e2e"], html.clair svg [fill="#0a0f1d"], html.clair svg [fill="#131c2e"] { fill: #f8fafc; }
+    html.clair svg [fill="#334155"], html.clair svg [stroke="#334155"] { fill: #cbd5e1; stroke: #94a3b8; }
+    html.clair svg [stroke="#1e293b"] { stroke: #e2e8f0; }
+    html.clair svg [fill="#fbbf24"] { fill: #d97706; }
+    html.clair svg [stroke="#fbbf24"] { stroke: #d97706; }
+    html.clair svg text[fill="#38bdf8"] { fill: #0284c7; }
+    html.clair svg text[fill="#34d399"], html.clair svg text[fill="#10b981"] { fill: #059669; }
+    html.clair svg text[fill="#f87171"] { fill: #dc2626; }
 </style>
+<script>
+    // Thème avant l'affichage (pas de flash) : choix enregistré, sinon le réglage de l'appareil.
+    (function () {
+        let choix = null;
+        try { choix = localStorage.getItem('studicam-theme'); } catch (e) { /* stockage indisponible */ }
+        const clair = choix ? choix === 'clair' : window.matchMedia('(prefers-color-scheme: light)').matches;
+        document.documentElement.classList.toggle('clair', clair);
+    })();
+</script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script>
     tailwind.config = {
@@ -60,8 +121,14 @@
                 </div>
                 <span class="font-bold text-lg text-white tracking-tight">Icam BTS ATI</span>
             </div>
-            <div class="text-xs font-semibold px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                Plateforme de révision
+            <div class="flex items-center gap-2">
+                <div class="hidden sm:block text-xs font-semibold px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    Plateforme de révision
+                </div>
+                <button type="button" id="bouton-theme" onclick="basculerTheme()" title="Passer en mode jour" aria-label="Passer en mode jour" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-300 flex items-center justify-center transition-all">
+                    <i data-lucide="sun" class="w-4 h-4 icone-theme-jour"></i>
+                    <i data-lucide="moon" class="w-4 h-4 icone-theme-nuit"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -732,6 +799,25 @@
 
         // Message court en bas d'écran (les boîtes de dialogue du navigateur sont bloquées dans un artéfact)
         let toastTimer = null;
+        // ---------- bouton jour/nuit ----------
+        function majBoutonTheme() {
+            const b = document.getElementById('bouton-theme'), clair = document.documentElement.classList.contains('clair');
+            const texte = clair ? 'Passer en mode nuit' : 'Passer en mode jour';
+            b.title = texte; b.setAttribute('aria-label', texte);
+        }
+        function basculerTheme() {
+            const clair = document.documentElement.classList.toggle('clair');
+            try { localStorage.setItem('studicam-theme', clair ? 'clair' : 'sombre'); } catch (e) { /* choix non mémorisé */ }
+            majBoutonTheme();
+        }
+        // sans choix enregistré, le site suit le réglage de l'appareil, même s'il change pendant la visite
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (ev) => {
+            let choix = null;
+            try { choix = localStorage.getItem('studicam-theme'); } catch (e) { /* rien */ }
+            if (!choix) { document.documentElement.classList.toggle('clair', ev.matches); majBoutonTheme(); }
+        });
+        document.addEventListener('DOMContentLoaded', majBoutonTheme);
+
         function afficherToast(message) {
             const t = document.getElementById('toast');
             if (!t) return;
@@ -2689,8 +2775,8 @@
         };
 
         // ---------- affichage d'une leçon ----------
-        function carteSection(s) {
-            return `<div class="bg-darkcard border border-darkborder rounded-2xl p-6 shadow-xl space-y-4">`
+        function carteSection(s, i) {
+            return `<div id="lecon-sec-${i + 1}" class="bg-darkcard border border-darkborder rounded-2xl p-6 shadow-xl space-y-4 scroll-mt-24 transition-shadow">`
                 + `<div class="flex items-center gap-3">`
                 + `<div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 shrink-0"><i data-lucide="${s.icone}" class="w-4 h-4"></i></div>`
                 + `<h2 class="text-xl font-bold text-white">${s.titre}</h2></div>`
@@ -2714,11 +2800,93 @@
             document.getElementById('etape-lecon-generique').classList.remove('hidden');
             document.getElementById('lecon-badge').textContent = lecon.badge;
             document.getElementById('lecon-titre').textContent = lecon.titre;
-            document.getElementById('lecon-contenu').innerHTML = lecon.sections().map(carteSection).join('');
+            document.getElementById('lecon-contenu').innerHTML = lecon.sections().map((s, i) => carteSection(s, i)).join('');
             afficherOnglets('lecon-onglets', id, 'lecon');
             window.scrollTo(0, 0);
             chargerIconesEtMaths();
         }
+
+        // ---------- renvois des corrections vers la leçon ----------
+        // ouvre la leçon sur la partie n, avec un bouton pour revenir à l'exercice (gardé tel quel)
+        function allerLecon(idLecon, n) {
+            const exo = exoCourant;
+            ouvrirLecon(idLecon);
+            const zone = document.getElementById('lecon-contenu');
+            if (exo && EXOS[exo]) zone.insertAdjacentHTML('afterbegin', `<button type="button" onclick="ouvrirExercice('${exo}')" class="sticky top-20 z-10 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 shadow-lg"><i data-lucide="arrow-left" class="w-4 h-4"></i> Revenir à l'exercice</button>`);
+            const sec = document.getElementById('lecon-sec-' + n);
+            if (sec) {
+                setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+                sec.style.boxShadow = '0 0 0 2px rgba(251, 191, 36, .8)';
+                setTimeout(() => { sec.style.boxShadow = ''; }, 2600);
+            }
+            chargerIconesEtMaths();
+        }
+        const TITRES_LECON = {};
+        function titresLecon(id) {
+            if (!TITRES_LECON[id]) TITRES_LECON[id] = LECONS[id].sections().map(s => s.titre.replace(/^\d+[.)]\s*/, ''));
+            return TITRES_LECON[id];
+        }
+        // exercice → parties de sa leçon à revoir ; clé = type de question (« _ » : toutes les questions)
+        const RENVOIS = {
+            'aii-codes': { _: [1, 2, 3, 5] }, 'aii-karnaugh': { _: [4, 5] }, 'aii-tables': { _: [4] }, 'aii-portes': { _: [2, 3, 4] }, 'aii-bascules': { _: [3, 4, 5] },
+            'aii-grafcet': { _: [3, 4, 5] }, 'aii-pneu': { _: [4, 5] }, 'cm2-trains': { _: [3] }, 'cm2-epi': { _: [4, 5, 6] }, 'cm2-cinematique': { _: [5, 8] }, 'maths-matrices': { _: [2, 3] },
+            'maths-dl-usuels': { _: [2] }, 'maths-dl-ops': { _: [4] }, 'maths-dl-lim': { _: [5] }, 'maths-dl-tang': { _: [5] },
+            'maths-vecto-coord': { _: [1] }, 'maths-vecto-colin': { colin2: [3], colin3: [3], ortho: [3, 6], coplan: [3] }, 'maths-vecto-param': { _: [4] }, 'maths-vecto-repere': { _: [2] }, 'maths-vecto-droites': { _: [5] },
+            'maths-geo-bary': { pos: [1], plan: [2], esp: [2], bal: [1] }, 'maths-geo-scal': { calc: [3], angle: [3], ortho: [3], kashi: [4], plan: [4], dist: [4] },
+            'maths-geo-vect': { calc: [5], aire: [5], mixte: [6], dist: [5], moment: [5] },
+            'eco1-typo': { taille: [1], secteur: [2], conc: [4] }, 'eco1-stocks': { moyen: [2], cump: [3] }, 'eco1-seuil': { _: [2, 3] }, 'eco1-amort': { lin: [2], deg: [3] },
+            'ce1-production': { energie: [2], solaire: [2], danger: [4], cours: [1, 3] }, 'ce1-schemas': { sym: [1, 4], q: [2, 4, 5] }, 'ce1-mcc': { mot: [3], gen: [4], fem: [2] },
+            'phys-sli': { rc: [3], dech: [4], rl: [5], ener: [2, 5], assoc: [2], rlc: [6] },
+            'cm1-statique': { poids: [2], pression: [2], moment: [5], forces: [4, 5], levier: [4, 5], cours: [1, 2, 3] }, 'cm1-cinematique': { omega: [4], rot: [4], trans: [3] },
+            'cm2-inertie': { masse: [1, 2], usuel: [9], huy: [8] }, 'est1-af': { fct: [4], outils: [3, 4] }, 'est1-dessin': { ech: [3], fmt: [2], trait: [4] },
+            'oi2-gps': { cote: [3], iso: [3], aj: [3], mm: [6], fam: [5] }, 'oi2-mrp': { art: [2], comp: [2], kan: [4] }, 'oi2-msp': { henry: [3], cause: [4], carte: [5] },
+            'oi1-projet': { rang: [2], pert: [3], dates: [3], marges: [4] }, 'oi1-coupe': { tour: [1, 2], fraise: [1, 4], perce: [1, 3], vc: [1] }, 'oi1-mipmap': { norm: [2, 3], comb: [2, 3], cyl: [3] },
+            'oi1-contrat': { serv: [1], doc: [2, 3], rub: [3] }, 'oi1-production': { cap: [1], flux: [2], alerte: [3], wilson: [4] },
+            'ce2-dimensions': { grand: [2, 3], homog: [1, 4] }, 'ce2-triphase': { tens: [2, 3], coupl: [4, 6], charge: [4, 6], deuxw: [7] }, 'ce2-polaires': { conv: [1], vit: [2], rect: [4], tetra: [5], polr: [6] },
+            'ce2-magneto': { champ: [2], flux: [3, 5], lap: [4], rails: [5] }, 'ce2-choix': { chaine: [1], dyn: [3], env: [2, 5], quad: [4] }, 'ce2-asynchrone': { vit: [2], bilan: [5], dem: [4], plaque: [6] },
+            'ce2-synchrone': { vit: [1, 4], alt: [3, 4], quiz: [1] }, 'ce2-variateurs': { uf: [5], red: [3], quiz: [1, 4, 5] },
+            'm1-calculs': { comb: [2], somme: [3], bin: [5] }, 'm1-polynomes': { tri: [3], rac: [2, 4], som: [3] }, 'm1-trigo': { val: [2, 3], rad: [2], eq: [5], dup: [4] },
+            'm1-limites': { rat: [3], fi: [3], asy: [1], con: [5] }, 'm1-derivation': { pt: [2, 3], tg: [1], ex: [4], inf: [5] }, 'm1-fonctions': { arc: [2], rec: [1], ei: [3] },
+            'm1-complexes': { op: [1], mod: [2], arg: [3], eq: [5] }, 'm1-suites': { ar: [2], ge: [3], na: [1, 2, 3], li: [4] }, 'm1-integrale': { poly: [1], usu: [1], pri: [1, 4], air: [2] },
+            'm1-edo': { e1: [1, 3], e2: [4], v: [2] }, 'm1-fourier': { par: [3], bas: [2, 3], har: [5] }
+        };
+        function renvoiHTML(exo, type) {
+            const e = EXOS[exo], r = RENVOIS[exo];
+            if (!e || !e.chapitre || !LECONS[e.chapitre]) return '';
+            const titres = titresLecon(e.chapitre), nums = ((r && (r[type] || r._)) || []).filter(n => titres[n - 1]);
+            const lien = (n, t) => `<button type="button" onclick="allerLecon('${e.chapitre}', ${n})" class="underline decoration-dotted underline-offset-2 text-blue-300 hover:text-blue-200 font-semibold text-left">${n}. ${t}</button>`;
+            const liens = nums.length ? nums.map(n => lien(n, titres[n - 1])).join(' · ') : `<button type="button" onclick="ouvrirLecon('${e.chapitre}')" class="underline decoration-dotted underline-offset-2 text-blue-300 hover:text-blue-200 font-semibold">la leçon</button>`;
+            return `<div class="renvoi-lecon mt-3 pt-3 border-t border-violet-500/20 text-sm text-slate-300 flex flex-wrap items-baseline gap-x-2 gap-y-1"><span class="inline-flex items-center gap-1.5 text-violet-200 font-semibold"><i data-lucide="book-open" class="w-4 h-4"></i> À revoir dans la leçon :</span>${liens}</div>`;
+        }
+        // ajoute (ou remplace) le renvoi en bas d'une zone de correction
+        function poserRenvoi(zone, exo, type) {
+            if (!zone) return;
+            zone.querySelectorAll(':scope > .renvoi-lecon').forEach(n => n.remove());
+            const h = renvoiHTML(exo, type);
+            if (h) { zone.insertAdjacentHTML('beforeend', h); if (window.lucide) lucide.createIcons(); }
+        }
+        // anciens moteurs d'exercices : on ajoute le renvoi après leur propre correction
+        [['corrigerExoCodes', () => 'conv-bilan'], ['corrigerBloc', id => `${id}-solution`], ['corrigerRemplir', () => 'kv-bilan'], ['corrigerPortes', id => `${id}-bilan`],
+            ['corrigerChrono', id => `${id}-bilan`], ['corrigerNum', id => `${id}-solution`], ['ciCorriger', () => 'cin-solution'], ['mxCorriger', () => 'mt-solution']].forEach(([nom, zoneDe]) => {
+            const original = window[nom];
+            if (typeof original !== 'function') return;
+            window[nom] = function (...args) {
+                const r = original.apply(this, args);
+                try { poserRenvoi(document.getElementById(zoneDe(args[0])), exoCourant, null); } catch (e) { /* le renvoi est un plus, jamais bloquant */ }
+                return r;
+            };
+        });
+        // chapitres interactifs de CM (leçon et exercices dans la même page, à onglets)
+        [['corrigerExo1', 'exo1-solution', "afficherOngletInter('lecon')"], ['corrigerExo2', 'exo2-solution', "afficherOngletInter('lecon')"], ['corrigerExoA1', 'a1-exo-solution', "afficherOngletInterA1('lecon')"]].forEach(([nom, idZone, action]) => {
+            const original = window[nom];
+            if (typeof original !== 'function') return;
+            window[nom] = function (...args) {
+                const r = original.apply(this, args);
+                const z = document.getElementById(idZone);
+                if (z) { z.querySelectorAll(':scope > .renvoi-lecon').forEach(n => n.remove()); z.insertAdjacentHTML('beforeend', `<div class="renvoi-lecon mt-3 pt-3 border-t border-violet-500/20 text-sm text-slate-300"><span class="text-violet-200 font-semibold">À revoir :</span> <button type="button" onclick="${action}; window.scrollTo(0, 0)" class="underline decoration-dotted underline-offset-2 text-blue-300 hover:text-blue-200 font-semibold">l'onglet Leçon du chapitre</button></div>`); }
+                return r;
+            };
+        });
             // ==========================================
         // EXERCICES • AII 1ère année
         // ==========================================
@@ -4100,7 +4268,7 @@
                     ${b.figureHaut ? `<div class="shrink-0 rounded-xl bg-slate-950 border border-slate-800 p-2">${b.figureHaut}</div>` : ''}
                     <div class="flex-1 min-w-[16rem] space-y-3">
                         <p class="text-slate-300 text-sm leading-relaxed">${b.consigne}</p>
-                        ${b.regle ? `<div class="rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-100/90 leading-relaxed">${b.regle}</div>` : ''}
+                        ${b.regle ? `<p class="text-slate-300 text-sm leading-relaxed">${b.regle}</p>` : ''}
                     </div>
                 </div>
                 ${b.figure ? `<div class="rounded-xl bg-slate-950 border border-slate-800 p-3 overflow-x-auto flex justify-center">${b.figure}</div>` : ''}
@@ -4133,19 +4301,19 @@
         const N_BASCULE = 8;
         const BASCULES = {
             D:   { entrees: ['D'], horloge: true,  titre: 'Bascule D avec horloge (front montant)', symbole: () => SYMBOLE_D(),
-                   regle: "Q recopie D au front montant de H, puis garde cette valeur jusqu'au front suivant. Au départ, Q = 0.",
+                   regle: "Au départ, Q = 0.",
                    suivant: (e, q) => e[0] },
             RSh: { entrees: ['S', 'R'], horloge: true, titre: 'Bascule RS avec horloge (front montant)', symbole: () => SYMBOLE_RS(true),
-                   regle: "À chaque front montant de H : S = 1 met Q à 1, R = 1 met Q à 0, S = R = 0 laisse Q inchangé. S et R ne valent jamais 1 en même temps. Au départ, Q = 0.",
+                   regle: "S et R ne valent jamais 1 en même temps. Au départ, Q = 0.",
                    suivant: (e, q) => e[0] ? 1 : e[1] ? 0 : q },
             RS:  { entrees: ['S', 'R'], horloge: false, titre: 'Bascule RS sans horloge', symbole: () => SYMBOLE_RS(false),
-                   regle: "Sans horloge, Q réagit tout de suite : S = 1 met Q à 1, R = 1 met Q à 0, S = R = 0 laisse Q inchangé. S et R ne valent jamais 1 en même temps. Au départ, Q = 0.",
+                   regle: "S et R ne valent jamais 1 en même temps. Au départ, Q = 0.",
                    suivant: (e, q) => e[0] ? 1 : e[1] ? 0 : q },
             JKh: { entrees: ['J', 'K'], horloge: true, titre: 'Bascule JK avec horloge (front montant)', symbole: () => SYMBOLE_JK(true),
-                   regle: "À chaque front montant de H : J = K = 0 laisse Q inchangé, J = 1 et K = 0 met Q à 1, J = 0 et K = 1 met Q à 0, J = K = 1 change l'état de Q. Au départ, Q = 0.",
+                   regle: "Au départ, Q = 0.",
                    suivant: (e, q) => e[0] && e[1] ? 1 - q : e[0] ? 1 : e[1] ? 0 : q },
             JK:  { entrees: ['J', 'K'], horloge: false, titre: 'Bascule JK sans horloge', symbole: () => SYMBOLE_JK(false),
-                   regle: "Sans horloge, Q réagit tout de suite : J = 1 et K = 0 met Q à 1, J = 0 et K = 1 met Q à 0, J = K = 0 laisse Q inchangé. Le cas J = K = 1 n'est pas utilisé. Au départ, Q = 0.",
+                   regle: "Le cas J = K = 1 n'est pas utilisé. Au départ, Q = 0.",
                    suivant: (e, q) => e[0] ? 1 : e[1] ? 0 : q }
         };
 
@@ -4359,7 +4527,7 @@
         }
 
         const NOMS_STRUCTURE = { seq: 'séquence unique', ou: 'sélection de séquence (OU)', et: 'séquences simultanées (ET)' };
-        const REGLE_GRAFCET = "Au départ, seule l'étape 0 est active. Une transition est franchie quand toutes les étapes qui la précèdent sont actives et que sa réceptivité est vraie : ces étapes se désactivent et toutes les étapes qui la suivent s'activent. ↑a est vraie seulement à l'instant où a passe de 0 à 1, ↓a seulement quand a passe de 1 à 0, et la barre au-dessus d'une lettre veut dire NON. Dans une sélection de séquence (un seul trait horizontal), un seul chemin est suivi. Avec des séquences simultanées (double trait), les deux branches démarrent ensemble, et il faut que les deux soient terminées pour continuer. Les cas où une évolution en déclencherait immédiatement une autre sont évités.";
+        const REGLE_GRAFCET = "Au départ, seule l'étape 0 est active.";
 
         function genererGrafcet(b) {
             let g = null;
@@ -6282,7 +6450,7 @@
         function exgCorriger(id) {
             const e = EXG[id]; e.utilisee = true;
             if (e.q.extra && e.q.extra.corriger) e.q.extra.corriger(id);
-            const z = document.getElementById(`${id}-solution`); z.innerHTML = '<p class="font-bold text-violet-200">Correction</p>' + e.q.correction + lignesCentiemes(e.q.champs); z.hidden = false; chargerIconesEtMaths();
+            const z = document.getElementById(`${id}-solution`); z.innerHTML = '<p class="font-bold text-violet-200">Correction</p>' + e.q.correction + lignesCentiemes(e.q.champs); z.hidden = false; poserRenvoi(z, exoCourant, e.q.type); chargerIconesEtMaths();
         }
         function exgLancer(id, titre, icone, types, libelles) {
             EXG[id] = { types, libelles: libelles || null, filtre: libelles ? 'tout' : Object.keys(types)[0], q: null, reussies: 0 };
@@ -6504,7 +6672,7 @@
             do { u = vRand(-3, 3); v = vRand(-3, 3); } while (colin(u, v) || u.every(x => x === 0) || v.every(x => x === 0));
             if (oui) { do { lam = gInt(-3, 3); mu = gInt(-3, 3); } while (lam === 0 || mu === 0); w = vSum(vMul(lam, u), vMul(mu, v)); }
             else do { w = vRand(-4, 4); } while (dot(u, cross(v, w)) === 0);
-            return { enonce: `<p>Les vecteurs $\\vec{u}${gTexV(u)}$, $\\vec{v}${gTexV(v)}$ et $\\vec{w}${gTexV(w)}$ sont-ils coplanaires ?</p><p class="text-xs text-slate-400">Indice : $\\vec{u}$ et $\\vec{v}$ ne sont pas colinéaires. Si $\\vec{w} = \\lambda\\vec{u} + \\mu\\vec{v}$, alors ils sont coplanaires.</p>`,
+            return { enonce: `<p>Les vecteurs $\\vec{u}${gTexV(u)}$, $\\vec{v}${gTexV(v)}$ et $\\vec{w}${gTexV(w)}$ sont-ils coplanaires ?</p>`,
                 champs: [gChoix('rep', oui ? 'oui' : 'non', OUINON, { groupe: 'Coplanaires ?' }), gNum('l', '$\\lambda$ =', lam, { groupe: 'Si oui : $\\vec{w} = \\lambda\\vec{u} + \\mu\\vec{v}$ (laisse vide sinon)', requis: oui }), gNum('m', '$\\mu$ =', mu, { groupe: 'Si oui : $\\vec{w} = \\lambda\\vec{u} + \\mu\\vec{v}$ (laisse vide sinon)', requis: oui })],
                 correction: oui ? `<p>On cherche $\\lambda$ et $\\mu$ avec $\\vec{w} = \\lambda\\vec{u} + \\mu\\vec{v}$ (système sur les coordonnées). On trouve $\\lambda = ${lam}$ et $\\mu = ${mu}$ : $\\vec{w} = ${lam}\\vec{u} + ${gTexNb(mu)}\\vec{v}$, donc les trois vecteurs sont <strong class="text-white">coplanaires</strong>.</p>` : `<p>Le système $\\vec{w} = \\lambda\\vec{u} + \\mu\\vec{v}$ n'a pas de solution (les trois vecteurs sont linéairement indépendants) : ils ne sont <strong class="text-white">pas coplanaires</strong>.</p>` };
         }
@@ -7891,7 +8059,7 @@
                 ec += v;
                 return ['C' + (i + 1), gNum('bi' + i, `C${i + 1} borne inf.`, borne(i), ch3), gNum('bs' + i, `C${i + 1} borne sup.`, borne(i + 1), ch3), gNum('n' + i, `C${i + 1} effectif`, v, { largeur: '3.4rem' }), gNum('ec' + i, `C${i + 1} effectif cumulé`, ec, { largeur: '3.6rem' }), gNum('c' + i, `C${i + 1} fréquence cumulée`, cum[i], { largeur: '4.4rem' })];
             }));
-            return { enonce: `<p>On a relevé ${n} mesures${precis ? ' de diamètre (mm)' : ' de temps (s)'} :</p><p class="font-mono text-xs leading-relaxed">${data.map(f).join(' ; ')}</p><p>Nombre de classes : ${formule === 'racine' ? '$k = \\sqrt{n}$' : '$k = 1 + 3{,}3\\log n$'}, arrondi à l'entier supérieur. L'amplitude d'une classe est l'étendue divisée par $k$, arrondie au-dessus à la résolution des mesures (${f(unite)}). La première classe commence à la plus petite valeur (borne inférieure incluse, supérieure exclue).</p><p>Complète ensuite tout le tableau des classes : fréquence cumulée = effectif cumulé ÷ ${n} × 100. Ce sont les points de la droite de Henry (borne sup. ; fréquence cumulée).</p>`,
+            return { enonce: `<p>On a relevé ${n} mesures${precis ? ' de diamètre (mm)' : ' de temps (s)'} :</p><p class="font-mono text-xs leading-relaxed">${data.map(f).join(' ; ')}</p><p>Nombre de classes : ${formule === 'racine' ? '$k = \\sqrt{n}$' : '$k = 1 + 3{,}3\\log n$'}, arrondi à l'entier supérieur. L'amplitude d'une classe est l'étendue divisée par $k$, arrondie au-dessus à la résolution des mesures (${f(unite)}). La première classe commence à la plus petite valeur (borne inférieure incluse, supérieure exclue).</p><p>Complète ensuite tout le tableau des classes (fréquences cumulées en %).</p>`,
                 champs: [gNum('k', 'Classes $k$ =', k, { groupe: 'Classes' }), gNum('e', 'Étendue =', et, { groupe: 'Classes', chiffres: precis ? 3 : 2 }), gNum('w', 'Amplitude =', Math.round(w * 1000) / 1000, { groupe: 'Classes', chiffres: precis ? 3 : 2 })].concat(grille.champs),
                 grille: grille.grille,
                 correction: `<p>Valeurs triées : <span class="font-mono text-xs">${tri.map(f).join(' ; ')}</span></p><p>$k = ${formule === 'racine' ? `\\sqrt{${n}}` : `1 + 3{,}3\\log ${n}`} \\approx ${centiemeTeX(formule === 'racine' ? Math.sqrt(n) : 1 + 3.3 * Math.log10(n))}$, donc $k = ${k}$ ; étendue $= ${f(mx)} - ${f(mn)} = ${f(et)}$ ; amplitude $= ${f(et)} / ${k} \\approx ${String(Math.round(et / k * 10000) / 10000).replace('.', '{,}')}$, arrondie à <strong class="text-white">${f(w)}</strong>.</p>${mrpTableH(eff, cum, mn, w, f)}<p>Pour la droite de Henry, on place chaque fréquence cumulée en face de la borne supérieure de sa classe sur papier gausso-arithmétique : si les points sont alignés, la distribution est normale ; la moyenne se lit à 50 % et l'écart type est la distance entre 50 % et 84 %.</p>` };
@@ -8015,7 +8183,7 @@
                         if (avant) return { ok: false, msg: `Gantt : ${x.nom} commence avant la fin de ${avant.nom}, qui doit la précéder.` };
                     }
                     const tard = p.t.find(x => st[x.nom] !== x.dto);
-                    if (tard) return { ok: false, msg: `Gantt : ${tard.nom} pourrait commencer plus tôt (Gantt au plus tôt : chaque tâche démarre dès que ses antériorités sont finies).` };
+                    if (tard) return { ok: false, msg: `Gantt : ${tard.nom} pourrait commencer plus tôt.` };
                     return { ok: true };
                 },
                 corriger: (id) => { p.t.forEach(x => { st[x.nom] = x.dto; }); redessiner(id); },
@@ -8177,7 +8345,7 @@
                         if (i === j) continue;
                         const reseau = atteint[st.arcs[j].a].has(st.arcs[i].de), tableau = anc[i].has(j);
                         if (tableau && !reseau) return { ok: false, msg: `PERT : dans ton réseau, ${nom(i)} peut commencer avant la fin de ${nom(j)}, alors que ${nom(j)} doit la précéder.` };
-                        if (!tableau && reseau) return { ok: false, msg: `PERT : ton réseau oblige ${nom(i)} à attendre la fin de ${nom(j)}, ce que le tableau ne demande pas (pense aux tâches fictives).` };
+                        if (!tableau && reseau) return { ok: false, msg: `PERT : ton réseau oblige ${nom(i)} à attendre la fin de ${nom(j)}, ce que le tableau ne demande pas.` };
                     }
                     // dates des étapes
                     const z = document.getElementById(`${id}-pliste`);
@@ -8223,7 +8391,7 @@
             const g = gGrille(['Tâche', 'Durée', 'Antériorités', 'Marge totale', 'Marge libre', 'Intervalle de flottement', 'Critique ?'], p.t.map(x => [x.nom, x.d, projAnt(p, x),
                 gNum('mt' + x.nom, `${x.nom} marge totale`, x.mt), gNum('ml' + x.nom, `${x.nom} marge libre`, x.ml), gNum('if' + x.nom, `${x.nom} intervalle de flottement`, x.ifl),
                 { kind: 'select', cle: 'k' + x.nom, label: `${x.nom} critique`, sol: x.crit ? 'oui' : 'non', options: OUINON }]));
-            return { enonce: projEnonce(p, 'Calcule les marges de chaque tâche et repère le chemin critique (commence par les dates au plus tôt et au plus tard, au brouillon).'),
+            return { enonce: projEnonce(p, 'Calcule les marges de chaque tâche et repère le chemin critique.'),
                 grille: g.grille, grilleAvant: true, champs: g.champs.concat([gNum('T', 'Durée du projet =', p.T, { unite: p.u, groupe: 'Projet' })]),
                 correction: `<p>Marge totale = début au plus tard − début au plus tôt (retard possible sans retarder la fin du projet).<br>Marge libre = plus petit début au plus tôt des suivantes − fin au plus tôt (retard possible sans retarder aucune suivante ; pour une tâche finale, on prend la durée du projet).<br>Intervalle de flottement = marge totale − marge libre (date au plus tard − date au plus tôt de l'étape d'arrivée).</p>${H.tableau(['Tâche', 'Suivantes', 'Début tôt', 'Fin tôt', 'Début tard', 'MT', 'ML', 'IF'], p.t.map((x, i) => [x.nom, projSuiv(p, i), x.dto, x.fto, x.dta, x.mt, x.ml, x.ifl]))}<p>Les tâches de marge totale nulle forment le <strong>chemin critique</strong> : <strong class="text-white">${projCritique(p)}</strong>. Un retard sur l'une d'elles retarde tout le projet (${p.T} ${p.u}).</p>${projGanttSvg(p)}` };
         }
@@ -8256,7 +8424,7 @@
         function coupeVc() {
             const D = choisir([16, 20, 30, 40, 50, 63, 80, 100]), N = choisir([400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500]);
             const Vc = Math.PI * D * N / 1000;
-            return { enonce: `<p>Une pièce de diamètre $D = ${D}$ mm tourne à $N = ${N}$ tr/min. Quelle est la vitesse de coupe ? (Rappel : un point de la périphérie parcourt $\\pi D$ à chaque tour.)</p>`,
+            return { enonce: `<p>Une pièce de diamètre $D = ${D}$ mm tourne à $N = ${N}$ tr/min. Quelle est la vitesse de coupe ?</p>`,
                 champs: [gNum('vc', '$V_c$ =', Vc, { unite: 'm/min' })],
                 correction: `<p>En une minute, un point de la périphérie parcourt $N$ fois le périmètre $\\pi D$ (en mm), d'où $V_c = \\dfrac{\\pi D N}{1000}$ en m/min (et inversement $N = \\dfrac{1000\\,V_c}{\\pi D}$).</p><p>$V_c = \\dfrac{\\pi \\times ${D} \\times ${N}}{1000} \\approx ${centiemeTeX(Vc)}$ m/min.</p>` };
         }
@@ -8332,7 +8500,7 @@
             const ph = Array.from({ length: np }, (_, i) => { const t = Math.max(1, c * gInt(1, 3) - (Math.random() < 0.35 ? gInt(1, c - 1) : 0)); return { num: (i + 1) * 10, op: i === np - 1 ? 'Contrôle' : choisir(FLUX_OPS), t, n: Math.ceil(t / c - 1e-9) }; });
             const Tc = ph.reduce((s, p) => s + p.t, 0), N = choisir([20, 50, 100, 200]), k = gInt(2, 4), j = gInt(2, np - 1), avant = ph.slice(0, j).reduce((s, p) => s + p.t, 0), arr = (k - 1) * c + avant;
             const g = gGrille(['Phase', 'Opération', 'Temps (min)', 'Machines'], ph.map(p => [p.num, p.op, p.t, gNum('m' + p.num, `Machines phase ${p.num}`, p.n, { largeur: '3.4rem' })]));
-            return { enonce: `<p>Une pièce suit la gamme ci-dessous. On implante les machines en ligne et on veut qu'<strong>une pièce sorte toutes les ${c} min</strong> : une phase plus longue que ${c} min reçoit plusieurs machines en parallèle.</p><p>Indique le nombre de machines par phase, le temps de cycle unitaire, le temps pour obtenir ${N} pièces, et la date d'arrivée de la pièce ${k} au poste de la phase ${ph[j].num} (la pièce 1 démarre à $T_0 = 0$).</p>`,
+            return { enonce: `<p>Une pièce suit la gamme ci-dessous. On implante les machines en ligne et on veut qu'<strong>une pièce sorte toutes les ${c} min</strong>. On peut placer plusieurs machines identiques sur une même phase.</p><p>Indique le nombre de machines par phase, le temps de cycle unitaire, le temps pour obtenir ${N} pièces, et la date d'arrivée de la pièce ${k} au poste de la phase ${ph[j].num} (la pièce 1 démarre à $T_0 = 0$).</p>`,
                 grille: g.grille, grilleAvant: true,
                 champs: g.champs.concat([gNum('tc', 'Temps de cycle unitaire =', Tc, { unite: 'min', groupe: 'Flux' }), gNum('tn', `Temps pour ${N} pièces =`, Tc + (N - 1) * c, { unite: 'min', groupe: 'Flux', largeur: '6rem' }), gNum('ar', `Pièce ${k} en phase ${ph[j].num} à`, arr, { unite: 'min', groupe: 'Flux' })]),
                 correction: `<p>Machines par phase $= \\lceil t / ${c} \\rceil$ : ${ph.map(p => `phase ${p.num} : ${p.t} min → <strong class="text-white">${p.n}</strong>`).join(' ; ')}. Chaque poste libère alors une pièce toutes les ${c} min au plus : la cadence est d'une pièce toutes les ${c} min.</p><p>Temps de cycle unitaire (temps passé par une pièce sur la ligne) = somme des temps = <strong class="text-white">${Tc} min</strong>.</p><p>La 1<sup>re</sup> pièce sort à ${Tc} min, puis une pièce toutes les ${c} min : $T_{${N}} = ${Tc} + (${N} - 1) \\times ${c} = ${Tc + (N - 1) * c}$ min (≈ ${centiemeFR((Tc + (N - 1) * c) / 60)} h).</p><p>La pièce ${k} démarre à $(${k} - 1) \\times ${c} = ${(k - 1) * c}$ min, puis passe ${avant} min dans les phases ${ph.slice(0, j).map(p => p.num).join(', ')} : elle arrive en phase ${ph[j].num} à <strong class="text-white">${arr} min</strong>.</p>` };
