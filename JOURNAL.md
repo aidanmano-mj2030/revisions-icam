@@ -76,3 +76,11 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - Bouton jour / nuit (soleil / lune en haut à droite) : mode clair complet, y compris les fonds propres à chaque domaine et les schémas ; le choix est mémorisé, sinon le site suit le réglage de l'appareil.
 - Chaque correction se termine par « À revoir dans la leçon : » avec un lien vers la partie précise de la leçon ; le lien ouvre la leçon sur cette partie, et un bouton ramène à l'exercice tel qu'on l'a laissé.
 - Les exercices ne donnent plus d'astuces (bascules, GRAFCET, droite de Henry, PERT, flux, vecteurs, conditions de coupe) : seules les données de l'énoncé restent.
+
+## 10 novembre 2026 – Physique (Baptiste)
+
+- Physique 2ème année, chapitre 13 « Onduleur » : leçon (deux interrupteurs, charge inductive, pont, commandes symétrique et décalée, MLI, applications) avec schémas.
+- Tous les chapitres de physique (8 en 1ère année, 5 en 2ème année) ont des exercices construits autour de schémas et de courbes : circuits dessinés avec leurs valeurs, oscillogrammes et chronogrammes à lire, diagrammes de Fresnel et de Bode, montages à ALI, pont de Graëtz, hacheur, onduleur…
+- Théorèmes généraux : exercice de superposition, et cinq montages différents pour Thévenin.
+- Analyse spectrale : on trace soi-même les spectres (clic dans les colonnes ou saisie des amplitudes), depuis une expression, une courbe ou un signal carré.
+- Leçon ALI : schémas de l'intégrateur, du dérivateur et des comparateurs (symbole rectangulaire, avec le cycle d'hystérésis).

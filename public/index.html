@@ -669,7 +669,7 @@
             ],
             scientifiques: [
                 { id: "MATHS", code: "MATHS", nom: "Mathématiques", icone: "calculator", desc: "Analyse, algèbre, matrices, géométrie & probabilités.", descAnnee: { "1ère Année": "Polynômes, trigo, complexes, suites, intégrales, équations différentielles.", "2ème Année": "Développements limités, matrices, calcul vectoriel, barycentres et produits." } },
-                { id: "PHYS", code: "PHYS", nom: "Physique-Chimie", icone: "flask-conical", desc: "Thermodynamique, électronique, hacheurs & fluides.", descAnnee: { "1ère Année": "Lois des circuits, dipôles, régime sinusoïdal, spectre, filtres et ALI.", "2ème Année": "Réponse indicielle, semi-conducteurs, redressement et hacheur." } },
+                { id: "PHYS", code: "PHYS", nom: "Physique-Chimie", icone: "flask-conical", desc: "Thermodynamique, électronique, hacheurs & fluides.", descAnnee: { "1ère Année": "Lois des circuits, dipôles, régime sinusoïdal, spectre, filtres et ALI.", "2ème Année": "Réponse indicielle, semi-conducteurs, redressement, hacheur, onduleur." } },
                 { id: "ECO", code: "ECO", nom: "Économie & Gestion", icone: "trending-up", desc: "Économie d'entreprise, coûts, marchés & organisation.", descAnnee: { "1ère Année": "Entreprise, production, coûts, amortissements, bilan et résultat.", "2ème Année": "Cours de 2ème année à venir." } }
             ]
         };
@@ -9584,6 +9584,907 @@
         }
         EXB('ce2-polaires', 'ce2-polaires', 'CE • 2ème Année', 'Polaires et intégrales doubles', 'Coordonnées polaires et intégrales doubles', { id: 'pol', types: { conv: polConversion, vit: polVitesse, rect: polRectangle, tetra: polTetra, polr: polPolaires }, libelles: { tout: 'Tout', conv: 'Cartésiennes ↔ polaires', vit: 'Vitesse en polaires', rect: 'Intégrale sur un rectangle', tetra: 'Tétraèdre', polr: 'Intégrale en polaires' } }, 'compass');
 
+        // ==========================================
+        // Physique A2, chapitre 13 : l'onduleur
+        // ==========================================
+        CHAPITRES["2ème Année"].PHYS.push({ num: "Chapitre n°13", titre: "Onduleur", desc: "Conversion continu-alternatif : onduleur à deux interrupteurs, en pont, commandes symétrique et décalée, MLI.", lecon: "phys-onduleur", exo: "phys-onduleur" });
+        function svgOndSymbole() {
+            let o = `<rect x="60" y="20" width="90" height="90" rx="4" stroke="${SVG_TRAIT}" fill="${SVG_FOND}"/>` + PF.L(60, 110, 150, 20, SVG_TRAIT);
+            o += PF.t(82, 52, '=', { s: 22, b: 1 }) + `<path d="M108 88q7 -12 14 0t14 0" stroke="${SVG_ACCENT}" stroke-width="2" fill="none"/>`;
+            o += PF.fleche(10, 65, 60, 65, SVG_TRAIT) + PF.fleche(150, 65, 200, 65, SVG_TRAIT) + PF.t(30, 56, 'continu', { c: SVG_DISCRET, s: 10 }) + PF.t(178, 56, 'alternatif', { c: SVG_DISCRET, s: 10 });
+            return PF.svg(210, 124, o, 'Symbole de l\'onduleur', 260);
+        }
+        // onduleur à deux interrupteurs (deux sources V)
+        function svgOndDeux() {
+            let o = PF.L(60, 30, 220, 30) + PF.L(60, 170, 220, 170) + PF.L(60, 30, 60, 52) + PF.L(60, 88, 60, 112) + PF.L(60, 148, 60, 170);
+            o += PF.src(60, 70, 'V', false) + PF.src(60, 130, 'V', false) + `<circle cx="60" cy="100" r="3" fill="${SVG_TRAIT}"/>` + PF.t(48, 104, 'O', { a: 'end', b: 1 });
+            o += PF.L(220, 30, 220, 45) + PF.inter(220, 65, 90, true) + PF.L(220, 85, 220, 115) + PF.inter(220, 135, 90, false) + PF.L(220, 155, 220, 170);
+            o += PF.t(234, 69, 'K1', { a: 'start', b: 1 }) + PF.t(234, 139, 'K2', { a: 'start', b: 1 }) + `<circle cx="220" cy="100" r="3" fill="${SVG_TRAIT}"/>` + PF.t(232, 104, 'A', { a: 'start', b: 1 });
+            o += PF.L(60, 100, 120, 100) + PF.res(140, 100, 0) + PF.L(160, 100, 220, 100) + PF.t(140, 90, 'R (ou R, L)', { s: 10 });
+            o += PF.fleche(205, 114, 75, 114, CB) + PF.t(140, 128, 'u', { c: CB, b: 1, i: 1 }) + PF.fleche(180, 100, 196, 100, CR) + PF.t(188, 92, 'i', { c: CR, b: 1, i: 1 });
+            return PF.svg(280, 186, o, 'Onduleur à deux interrupteurs', 300);
+        }
+        // charge inductive : u carrée, i en triangle, éléments conducteurs
+        function svgOndInductif() {
+            const x0 = 50, W = 320, yu = 50, yi = 140, A = 26, T = W, xs = (f) => x0 + f * W;
+            let o = PF.L(x0, yu, x0 + W + 10, yu, SVG_DISCRET) + PF.L(x0, yi, x0 + W + 10, yi, SVG_DISCRET) + PF.t(x0 - 8, yu + 4, 'u', { c: CB, b: 1, a: 'end', i: 1 }) + PF.t(x0 - 8, yi + 4, 'i', { c: CR, b: 1, a: 'end', i: 1 });
+            o += PF.P([[xs(0), yu - A], [xs(0.5), yu - A], [xs(0.5), yu + A], [xs(1), yu + A]], CB) + PF.t(xs(0.25), yu - A - 6, '+V', { c: CB, s: 10 }) + PF.t(xs(0.75), yu + A + 14, '−V', { c: CB, s: 10 });
+            o += PF.P([[xs(0), yi + A], [xs(0.5), yi - A], [xs(1), yi + A]], CR);
+            const zones = [[0, 0.25, 'D1'], [0.25, 0.5, 'H1'], [0.5, 0.75, 'D2'], [0.75, 1, 'H2']];
+            zones.forEach(([a, b, s], k) => { o += PF.L(xs(a), 20, xs(a), yi + A + 12, '#334155', '3 3') + `<rect x="${xs(a) + 2}" y="${yi + A + 16}" width="${W / 4 - 4}" height="18" rx="3" fill="${k % 2 ? 'none' : SVG_ACCENT}" fill-opacity="0.18" stroke="${k % 2 ? SVG_DISCRET : SVG_ACCENT}"/>` + PF.t((xs(a) + xs(b)) / 2, yi + A + 29, s, { b: 1, s: 11 }); });
+            o += PF.t(xs(0.25), 16, 't1', { c: SVG_DISCRET, s: 10 }) + PF.t(xs(0.5), 16, 'T/2', { c: SVG_DISCRET, s: 10 }) + PF.t(xs(0.75), 16, 't3', { c: SVG_DISCRET, s: 10 }) + PF.t(xs(1), 16, 'T', { c: SVG_DISCRET, s: 10 });
+            o += PF.t(x0 + W / 2, yi + A + 54, 'Zones en orange : diodes, la charge rend de l\'énergie à la source (p < 0)', { c: SVG_DISCRET, s: 10 });
+            return PF.svg(400, 228, o, 'Onduleur sur charge inductive : tension, courant et éléments conducteurs', 420);
+        }
+        // pont à quatre interrupteurs
+        function svgOndPont() {
+            let o = PF.L(50, 30, 290, 30) + PF.L(50, 170, 290, 170) + PF.L(50, 30, 50, 88) + PF.L(50, 112, 50, 170) + PF.src(50, 100, 'E', false);
+            const branche = (x, haut, bas) => PF.L(x, 30, x, 42) + PF.inter(x, 62, 90, false) + PF.L(x, 82, x, 118) + PF.inter(x, 138, 90, false) + PF.L(x, 158, x, 170)
+                + PF.t(x - 14, 66, haut, { a: 'end', b: 1 }) + PF.t(x - 14, 142, bas, { a: 'end', b: 1 }) + `<circle cx="${x}" cy="100" r="3" fill="${SVG_TRAIT}"/>`;
+            o += branche(150, 'K1', 'K4') + branche(290, 'K2', 'K3') + PF.t(140, 104, 'A', { a: 'end', b: 1 }) + PF.t(300, 104, 'B', { a: 'start', b: 1 });
+            o += PF.L(150, 100, 200, 100) + PF.res(220, 100, 0) + PF.L(240, 100, 290, 100) + PF.fleche(275, 116, 165, 116, CB) + PF.t(220, 130, 'u', { c: CB, b: 1, i: 1 });
+            o += PF.t(170, 190, 'K1 et K3 fermés : u = +E ; K2 et K4 fermés : u = −E', { c: SVG_DISCRET, s: 10 });
+            return PF.svg(330, 200, o, 'Onduleur en pont à quatre interrupteurs', 340);
+        }
+        // commande décalée : u à trois niveaux
+        function svgOndDecale() {
+            const x0 = 40, W = 340, y0 = 70, A = 36, ta = 0.12, xs = (f) => x0 + f * W;
+            let o = PF.L(x0, y0, x0 + W + 12, y0, SVG_DISCRET) + PF.t(x0 + W + 16, y0 + 4, 't', { c: SVG_DISCRET, a: 'start' });
+            o += PF.P([[xs(0), y0], [xs(ta), y0], [xs(ta), y0 - A], [xs(0.5), y0 - A], [xs(0.5), y0], [xs(0.5 + ta), y0], [xs(0.5 + ta), y0 + A], [xs(1), y0 + A], [xs(1), y0]], CB);
+            o += PF.L(xs(0), y0 - A - 10, xs(0), y0 + A + 10, '#334155', '3 3') + PF.L(xs(ta), y0 - A - 10, xs(ta), y0 + A + 10, '#334155', '3 3');
+            o += PF.t((xs(0) + xs(ta)) / 2, y0 - A - 4, 'τ', { c: SVG_ACCENT, b: 1 }) + PF.t(xs(0.31), y0 - A - 6, '+E', { c: CB, s: 10 }) + PF.t(xs(0.81), y0 + A + 14, '−E', { c: CB, s: 10 }) + PF.t(xs(0.5), y0 + 16, 'T/2', { c: SVG_DISCRET, s: 10 }) + PF.t(xs(1), y0 - 8, 'T', { c: SVG_DISCRET, s: 10 });
+            return PF.svg(400, 136, o, 'Commande décalée : la tension passe par 0 pendant τ', 420);
+        }
+        LECONS["phys-onduleur"] = {
+            badge: "Physique • 2ème Année", titre: "Onduleur",
+            sections: () => [
+                { titre: "1. Définition", icone: "waves", contenu: [
+                    H.p(R`Un <strong>onduleur</strong> est un convertisseur statique <strong>continu → alternatif</strong> : il fabrique une tension alternative à partir d'une source continue (batterie, panneau solaire, sortie d'un redresseur). Il est dit <strong>autonome</strong> quand c'est lui qui impose la fréquence à la charge.`),
+                    H.figure(svgOndSymbole(), "Symbole synoptique : un carré barré, continu d'un côté, alternatif de l'autre."),
+                    H.tableau(["Convertisseur", "Entrée → sortie"], [["Redresseur", "alternatif → continu"], ["Hacheur", "continu → continu (réglable)"], ["Onduleur", "continu → alternatif"], ["Gradateur", "alternatif → alternatif (réglable)"]])
+                ].join('') },
+                { titre: "2. Onduleur à deux interrupteurs sur charge résistive", icone: "toggle-left", contenu: [
+                    H.figure(svgOndDeux(), "Deux sources V en série (point milieu O) et deux interrupteurs commandés K1 et K2."),
+                    H.tableau(["Intervalle", "K1", "K2", "u", "i", "Tension sur l'interrupteur ouvert"], [
+                        ["0 → T/2", "fermé", "ouvert", "+V", "+V/R", "$v_2 = 2V$"],
+                        ["T/2 → T", "ouvert", "fermé", "−V", "−V/R", "$v_1 = 2V$"]
+                    ]),
+                    H.p(R`Les lois des mailles s'écrivent $V - v_1 - u = 0$ et $V + u - v_2 = 0$, et $i = i_1 - i_2 = u/R$. La tension aux bornes de la charge est un <strong>créneau</strong> de $+V$ à $-V$ : sa valeur moyenne est nulle et sa valeur efficace vaut $V$. Chaque interrupteur ouvert doit supporter $2V$.`),
+                    H.note(R`<strong>Commande symétrique</strong> : quand K1 est fermé, K2 est ouvert, et inversement. Pour se rapprocher d'une sinusoïde, on utilise une <strong>commande décalée</strong> (partie 5).`)
+                ].join('') },
+                { titre: "3. Charge inductive : interrupteurs bidirectionnels", icone: "repeat", contenu: [
+                    H.p(R`Dans une bobine, le courant ne peut pas changer brutalement : quand $u$ s'inverse, $i$ garde son sens un moment. Chaque interrupteur doit donc être commandable à l'ouverture et à la fermeture, et laisser passer le courant <strong>dans les deux sens</strong> : on place une diode $D$ en <strong>antiparallèle</strong> sur un transistor $H$.`),
+                    H.figure(svgOndInductif(), "Le transistor conduit quand u et i ont le même signe, la diode quand ils sont de signes opposés."),
+                    H.tableau(["Intervalle", "u", "i", "Interrupteur", "Élément qui conduit", "Puissance"], [
+                        ["0 → t1", "+V", "< 0", "K1", "D1", "p < 0 : la charge rend de l'énergie"], ["t1 → T/2", "+V", "> 0", "K1", "H1", "p > 0"],
+                        ["T/2 → t3", "−V", "> 0", "K2", "D2", "p < 0"], ["t3 → T", "−V", "< 0", "K2", "H2", "p > 0"]
+                    ], { nowrap: false }),
+                    H.note(R`Pendant les phases de diode, $p = u \times i < 0$ : l'énergie stockée dans l'inductance est rendue à la source. C'est la <strong>récupération d'énergie</strong> ; les sources doivent donc accepter un courant dans les deux sens.`)
+                ].join('') },
+                { titre: "4. Onduleur en pont : commande symétrique", icone: "grid-2x2", contenu: [
+                    H.figure(svgOndPont(), "Une seule source E et quatre interrupteurs bidirectionnels."),
+                    H.p(R`Le pont n'a besoin que d'<strong>une</strong> source. En commande symétrique, K1 et K3 sont fermés pendant que K2 et K4 sont ouverts, puis l'inverse : $u$ vaut $+E$ puis $-E$. Le fonctionnement sur charge inductive est le même qu'avec deux interrupteurs (diodes D1 et D3 quand $i < 0$ et $u > 0$, transistors H1 et H3 quand $i > 0$, etc.).`),
+                    H.formule(R`U_{\text{eff}} = E \quad \text{(commande symétrique)}`)
+                ].join('') },
+                { titre: "5. Commande décalée", icone: "clock", contenu: [
+                    H.p(R`On décale la commande de K1 et K4 d'une durée $\tau$ par rapport à celle de K3 et K2. Pendant $\tau$, deux interrupteurs du même côté conduisent (K3 et K4, ou K1 et K2) : la charge est court-circuitée et $u = 0$. La tension a alors trois niveaux, $+E$, $0$ et $-E$, plus proche d'une sinusoïde.`),
+                    H.figure(svgOndDecale(), "Sur une période, u vaut 0 pendant 2τ et ±E le reste du temps."),
+                    H.formule(R`U_{\text{eff}} = E\,\sqrt{1 - \frac{2\tau}{T}}`),
+                    H.note(R`En choisissant $\tau$ entre 0 et $T/2$, on règle la valeur efficace de 0 à $E$ sans changer la source. Inversement, pour obtenir une valeur efficace $U$ : $\tau = \dfrac{T}{2}\left(1 - \dfrac{U^2}{E^2}\right)$.`)
+                ].join('') },
+                { titre: "6. MLI et applications", icone: "plug-zap", contenu: [
+                    H.p(R`Les onduleurs <strong>MLI</strong> (modulation de largeur d'impulsion, ou MPLI) découpent la tension en impulsions de largeurs calculées ; avec un filtre passe-bas, on obtient une sinusoïde presque parfaite.`),
+                    H.liste([
+                        R`<strong>Alimentation de secours</strong> : en cas de coupure du réseau, l'onduleur alimente les machines à partir de batteries (indispensable en informatique pour ne pas perdre de données).`,
+                        R`<strong>Variation de vitesse</strong> d'un moteur synchrone ou asynchrone : on redresse la tension du réseau, puis on l'ondule à la fréquence voulue.`,
+                        R`<strong>Onduleur solaire</strong> : il transforme le continu des panneaux photovoltaïques en alternatif pour le réseau ; protection de matériels électroniques…`
+                    ])
+                ].join('') }
+            ]
+        };
+        function ondDeux() {
+            const V = choisir([12, 24, 48, 100, 110, 230]), R = choisir([5, 10, 20, 25, 50, 100]), f = choisir([50, 60, 100, 400, 1000]);
+            return { enonce: `<p>Un onduleur à deux interrupteurs, alimenté par deux sources $V = ${V}$ V, débite sur une résistance $R = ${R}\\ \\Omega$ en commande symétrique, à $f = ${f}$ Hz.</p><p>Donne la période, l'intensité dans la charge pendant la première demi-période, la tension maximale supportée par un interrupteur ouvert, la valeur efficace de $u$ et la puissance reçue par la résistance.</p>`,
+                champs: [gNum('t', '$T$ =', 1000 / f, { unite: 'ms' }), gNum('i', '$i$ =', V / R, { unite: 'A' }), gNum('vk', '$v_{K\\,max}$ =', 2 * V, { unite: 'V' }), gNum('u', '$U_{eff}$ =', V, { unite: 'V' }), gNum('p', '$P$ =', V * V / R, { unite: 'W' })],
+                correction: `<p>$T = 1/f \\approx ${centiemeTeX(1000 / f)}$ ms. De 0 à $T/2$, K1 est fermé : $u = +V = ${V}$ V et $i = V/R = ${centiemeTeX(V / R)}$ A.</p><p>L'interrupteur ouvert supporte $V + V = ${2 * V}$ V. $u$ vaut $\\pm V$ : $U_{eff} = ${V}$ V et $P = U_{eff}^2 / R = ${centiemeTeX(V * V / R)}$ W.</p>` };
+        }
+        function ondPhase() {
+            const pont = Math.random() < 0.5;
+            const cas = choisir([['+', '-', 'D1', 'rend'], ['+', '+', 'H1', 'recoit'], ['-', '+', 'D2', 'rend'], ['-', '-', 'H2', 'recoit']]);
+            const [su, si, el, en] = cas, elP = pont ? { D1: 'D1 et D3', H1: 'H1 et H3', D2: 'D2 et D4', H2: 'H2 et H4' }[el] : el;
+            const opts = pont ? [['D1 et D3', 'Diodes D1 et D3'], ['H1 et H3', 'Transistors H1 et H3'], ['D2 et D4', 'Diodes D2 et D4'], ['H2 et H4', 'Transistors H2 et H4']] : [['D1', 'Diode D1'], ['H1', 'Transistor H1'], ['D2', 'Diode D2'], ['H2', 'Transistor H2']];
+            return { enonce: `<p>${pont ? 'Onduleur en pont (commande symétrique)' : 'Onduleur à deux interrupteurs'} sur une charge inductive. Sur un intervalle, on a $u ${su === '+' ? '> 0' : '< 0'}$ (${su === '+' ? (pont ? 'K1 et K3 commandés' : 'K1 commandé') : (pont ? 'K2 et K4 commandés' : 'K2 commandé')}) et $i ${si === '+' ? '> 0' : '< 0'}$.</p><p>Quel${pont ? 's éléments conduisent' : ' élément conduit'}, et dans quel sens va l'énergie ?</p>`,
+                champs: [{ kind: 'select', cle: 'el', label: 'Conduit :', sol: elP, options: opts, groupe: 'Élément passant' },
+                    gChoix('en', en, [['recoit', 'La charge reçoit de l\'énergie (p > 0)'], ['rend', 'La charge rend de l\'énergie à la source (p < 0)']], { groupe: 'Énergie' })],
+                correction: `<p>${su === si ? `$u$ et $i$ ont le même signe : le courant passe dans le sens direct des <strong class="text-white">transistors</strong> (${elP}), et $p = u\\,i > 0$ : la charge reçoit de l'énergie.` : `$u$ et $i$ sont de signes opposés : le transistor commandé ne peut pas conduire ce courant, ce sont les <strong class="text-white">diodes</strong> (${elP}) qui conduisent, et $p = u\\,i < 0$ : l'inductance rend son énergie à la source (récupération).`}</p>` };
+        }
+        function ondPont() {
+            const E = choisir([24, 48, 100, 200, 300, 400]), f = choisir([50, 100, 200, 500]), T = 1000 / f;
+            if (Math.random() < 0.5) {
+                const frac = choisir([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4]), tau = frac * T, U = E * Math.sqrt(1 - 2 * frac);
+                return { enonce: `<p>Un onduleur en pont, alimenté sous $E = ${E}$ V, fonctionne à $f = ${f}$ Hz en commande décalée avec $\\tau = ${centiemeTeX(tau)}$ ms. Calcule la période, la durée pendant laquelle $u = 0$ sur une période, et la valeur efficace de $u$.</p>`,
+                    champs: [gNum('t', '$T$ =', T, { unite: 'ms' }), gNum('z', 'Durée à u = 0 =', 2 * tau, { unite: 'ms' }), gNum('u', '$U_{eff}$ =', U, { unite: 'V' })],
+                    correction: `<p>$T = 1/f = ${centiemeTeX(T)}$ ms. La tension est nulle pendant $\\tau$ dans chaque demi-période, soit $2\\tau = ${centiemeTeX(2 * tau)}$ ms par période.</p><p>$U_{eff} = E\\sqrt{1 - \\dfrac{2\\tau}{T}} = ${E}\\sqrt{1 - \\dfrac{${centiemeTeX(2 * tau)}}{${centiemeTeX(T)}}} \\approx ${centiemeTeX(U)}$ V (en symétrique, on aurait $${E}$ V).</p>` };
+            }
+            const k = choisir([0.5, 0.6, 0.7, 0.75, 0.8, 0.9]), U = k * E, tau = T / 2 * (1 - k * k);
+            return { enonce: `<p>On veut une tension de valeur efficace $U = ${centiemeTeX(U)}$ V aux bornes de la charge d'un onduleur en pont alimenté sous $E = ${E}$ V, à $f = ${f}$ Hz. Quel décalage $\\tau$ faut-il choisir ?</p>`,
+                champs: [gNum('t', '$T$ =', T, { unite: 'ms' }), gNum('tau', '$\\tau$ =', tau, { unite: 'ms' })],
+                correction: `<p>$U = E\\sqrt{1 - 2\\tau/T}$ donne $\\tau = \\dfrac{T}{2}\\left(1 - \\dfrac{U^2}{E^2}\\right) = \\dfrac{${centiemeTeX(T)}}{2}\\,(1 - ${centiemeTeX(k * k)}) \\approx ${centiemeTeX(tau)}$ ms.</p>` };
+        }
+        function ondQuiz() {
+            const [txt, sol] = choisir([['Alimenter un ordinateur à partir de batteries pendant une coupure de courant', 'ond'], ['Charger une batterie à partir du réseau 230 V', 'red'], ['Régler la tension continue d\'un moteur à courant continu à partir d\'une batterie', 'hach'],
+                ['Injecter sur le réseau l\'énergie de panneaux photovoltaïques', 'ond'], ['Faire varier la puissance d\'un radiateur alimenté par le réseau, sans changer la fréquence', 'grad'], ['Alimenter un moteur synchrone à fréquence variable à partir d\'une tension continue', 'ond']]);
+            const O = [['red', 'Redresseur (alternatif → continu)'], ['hach', 'Hacheur (continu → continu)'], ['ond', 'Onduleur (continu → alternatif)'], ['grad', 'Gradateur (alternatif → alternatif)']];
+            return { enonce: `<p>Quel convertisseur faut-il pour : <strong>${txt.toLowerCase()}</strong> ?</p>`, champs: [gChoix('c', sol, O, { groupe: 'Convertisseur' })],
+                correction: `<p><strong class="text-white">${O.find(o => o[0] === sol)[1]}</strong>.</p>` };
+        }
+        EXB('phys-onduleur', 'phys-onduleur', 'Physique • 2ème Année', 'Onduleur', 'Onduleur', { id: 'ond', types: { deux: ondDeux, phase: ondPhase, pont: ondPont, quiz: ondQuiz }, libelles: { tout: 'Tout', deux: 'Deux interrupteurs', phase: 'Qui conduit ?', pont: 'Pont : valeur efficace', quiz: 'Quel convertisseur ?' } }, 'waves');
+        RENVOIS['phys-onduleur'] = { deux: [2], phase: [3, 4], pont: [4, 5], quiz: [1, 6] };
+
+        // ==========================================
+        // Physique A2 : exercices construits autour de schémas et de courbes
+        // ==========================================
+        const fmtR = (R) => (R >= 1000 ? `${centiemeFR(R / 1000)} kΩ` : `${centiemeFR(R)} Ω`);
+        const fmtC = (C) => (C >= 1e-3 ? `${centiemeFR(C * 1000)} mF` : `${centiemeFR(Math.round(C * 1e8) / 100)} µF`);
+        const fmtL = (L) => (L >= 1 ? `${centiemeFR(L)} H` : `${centiemeFR(Math.round(L * 1e5) / 100)} mH`);
+        const figPhys = (svg) => `<div class="flex justify-center rounded-xl bg-slate-950 border border-slate-800 p-3 overflow-x-auto">${svg}</div>`;
+        // circuit série : source E, interrupteur K, composants en haut, un composant à droite (avec sa tension)
+        function svgSerie({ E, haut = [], droite, ferme = true, tension, sansSource = false, chargeInit }) {
+            const xL = 90, xR = 380, yT = 40, yB = 160, o = [], xK = xL + 55;
+            if (sansSource) o.push(PF.L(xL, yT, xL, yB));
+            else o.push(PF.L(xL, yT, xL, 88), PF.src(xL, 100, E === '?' ? 'E' : `E = ${E} V`, false), PF.L(xL, 112, xL, yB));
+            o.push(PF.L(xL, yT, xK - 20, yT), PF.inter(xK, yT, 0, ferme), PF.t(xK, yT - 12, 'K', { b: 1 }));
+            let x = xK + 20; const pas = (xR - x) / (haut.length + 1), x1 = x;
+            haut.forEach((c, k) => { const cx = x1 + pas * (k + 1); o.push(PF.L(x, yT, cx - 20, yT), PF[c.t](cx, yT, 0), PF.t(cx, yT - 14, c.lab, { s: 11, b: 1 })); x = cx + 20; });
+            o.push(PF.L(x, yT, xR, yT), PF.L(xR, yT, xR, 80), PF[droite.t](xR, 100, 90), PF.L(xR, 120, xR, yB), PF.L(xL, yB, xR, yB));
+            o.push(PF.t(xR + 14, 104, droite.lab, { s: 11, b: 1, a: 'start' }));
+            if (tension) o.push(PF.fleche(xR - 22, 124, xR - 22, 76, CB), PF.t(xR - 30, 104, tension, { c: CB, b: 1, a: 'end', i: 1 }));
+            if (chargeInit) o.push(PF.t((xL + xR) / 2, yB + 20, chargeInit, { c: SVG_DISCRET, s: 10 }));
+            return PF.svg(480, 190, o.join(''), 'Schéma du circuit', 480);
+        }
+        // courbe graduée y = f(t)
+        function svgCourbe({ f, tmax, ymin = 0, ymax, dx, dy, nomX = 't (ms)', nomY, n = 240 }) {
+            const x0 = 50, y0 = 200, W = 400, Hh = 170, X = (t) => x0 + t / tmax * W, Y = (v) => y0 - (v - ymin) / (ymax - ymin) * Hh;
+            let o = '';
+            for (let t = 0; t <= tmax + 1e-9; t += dx) o += PF.L(X(t), Y(ymin), X(t), Y(ymax), '#1e293b') + PF.t(X(t), y0 + 14, centiemeFR(Math.round(t * 1000) / 1000), { c: SVG_DISCRET, s: 9 });
+            for (let v = ymin; v <= ymax + 1e-9; v += dy) o += PF.L(x0, Y(v), x0 + W, Y(v), '#1e293b') + PF.t(x0 - 6, Y(v) + 3, centiemeFR(Math.round(v * 1000) / 1000), { c: SVG_DISCRET, s: 9, a: 'end' });
+            o += PF.L(x0, Y(0), x0 + W + 8, Y(0), SVG_DISCRET) + PF.L(x0, y0, x0, Y(ymax) - 6, SVG_DISCRET);
+            o += PF.P(Array.from({ length: n + 1 }, (_, k) => { const t = k / n * tmax; return [X(t).toFixed(1), Y(f(t)).toFixed(1)]; }), SVG_ACCENT);
+            o += PF.t(x0 + W, y0 + 28, nomX, { c: SVG_DISCRET, s: 10, a: 'end' }) + PF.t(x0 + 4, Y(ymax) - 10, nomY, { c: SVG_ACCENT, s: 10, a: 'start' });
+            return PF.svg(470, 236, o, 'Courbe à exploiter', 470);
+        }
+        // association de deux composants
+        function svgAssoc(t, serie, l1, l2) {
+            let o = '';
+            if (serie) o = PF.L(20, 60, 60, 60) + PF[t](80, 60, 0) + PF.L(100, 60, 160, 60) + PF[t](180, 60, 0) + PF.L(200, 60, 240, 60) + PF.t(80, 40, l1, { b: 1, s: 11 }) + PF.t(180, 40, l2, { b: 1, s: 11 });
+            else o = PF.L(20, 70, 60, 70) + PF.L(60, 30, 60, 110) + PF.L(60, 30, 100, 30) + PF.L(60, 110, 100, 110) + PF[t](120, 30, 0) + PF[t](120, 110, 0) + PF.L(140, 30, 180, 30) + PF.L(140, 110, 180, 110) + PF.L(180, 30, 180, 110) + PF.L(180, 70, 240, 70) + PF.t(120, 14, l1, { b: 1, s: 11 }) + PF.t(120, 94, l2, { b: 1, s: 11 });
+            o += `<circle cx="20" cy="${serie ? 60 : 70}" r="3" fill="${SVG_FOND}"/><circle cx="240" cy="${serie ? 60 : 70}" r="3" fill="${SVG_FOND}"/>` + PF.t(20, serie ? 80 : 90, 'A', { b: 1 }) + PF.t(240, serie ? 80 : 90, 'B', { b: 1 });
+            return PF.svg(260, serie ? 96 : 130, o, 'Association de deux composants', 300);
+        }
+        function sliSchemaRC() {
+            const R = choisir([100, 220, 470, 1000, 2200, 4700, 10000]), C = choisir([1, 2.2, 4.7, 10, 22, 47, 100]) * 1e-6, E = choisir([5, 6, 9, 10, 12, 15]);
+            const tau = R * C * 1000, k = choisir([0.5, 1, 2, 3]), t = k * tau, uc = E * (1 - Math.exp(-k));
+            return { enonce: `${figPhys(svgSerie({ E, haut: [{ t: 'res', lab: `R = ${fmtR(R)}` }], droite: { t: 'cap', lab: `C = ${fmtC(C)}` }, ferme: true, tension: 'uC', chargeInit: 'condensateur déchargé à t = 0' }))}<p>On ferme K à $t = 0$. À partir du schéma, calcule la constante de temps, la tension $u_C$ à $t = ${centiemeTeX(t)}$ ms et le courant juste après la fermeture.</p>`,
+                champs: [gNum('tau', '$\\tau$ =', tau, { unite: 'ms' }), gNum('u', '$u_C$ =', uc, { unite: 'V' }), gNum('i0', '$i(0^+)$ =', E / R * 1000, { unite: 'mA' })],
+                correction: `<p>$\\tau = RC = ${R} \\times ${centiemeTeX(C * 1e6)}\\cdot10^{-6} \\approx ${centiemeTeX(tau)}$ ms. $u_C = E\\left(1 - e^{-t/\\tau}\\right) = ${E}\\left(1 - e^{-${centiemeTeX(k)}}\\right) \\approx ${centiemeTeX(uc)}$ V.</p><p>Juste après la fermeture, le condensateur déchargé se comporte comme un fil ($u_C = 0$) : $i(0^+) = E/R \\approx ${centiemeTeX(E / R * 1000)}$ mA.</p>` };
+        }
+        function sliLectureCharge() {
+            const E = choisir([5, 6, 8, 10, 12]), tau = choisir([1, 2, 4, 5, 10]), R = choisir([100, 200, 500, 1000, 2000]), C = tau / 1000 / R;
+            return { enonce: `${figPhys(svgSerie({ E: '?', haut: [{ t: 'res', lab: `R = ${fmtR(R)}` }], droite: { t: 'cap', lab: 'C = ?' }, ferme: true, tension: 'uC' }))}${figPhys(svgCourbe({ f: (t) => E * (1 - Math.exp(-t / tau)), tmax: 5 * tau, ymax: Math.ceil(E * 1.2), dx: tau / 2, dy: E <= 6 ? 1 : 2, nomY: 'uC (V)' }))}<p>La courbe montre la charge du condensateur après la fermeture de K. Lis la valeur de $E$, détermine graphiquement $\\tau$, puis déduis-en $C$.</p>`,
+                champs: [gNum('e', '$E$ =', E, { unite: 'V' }), gNum('tau', '$\\tau$ =', tau, { unite: 'ms' }), gNum('c', '$C$ =', C * 1e6, { unite: 'µF' })],
+                correction: `<p>En régime permanent, $u_C \\to E = ${E}$ V. À $t = \\tau$, $u_C = 0{,}63\\,E \\approx ${centiemeTeX(0.632 * E)}$ V : la courbe atteint cette valeur à <strong class="text-white">${tau} ms</strong> (on peut aussi tracer la tangente à l'origine, qui coupe l'asymptote $u = E$ à $t = \\tau$).</p><p>$C = \\tau / R = ${centiemeTeX(tau / 1000)} / ${R} \\approx ${centiemeTeX(C * 1e6)}\\ \\mu$F.</p>` };
+        }
+        function sliSchemaDecharge() {
+            const E = choisir([5, 10, 12, 24]), R = choisir([1000, 2200, 4700, 10000]), C = choisir([1, 2.2, 4.7, 10]) * 1e-6, tau = R * C * 1000, k = choisir([0.5, 1, 2, 3]), u = E * Math.exp(-k);
+            return { enonce: `${figPhys(svgSerie({ sansSource: true, haut: [{ t: 'res', lab: `R = ${fmtR(R)}` }], droite: { t: 'cap', lab: `C = ${fmtC(C)}` }, ferme: true, tension: 'uC', chargeInit: `condensateur chargé sous ${E} V à t = 0` }))}<p>Le condensateur, chargé sous ${E} V, se décharge dans la résistance quand on ferme K à $t = 0$. Calcule $\\tau$, la tension à $t = ${centiemeTeX(k * tau)}$ ms et le courant initial.</p>`,
+                champs: [gNum('tau', '$\\tau$ =', tau, { unite: 'ms' }), gNum('u', '$u_C$ =', u, { unite: 'V' }), gNum('i0', '$|i(0^+)|$ =', E / R * 1000, { unite: 'mA' })],
+                correction: `<p>$\\tau = RC \\approx ${centiemeTeX(tau)}$ ms ; $u_C(t) = E\\,e^{-t/\\tau} = ${E}\\,e^{-${centiemeTeX(k)}} \\approx ${centiemeTeX(u)}$ V.</p><p>À $t = 0^+$, toute la tension du condensateur est aux bornes de $R$ : $|i| = E/R \\approx ${centiemeTeX(E / R * 1000)}$ mA.</p>` };
+        }
+        function sliSchemaRL() {
+            const L = choisir([0.1, 0.2, 0.5, 1, 2]), R = choisir([10, 20, 50, 100]), E = choisir([6, 10, 12, 24]), tau = L / R * 1000, I0 = E / R, k = choisir([1, 2, 3]), i = I0 * (1 - Math.exp(-k));
+            return { enonce: `${figPhys(svgSerie({ E, haut: [{ t: 'res', lab: `R = ${fmtR(R)}` }], droite: { t: 'ind', lab: `L = ${fmtL(L)}` }, ferme: true, tension: 'uL' }))}<p>On ferme K à $t = 0$ (bobine de résistance négligeable). Calcule $\\tau$, le courant en régime permanent, le courant à $t = ${centiemeTeX(k * tau)}$ ms et la tension $u_L$ juste après la fermeture.</p>`,
+                champs: [gNum('tau', '$\\tau$ =', tau, { unite: 'ms' }), gNum('i0', '$I_0$ =', I0, { unite: 'A' }), gNum('i', '$i$ =', i, { unite: 'A' }), gNum('ul', '$u_L(0^+)$ =', E, { unite: 'V' })],
+                correction: `<p>$\\tau = L/R = ${centiemeTeX(L)} / ${R} = ${centiemeTeX(tau)}$ ms ; $I_0 = E/R = ${centiemeTeX(I0)}$ A ; $i = I_0\\left(1 - e^{-${k}}\\right) \\approx ${centiemeTeX(i)}$ A.</p><p>Le courant dans la bobine ne peut pas sauter : $i(0^+) = 0$, donc pas de tension sur $R$ et $u_L(0^+) = E = ${E}$ V.</p>` };
+        }
+        function sliCourbeRLC() {
+            const E = choisir([5, 10, 12]), cas = choisir(['pseudo', 'pseudo', 'crit', 'aper']), Tp = choisir([2, 4, 5]);
+            let f, m;
+            if (cas === 'pseudo') { m = choisir([0.15, 0.2, 0.3]); const wp = 2 * Math.PI / Tp, w0 = wp / Math.sqrt(1 - m * m); f = (t) => E * (1 - Math.exp(-m * w0 * t) * (Math.cos(wp * t) + m / Math.sqrt(1 - m * m) * Math.sin(wp * t))); }
+            else if (cas === 'crit') { const w0 = 2 * Math.PI / Tp; f = (t) => E * (1 - (1 + w0 * t) * Math.exp(-w0 * t)); }
+            else { m = 2; const w0 = 2 * Math.PI / Tp, r = Math.sqrt(m * m - 1), p1 = w0 * (m - r), p2 = w0 * (m + r); f = (t) => E * (1 - (p2 * Math.exp(-p1 * t) - p1 * Math.exp(-p2 * t)) / (p2 - p1)); }
+            const tmax = 4 * Tp, champs = [gChoix('r', cas, [['pseudo', 'Pseudo-périodique'], ['crit', 'Critique'], ['aper', 'Apériodique']], { groupe: 'Régime' }), gNum('e', 'Valeur finale =', E, { unite: 'V', groupe: 'Lecture' })];
+            if (cas === 'pseudo') champs.push(gNum('tp', 'Pseudo-période =', Tp, { unite: 'ms', groupe: 'Lecture' }));
+            return { enonce: `${figPhys(svgSerie({ E: '?', haut: [{ t: 'res', lab: 'R' }, { t: 'ind', lab: 'L' }], droite: { t: 'cap', lab: 'C' }, ferme: true, tension: 'uC' }))}${figPhys(svgCourbe({ f, tmax, ymax: Math.ceil(E * 1.8 / 2) * 2, dx: Tp / 2, dy: E <= 5 ? 1 : 2, nomY: 'uC (V)' }))}<p>Voici la réponse $u_C(t)$ du circuit RLC à la fermeture de K. Quel est le régime ? Lis la valeur finale${cas === 'pseudo' ? ' et la pseudo-période' : ''}.</p>`,
+                champs, correction: `<p>${cas === 'pseudo' ? `La tension oscille autour de sa valeur finale en s'amortissant : régime <strong class="text-white">pseudo-périodique</strong> ($m < 1$). Deux maxima successifs sont séparés de <strong class="text-white">${Tp} ms</strong>.` : cas === 'crit' ? 'La tension atteint sa valeur finale le plus vite possible sans la dépasser : régime <strong class="text-white">critique</strong> ($m = 1$).' : 'La tension monte lentement sans dépasser sa valeur finale : régime <strong class="text-white">apériodique</strong> ($m > 1$).'} Valeur finale : $E = ${E}$ V.</p>` };
+        }
+        function sliSchemaAssoc() {
+            const a = choisir([1, 2, 4, 10, 22]), b = choisir([1, 3, 4.7, 10, 47]), serie = Math.random() < 0.5, cond = Math.random() < 0.5;
+            const v = (serie === cond) ? a * b / (a + b) : a + b, u = cond ? 'µF' : 'mH', nom = cond ? 'C' : 'L';
+            return { enonce: `${figPhys(svgAssoc(cond ? 'cap' : 'ind', serie, `${nom}1 = ${centiemeFR(a)} ${u}`, `${nom}2 = ${centiemeFR(b)} ${u}`))}<p>Quelle est la valeur du composant équivalent entre A et B ?</p>`,
+                champs: [gNum('v', `$${nom}_{eq}$ =`, v, { unite: u })],
+                correction: `<p>Les composants sont en <strong>${serie ? 'série' : 'dérivation'}</strong>. ${cond ? (serie ? '$\\dfrac1{C_{eq}} = \\dfrac1{C_1} + \\dfrac1{C_2}$' : '$C_{eq} = C_1 + C_2$') : (serie ? '$L_{eq} = L_1 + L_2$' : '$\\dfrac1{L_{eq}} = \\dfrac1{L_1} + \\dfrac1{L_2}$')}, d'où <strong class="text-white">${centiemeFR(v)} ${u}</strong>. (Les condensateurs s'associent « à l'envers » des résistances, les bobines comme les résistances.)</p>` };
+        }
+        function sliSchemaRLC() {
+            const L = choisir([0.01, 0.05, 0.1, 0.5]), C = choisir([1, 4.7, 10, 22, 100]) * 1e-6, R = choisir([5, 10, 20, 50, 100, 220, 470]);
+            const w0 = 1 / Math.sqrt(L * C), Q = Math.sqrt(L / C) / R, m = 1 / (2 * Q), reg = m > 1.0001 ? 'aper' : m < 0.9999 ? 'pseudo' : 'crit';
+            return { enonce: `${figPhys(svgSerie({ E: 10, haut: [{ t: 'res', lab: `R = ${fmtR(R)}` }, { t: 'ind', lab: `L = ${fmtL(L)}` }], droite: { t: 'cap', lab: `C = ${fmtC(C)}` }, ferme: true, tension: 'uC' }))}<p>À partir des valeurs du schéma, calcule la pulsation propre, le facteur de qualité et le coefficient d'amortissement, puis donne le régime de la réponse à la fermeture de K.</p>`,
+                champs: [gNum('w', '$\\omega_0$ =', w0, { unite: 'rad/s', largeur: '6.5rem' }), gNum('q', '$Q$ =', Q), gNum('m', '$m$ =', m), gChoix('r', reg, [['pseudo', 'Pseudo-périodique'], ['crit', 'Critique'], ['aper', 'Apériodique']], { groupe: 'Régime' })],
+                correction: `<p>$\\omega_0 = \\dfrac{1}{\\sqrt{LC}} \\approx ${centiemeTeX(w0)}$ rad/s ; $Q = \\dfrac1R\\sqrt{\\dfrac LC} \\approx ${centiemeTeX(Q)}$ ; $m = \\dfrac{1}{2Q} \\approx ${centiemeTeX(m)}$ : régime <strong class="text-white">${reg === 'pseudo' ? 'pseudo-périodique' : reg === 'crit' ? 'critique' : 'apériodique'}</strong>.</p>` };
+        }
+        EXOS['phys-sli'].demarrer = () => exgLancer('sli', 'Réponse indicielle : RC, RL, RLC', 'activity',
+            { rc: sliSchemaRC, lect: sliLectureCharge, dech: sliSchemaDecharge, rl: sliSchemaRL, rlc: sliSchemaRLC, regime: sliCourbeRLC, assoc: sliSchemaAssoc },
+            { tout: 'Tout', rc: 'Circuit RC', lect: 'Lire une courbe de charge', dech: 'Décharge', rl: 'Circuit RL', rlc: 'Circuit RLC', regime: 'Reconnaître un régime', assoc: 'Associations' });
+        RENVOIS['phys-sli'] = { rc: [3], lect: [3], dech: [4], rl: [5], rlc: [6], regime: [6], assoc: [2, 5] };
+
+        // ----- onduleur : schémas et chronogrammes -----
+        // pont avec la position réelle des interrupteurs
+        function svgOndPontEtat(E, fermes) {
+            let o = PF.L(50, 30, 290, 30) + PF.L(50, 170, 290, 170) + PF.L(50, 30, 50, 88) + PF.L(50, 112, 50, 170) + PF.src(50, 100, `E = ${E} V`, false);
+            const branche = (x, haut, bas) => PF.L(x, 30, x, 42) + PF.inter(x, 62, 90, fermes.includes(haut)) + PF.L(x, 82, x, 118) + PF.inter(x, 138, 90, fermes.includes(bas)) + PF.L(x, 158, x, 170)
+                + PF.t(x - 14, 66, haut, { a: 'end', b: 1 }) + PF.t(x - 14, 142, bas, { a: 'end', b: 1 }) + `<circle cx="${x}" cy="100" r="3" fill="${SVG_TRAIT}"/>`;
+            o += branche(150, 'K1', 'K4') + branche(290, 'K2', 'K3') + PF.t(140, 104, 'A', { a: 'end', b: 1 }) + PF.t(300, 104, 'B', { a: 'start', b: 1 });
+            o += PF.L(150, 100, 200, 100) + PF.res(220, 100, 0) + PF.L(240, 100, 290, 100) + PF.fleche(275, 116, 165, 116, CB) + PF.t(220, 130, 'u', { c: CB, b: 1, i: 1 }) + PF.t(220, 90, 'charge', { c: SVG_DISCRET, s: 10 });
+            return PF.svg(380, 186, `<g transform="translate(40 0)">${o}</g>`, 'Onduleur en pont, interrupteurs dans une position donnée', 390);
+        }
+        // montage à deux interrupteurs avec leur position et les valeurs
+        function svgOndDeuxEtat(V, R, k1) {
+            let o = PF.L(60, 30, 220, 30) + PF.L(60, 170, 220, 170) + PF.L(60, 30, 60, 52) + PF.L(60, 88, 60, 112) + PF.L(60, 148, 60, 170);
+            o += PF.src(60, 70, `${V} V`, false) + PF.src(60, 130, `${V} V`, false) + `<circle cx="60" cy="100" r="3" fill="${SVG_TRAIT}"/>`;
+            o += PF.L(220, 30, 220, 45) + PF.inter(220, 65, 90, k1) + PF.L(220, 85, 220, 115) + PF.inter(220, 135, 90, !k1) + PF.L(220, 155, 220, 170);
+            o += PF.t(234, 69, 'K1', { a: 'start', b: 1 }) + PF.t(234, 139, 'K2', { a: 'start', b: 1 }) + `<circle cx="220" cy="100" r="3" fill="${SVG_TRAIT}"/>`;
+            o += PF.L(60, 100, 120, 100) + PF.res(140, 100, 0) + PF.L(160, 100, 220, 100) + PF.t(140, 90, `R = ${fmtR(R)}`, { s: 11, b: 1 });
+            o += PF.fleche(205, 114, 75, 114, CB) + PF.t(140, 128, 'u', { c: CB, b: 1, i: 1 }) + PF.fleche(180, 100, 196, 100, CR) + PF.t(188, 92, 'i', { c: CR, b: 1, i: 1 });
+            return PF.svg(290, 186, o, 'Onduleur à deux interrupteurs, position des interrupteurs', 300);
+        }
+        // charge inductive : zones numérotées
+        function svgOndZones(V, decal) {
+            const x0 = 50, W = 320, yu = 50, yi = 140, A = 26, xs = (f) => x0 + f * W, d = decal;
+            let o = PF.L(x0, yu, x0 + W + 10, yu, SVG_DISCRET) + PF.L(x0, yi, x0 + W + 10, yi, SVG_DISCRET) + PF.t(x0 - 8, yu + 4, 'u', { c: CB, b: 1, a: 'end', i: 1 }) + PF.t(x0 - 8, yi + 4, 'i', { c: CR, b: 1, a: 'end', i: 1 });
+            o += PF.P([[xs(0), yu - A], [xs(0.5), yu - A], [xs(0.5), yu + A], [xs(1), yu + A]], CB) + PF.t(xs(0.25), yu - A - 6, `+${V} V`, { c: CB, s: 10 }) + PF.t(xs(0.75), yu + A + 14, `−${V} V`, { c: CB, s: 10 });
+            o += PF.P([[xs(0), yi + A], [xs(0.5), yi - A], [xs(1), yi + A]], CR);
+            [0, d, 0.5, 0.5 + d, 1].forEach(f => { o += PF.L(xs(f), 22, xs(f), yi + A + 12, '#334155', '3 3'); });
+            [[0, d], [d, 0.5], [0.5, 0.5 + d], [0.5 + d, 1]].forEach(([a, b], k) => { o += `<circle cx="${(xs(a) + xs(b)) / 2}" cy="${yi + A + 24}" r="10" fill="${SVG_FOND}" stroke="${SVG_ACCENT}"/>` + PF.t((xs(a) + xs(b)) / 2, yi + A + 28, String(k + 1), { c: SVG_ACCENT, b: 1, s: 11 }); });
+            return PF.svg(400, 206, o, 'Tension et courant sur charge inductive, zones numérotées', 420);
+        }
+        // commande décalée graduée
+        function svgOndDecaleGrad(E, T, tau) {
+            const x0 = 50, W = 380, y0 = 100, A = 70, X = (t) => x0 + t / T * W, Y = (v) => y0 - v / E * A;
+            let o = '';
+            const pas = T / 10;
+            for (let t = 0; t <= T + 1e-9; t += pas) o += PF.L(X(t), Y(E) - 6, X(t), Y(-E) + 6, '#1e293b') + PF.t(X(t), Y(-E) + 22, centiemeFR(Math.round(t * 100) / 100), { c: SVG_DISCRET, s: 9 });
+            [E, E / 2, 0, -E / 2, -E].forEach(v => { o += PF.L(x0, Y(v), x0 + W, Y(v), '#1e293b') + PF.t(x0 - 6, Y(v) + 3, centiemeFR(v), { c: SVG_DISCRET, s: 9, a: 'end' }); });
+            o += PF.L(x0, y0, x0 + W + 8, y0, SVG_DISCRET);
+            o += PF.P([[X(0), Y(0)], [X(tau), Y(0)], [X(tau), Y(E)], [X(T / 2), Y(E)], [X(T / 2), Y(0)], [X(T / 2 + tau), Y(0)], [X(T / 2 + tau), Y(-E)], [X(T), Y(-E)], [X(T), Y(0)]], CB);
+            o += PF.t(x0 + W, Y(-E) + 36, 't (ms)', { c: SVG_DISCRET, s: 10, a: 'end' }) + PF.t(x0 + 4, Y(E) - 12, 'u (V)', { c: CB, s: 10, a: 'start' });
+            return PF.svg(450, 222, o, 'Tension en commande décalée, graduée', 460);
+        }
+        function svgConvertisseur(entree, sortie) {
+            const sym = (s, x, y) => (s === '=' ? PF.t(x, y + 8, '=', { s: 24, b: 1 }) : `<path d="M${x - 14} ${y}q7 -12 14 0t14 0" stroke="${SVG_ACCENT}" stroke-width="2" fill="none"/>`);
+            let o = `<rect x="60" y="20" width="90" height="90" rx="4" stroke="${SVG_TRAIT}" fill="${SVG_FOND}"/>` + PF.L(60, 110, 150, 20, SVG_TRAIT) + sym(entree, 84, 46) + sym(sortie, 124, 86);
+            o += PF.fleche(14, 65, 60, 65, SVG_TRAIT) + PF.fleche(150, 65, 196, 65, SVG_TRAIT);
+            return PF.svg(210, 124, o, 'Symbole de convertisseur', 230);
+        }
+        function ondSchemaDeux() {
+            const V = choisir([12, 24, 48, 100, 110]), R = choisir([5, 10, 20, 25, 50]), k1 = Math.random() < 0.5;
+            const u = k1 ? V : -V, i = u / R;
+            return { enonce: `${figPhys(svgOndDeuxEtat(V, R, k1))}<p>Les interrupteurs sont dans la position dessinée (charge résistive). Donne la tension $u$ aux bornes de la charge (avec son signe), l'intensité $i$ (avec son signe, flèche du schéma) et la tension aux bornes de l'interrupteur ouvert.</p>`,
+                champs: [gNum('u', '$u$ =', u, { unite: 'V' }), gNum('i', '$i$ =', i, { unite: 'A' }), gNum('vk', 'Interrupteur ouvert =', 2 * V, { unite: 'V' })],
+                correction: `<p>${k1 ? 'K1 est fermé : la charge est reliée à la source du haut' : 'K2 est fermé : la charge est reliée à la source du bas'}, donc $u = ${u > 0 ? '+' : ''}${u}$ V et $i = u/R = ${centiemeTeX(i)}$ A.</p><p>L'interrupteur ouvert est soumis aux deux sources en série : $${2 * V}$ V.</p>` };
+        }
+        function ondZones() {
+            const V = choisir([24, 48, 100, 230]), d = choisir([0.15, 0.25, 0.3]);
+            const sol = [['D1', 'rend'], ['H1', 'recoit'], ['D2', 'rend'], ['H2', 'recoit']];
+            const opts = [['D1', 'D1'], ['H1', 'H1'], ['D2', 'D2'], ['H2', 'H2']], optE = [['recoit', 'reçoit'], ['rend', 'rend']];
+            const g = gGrille(['Zone', 'Élément qui conduit', 'La charge… de l\'énergie'], sol.map(([el, en], k) => [String(k + 1),
+                { kind: 'select', cle: 'el' + k, label: `Zone ${k + 1} : élément`, sol: el, options: opts }, { kind: 'select', cle: 'en' + k, label: `Zone ${k + 1} : énergie`, sol: en, options: optE }]));
+            return { enonce: `${figPhys(svgOndZones(V, d))}<p>Onduleur à deux interrupteurs (K1 = H1 + D1, K2 = H2 + D2) sur une charge inductive. Pour chaque zone numérotée, indique l'élément qui conduit et si la charge reçoit ou rend de l'énergie.</p>`,
+                grille: g.grille, grilleAvant: true, champs: g.champs,
+                correction: `<p>Zone 1 : $u > 0$ (K1 commandé) mais $i < 0$ : c'est <strong class="text-white">D1</strong> qui conduit, $p = u\\,i < 0$, la charge rend de l'énergie. Zone 2 : $u > 0$ et $i > 0$ : <strong class="text-white">H1</strong>, la charge reçoit.</p><p>Zone 3 : $u < 0$, $i > 0$ : <strong class="text-white">D2</strong>, la charge rend. Zone 4 : $u < 0$, $i < 0$ : <strong class="text-white">H2</strong>, la charge reçoit.</p>` };
+        }
+        function ondPontEtat() {
+            const E = choisir([24, 48, 100, 200, 400]), [f, u] = choisir([[['K1', 'K3'], E], [['K2', 'K4'], -E], [['K3', 'K4'], 0], [['K1', 'K2'], 0]]);
+            return { enonce: `${figPhys(svgOndPontEtat(E, f))}<p>Les interrupteurs sont dans la position dessinée. Quelle est la tension $u$ aux bornes de la charge (avec son signe) ?</p>`,
+                champs: [gNum('u', '$u$ =', u, { unite: 'V' })],
+                correction: `<p>${f.join(' et ')} sont fermés. ${u > 0 ? 'A est relié au + de la source et B au − : $u = +E$' : u < 0 ? 'A est relié au − de la source et B au + : $u = -E$' : `Les deux bornes de la charge sont reliées au même pôle de la source : la charge est court-circuitée, $u = 0$ (c'est la phase « roue libre » de la commande décalée)`} $= ${u}$ V.</p>` };
+        }
+        function ondLectureDecale() {
+            const E = choisir([24, 48, 100, 200]), T = choisir([10, 20, 2, 5]), frac = choisir([0.1, 0.2, 0.3]), tau = frac * T, U = E * Math.sqrt(1 - 2 * frac);
+            return { enonce: `${figPhys(svgOndDecaleGrad(E, T, tau))}<p>Voici la tension aux bornes de la charge d'un onduleur en pont en commande décalée. Lis $E$, la période $T$ et le décalage $\\tau$, puis calcule la fréquence et la valeur efficace de $u$.</p>`,
+                champs: [gNum('e', '$E$ =', E, { unite: 'V', groupe: 'Lecture' }), gNum('t', '$T$ =', T, { unite: 'ms', groupe: 'Lecture' }), gNum('tau', '$\\tau$ =', tau, { unite: 'ms', groupe: 'Lecture' }),
+                    gNum('f', '$f$ =', 1000 / T, { unite: 'Hz', groupe: 'Calculs' }), gNum('u', '$U_{eff}$ =', U, { unite: 'V', groupe: 'Calculs' })],
+                correction: `<p>Lecture : $E = ${E}$ V, $T = ${centiemeTeX(T)}$ ms, et $u$ reste nul pendant $\\tau = ${centiemeTeX(tau)}$ ms au début de chaque demi-période. $f = 1/T = ${centiemeTeX(1000 / T)}$ Hz.</p><p>$U_{eff} = E\\sqrt{1 - 2\\tau/T} = ${E}\\sqrt{1 - ${centiemeTeX(2 * frac)}} \\approx ${centiemeTeX(U)}$ V.</p>` };
+        }
+        function ondSymbole() {
+            const [e, s, sol] = choisir([['=', '~', 'ond'], ['~', '=', 'red'], ['=', '=', 'hach'], ['~', '~', 'grad']]);
+            const O = [['red', 'Redresseur'], ['hach', 'Hacheur'], ['ond', 'Onduleur'], ['grad', 'Gradateur']];
+            return { enonce: `${figPhys(svgConvertisseur(e, s))}<p>Quel convertisseur ce symbole représente-t-il ?</p>`, champs: [gChoix('c', sol, O, { groupe: 'Convertisseur' })],
+                correction: `<p>Entrée ${e === '=' ? 'continue' : 'alternative'}, sortie ${s === '=' ? 'continue' : 'alternative'} : c'est un <strong class="text-white">${O.find(o => o[0] === sol)[1].toLowerCase()}</strong>.</p>` };
+        }
+        EXB('phys-onduleur', 'phys-onduleur', 'Physique • 2ème Année', 'Onduleur', 'Onduleur', { id: 'ond', types: { deux: ondSchemaDeux, zones: ondZones, pont: ondPontEtat, decal: ondLectureDecale, sym: ondSymbole }, libelles: { tout: 'Tout', deux: 'Montage à deux interrupteurs', zones: 'Qui conduit ? (chronogramme)', pont: 'Pont : position des interrupteurs', decal: 'Lire une commande décalée', sym: 'Reconnaître un convertisseur' } }, 'waves');
+        RENVOIS['phys-onduleur'] = { deux: [2], zones: [3], pont: [4, 5], decal: [5], sym: [1] };
+
+        // ==========================================
+        // Physique : exercices à schémas pour tous les chapitres
+        // ==========================================
+        function physExo(an, lecon, id, libelle, titre, types, libelles, renvois, icone) {
+            EXB(lecon, lecon, `Physique • ${an}`, libelle, titre, { id, types, libelles }, icone);
+            const ch = (CHAPITRES[an].PHYS || []).find(c => c.lecon === lecon); if (ch) ch.exo = lecon;
+            RENVOIS[lecon] = renvois;
+        }
+        const boite = (x, y, lab, w = 46) => `<rect x="${x - w / 2}" y="${y - 13}" width="${w}" height="26" rx="3" fill="${SVG_FOND}" stroke="${SVG_TRAIT}"/>` + PF.t(x, y + 4, lab, { b: 1, s: 11 });
+        const signeV = (v) => (v > 0 ? `+${centiemeFR(v)}` : centiemeFR(v));
+        // ----- chapitre 1 : grandeurs et lois de Kirchhoff -----
+        function svgConvention(U, I, recepteur) {
+            let o = PF.L(30, 70, 110, 70) + boite(150, 70, 'D', 70) + PF.L(190, 70, 270, 70) + `<circle cx="30" cy="70" r="3" fill="${SVG_FOND}"/><circle cx="270" cy="70" r="3" fill="${SVG_FOND}"/>` + PF.t(30, 92, 'A', { b: 1 }) + PF.t(270, 92, 'B', { b: 1 });
+            o += PF.fleche(55, 70, 95, 70, CR) + PF.t(75, 60, `I = ${centiemeFR(I)} A`, { c: CR, b: 1, s: 11 });
+            o += recepteur ? PF.fleche(230, 108, 70, 108, CB) : PF.fleche(70, 108, 230, 108, CB);
+            o += PF.t(150, 126, `U = ${centiemeFR(U)} V`, { c: CB, b: 1, s: 11 });
+            return PF.svg(300, 136, o, 'Dipôle avec ses flèches de tension et de courant', 320);
+        }
+        function ph1Convention() {
+            const rec = Math.random() < 0.5, U = choisir([-12, -6, 5, 9, 12, 24]), I = choisir([-2, -0.5, 0.5, 1.5, 2, 3]), P = U * I;
+            const recoit = rec ? P > 0 : P < 0;
+            return { enonce: `${figPhys(svgConvention(U, I, rec))}<p>Les flèches et les valeurs algébriques sont celles du schéma. Quelle convention est utilisée ? Calcule $P = U\\,I$ et dis si le dipôle reçoit ou fournit de la puissance.</p>`,
+                champs: [gChoix('c', rec ? 'rec' : 'gen', [['rec', 'Convention récepteur'], ['gen', 'Convention générateur']], { groupe: 'Convention' }), gNum('p', '$P$ =', P, { unite: 'W', groupe: 'Puissance' }),
+                    gChoix('r', recoit ? 'recoit' : 'fournit', [['recoit', 'Il reçoit de la puissance'], ['fournit', 'Il fournit de la puissance']], { groupe: 'Bilan' })],
+                correction: `<p>Les flèches de $U$ et $I$ sont ${rec ? 'de sens opposés : convention <strong class="text-white">récepteur</strong>' : 'de même sens : convention <strong class="text-white">générateur</strong>'}. $P = U I = ${centiemeTeX(U)} \\times ${centiemeTeX(I)} = ${centiemeTeX(P)}$ W.</p><p>En convention ${rec ? 'récepteur, $P > 0$ veut dire que le dipôle reçoit' : 'générateur, $P > 0$ veut dire que le dipôle fournit'} de la puissance : ici il <strong class="text-white">${recoit ? 'reçoit' : 'fournit'}</strong>.</p>` };
+        }
+        function svgNoeud(br) {
+            const C = [170, 100], ang = [180, 60, 0, -60, 120].slice(0, br.length);
+            let o = `<circle cx="${C[0]}" cy="${C[1]}" r="4" fill="${SVG_TRAIT}"/>` + PF.t(C[0] + 8, C[1] + 18, 'N', { b: 1, a: 'start' });
+            br.forEach(([lab, entrant], k) => {
+                const a = ang[k] * Math.PI / 180, ex = C[0] + 110 * Math.cos(a), ey = C[1] - 80 * Math.sin(a), mx = C[0] + 62 * Math.cos(a), my = C[1] - 46 * Math.sin(a);
+                o += PF.L(C[0], C[1], ex, ey);
+                const d = 14, ux = Math.cos(a), uy = -Math.sin(a);
+                o += entrant ? PF.fleche(mx + d * ux, my + d * uy, mx - d * ux, my - d * uy, CR) : PF.fleche(mx - d * ux, my - d * uy, mx + d * ux, my + d * uy, CR);
+                o += PF.t(ex + 6 * Math.cos(a), ey - 8 * Math.sin(a) + (Math.sin(a) < -0.1 ? 14 : -4), lab, { c: CR, b: 1, s: 11, a: Math.cos(a) > 0.2 ? 'start' : Math.cos(a) < -0.2 ? 'end' : 'middle' });
+            });
+            return PF.svg(340, 200, o, 'Nœud et courants', 340);
+        }
+        function ph1Noeud() {
+            const n = gInt(3, 4), vals = Array.from({ length: n }, () => choisir([0.2, 0.5, 1, 1.5, 2, 3, 4])), sens = vals.map(() => Math.random() < 0.5);
+            let x = 0; vals.forEach((v, k) => { x += sens[k] ? -v : v; });   // I_x entrant : somme des entrants = somme des sortants
+            const br = vals.map((v, k) => [`I${k + 1} = ${centiemeFR(v)} A`, sens[k]]).concat([['Ix = ?', true]]);
+            return { enonce: `${figPhys(svgNoeud(br))}<p>Applique la loi des nœuds en N pour trouver l'intensité $I_x$, orientée comme sur le schéma (un résultat négatif signifie que le courant circule dans l'autre sens).</p>`,
+                champs: [gNum('ix', '$I_x$ =', x, { unite: 'A' })],
+                correction: `<p>Somme des courants entrants = somme des courants sortants : $I_x ${vals.map((v, k) => sens[k] ? `+ ${centiemeTeX(v)}` : '').join(' ')} = ${vals.filter((_, k) => !sens[k]).map(centiemeTeX).join(' + ') || '0'}$, d'où <strong class="text-white">$I_x = ${centiemeTeX(x)}$ A</strong>.</p>` };
+        }
+        function svgMaille(U, sensH) {
+            const pts = [[80, 40], [300, 40], [300, 170], [80, 170]], mid = [[190, 40], [300, 105], [190, 170], [80, 105]], rot = [0, 90, 0, 90];
+            let o = PF.L(80, 40, 300, 40) + PF.L(300, 40, 300, 170) + PF.L(300, 170, 80, 170) + PF.L(80, 170, 80, 40);
+            mid.forEach(([x, y], k) => { o += k % 2 ? `<rect x="${x - 13}" y="${y - 23}" width="26" height="46" rx="3" fill="${SVG_FOND}" stroke="${SVG_TRAIT}"/>` + PF.t(x, y + 4, `D${k + 1}`, { b: 1, s: 10 }) : boite(x, y, `D${k + 1}`); });
+            // flèches de tension, à l'extérieur ; sens horaire = true
+            const fl = [[150, 230, 18, 18], [340, 340, 70, 140], [230, 150, 192, 192], [40, 40, 140, 70]];
+            fl.forEach(([x1, x2, y1, y2], k) => { const h = sensH[k]; o += h ? PF.fleche(x1, y1, x2, y2, CB) : PF.fleche(x2, y2, x1, y1, CB);
+                const lx = k === 1 ? 352 : k === 3 ? 28 : 190, ly = k === 0 ? 12 : k === 2 ? 210 : 108; o += PF.t(lx, ly, U[k] === null ? `U${k + 1} = ?` : `U${k + 1} = ${centiemeFR(U[k])} V`, { c: CB, b: 1, s: 11, a: k === 1 ? 'start' : k === 3 ? 'end' : 'middle' }); });
+            o += `<path d="M175 105 a15 15 0 1 1 15 15" stroke="${SVG_DISCRET}"/>` + PF.fleche(192, 120, 186, 120, SVG_DISCRET) + PF.t(190, 109, '+', { c: SVG_DISCRET, s: 11 });
+            return PF.svg(500, 220, `<g transform="translate(60 0)">${o}</g>`, 'Maille et tensions', 500);
+        }
+        function ph1Maille() {
+            const sensH = [0, 1, 2, 3].map(() => Math.random() < 0.5), inc = gInt(0, 3), U = [0, 1, 2, 3].map(() => choisir([2, 3, 4.5, 5, 6, 8, 10, 12]));
+            let s = 0; U.forEach((u, k) => { if (k !== inc) s += sensH[k] ? u : -u; });
+            const x = sensH[inc] ? -s : s, Ud = U.map((u, k) => (k === inc ? null : u));
+            return { enonce: `${figPhys(svgMaille(Ud, sensH))}<p>Applique la loi des mailles (sens de parcours indiqué au centre, horaire) pour trouver $U_${inc + 1}$, orientée comme sur le schéma.</p>`,
+                champs: [gNum('u', `$U_${inc + 1}$ =`, x, { unite: 'V' })],
+                correction: `<p>En parcourant la maille dans le sens horaire, on compte $+U$ quand la flèche est dans le sens du parcours, $-U$ sinon, et la somme est nulle : $${U.map((u, k) => `${sensH[k] ? '+' : '-'}${k === inc ? `U_${k + 1}` : centiemeTeX(u)}`).join(' ')} = 0$, d'où <strong class="text-white">$U_${inc + 1} = ${centiemeTeX(x)}$ V</strong>.</p>` };
+        }
+        physExo('1ère Année', 'ph1-grandeurs', 'pg', 'Lois des circuits', 'Grandeurs électriques et lois de Kirchhoff', { conv: ph1Convention, noeud: ph1Noeud, maille: ph1Maille },
+            { tout: 'Tout', conv: 'Conventions et puissance', noeud: 'Loi des nœuds', maille: 'Loi des mailles' }, { conv: [1, 2], noeud: [3], maille: [3] }, 'git-branch');
+
+        // ----- chapitre 2 : dipôles -----
+        function svgReseau(type, R) {
+            const [a, b, c] = R.map(r => `${fmtR(r)}`);
+            let o;
+            if (type === 's-p') o = PF.L(20, 80, 60, 80) + PF.res(80, 80, 0) + PF.L(100, 80, 140, 80) + PF.L(140, 40, 140, 120) + PF.L(140, 40, 170, 40) + PF.L(140, 120, 170, 120) + PF.res(190, 40, 0) + PF.res(190, 120, 0) + PF.L(210, 40, 240, 40) + PF.L(210, 120, 240, 120) + PF.L(240, 40, 240, 120) + PF.L(240, 80, 280, 80)
+                + PF.t(80, 66, `R1 = ${a}`, { s: 10, b: 1 }) + PF.t(190, 26, `R2 = ${b}`, { s: 10, b: 1 }) + PF.t(190, 106, `R3 = ${c}`, { s: 10, b: 1 });
+            else o = PF.L(20, 80, 50, 80) + PF.L(50, 40, 50, 130) + PF.L(50, 40, 70, 40) + PF.res(90, 40, 0) + PF.L(110, 40, 140, 40) + PF.res(160, 40, 0) + PF.L(180, 40, 230, 40) + PF.L(50, 130, 105, 130) + PF.res(125, 130, 0) + PF.L(145, 130, 230, 130) + PF.L(230, 40, 230, 130) + PF.L(230, 80, 280, 80)
+                + PF.t(90, 26, `R1 = ${a}`, { s: 10, b: 1 }) + PF.t(160, 26, `R2 = ${b}`, { s: 10, b: 1 }) + PF.t(125, 116, `R3 = ${c}`, { s: 10, b: 1 });
+            o += `<circle cx="20" cy="80" r="3" fill="${SVG_FOND}"/><circle cx="280" cy="80" r="3" fill="${SVG_FOND}"/>` + PF.t(20, 100, 'A', { b: 1 }) + PF.t(280, 100, 'B', { b: 1 });
+            return PF.svg(300, 150, o, 'Réseau de résistances', 320);
+        }
+        function ph1Assoc() {
+            const type = Math.random() < 0.5 ? 's-p' : 'p-s', R = [0, 1, 2].map(() => choisir([10, 20, 22, 33, 47, 50, 100, 220]));
+            const par = (x, y) => x * y / (x + y), Req = type === 's-p' ? R[0] + par(R[1], R[2]) : par(R[0] + R[1], R[2]);
+            return { enonce: `${figPhys(svgReseau(type, R))}<p>Calcule la résistance équivalente entre A et B.</p>`, champs: [gNum('r', '$R_{AB}$ =', Req, { unite: 'Ω' })],
+                correction: `<p>${type === 's-p' ? `R2 et R3 sont en parallèle : $\\dfrac{R_2 R_3}{R_2 + R_3} \\approx ${centiemeTeX(par(R[1], R[2]))}\\ \\Omega$, en série avec R1` : `R1 et R2 sont en série ($${R[0] + R[1]}\\ \\Omega$), l'ensemble en parallèle avec R3`} : $R_{AB} \\approx ${centiemeTeX(Req)}\\ \\Omega$.</p>` };
+        }
+        function ph1Diviseur() {
+            const E = choisir([5, 9, 10, 12, 15, 24]), R1 = choisir([100, 220, 470, 1000, 2200]), R2 = choisir([100, 330, 470, 1000, 4700]), U2 = E * R2 / (R1 + R2), I = E / (R1 + R2) * 1000;
+            return { enonce: `${figPhys(svgSerie({ E, haut: [{ t: 'res', lab: `R1 = ${fmtR(R1)}` }], droite: { t: 'res', lab: `R2 = ${fmtR(R2)}` }, ferme: true, tension: 'U2' }))}<p>K est fermé, rien n'est branché en sortie. Calcule le courant et la tension $U_2$ aux bornes de R2.</p>`,
+                champs: [gNum('i', '$I$ =', I, { unite: 'mA' }), gNum('u', '$U_2$ =', U2, { unite: 'V' })],
+                correction: `<p>Même courant dans R1 et R2 : $I = \\dfrac{E}{R_1 + R_2} \\approx ${centiemeTeX(I)}$ mA. Diviseur de tension : $U_2 = E\\,\\dfrac{R_2}{R_1 + R_2} \\approx ${centiemeTeX(U2)}$ V.</p>` };
+        }
+        function ph1Caract() {
+            const E = choisir([4, 6, 8, 10, 12]), Icc = choisir([1, 2, 4, 5]), r = E / Icc;
+            return { enonce: `${figPhys(svgCourbe({ f: (i) => Math.max(0, E - r * i), tmax: Icc * 1.25, ymax: E + 2, dx: Icc / 4, dy: 2, nomX: 'I (A)', nomY: 'U (V)' }))}<p>Voici la caractéristique $U = f(I)$ d'un générateur réel. Lis sa force électromotrice et son courant de court-circuit, puis déduis-en sa résistance interne.</p>`,
+                champs: [gNum('e', '$E$ =', E, { unite: 'V' }), gNum('icc', '$I_{cc}$ =', Icc, { unite: 'A' }), gNum('r', '$r$ =', r, { unite: 'Ω' })],
+                correction: `<p>À vide ($I = 0$) : $U = E = ${E}$ V. En court-circuit ($U = 0$) : $I_{cc} = ${Icc}$ A. $U = E - rI$ donne $r = E/I_{cc} = ${centiemeTeX(r)}\\ \\Omega$ (la pente de la droite, au signe près).</p>` };
+        }
+        function svgRegime(E, R1, R2, comp) {
+            let o = PF.L(50, 40, 50, 88) + PF.src(50, 100, `E = ${E} V`, false) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 90, 40) + PF.res(110, 40, 0) + PF.L(130, 40, 330, 40) + PF.L(50, 160, 330, 160);
+            o += PF.L(200, 40, 200, 80) + PF.res(200, 100, 90) + PF.L(200, 120, 200, 160) + PF.L(300, 40, 300, 80) + PF[comp](300, 100, 90) + PF.L(300, 120, 300, 160);
+            o += PF.t(110, 26, `R1 = ${fmtR(R1)}`, { s: 10, b: 1 }) + PF.t(214, 104, `R2 = ${fmtR(R2)}`, { s: 10, b: 1, a: 'start' }) + PF.t(314, 104, comp === 'cap' ? 'C' : 'L', { s: 11, b: 1, a: 'start' });
+            o += PF.fleche(70, 40, 86, 40, CR) + PF.t(78, 32, 'I', { c: CR, b: 1 }) + PF.fleche(300, 60, 300, 74, CR) + PF.t(288, 66, comp === 'cap' ? 'iC' : 'iL', { c: CR, b: 1, a: 'end', s: 10 });
+            return PF.svg(380, 180, `<g transform="translate(30 0)">${o}</g>`, 'Circuit en régime continu', 400);
+        }
+        function ph1Regime() {
+            const E = choisir([6, 9, 12, 24]), R1 = choisir([100, 200, 470, 1000]), R2 = choisir([100, 330, 1000, 2200]), cap = Math.random() < 0.5;
+            const I = cap ? E / (R1 + R2) * 1000 : E / R1 * 1000, u = cap ? E * R2 / (R1 + R2) : 0, ic = cap ? 0 : E / R1 * 1000;
+            return { enonce: `${figPhys(svgRegime(E, R1, R2, cap ? 'cap' : 'ind'))}<p>Le circuit est alimenté depuis longtemps (régime permanent continu, bobine idéale). Donne le courant $I$, la tension aux bornes de ${cap ? 'C' : 'L'} et le courant ${cap ? '$i_C$' : '$i_L$'}.</p>`,
+                champs: [gNum('i', '$I$ =', I, { unite: 'mA' }), gNum('u', `$u_${cap ? 'C' : 'L'}$ =`, u, { unite: 'V' }), gNum('ic', `$i_${cap ? 'C' : 'L'}$ =`, ic, { unite: 'mA' })],
+                correction: `<p>${cap ? `En continu, le condensateur se comporte comme un <strong class="text-white">interrupteur ouvert</strong> : $i_C = 0$, le courant traverse R1 et R2, $I = E/(R_1 + R_2) \\approx ${centiemeTeX(I)}$ mA et $u_C = u_{R2} = R_2 I \\approx ${centiemeTeX(u)}$ V.` : `En continu, la bobine idéale se comporte comme un <strong class="text-white">fil</strong> : elle court-circuite R2 ($u_L = 0$, aucun courant dans R2), donc $I = i_L = E/R_1 \\approx ${centiemeTeX(I)}$ mA.`}</p>` };
+        }
+        physExo('1ère Année', 'ph1-dipoles', 'pdp', 'Dipôles', 'Dipôles électriques', { assoc: ph1Assoc, div: ph1Diviseur, car: ph1Caract, reg: ph1Regime },
+            { tout: 'Tout', assoc: 'Résistance équivalente', div: 'Diviseur de tension', car: 'Caractéristique d\'un générateur', reg: 'Régime continu avec C ou L' }, { assoc: [2], div: [2], car: [1, 5], reg: [3, 4] }, 'cpu');
+
+        // ----- chapitre 3 : théorèmes généraux -----
+        function svgMillman(E1, R1, E2, R2, R3) {
+            let o = PF.L(60, 40, 340, 40) + PF.L(60, 180, 340, 180) + `<circle cx="200" cy="40" r="4" fill="${SVG_TRAIT}"/>` + PF.t(200, 28, 'N', { b: 1 });
+            const br = (x, E, R, k) => PF.L(x, 40, x, 60) + PF.res(x, 80, 90) + PF.L(x, 100, x, 118) + (E !== null ? PF.src(x, 130, `E${k} = ${E} V`, false) + PF.L(x, 142, x, 180) : PF.L(x, 100, x, 180)) + PF.t(x + 14, 84, `R${k} = ${fmtR(R)}`, { s: 10, b: 1, a: 'start' });
+            o += br(90, E1, R1, 1) + br(200, null, R3, 3) + br(310, E2, R2, 2) + PF.fleche(214, 178, 214, 46, CB) + PF.t(222, 150, 'VN', { c: CB, b: 1, a: 'start', s: 11 }) + PF.t(200, 196, 'masse (0 V)', { c: SVG_DISCRET, s: 10 });
+            return PF.svg(420, 206, `<g transform="translate(30 0)">${o}</g>`, 'Circuit pour le théorème de Millman', 430);
+        }
+        function ph1Millman() {
+            const E1 = choisir([5, 10, 12, 15]), E2 = choisir([3, 6, 9, 24]), R1 = choisir([100, 200, 1000]), R2 = choisir([100, 470, 2200]), R3 = choisir([220, 1000, 4700]);
+            const VN = (E1 / R1 + E2 / R2) / (1 / R1 + 1 / R2 + 1 / R3);
+            return { enonce: `${figPhys(svgMillman(E1, R1, E2, R2, R3))}<p>Calcule le potentiel $V_N$ du nœud N (par rapport à la masse) avec le théorème de Millman, puis le courant dans R3.</p>`,
+                champs: [gNum('v', '$V_N$ =', VN, { unite: 'V' }), gNum('i', '$I_3$ =', VN / R3 * 1000, { unite: 'mA', alt: r2(VN) / R3 * 1000 })],
+                correction: `<p>$V_N = \\dfrac{\\dfrac{E_1}{R_1} + \\dfrac{E_2}{R_2} + \\dfrac{0}{R_3}}{\\dfrac{1}{R_1} + \\dfrac{1}{R_2} + \\dfrac{1}{R_3}} \\approx ${centiemeTeX(VN)}$ V ; $I_3 = V_N / R_3 \\approx ${centiemeTeX(VN / R3 * 1000)}$ mA.</p>` };
+        }
+        function svgThev(E, R1, R2, RL) {
+            let o = PF.L(50, 40, 50, 88) + PF.src(50, 100, `E = ${E} V`, false) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 90, 40) + PF.res(110, 40, 0) + PF.L(130, 40, 260, 40) + PF.L(50, 160, 260, 160);
+            o += PF.L(190, 40, 190, 80) + PF.res(190, 100, 90) + PF.L(190, 120, 190, 160) + PF.t(110, 26, `R1 = ${fmtR(R1)}`, { s: 10, b: 1 }) + PF.t(204, 104, `R2 = ${fmtR(R2)}`, { s: 10, b: 1, a: 'start' });
+            o += `<circle cx="260" cy="40" r="3" fill="${SVG_FOND}"/><circle cx="260" cy="160" r="3" fill="${SVG_FOND}"/>` + PF.t(268, 44, 'A', { b: 1, a: 'start' }) + PF.t(268, 164, 'B', { b: 1, a: 'start' });
+            o += PF.L(260, 40, 320, 40, SVG_DISCRET, '4 3') + PF.L(260, 160, 320, 160, SVG_DISCRET, '4 3') + PF.L(320, 40, 320, 80, SVG_DISCRET, '4 3') + PF.res(320, 100, 90) + PF.L(320, 120, 320, 160, SVG_DISCRET, '4 3') + PF.t(334, 104, `RL = ${fmtR(RL)}`, { s: 10, b: 1, a: 'start', c: SVG_DISCRET });
+            return PF.svg(420, 180, `<g transform="translate(30 0)">${o}</g>`, 'Circuit vu entre A et B', 430);
+        }
+        // ----- superposition : même circuit à deux sources que pour Millman -----
+        function ph1Superposition() {
+            const E1 = choisir([5, 10, 12, 15]), E2 = choisir([3, 6, 9, 24]), R1 = choisir([100, 200, 1000]), R2 = choisir([100, 470, 2200]), R3 = choisir([220, 1000, 4700]);
+            const S = 1 / R1 + 1 / R2 + 1 / R3, V1 = (E1 / R1) / S, V2 = (E2 / R2) / S, I1 = V1 / R3 * 1000, I2 = V2 / R3 * 1000;
+            const par = (a, b) => a * b / (a + b);
+            return { enonce: `${figPhys(svgMillman(E1, R1, E2, R2, R3).replace('>VN<', '>U3<'))}<p>Utilise le théorème de superposition pour trouver le courant $I_3$ dans R3 (de N vers la masse) : calcule le courant dû à E1 seule, celui dû à E2 seule, puis le courant total.</p>`,
+                champs: [gNum('i1', "$I_3'$ (E1 seule) =", I1, { unite: 'mA', groupe: 'Superposition' }), gNum('i2', "$I_3''$ (E2 seule) =", I2, { unite: 'mA', groupe: 'Superposition' }), gNum('i', '$I_3$ =', I1 + I2, { unite: 'mA', groupe: 'Total', alt: r2(I1) + r2(I2) })],
+                correction: `<p><strong>E1 seule</strong> (E2 éteinte, remplacée par un fil) : R2 et R3 sont en parallèle ($\\approx ${centiemeTeX(par(R2, R3))}\\ \\Omega$), en série avec R1. La tension sur R3 vaut $E_1\\,\\dfrac{R_2 /\\!/ R_3}{R_1 + R_2 /\\!/ R_3} \\approx ${centiemeTeX(V1)}$ V, donc $I_3' \\approx ${centiemeTeX(I1)}$ mA.</p><p><strong>E2 seule</strong> (E1 remplacée par un fil) : de même, $U_3'' = E_2\\,\\dfrac{R_1 /\\!/ R_3}{R_2 + R_1 /\\!/ R_3} \\approx ${centiemeTeX(V2)}$ V, donc $I_3'' \\approx ${centiemeTeX(I2)}$ mA.</p><p>Le circuit est linéaire : $I_3 = I_3' + I_3'' \\approx ${centiemeTeX(I1 + I2)}$ mA.</p>` };
+        }
+        // ----- Thévenin : plusieurs montages -----
+        const borneAB = (xa, ya, xb, yb) => `<circle cx="${xa}" cy="${ya}" r="3" fill="${SVG_FOND}"/><circle cx="${xb}" cy="${yb}" r="3" fill="${SVG_FOND}"/>`;
+        const srcCourant = (x, y, lab) => `<circle cx="${x}" cy="${y}" r="12"/>` + PF.L(x - 12, y, x + 12, y) + PF.fleche(x - 22, y + 10, x - 22, y - 12, CR) + PF.t(x - 28, y + 4, lab, { a: 'end', b: 1, s: 10 });
+        function svgThevVariante(cas, v) {
+            let o = '';
+            const rl = (x1, y1, x2, y2, vert) => (vert ? PF.L(x1, y1, x1 + 50, y1, SVG_DISCRET, '4 3') + PF.L(x2, y2, x2 + 50, y2, SVG_DISCRET, '4 3') + PF.L(x1 + 50, y1, x1 + 50, (y1 + y2) / 2 - 20, SVG_DISCRET, '4 3') + PF.res(x1 + 50, (y1 + y2) / 2, 90) + PF.L(x1 + 50, (y1 + y2) / 2 + 20, x2 + 50, y2, SVG_DISCRET, '4 3') + PF.t(x1 + 64, (y1 + y2) / 2 + 4, `RL = ${fmtR(v.RL)}`, { s: 10, b: 1, a: 'start', c: SVG_DISCRET }) : '');
+            if (cas === 'div' || cas === 'div3') {
+                const xA = cas === 'div' ? 260 : 330;
+                o += PF.L(50, 40, 50, 88) + PF.src(50, 100, `E = ${v.E} V`, false) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 90, 40) + PF.res(110, 40, 0) + PF.L(130, 40, cas === 'div' ? xA : 240, 40) + PF.L(50, 160, xA, 160);
+                o += PF.L(190, 40, 190, 80) + PF.res(190, 100, 90) + PF.L(190, 120, 190, 160) + PF.t(110, 26, `R1 = ${fmtR(v.R1)}`, { s: 10, b: 1 }) + PF.t(204, 104, `R2 = ${fmtR(v.R2)}`, { s: 10, b: 1, a: 'start' });
+                if (cas === 'div3') o += PF.res(260, 40, 0) + PF.L(280, 40, xA, 40) + PF.t(260, 26, `R3 = ${fmtR(v.R3)}`, { s: 10, b: 1 });
+                o += borneAB(xA, 40, xA, 160) + PF.t(xA + 8, 34, 'A', { b: 1, a: 'start' }) + PF.t(xA + 8, 176, 'B', { b: 1, a: 'start' }) + rl(xA, 40, xA, 160, true);
+            } else if (cas === 'courant') {
+                o += PF.L(60, 40, 60, 88) + srcCourant(60, 100, `I = ${centiemeFR(v.I * 1000)} mA`) + PF.L(60, 112, 60, 160) + PF.L(60, 40, 200, 40) + PF.L(240, 40, 260, 40) + PF.L(60, 160, 260, 160);
+                o += PF.L(140, 40, 140, 80) + PF.res(140, 100, 90) + PF.L(140, 120, 140, 160) + PF.t(154, 104, `R1 = ${fmtR(v.R1)}`, { s: 10, b: 1, a: 'start' }) + PF.res(220, 40, 0) + PF.t(220, 26, `R2 = ${fmtR(v.R2)}`, { s: 10, b: 1 });
+                o += borneAB(260, 40, 260, 160) + PF.t(268, 34, 'A', { b: 1, a: 'start' }) + PF.t(268, 176, 'B', { b: 1, a: 'start' }) + rl(260, 40, 260, 160, true);
+            } else if (cas === 'deux') {
+                o += PF.L(50, 40, 50, 88) + PF.src(50, 100, `E1 = ${v.E} V`, false) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 90, 40) + PF.res(110, 40, 0) + PF.L(130, 40, 270, 40) + PF.res(290, 40, 0) + PF.L(310, 40, 350, 40);
+                o += PF.L(350, 40, 350, 88) + PF.src(350, 100, '', false) + PF.t(366, 104, `E2 = ${v.E2} V`, { b: 1, s: 10, a: 'start' }) + PF.L(350, 112, 350, 160) + PF.L(50, 160, 350, 160);
+                o += PF.t(110, 26, `R1 = ${fmtR(v.R1)}`, { s: 10, b: 1 }) + PF.t(290, 26, `R2 = ${fmtR(v.R2)}`, { s: 10, b: 1 }) + `<circle cx="200" cy="40" r="3" fill="${SVG_TRAIT}"/>` + PF.L(200, 40, 200, 70) + PF.L(200, 160, 200, 130) + borneAB(200, 70, 200, 130) + PF.t(210, 74, 'A', { b: 1, a: 'start' }) + PF.t(210, 134, 'B', { b: 1, a: 'start' });
+            } else {   // pont : deux diviseurs
+                o += PF.L(50, 40, 50, 88) + PF.src(50, 100, `E = ${v.E} V`, false) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 300, 40) + PF.L(50, 160, 300, 160);
+                o += PF.L(170, 40, 170, 50) + PF.res(170, 70, 90) + PF.L(170, 90, 170, 110) + PF.res(170, 130, 90) + PF.L(170, 150, 170, 160) + PF.L(300, 40, 300, 50) + PF.res(300, 70, 90) + PF.L(300, 90, 300, 110) + PF.res(300, 130, 90) + PF.L(300, 150, 300, 160);
+                o += PF.t(156, 74, `R1 = ${fmtR(v.R1)}`, { s: 10, b: 1, a: 'end' }) + PF.t(156, 134, `R2 = ${fmtR(v.R2)}`, { s: 10, b: 1, a: 'end' }) + PF.t(314, 74, `R3 = ${fmtR(v.R3)}`, { s: 10, b: 1, a: 'start' }) + PF.t(314, 134, `R4 = ${fmtR(v.R4)}`, { s: 10, b: 1, a: 'start' });
+                o += PF.L(170, 100, 205, 100) + PF.L(265, 100, 300, 100) + borneAB(205, 100, 265, 100) + PF.t(205, 90, 'A', { b: 1 }) + PF.t(265, 90, 'B', { b: 1 });
+            }
+            return PF.svg(500, 190, `<g transform="translate(50 0)">${o}</g>`, 'Circuit vu entre A et B', 500);
+        }
+        function ph1Thevenin() {
+            const cas = choisir(['div', 'div3', 'courant', 'deux', 'pont']), R = () => choisir([100, 220, 330, 470, 1000, 2200]);
+            const v = { E: choisir([6, 10, 12, 15, 24]), E2: choisir([3, 5, 9]), R1: R(), R2: R(), R3: R(), R4: R(), RL: choisir([100, 470, 1000]), I: choisir([2, 5, 10, 20]) / 1000 };
+            const par = (a, b) => a * b / (a + b);
+            let Eth, Rth, expl;
+            if (cas === 'div') { Eth = v.E * v.R2 / (v.R1 + v.R2); Rth = par(v.R1, v.R2); expl = `$E_{Th}$ = tension à vide aux bornes de R2 (diviseur) : $E\\,\\dfrac{R_2}{R_1 + R_2}$. $R_{Th}$ : E éteinte (fil), R1 et R2 sont en parallèle : $R_1 /\\!/ R_2$.`; }
+            else if (cas === 'div3') { Eth = v.E * v.R2 / (v.R1 + v.R2); Rth = par(v.R1, v.R2) + v.R3; expl = `À vide, aucun courant dans R3 : $E_{Th}$ = tension sur R2 = $E\\,\\dfrac{R_2}{R_1 + R_2}$. $R_{Th}$ : E éteinte, $(R_1 /\\!/ R_2) + R_3$.`; }
+            else if (cas === 'courant') { Eth = v.I * v.R1; Rth = v.R1 + v.R2; expl = `À vide, aucun courant dans R2 : tout le courant I traverse R1, $E_{Th} = R_1 I$. $R_{Th}$ : la source de courant éteinte devient un interrupteur ouvert, il reste $R_1 + R_2$ en série.`; }
+            else if (cas === 'deux') { Eth = (v.E / v.R1 + v.E2 / v.R2) / (1 / v.R1 + 1 / v.R2); Rth = par(v.R1, v.R2); expl = `$E_{Th}$ = potentiel du nœud A à vide (Millman) : $\\dfrac{E_1/R_1 + E_2/R_2}{1/R_1 + 1/R_2}$. $R_{Th}$ : les deux sources éteintes, $R_1 /\\!/ R_2$.`; }
+            else { Eth = v.E * (v.R2 / (v.R1 + v.R2) - v.R4 / (v.R3 + v.R4)); Rth = par(v.R1, v.R2) + par(v.R3, v.R4); expl = `$E_{Th} = V_A - V_B = E\\,\\dfrac{R_2}{R_1 + R_2} - E\\,\\dfrac{R_4}{R_3 + R_4}$ (deux diviseurs). $R_{Th}$ : E éteinte, les deux bras se retrouvent en série : $(R_1 /\\!/ R_2) + (R_3 /\\!/ R_4)$.`; }
+            const charge = cas !== 'deux' && cas !== 'pont';
+            const champs = [gNum('e', '$E_{Th}$ =', Eth, { unite: 'V' }), gNum('r', '$R_{Th}$ =', Rth, { unite: 'Ω' })];
+            if (charge) champs.push(gNum('i', '$I_L$ =', Eth / (Rth + v.RL) * 1000, { unite: 'mA', alt: r2(Eth) / (r2(Rth) + v.RL) * 1000 }));
+            return { enonce: `${figPhys(svgThevVariante(cas, v))}<p>Détermine le générateur de Thévenin équivalent vu entre A et B${charge ? ' (charge RL débranchée), puis le courant dans RL une fois branchée' : ''}.${cas === 'courant' ? ' La source de gauche est une source de courant.' : ''}</p>`,
+                champs, correction: `<p>${expl}</p><p>$E_{Th} \\approx ${centiemeTeX(Eth)}$ V et $R_{Th} \\approx ${centiemeTeX(Rth)}\\ \\Omega$.${charge ? ` Puis $I_L = \\dfrac{E_{Th}}{R_{Th} + R_L} \\approx ${centiemeTeX(Eth / (Rth + v.RL) * 1000)}$ mA.` : ''}</p>` };
+        }
+        function svgThevSeul(E, R) {
+            let o = PF.L(50, 40, 50, 88) + PF.src(50, 100, `ETh = ${E} V`, false) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 100, 40) + PF.res(120, 40, 0) + PF.L(140, 40, 200, 40) + PF.L(50, 160, 200, 160) + PF.t(120, 26, `RTh = ${fmtR(R)}`, { s: 10, b: 1 });
+            o += `<circle cx="200" cy="40" r="3" fill="${SVG_FOND}"/><circle cx="200" cy="160" r="3" fill="${SVG_FOND}"/>` + PF.t(208, 44, 'A', { b: 1, a: 'start' }) + PF.t(208, 164, 'B', { b: 1, a: 'start' });
+            return PF.svg(260, 176, `<g transform="translate(40 0)">${o}</g>`, 'Modèle de Thévenin', 280);
+        }
+        function ph1Norton() {
+            const E = choisir([5, 6, 10, 12, 24]), R = choisir([10, 50, 100, 220, 1000]);
+            return { enonce: `${figPhys(svgThevSeul(E, R))}<p>Transforme ce générateur de Thévenin en générateur de Norton équivalent : donne le courant de Norton et la résistance placée en parallèle.</p>`,
+                champs: [gNum('in', '$I_N$ =', E / R * 1000, { unite: 'mA' }), gNum('rn', '$R_N$ =', R, { unite: 'Ω' })],
+                correction: `<p>$I_N$ = courant de court-circuit entre A et B : $E_{Th}/R_{Th} = ${E}/${R} \\approx ${centiemeTeX(E / R * 1000)}$ mA. La résistance est la même, placée en parallèle : $R_N = R_{Th} = ${R}\\ \\Omega$.</p>` };
+        }
+        physExo('1ère Année', 'ph1-theoremes', 'pth', 'Théorèmes', 'Théorèmes généraux', { mil: ph1Millman, sup: ph1Superposition, th: ph1Thevenin, no: ph1Norton },
+            { tout: 'Tout', mil: 'Millman', sup: 'Superposition', th: 'Thévenin', no: 'Thévenin → Norton' }, { mil: [2], sup: [3], th: [4], no: [4] }, 'network');
+
+        // ----- chapitre 4 : grandeurs sinusoïdales -----
+        function svgCourbes({ fs, tmax, ymin, ymax, dx, dy, nomX = 't (ms)', noms = [] }) {
+            const x0 = 50, y0 = 210, W = 400, Hh = 180, X = (t) => x0 + t / tmax * W, Y = (v) => y0 - (v - ymin) / (ymax - ymin) * Hh, cols = [SVG_ACCENT, CB];
+            let o = '';
+            for (let t = 0; t <= tmax + 1e-9; t += dx) o += PF.L(X(t), Y(ymin), X(t), Y(ymax), '#1e293b') + PF.t(X(t), y0 + 14, centiemeFR(Math.round(t * 1000) / 1000), { c: SVG_DISCRET, s: 9 });
+            for (let v = ymin; v <= ymax + 1e-9; v += dy) o += PF.L(x0, Y(v), x0 + W, Y(v), '#1e293b') + PF.t(x0 - 6, Y(v) + 3, centiemeFR(Math.round(v * 1000) / 1000), { c: SVG_DISCRET, s: 9, a: 'end' });
+            o += PF.L(x0, Y(0), x0 + W + 8, Y(0), SVG_DISCRET) + PF.L(x0, Y(ymin), x0, Y(ymax) - 6, SVG_DISCRET);
+            fs.forEach((f, k) => { o += PF.P(Array.from({ length: 361 }, (_, i) => { const t = i / 360 * tmax; return [X(t).toFixed(1), Y(f(t)).toFixed(1)]; }), cols[k]); if (noms[k]) o += PF.t(x0 + W + 4, 14 + 14 * k, noms[k], { c: cols[k], b: 1, s: 11, a: 'end' }); });
+            o += PF.t(x0 + W, y0 + 28, nomX, { c: SVG_DISCRET, s: 10, a: 'end' });
+            return PF.svg(470, 246, o, 'Oscillogramme', 470);
+        }
+        function ph1LectureSinus() {
+            const Xm = choisir([2, 3, 4, 5, 6, 8]), T = choisir([2, 4, 5, 10, 20]), f = 1000 / T;
+            return { enonce: `${figPhys(svgCourbes({ fs: [(t) => Xm * Math.sin(2 * Math.PI * t / T)], tmax: 2 * T, ymin: -Math.ceil(Xm + 1), ymax: Math.ceil(Xm + 1), dx: T / 4, dy: Xm <= 4 ? 1 : 2, noms: ['u (V)'] }))}<p>Lis l'amplitude et la période de cette tension, puis calcule sa fréquence, sa pulsation et sa valeur efficace.</p>`,
+                champs: [gNum('xm', '$U_m$ =', Xm, { unite: 'V', groupe: 'Lecture' }), gNum('t', '$T$ =', T, { unite: 'ms', groupe: 'Lecture' }), gNum('f', '$f$ =', f, { unite: 'Hz', groupe: 'Calculs' }), gNum('w', '$\\omega$ =', 2 * Math.PI * f, { unite: 'rad/s', groupe: 'Calculs' }), gNum('ue', '$U_{eff}$ =', Xm / Math.SQRT2, { unite: 'V', groupe: 'Calculs' })],
+                correction: `<p>Amplitude (valeur maximale) : $U_m = ${Xm}$ V ; une période complète dure $T = ${T}$ ms. $f = 1/T = ${centiemeTeX(f)}$ Hz ; $\\omega = 2\\pi f \\approx ${centiemeTeX(2 * Math.PI * f)}$ rad/s ; $U_{eff} = U_m/\\sqrt2 \\approx ${centiemeTeX(Xm / Math.SQRT2)}$ V.</p>` };
+        }
+        function ph1Dephasage() {
+            const T = choisir([4, 8, 10, 20]), frac = choisir([1 / 8, 1 / 4, 1 / 6, 1 / 3]), dt = T * frac, A1 = choisir([4, 5, 6]), A2 = choisir([2, 3, 4]), avance2 = Math.random() < 0.5;
+            const f1 = (t) => A1 * Math.sin(2 * Math.PI * t / T), f2 = (t) => A2 * Math.sin(2 * Math.PI * (t + (avance2 ? dt : -dt)) / T), dphi = 360 * frac;
+            return { enonce: `${figPhys(svgCourbes({ fs: [f1, f2], tmax: 2 * T, ymin: -7, ymax: 7, dx: T / 8 * (frac === 1 / 6 || frac === 1 / 3 ? 4 / 3 : 1), dy: 1, noms: ['u1', 'u2'] }))}<p>Les deux tensions ont la même période. Lis la période et le décalage temporel entre les deux courbes, calcule le déphasage (en degrés, valeur positive) et dis laquelle est en avance.</p>`,
+                champs: [gNum('t', '$T$ =', T, { unite: 'ms' }), gNum('dt', '$\\Delta t$ =', dt, { unite: 'ms' }), gNum('p', '$|\\Delta\\varphi|$ =', dphi, { unite: '°' }), gChoix('a', avance2 ? 'u2' : 'u1', [['u1', 'u1 est en avance sur u2'], ['u2', 'u2 est en avance sur u1']], { groupe: 'Avance' })],
+                correction: `<p>$T = ${T}$ ms ; les maxima (ou les passages par zéro en montant) sont décalés de $\\Delta t = ${centiemeTeX(dt)}$ ms. $|\\Delta\\varphi| = 360° \\times \\dfrac{\\Delta t}{T} = ${centiemeTeX(dphi)}°$.</p><p>La courbe qui passe la première par son maximum est en avance : <strong class="text-white">${avance2 ? 'u2' : 'u1'}</strong>.</p>` };
+        }
+        function ph1Offset() {
+            const X0 = choisir([1, 2, 3, 4]), Xm = choisir([2, 3, 4]), T = choisir([4, 10, 20]);
+            const eff = Math.sqrt(X0 * X0 + Xm * Xm / 2);
+            return { enonce: `${figPhys(svgCourbes({ fs: [(t) => X0 + Xm * Math.sin(2 * Math.PI * t / T)], tmax: 2 * T, ymin: -2, ymax: Math.ceil(X0 + Xm + 1), dx: T / 4, dy: 1, noms: ['u (V)'] }))}<p>Cette tension est la somme d'une composante continue et d'une sinusoïde. Lis la valeur moyenne et l'amplitude de la partie variable, puis calcule la valeur efficace de $u$.</p>`,
+                champs: [gNum('m', '$\\langle u \\rangle$ =', X0, { unite: 'V' }), gNum('a', '$U_m$ =', Xm, { unite: 'V' }), gNum('e', '$U_{eff}$ =', eff, { unite: 'V' })],
+                correction: `<p>La courbe oscille entre $${X0 - Xm}$ et $${X0 + Xm}$ V : valeur moyenne $${X0}$ V (le milieu), amplitude $${Xm}$ V.</p><p>$U_{eff}^2 = U_0^2 + U_{eff,\\sim}^2 = ${X0}^2 + \\left(\\dfrac{${Xm}}{\\sqrt2}\\right)^2$, donc $U_{eff} \\approx ${centiemeTeX(eff)}$ V.</p>` };
+        }
+        physExo('1ère Année', 'ph1-sinus', 'psi', 'Sinusoïdes', 'Les grandeurs sinusoïdales', { lect: ph1LectureSinus, deph: ph1Dephasage, off: ph1Offset },
+            { tout: 'Tout', lect: 'Lire un oscillogramme', deph: 'Déphasage', off: 'Composante continue' }, { lect: [1, 3], deph: [2], off: [3] }, 'activity');
+
+        // ----- chapitre 5 : régime sinusoïdal forcé -----
+        function svgSerieAC(Ueff, f, comps, mesure, droite) {
+            let o = PF.L(50, 40, 50, 88) + `<circle cx="50" cy="100" r="12"/><path d="M43 100q3.5 -8 7 0t7 0"/>` + PF.t(32, 104, `${Ueff} V ; ${f} Hz`, { a: 'end', s: 10, b: 1 }) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 90, 40);
+            let x = 90; comps.forEach((c, k) => { const cx = 120 + k * 110; o += PF.L(x, 40, cx - 20, 40) + PF[c.t](cx, 40, 0) + PF.t(cx, 26, c.lab, { s: 10, b: 1 }); x = cx + 20; });
+            o += PF.L(x, 40, 340, 40) + (droite ? PF.L(340, 40, 340, 80) + PF[droite.t](340, 100, 90) + PF.L(340, 120, 340, 160) + PF.t(330, 104, droite.lab, { s: 10, b: 1, a: 'end' }) : PF.L(340, 40, 340, 160)) + PF.L(50, 160, 340, 160) + PF.fleche(70, 40, 86, 40, CR) + PF.t(78, 32, 'i', { c: CR, b: 1, i: 1 });
+            if (mesure) o += PF.fleche(360, 150, 360, 50, CB) + PF.t(368, 104, mesure, { c: CB, b: 1, a: 'start', i: 1 });
+            return PF.svg(480, 176, `<g transform="translate(90 0)">${o}</g>`, 'Circuit en régime sinusoïdal', 480);
+        }
+        function ph1Impedance() {
+            const f = choisir([50, 100, 500, 1000]), w = 2 * Math.PI * f, R = choisir([10, 47, 100, 220, 470]), bob = Math.random() < 0.5;
+            const L = choisir([0.01, 0.05, 0.1, 0.2]), C = choisir([1, 2.2, 4.7, 10, 47]) * 1e-6, X = bob ? L * w : -1 / (C * w), Z = Math.hypot(R, X), phi = Math.atan2(X, R) * 180 / Math.PI, U = choisir([10, 12, 24, 230]);
+            return { enonce: `${figPhys(svgSerieAC(U, f, [{ t: 'res', lab: `R = ${fmtR(R)}` }, bob ? { t: 'ind', lab: `L = ${fmtL(L)}` } : { t: 'cap', lab: `C = ${fmtC(C)}` }], null))}<p>Calcule le module de l'impédance du dipôle, le déphasage $\\varphi = \\varphi_u - \\varphi_i$ (en degrés, avec son signe) et la valeur efficace du courant.</p>`,
+                champs: [gNum('z', '$|\\underline Z|$ =', Z, { unite: 'Ω' }), gNum('p', '$\\varphi$ =', phi, { unite: '°' }), gNum('i', '$I_{eff}$ =', U / Z * 1000, { unite: 'mA', alt: U / r2(Z) * 1000 })],
+                correction: `<p>$\\underline Z = R + ${bob ? 'jL\\omega' : '\\dfrac{1}{jC\\omega}'}$, avec $${bob ? 'L\\omega' : '\\dfrac{1}{C\\omega}'} \\approx ${centiemeTeX(Math.abs(X))}\\ \\Omega$. $|\\underline Z| = \\sqrt{R^2 + X^2} \\approx ${centiemeTeX(Z)}\\ \\Omega$ ; $\\varphi = \\arctan\\dfrac{X}{R} \\approx ${centiemeTeX(phi)}°$ (${bob ? 'u en avance sur i : dipôle inductif' : 'u en retard sur i : dipôle capacitif'}).</p><p>$I_{eff} = U_{eff}/|\\underline Z| \\approx ${centiemeTeX(U / Z * 1000)}$ mA.</p>` };
+        }
+        function ph1RC() {
+            const E = choisir([5, 10, 12]), R = choisir([100, 1000, 2200, 4700]), C = choisir([10, 47, 100, 220]) * 1e-9, fc = 1 / (2 * Math.PI * R * C), f = Math.round(fc * choisir([0.5, 1, 2, 5]) / 10) * 10 || 10, x = f / fc;
+            const Uc = E / Math.sqrt(1 + x * x), ph = -Math.atan(x) * 180 / Math.PI;
+            return { enonce: `${figPhys(svgSerieAC(E, f, [{ t: 'res', lab: `R = ${fmtR(R)}` }], 'uC', { t: 'cap', lab: `C = ${centiemeFR(C * 1e9)} nF` }))}<p>Le générateur délivre une tension sinusoïdale $e$ de valeur efficace $E$. Calcule $RC\\omega$, la valeur efficace de $u_C$ et son déphasage par rapport à $e$ (en degrés).</p>`,
+                champs: [gNum('x', '$RC\\omega$ =', x), gNum('u', '$U_C$ =', Uc, { unite: 'V', alt: E / Math.sqrt(1 + r2(x) ** 2) }), gNum('p', '$\\varphi$ =', ph, { unite: '°', alt: -Math.atan(r2(x)) * 180 / Math.PI })],
+                correction: `<p>Diviseur de tension : $\\underline U_C = \\dfrac{\\underline E}{1 + jRC\\omega}$, avec $RC\\omega = 2\\pi f RC \\approx ${centiemeTeX(x)}$. $U_C = \\dfrac{E}{\\sqrt{1 + (RC\\omega)^2}} \\approx ${centiemeTeX(Uc)}$ V et $\\varphi = -\\arctan(RC\\omega) \\approx ${centiemeTeX(ph)}°$ ($u_C$ en retard sur $e$).</p>` };
+        }
+        function svgFresnelUI(U, I, phi) {
+            const O = [70, 150], a = phi * Math.PI / 180, lu = 150, li = 130;
+            let o = PF.fleche(...O, O[0] + li, O[1], CR) + PF.t(O[0] + li + 6, O[1] + 4, `I = ${centiemeFR(I)} A`, { c: CR, b: 1, s: 11, a: 'start' });
+            o += PF.fleche(...O, O[0] + lu * Math.cos(a), O[1] - lu * Math.sin(a), CB) + PF.t(O[0] + lu * Math.cos(a) + 6, O[1] - lu * Math.sin(a) - 4, `U = ${centiemeFR(U)} V`, { c: CB, b: 1, s: 11, a: 'start' });
+            o += `<path d="M${O[0] + 50} ${O[1]}A50 50 0 0 ${phi > 0 ? 0 : 1} ${O[0] + 50 * Math.cos(a)} ${O[1] - 50 * Math.sin(a)}" stroke="${SVG_ACCENT}"/>` + PF.t(O[0] + 66 * Math.cos(a / 2), O[1] - 66 * Math.sin(a / 2) + 4, `${Math.abs(phi)}°`, { c: SVG_ACCENT, b: 1, s: 11, a: 'start' });
+            return PF.svg(380, phi > 0 ? 180 : 230, `<g transform="translate(0 ${phi > 0 ? 0 : -60})">${o}</g>`, 'Diagramme de Fresnel de U et I', 380);
+        }
+        function ph1Puissance() {
+            const U = choisir([12, 24, 48, 230]), I = choisir([0.5, 1, 2, 5, 10]), phi = choisir([20, 30, 37, 45, 60, -30, -45]), r = phi * Math.PI / 180;
+            return { enonce: `${figPhys(svgFresnelUI(U, I, phi))}<p>Le diagramme donne les valeurs efficaces et le déphasage de $u$ par rapport à $i$ pour un dipôle. Calcule les puissances active, réactive et apparente.</p>`,
+                champs: [gNum('p', '$P$ =', U * I * Math.cos(r), { unite: 'W' }), gNum('q', '$Q$ =', U * I * Math.sin(r), { unite: 'var' }), gNum('s', '$S$ =', U * I, { unite: 'VA' })],
+                correction: `<p>$\\varphi = ${phi}°$ (${phi > 0 ? 'u en avance : dipôle inductif, Q > 0' : 'u en retard : dipôle capacitif, Q < 0'}). $P = UI\\cos\\varphi \\approx ${centiemeTeX(U * I * Math.cos(r))}$ W ; $Q = UI\\sin\\varphi \\approx ${centiemeTeX(U * I * Math.sin(r))}$ var ; $S = UI = ${centiemeTeX(U * I)}$ VA.</p>` };
+        }
+        physExo('1ère Année', 'ph1-regime', 'prs', 'Régime sinusoïdal', 'Le régime sinusoïdal forcé', { imp: ph1Impedance, rc: ph1RC, pui: ph1Puissance },
+            { tout: 'Tout', imp: 'Impédance d\'un circuit', rc: 'Circuit RC', pui: 'Puissances (Fresnel)' }, { imp: [2], rc: [3], pui: [4] }, 'waves');
+
+        // ----- chapitre 6 : analyse spectrale -----
+        function svgSpectre(raies, fmax, df, Amax, dA) {
+            const x0 = 50, y0 = 190, W = 380, Hh = 160, X = (f) => x0 + f / fmax * W, Y = (a) => y0 - a / Amax * Hh;
+            let o = '';
+            for (let f = 0; f <= fmax + 1e-9; f += df) o += PF.L(X(f), y0, X(f), y0 + 4, SVG_DISCRET) + PF.t(X(f), y0 + 16, String(Math.round(f)), { c: SVG_DISCRET, s: 9 });
+            for (let a = 0; a <= Amax + 1e-9; a += dA) o += PF.L(x0, Y(a), x0 + W, Y(a), '#1e293b') + PF.t(x0 - 6, Y(a) + 3, centiemeFR(a), { c: SVG_DISCRET, s: 9, a: 'end' });
+            o += PF.L(x0, y0, x0 + W + 8, y0, SVG_DISCRET) + PF.L(x0, y0, x0, Y(Amax) - 6, SVG_DISCRET);
+            raies.forEach(([f, a]) => { o += `<path d="M${X(f)} ${y0}V${Y(a)}" stroke="${SVG_ACCENT}" stroke-width="4"/>`; });
+            o += PF.t(x0 + W, y0 + 30, 'f (Hz)', { c: SVG_DISCRET, s: 10, a: 'end' }) + PF.t(x0 + 4, Y(Amax) - 10, 'amplitude (V)', { c: SVG_ACCENT, s: 10, a: 'start' });
+            return PF.svg(450, 230, o, 'Spectre en amplitude', 450);
+        }
+        function ph1LireSpectre() {
+            const f0 = choisir([50, 100, 200, 250]), X0 = choisir([0, 0, 1, 2]), A = [choisir([4, 5, 6]), 0, choisir([1, 1.5, 2]), 0, choisir([0.5, 1])], k = choisir([3, 5]);
+            const raies = (X0 ? [[0, X0]] : []).concat(A.map((a, i) => [(i + 1) * f0, a]).filter(r => r[1] > 0));
+            return { enonce: `${figPhys(svgSpectre(raies, 6 * f0, f0, 7, 1))}<p>Voici le spectre en amplitude d'un signal périodique. Donne la fréquence du fondamental, la valeur moyenne du signal, l'amplitude de l'harmonique de rang ${k} et sa fréquence.</p>`,
+                champs: [gNum('f', '$f_1$ =', f0, { unite: 'Hz' }), gNum('m', 'Valeur moyenne =', X0, { unite: 'V' }), gNum('a', `Amplitude du rang ${k} =`, A[k - 1], { unite: 'V' }), gNum('fk', `Fréquence du rang ${k} =`, k * f0, { unite: 'Hz' })],
+                correction: `<p>Le fondamental est la première raie non nulle après $f = 0$ : $f_1 = ${f0}$ Hz. La raie en $f = 0$ est la valeur moyenne : ${X0 ? `${X0} V` : 'il n\'y en a pas, valeur moyenne nulle'}. L'harmonique de rang ${k} est à $${k} f_1 = ${k * f0}$ Hz, d'amplitude ${centiemeFR(A[k - 1])} V.</p>` };
+        }
+        function ph1SignalSpectre() {
+            const X0 = choisir([1, 2, 3]), Xm = choisir([2, 3, 4]), T = choisir([2, 4, 5, 10]);
+            return { enonce: `${figPhys(svgCourbes({ fs: [(t) => X0 + Xm * Math.cos(2 * Math.PI * t / T)], tmax: 2 * T, ymin: -2, ymax: X0 + Xm + 1, dx: T / 4, dy: 1, noms: ['u (V)'] }))}<p>Ce signal a un spectre à deux raies. Donne la fréquence et l'amplitude de chacune (raie continue, puis raie sinusoïdale).</p>`,
+                champs: [gNum('f0', 'Raie 1 : fréquence =', 0, { unite: 'Hz', groupe: 'Raie continue' }), gNum('a0', 'amplitude =', X0, { unite: 'V', groupe: 'Raie continue' }), gNum('f1', 'Raie 2 : fréquence =', 1000 / T, { unite: 'Hz', groupe: 'Raie sinusoïdale' }), gNum('a1', 'amplitude =', Xm, { unite: 'V', groupe: 'Raie sinusoïdale' })],
+                correction: `<p>La composante continue (valeur moyenne $${X0}$ V) donne une raie en $f = 0$. La sinusoïde de période $${T}$ ms donne une raie en $f = ${centiemeTeX(1000 / T)}$ Hz, de hauteur égale à son amplitude, $${Xm}$ V.</p>` };
+        }
+        function ph1Carre() {
+            const A = choisir([1, 2, 3, 5]), T = choisir([2, 4, 5, 10]), f = 1000 / T, sq = (t) => ((t % T) < T / 2 ? A : -A);
+            return { enonce: `${figPhys(svgCourbes({ fs: [sq], tmax: 2 * T, ymin: -A - 1, ymax: A + 1, dx: T / 4, dy: 1, noms: ['u (V)'] }))}<p>Ce signal carré symétrique ne contient que des harmoniques de rang impair, d'amplitudes $\\dfrac{4A}{k\\pi}$. Donne sa fréquence, l'amplitude du fondamental et celle de l'harmonique de rang 3, et la fréquence de cette harmonique.</p>`,
+                champs: [gNum('f', '$f$ =', f, { unite: 'Hz' }), gNum('a1', 'Fondamental =', 4 * A / Math.PI, { unite: 'V' }), gNum('a3', 'Rang 3 =', 4 * A / (3 * Math.PI), { unite: 'V' }), gNum('f3', 'Fréquence du rang 3 =', 3 * f, { unite: 'Hz' })],
+                correction: `<p>$A = ${A}$ V et $T = ${T}$ ms, donc $f = ${centiemeTeX(f)}$ Hz. Fondamental : $\\dfrac{4A}{\\pi} \\approx ${centiemeTeX(4 * A / Math.PI)}$ V ; rang 3 : $\\dfrac{4A}{3\\pi} \\approx ${centiemeTeX(4 * A / (3 * Math.PI))}$ V à $3f = ${centiemeTeX(3 * f)}$ Hz. Pas de valeur moyenne ni d'harmoniques paires (signal symétrique).</p>` };
+        }
+        // ----- tracer un spectre : on clique dans la colonne d'une fréquence pour poser la raie -----
+        // attendu : { fréquence: amplitude } ; pas : finesse de la hauteur (V)
+        function spectreExtra(f0, nCols, attendu, Amax, pas, tol = 0.01) {
+            const freqs = Array.from({ length: nCols + 1 }, (_, k) => k * f0), st = {};
+            const fmtA = (a) => centiemeFR(Math.round(a * 100) / 100);
+            const dessin = (sol) => {
+                const x0 = 54, y0 = 210, W = 420, Hh = 180, cw = W / (nCols + 1), X = (k) => x0 + (k + 0.5) * cw, Y = (a) => y0 - a / Amax * Hh, src = sol || st;
+                let o = '';
+                for (let a = 0; a <= Amax + 1e-9; a += (Amax > 6 ? 1 : 0.5)) o += PF.L(x0, Y(a), x0 + W, Y(a), '#1e293b') + PF.t(x0 - 6, Y(a) + 3, centiemeFR(a), { c: SVG_DISCRET, s: 9, a: 'end' });
+                freqs.forEach((f, k) => {
+                    o += `<rect data-sk="${k}" x="${x0 + k * cw + 1}" y="${Y(Amax)}" width="${cw - 2}" height="${Hh}" fill="${k % 2 ? '#0f172a' : '#131c2e'}" style="cursor:pointer"/>`;
+                    o += PF.t(X(k), y0 + 15, String(f), { c: SVG_DISCRET, s: 9 });
+                });
+                let barres = '';
+                freqs.forEach((f, k) => { const a = src[f]; if (a > 0) barres += `<path d="M${X(k)} ${y0}V${Y(a)}" stroke="${sol ? CV : SVG_ACCENT}" stroke-width="5"/>` + PF.t(X(k), Y(a) - 6, fmtA(a), { c: sol ? CV : SVG_ACCENT, s: 10, b: 1 }); });
+                o += `<g pointer-events="none">${barres}${PF.L(x0, y0, x0 + W + 6, y0, SVG_DISCRET)}${PF.L(x0, y0, x0, Y(Amax) - 6, SVG_DISCRET)}${PF.t(x0 + W, y0 + 30, 'f (Hz)', { c: SVG_DISCRET, s: 10, a: 'end' })}${PF.t(x0 + 4, Y(Amax) - 10, 'amplitude (V)', { c: SVG_ACCENT, s: 10, a: 'start' })}</g>`;
+                return `<svg viewBox="0 0 490 250" width="490" style="max-width:none;height:auto" role="img" aria-label="Spectre à tracer">${o}</svg>`;
+            };
+            const redessiner = (id) => {
+                document.getElementById(`${id}-spectre`).innerHTML = dessin();
+                freqs.forEach((f, k) => { const el = document.getElementById(`${id}-sa-${k}`); if (el && document.activeElement !== el) el.value = st[f] ? String(st[f]).replace('.', ',') : ''; });
+            };
+            return {
+                html: (id) => `<p class="text-sm font-semibold text-slate-200">Spectre en amplitude à tracer</p><p class="text-xs text-slate-400">Clique dans la colonne d'une fréquence, à la hauteur voulue, pour placer la raie (clique tout en bas pour l'enlever), ou écris l'amplitude dans la case sous la fréquence.</p>
+                    <div id="${id}-spectre" class="rounded-xl bg-slate-950 border border-slate-800 p-3 overflow-x-auto"></div>
+                    <div class="flex flex-wrap gap-2">${freqs.map((f, k) => `<label class="text-xs text-slate-400 flex flex-col items-center gap-1">${f} Hz<input id="${id}-sa-${k}" data-sk="${k}" inputmode="decimal" class="${EXG_CLASSE}${ETATS_CHAMP.neutre}" style="width:3.6rem"></label>`).join('')}</div>`,
+                init: (id) => {
+                    const z = document.getElementById(`${id}-extra`);
+                    z.addEventListener('click', (ev) => {
+                        const r = ev.target.closest && ev.target.closest('rect[data-sk]'); if (!r) return;
+                        const svg = r.ownerSVGElement, pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+                        let a = (210 - p.y) / 180 * Amax; a = Math.round(a / pas) * pas; a = Math.max(0, Math.min(Amax, a));
+                        const f = freqs[Number(r.dataset.sk)]; if (a < pas / 2) delete st[f]; else st[f] = Math.round(a * 1000) / 1000; redessiner(id);
+                    });
+                    z.addEventListener('input', (ev) => {
+                        const el = ev.target; if (!el.dataset || el.dataset.sk === undefined || el.tagName !== 'INPUT') return;
+                        const f = freqs[Number(el.dataset.sk)], v = parseFloat(el.value.replace(',', '.'));
+                        if (!el.value.trim() || isNaN(v) || v <= 0) delete st[f]; else st[f] = Math.min(Amax, v);
+                        el.className = EXG_CLASSE + ETATS_CHAMP.neutre; document.getElementById(`${id}-spectre`).innerHTML = dessin();
+                    });
+                    redessiner(id);
+                },
+                verifier: () => {
+                    const places = Object.keys(st).filter(f => st[f] > 0).map(Number);
+                    if (!places.length) return { ok: false, vide: true, msg: 'Spectre : place les raies.' };
+                    for (const f of Object.keys(attendu).map(Number)) {
+                        if (!(st[f] > 0)) return { ok: false, msg: `Spectre : il manque une raie (une composante du signal n'est pas tracée).` };
+                        if (Math.abs(st[f] - attendu[f]) > tol) return { ok: false, msg: `Spectre : la raie à ${f} Hz n'a pas la bonne hauteur.` };
+                    }
+                    const enTrop = places.find(f => !(f in attendu));
+                    if (enTrop !== undefined) return { ok: false, msg: `Spectre : la raie à ${enTrop} Hz ne correspond à aucune composante du signal.` };
+                    return { ok: true };
+                },
+                corriger: (id) => { Object.keys(st).forEach(f => delete st[f]); Object.entries(attendu).forEach(([f, a]) => { st[f] = a; }); redessiner(id); },
+                reinit: (id) => { Object.keys(st).forEach(f => delete st[f]); redessiner(id); }
+            };
+        }
+        function spTraceExpr() {
+            const f0 = choisir([50, 100, 200, 500]), X0 = choisir([0, 0, 1, 1.5, 2]), rangs = melanger([1, 2, 3, 4, 5]).slice(0, gInt(2, 3)).sort((a, b) => a - b);
+            const amp = rangs.map(() => choisir([0.5, 1, 1.5, 2, 2.5, 3, 4])), fn = choisir(['cos', 'sin']);
+            const att = {}; if (X0) att[0] = X0; rangs.forEach((k, i) => { att[k * f0] = amp[i]; });
+            const termes = (X0 ? [centiemeTeX(X0)] : []).concat(rangs.map((k, i) => `${centiemeTeX(amp[i])}\\${fn}(2\\pi\\cdot${k * f0}\\,t)`));
+            const Amax = Math.max(...amp, X0) + 1;
+            return { enonce: `<p>Un signal s'écrit (en volts, $t$ en secondes) :</p><p class="text-center">$u(t) = ${termes.join(' + ')}$</p><p>Trace son spectre en amplitude.</p>`,
+                extra: spectreExtra(f0, 6, att, Amax, 0.5), champs: [],
+                correction: `<p>Chaque terme donne une raie : ${X0 ? `la constante $${centiemeTeX(X0)}$ V est une raie en $f = 0$ (valeur moyenne) ; ` : ''}${rangs.map((k, i) => `$${centiemeTeX(amp[i])}\\${fn}(2\\pi\\cdot${k * f0}\\,t)$ est une raie de hauteur ${centiemeFR(amp[i])} V à ${k * f0} Hz`).join(' ; ')}. Le spectre corrigé est tracé ci-dessus.</p>` };
+        }
+        function spTraceGraphe() {
+            const X0 = choisir([0.5, 1, 1.5, 2, 3]), Xm = choisir([1, 1.5, 2, 2.5, 3]), T = choisir([2, 4, 5, 10]), f = 1000 / T;
+            const att = { 0: X0 }; att[f] = Xm;
+            return { enonce: `${figPhys(svgCourbes({ fs: [(t) => X0 + Xm * Math.cos(2 * Math.PI * t / T)], tmax: 2 * T, ymin: Math.floor(X0 - Xm - 1), ymax: Math.ceil(X0 + Xm + 1), dx: T / 4, dy: 0.5, noms: ['u (V)'] }))}<p>Trace le spectre en amplitude de ce signal (axe des fréquences gradué en multiples de ${centiemeFR(f / 2)} Hz).</p>`,
+                extra: spectreExtra(f / 2, 6, att, Math.max(X0, Xm) + 1, 0.5), champs: [],
+                correction: `<p>Valeur moyenne $${centiemeTeX(X0)}$ V : raie en $f = 0$. Partie sinusoïdale d'amplitude $${centiemeTeX(Xm)}$ V et de période ${T} ms : raie de ${centiemeFR(Xm)} V à $f = ${centiemeTeX(f)}$ Hz.</p>` };
+        }
+        function spTraceCarre() {
+            const A = choisir([1, 2, 3]), T = choisir([2, 4, 5, 10]), f = 1000 / T, att = {};
+            [1, 3, 5].forEach(k => { att[k * f] = Math.round(4 * A / (k * Math.PI) * 100) / 100; });
+            return { enonce: `${figPhys(svgCourbes({ fs: [(t) => ((t % T) < T / 2 ? A : -A)], tmax: 2 * T, ymin: -A - 1, ymax: A + 1, dx: T / 4, dy: 1, noms: ['u (V)'] }))}<p>Ce signal carré symétrique ne contient que des harmoniques impaires d'amplitudes $\\dfrac{4A}{k\\pi}$. Trace son spectre jusqu'au rang 5 (amplitudes au centième près, à écrire dans les cases).</p>`,
+                extra: spectreExtra(f, 6, att, Math.ceil(4 * A / Math.PI) + 1, 0.05, 0.02), champs: [],
+                correction: `<p>$f = 1/T = ${centiemeTeX(f)}$ Hz. Raies aux rangs impairs : ${[1, 3, 5].map(k => `${k * f} Hz : $\\dfrac{4 \\times ${A}}{${k}\\pi} \\approx ${centiemeTeX(att[k * f])}$ V`).join(' ; ')}. Pas de raie à $f = 0$ (valeur moyenne nulle) ni aux rangs pairs.</p>` };
+        }
+        physExo('1ère Année', 'ph1-spectre', 'psp', 'Spectres', 'Analyse spectrale', { lire: ph1LireSpectre, sig: ph1SignalSpectre, car: ph1Carre, tre: spTraceExpr, trg: spTraceGraphe, trc: spTraceCarre },
+            { tout: 'Tout', lire: 'Lire un spectre', sig: 'Du signal au spectre', car: 'Signal carré', tre: 'Tracer : depuis l\'expression', trg: 'Tracer : depuis le signal', trc: 'Tracer : signal carré' }, { lire: [1, 2], sig: [1], car: [2], tre: [1, 2], trg: [1], trc: [2] }, 'bar-chart-3');
+
+        // ----- chapitre 7 : transmittance, filtres -----
+        function svgFiltreRC(R, C, sortieC) {
+            let o = `<circle cx="30" cy="40" r="3" fill="${SVG_FOND}"/><circle cx="30" cy="150" r="3" fill="${SVG_FOND}"/>` + PF.L(30, 150, 300, 150);
+            if (sortieC) o += PF.L(30, 40, 90, 40) + PF.res(110, 40, 0) + PF.L(130, 40, 300, 40) + PF.L(210, 40, 210, 75) + PF.cap(210, 95, 90) + PF.L(210, 115, 210, 150) + PF.t(110, 26, `R = ${fmtR(R)}`, { s: 10, b: 1 }) + PF.t(224, 99, `C = ${fmtC(C)}`, { s: 10, b: 1, a: 'start' });
+            else o += PF.L(30, 40, 90, 40) + PF.cap(110, 40, 0) + PF.L(130, 40, 300, 40) + PF.L(210, 40, 210, 75) + PF.res(210, 95, 90) + PF.L(210, 115, 210, 150) + PF.t(110, 22, `C = ${fmtC(C)}`, { s: 10, b: 1 }) + PF.t(224, 99, `R = ${fmtR(R)}`, { s: 10, b: 1, a: 'start' });
+            o += `<circle cx="300" cy="40" r="3" fill="${SVG_FOND}"/><circle cx="300" cy="150" r="3" fill="${SVG_FOND}"/>` + PF.fleche(14, 145, 14, 45, CB) + PF.t(8, 98, 'e', { c: CB, b: 1, a: 'end', i: 1 }) + PF.fleche(316, 145, 316, 45, SVG_ACCENT) + PF.t(324, 98, 's', { c: SVG_ACCENT, b: 1, a: 'start', i: 1 });
+            return PF.svg(370, 170, `<g transform="translate(20 0)">${o}</g>`, 'Filtre RC', 380);
+        }
+        function ph1Filtre() {
+            const R = choisir([1000, 2200, 4700, 10000]), C = choisir([10, 22, 47, 100]) * 1e-9, bas = Math.random() < 0.5, fc = 1 / (2 * Math.PI * R * C), k = choisir([0.5, 2, 5, 10]), f = fc * k;
+            const H = bas ? 1 / Math.sqrt(1 + k * k) : k / Math.sqrt(1 + k * k), G = 20 * Math.log10(H);
+            return { enonce: `${figPhys(svgFiltreRC(R, C, bas))}<p>Quel est le type de ce filtre ? Calcule sa fréquence de coupure, puis son gain (en dB) pour un signal de fréquence $f = ${centiemeTeX(f)}$ Hz.</p>`,
+                champs: [gChoix('t', bas ? 'bas' : 'haut', [['bas', 'Passe-bas'], ['haut', 'Passe-haut']], { groupe: 'Type' }), gNum('fc', '$f_c$ =', fc, { unite: 'Hz', groupe: 'Calculs' }), gNum('g', '$G$ =', G, { unite: 'dB', groupe: 'Calculs' })],
+                correction: `<p>La sortie est prise aux bornes ${bas ? 'du condensateur : à haute fréquence il se comporte comme un fil et $s \\to 0$, c\'est un <strong class="text-white">passe-bas</strong>' : 'de la résistance : à basse fréquence le condensateur coupe le courant et $s \\to 0$, c\'est un <strong class="text-white">passe-haut</strong>'}.</p><p>$f_c = \\dfrac{1}{2\\pi RC} \\approx ${centiemeTeX(fc)}$ Hz. Avec $x = f/f_c = ${centiemeTeX(k)}$ : $|\\underline H| = ${bas ? '\\dfrac{1}{\\sqrt{1 + x^2}}' : '\\dfrac{x}{\\sqrt{1 + x^2}}'} \\approx ${centiemeTeX(H)}$, soit $G = 20\\log|\\underline H| \\approx ${centiemeTeX(G)}$ dB.</p>` };
+        }
+        function svgBode(bas, fc) {
+            const x0 = 50, y0 = 30, W = 400, Hh = 170, dmin = 1, dmax = 5, X = (f) => x0 + (Math.log10(f) - dmin) / (dmax - dmin) * W, Y = (g) => y0 + (-g) / 60 * Hh;
+            let o = '';
+            for (let d = dmin; d <= dmax; d++) { for (let m = 1; m < 10 && d + Math.log10(m) <= dmax; m++) o += PF.L(X(m * 10 ** d), y0, X(m * 10 ** d), y0 + Hh, m === 1 ? '#334155' : '#1e293b'); o += PF.t(X(10 ** d), y0 + Hh + 14, `10${['⁰', '¹', '²', '³', '⁴', '⁵'][d]}`, { c: SVG_DISCRET, s: 10 }); }
+            for (let g = 0; g >= -60; g -= 10) o += PF.L(x0, Y(g), x0 + W, Y(g), '#1e293b') + PF.t(x0 - 6, Y(g) + 3, String(g), { c: SVG_DISCRET, s: 9, a: 'end' });
+            const G = (f) => { const x = f / fc; return 20 * Math.log10(bas ? 1 / Math.sqrt(1 + x * x) : x / Math.sqrt(1 + x * x)); };
+            o += PF.P(Array.from({ length: 201 }, (_, i) => { const f = 10 ** (dmin + i / 200 * (dmax - dmin)); return [X(f).toFixed(1), Math.min(y0 + Hh, Y(G(f))).toFixed(1)]; }), SVG_ACCENT);
+            o += PF.t(x0 + W, y0 + Hh + 28, 'f (Hz, échelle log)', { c: SVG_DISCRET, s: 10, a: 'end' }) + PF.t(x0 + 4, y0 - 10, 'G (dB)', { c: SVG_ACCENT, s: 10, a: 'start' });
+            return PF.svg(470, 240, o, 'Diagramme de Bode en gain', 470);
+        }
+        function ph1Bode() {
+            const bas = Math.random() < 0.5, fc = choisir([100, 200, 500, 1000, 2000, 5000]), f2 = bas ? fc * 10 : fc / 10, G2 = bas ? -10 * Math.log10(1 + 100) : 20 * Math.log10(0.1 / Math.sqrt(1.01));
+            return { enonce: `${figPhys(svgBode(bas, fc))}<p>Voici le gain d'un filtre du 1er ordre. Quel est son type ? Lis sa fréquence de coupure à −3 dB et donne son gain à $f = ${f2}$ Hz.</p>`,
+                champs: [gChoix('t', bas ? 'bas' : 'haut', [['bas', 'Passe-bas'], ['haut', 'Passe-haut']], { groupe: 'Type' }), gNum('fc', '$f_c$ =', fc, { unite: 'Hz', groupe: 'Lecture' }), gNum('g', '$G$ =', G2, { unite: 'dB', groupe: 'Lecture', alt: -20 })],
+                correction: `<p>Le gain est ${bas ? 'nul à basse fréquence et diminue en haute fréquence : <strong class="text-white">passe-bas</strong>' : 'nul à haute fréquence et diminue en basse fréquence : <strong class="text-white">passe-haut</strong>'}. La courbe passe à −3 dB pour $f_c = ${fc}$ Hz.</p><p>Une décade plus ${bas ? 'haut' : 'bas'} ($f = ${f2}$ Hz), le gain a perdu environ 20 dB : $G \\approx ${centiemeTeX(G2)}$ dB (pente de ${bas ? '−' : '+'}20 dB par décade).</p>` };
+        }
+        physExo('1ère Année', 'ph1-transmittance', 'ptr', 'Filtres', 'Transmittance et filtres', { filtre: ph1Filtre, bode: ph1Bode },
+            { tout: 'Tout', filtre: 'Filtre RC', bode: 'Lire un diagramme de Bode' }, { filtre: [1, 3], bode: [2, 3] }, 'filter');
+
+        // ----- chapitre 8 : ALI -----
+        function svgALI(type, R1, R2, Ve) {
+            const tri = `<path d="M150 50L150 150L240 100Z" fill="${SVG_FOND}" stroke="${SVG_TRAIT}"/>` + PF.t(160, 79, '−', { b: 1, s: 14 }) + PF.t(160, 129, '+', { b: 1, s: 14 }) + PF.t(195, 104, '∞', { s: 13, c: SVG_DISCRET });
+            let o = tri + PF.L(240, 100, 320, 100) + `<circle cx="320" cy="100" r="3" fill="${SVG_FOND}"/>` + PF.t(328, 104, 'Vs', { b: 1, a: 'start', c: SVG_ACCENT });
+            const masse = (x, y) => PF.L(x, y, x, y + 10) + PF.L(x - 10, y + 10, x + 10, y + 10) + PF.L(x - 6, y + 14, x + 6, y + 14);
+            if (type === 'suiv') o += PF.L(40, 125, 150, 125) + PF.L(150, 75, 130, 75) + PF.L(130, 75, 130, 30) + PF.L(130, 30, 280, 30) + PF.L(280, 30, 280, 100);
+            else if (type === 'inv') o += PF.L(40, 75, 70, 75) + PF.res(90, 75, 0) + PF.L(110, 75, 150, 75) + PF.L(125, 75, 125, 30) + PF.L(125, 30, 180, 30) + PF.res(200, 30, 0) + PF.L(220, 30, 280, 30) + PF.L(280, 30, 280, 100) + PF.L(150, 125, 125, 125) + masse(125, 125)
+                + PF.t(90, 62, `R1 = ${fmtR(R1)}`, { s: 10, b: 1 }) + PF.t(200, 16, `R2 = ${fmtR(R2)}`, { s: 10, b: 1 });
+            else o += PF.L(40, 125, 150, 125) + PF.L(150, 75, 110, 75) + PF.L(110, 75, 110, 160) + PF.res(110, 180, 90) + masse(110, 200) + PF.L(110, 75, 110, 30) + PF.L(110, 30, 180, 30) + PF.res(200, 30, 0) + PF.L(220, 30, 280, 30) + PF.L(280, 30, 280, 100)
+                + PF.t(124, 184, `R1 = ${fmtR(R1)}`, { s: 10, b: 1, a: 'start' }) + PF.t(200, 16, `R2 = ${fmtR(R2)}`, { s: 10, b: 1 });
+            const ye = type === 'inv' ? 75 : 125;
+            o += `<circle cx="40" cy="${ye}" r="3" fill="${SVG_FOND}"/>` + PF.t(32, ye + 4, `Ve = ${centiemeFR(Ve)} V`, { b: 1, a: 'end', c: CB, s: 11 });
+            return PF.svg(430, 222, `<g transform="translate(60 0)">${o}</g>`, 'Montage à ALI', 440);
+        }
+        function ph1Montage() {
+            const type = choisir(['inv', 'ninv', 'suiv']), R1 = choisir([1000, 2200, 4700, 10000]), R2 = choisir([2200, 4700, 10000, 22000, 47000]), Ve = choisir([-2, -1, -0.5, 0.2, 0.5, 1, 1.5, 3]), Vsat = 15;
+            const A = type === 'inv' ? -R2 / R1 : type === 'ninv' ? 1 + R2 / R1 : 1, Vlin = A * Ve, sat = Math.abs(Vlin) > Vsat, Vs = sat ? Math.sign(Vlin) * Vsat : Vlin;
+            const noms = { inv: 'inverseur', ninv: 'non inverseur', suiv: 'suiveur' };
+            return { enonce: `${figPhys(svgALI(type, R1, R2, Ve))}<p>L'ALI est idéal, alimenté en ±15 V (saturation à ±15 V). Reconnais le montage, calcule son amplification et la tension de sortie.</p>`,
+                champs: [{ kind: 'select', cle: 'm', label: 'Montage :', sol: type, options: [['inv', 'Inverseur'], ['ninv', 'Non inverseur'], ['suiv', 'Suiveur']], groupe: 'Montage' }, gNum('a', '$A = V_s/V_e$ (régime linéaire) =', A, { groupe: 'Calculs' }), gNum('vs', '$V_s$ =', Vs, { unite: 'V', groupe: 'Calculs', alt: sat ? undefined : r2(A) * Ve })],
+                correction: `<p>Montage <strong class="text-white">${noms[type]}</strong> (contre-réaction sur l'entrée −, donc régime linéaire possible) : $A = ${type === 'inv' ? '-\\dfrac{R_2}{R_1}' : type === 'ninv' ? '1 + \\dfrac{R_2}{R_1}' : '1'} \\approx ${centiemeTeX(A)}$.</p><p>$A\\,V_e \\approx ${centiemeTeX(Vlin)}$ V${sat ? ` : c'est au-delà de ±15 V, l'ALI <strong class="text-white">sature</strong> et $V_s = ${Vs}$ V.` : ` : on reste dans ±15 V, donc $V_s \\approx ${centiemeTeX(Vs)}$ V.`}</p>` };
+        }
+        function svgComparateur(Ve, Vref, inv) {
+            const tri = `<rect x="150" y="50" width="90" height="100" fill="${SVG_FOND}" stroke="${SVG_TRAIT}"/>` + PF.t(160, 79, '−', { b: 1, s: 14 }) + PF.t(160, 129, '+', { b: 1, s: 14 }) + `<path d="M186 66V94L208 80Z" stroke="${SVG_TRAIT}" fill="none"/>`;
+            const yE = inv ? 75 : 125, yR = inv ? 125 : 75;
+            let o = tri + PF.L(240, 100, 320, 100) + PF.t(328, 104, 'Vs', { b: 1, a: 'start', c: SVG_ACCENT }) + PF.L(40, yE, 150, yE) + PF.L(90, yR, 150, yR);
+            o += PF.t(32, yE + 4, `Ve = ${centiemeFR(Ve)} V`, { b: 1, a: 'end', c: CB, s: 11 }) + PF.t(82, yR + 4, `Vref = ${centiemeFR(Vref)} V`, { b: 1, a: 'end', s: 11 });
+            return PF.svg(430, 180, `<g transform="translate(60 0)">${o}</g>`, 'Comparateur à ALI', 440);
+        }
+        function ph1Comparateur() {
+            const Vref = choisir([1, 2, 2.5, 3, 5]), Ve = Vref + choisir([-2, -1, -0.5, 0.5, 1, 2]), inv = Math.random() < 0.5, plus = inv ? Vref : Ve, moins = inv ? Ve : Vref, Vs = plus > moins ? 15 : -15;
+            return { enonce: `${figPhys(svgComparateur(Ve, Vref, inv))}<p>L'ALI fonctionne sans contre-réaction, alimenté en ±15 V. Dans quel régime est-il, et que vaut $V_s$ ?</p>`,
+                champs: [gChoix('r', 'sat', [['lin', 'Régime linéaire'], ['sat', 'Régime saturé (comparateur)']], { groupe: 'Régime' }), gNum('vs', '$V_s$ =', Vs, { unite: 'V', groupe: 'Sortie' })],
+                correction: `<p>Sans contre-réaction, l'ALI est en <strong class="text-white">régime saturé</strong> : il compare $V_+$ et $V_-$. Ici $V_+ = ${centiemeTeX(plus)}$ V et $V_- = ${centiemeTeX(moins)}$ V, donc $V_+ ${plus > moins ? '>' : '<'} V_-$ et $V_s = ${Vs}$ V.</p>` };
+        }
+        physExo('1ère Année', 'ph1-ali', 'pal', 'ALI', 'Amplificateurs linéaires intégrés', { mont: ph1Montage, comp: ph1Comparateur },
+            { tout: 'Tout', mont: 'Montages amplificateurs', comp: 'Comparateur' }, { mont: [2, 3], comp: [2, 4] }, 'triangle');
+
+        // ----- 2ème année, chapitre 10 : semi-conducteurs -----
+        function svgDiodeCircuit(E, R, direct) {
+            let o = PF.L(50, 40, 50, 88) + PF.src(50, 100, `E = ${E} V`, false) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 100, 40) + PF.res(120, 40, 0) + PF.L(140, 40, 210, 40) + PF.diode(230, 40, direct ? 0 : 180) + PF.L(250, 40, 300, 40) + PF.L(300, 40, 300, 160) + PF.L(50, 160, 300, 160);
+            o += PF.t(120, 26, `R = ${fmtR(R)}`, { s: 10, b: 1 }) + PF.t(230, 22, 'D', { b: 1 }) + PF.fleche(70, 40, 86, 40, CR) + PF.t(78, 32, 'I', { c: CR, b: 1, i: 1 });
+            return PF.svg(380, 176, `<g transform="translate(40 0)">${o}</g>`, 'Circuit avec une diode', 390);
+        }
+        function semiDiode() {
+            const E = choisir([3, 5, 9, 12]), R = choisir([100, 220, 470, 1000]), direct = Math.random() < 0.6, Vs = choisir([0, 0.7]);
+            const I = direct ? (E - Vs) / R * 1000 : 0, VR = direct ? E - Vs : 0;
+            return { enonce: `${figPhys(svgDiodeCircuit(E, R, direct))}<p>La diode est modélisée ${Vs ? `avec une tension de seuil $V_s = 0{,}7$ V` : 'comme une diode idéale'}. Est-elle passante ou bloquée ? Calcule le courant et la tension aux bornes de R.</p>`,
+                champs: [gChoix('e', direct ? 'pass' : 'bloq', [['pass', 'Passante'], ['bloq', 'Bloquée']], { groupe: 'État de la diode' }), gNum('i', '$I$ =', I, { unite: 'mA', groupe: 'Valeurs' }), gNum('ur', '$U_R$ =', VR, { unite: 'V', groupe: 'Valeurs' })],
+                correction: `<p>${direct ? `L'anode est du côté du + de la source : $V_{AK}$ peut devenir positive, la diode est <strong class="text-white">passante</strong>. ${Vs ? 'Elle impose $V_{AK} = 0{,}7$ V' : 'Elle se comporte comme un fil'} : $I = \\dfrac{E ${Vs ? '- V_s' : ''}}{R} \\approx ${centiemeTeX(I)}$ mA et $U_R = R I \\approx ${centiemeTeX(VR)}$ V.` : `La diode est montée en inverse ($V_{AK} < 0$) : elle est <strong class="text-white">bloquée</strong>, aucun courant ne circule, $U_R = 0$ (toute la tension E est sur la diode).`}</p>` };
+        }
+        function svgTransistorCommut(VCC, RC, RB, Ve) {
+            let o = PF.transistor(200, 110, 'npn') + PF.L(218, 76, 218, 70) + PF.res(218, 50, 90) + PF.L(218, 30, 218, 20) + PF.L(218, 20, 300, 20) + PF.t(306, 24, `VCC = ${VCC} V`, { b: 1, s: 10, a: 'start' });
+            o += PF.L(218, 144, 218, 170) + PF.L(204, 170, 232, 170) + PF.L(209, 175, 227, 175) + PF.L(174, 110, 140, 110) + PF.res(120, 110, 0) + PF.L(100, 110, 60, 110) + `<circle cx="60" cy="110" r="3" fill="${SVG_FOND}"/>` + PF.t(52, 114, `Ve = ${centiemeFR(Ve)} V`, { b: 1, a: 'end', c: CB, s: 11 });
+            o += PF.t(232, 54, `RC = ${fmtR(RC)}`, { s: 10, b: 1, a: 'start' }) + PF.t(120, 96, `RB = ${fmtR(RB)}`, { s: 10, b: 1 }) + PF.t(234, 114, 'C–E', { c: SVG_DISCRET, s: 9, a: 'start' });
+            return PF.svg(420, 186, `<g transform="translate(50 0)">${o}</g>`, 'Transistor NPN en commutation', 430);
+        }
+        function semiTransistor() {
+            const VCC = choisir([5, 12, 24]), RC = choisir([100, 220, 470, 1000]), RB = choisir([4700, 10000, 22000, 47000]), beta = choisir([50, 100, 150, 200]), Ve = choisir([0, 5, 5, 3.3, 12]);
+            const IB = Ve > 0.7 ? (Ve - 0.7) / RB * 1000 : 0, ICsat = VCC / RC * 1000, Ilin = beta * IB, reg = IB === 0 ? 'bloq' : Ilin >= ICsat ? 'sat' : 'lin', IC = reg === 'bloq' ? 0 : reg === 'sat' ? ICsat : Ilin;
+            return { enonce: `${figPhys(svgTransistorCommut(VCC, RC, RB, Ve))}<p>Transistor de gain $\\beta = ${beta}$, $V_{BE} = 0{,}7$ V quand il conduit, $V_{CE\\,sat} \\approx 0$. Calcule $i_B$, le courant de saturation $i_{C\\,sat}$, puis donne le régime et $i_C$.</p>`,
+                champs: [gNum('ib', '$i_B$ =', IB, { unite: 'mA' }), gNum('ics', '$i_{C\\,sat}$ =', ICsat, { unite: 'mA' }), gChoix('r', reg, [['bloq', 'Bloqué'], ['lin', 'Linéaire'], ['sat', 'Saturé']], { groupe: 'Régime' }), gNum('ic', '$i_C$ =', IC, { unite: 'mA', alt: reg === 'lin' ? beta * r2(IB) : undefined })],
+                correction: `<p>${IB === 0 ? 'Ve = 0 : pas de courant de base, $i_B = 0$.' : `$i_B = \\dfrac{V_e - 0{,}7}{R_B} \\approx ${centiemeTeX(IB)}$ mA.`} $i_{C\\,sat} = \\dfrac{V_{CC}}{R_C} \\approx ${centiemeTeX(ICsat)}$ mA.</p><p>${reg === 'bloq' ? 'Le transistor est <strong class="text-white">bloqué</strong> : $i_C = 0$, interrupteur C–E ouvert.' : `$\\beta\\,i_B \\approx ${centiemeTeX(Ilin)}$ mA ${reg === 'sat' ? `≥ $i_{C\\,sat}$ : le transistor est <strong class="text-white">saturé</strong>, $i_C = i_{C\\,sat}$ (interrupteur fermé).` : `< $i_{C\\,sat}$ : régime <strong class="text-white">linéaire</strong>, $i_C = \\beta\\,i_B$.`}`}</p>` };
+        }
+        function svgThyristor(vak, impulsion) {
+            let o = PF.thyristor(150, 60, 0) + PF.L(60, 60, 130, 60) + PF.L(170, 60, 240, 60) + PF.t(60, 48, 'A', { b: 1 }) + PF.t(240, 48, 'K', { b: 1 }) + PF.t(144, 92, 'G', { b: 1 });
+            o += PF.fleche(230, 100, 70, 100, CB) + PF.t(150, 118, `VAK ${vak > 0 ? '> 0' : '< 0'}`, { c: CB, b: 1, s: 11 }) + (impulsion ? PF.fleche(120, 140, 145, 80, SVG_ACCENT) + PF.t(108, 152, 'impulsion de gâchette', { c: SVG_ACCENT, s: 10 }) : PF.t(108, 152, 'pas d\'impulsion', { c: SVG_DISCRET, s: 10 }));
+            return PF.svg(300, 162, o, 'Thyristor', 320);
+        }
+        function semiThyristor() {
+            const [vak, imp, deja, sol, pourquoi] = choisir([[1, true, false, 'pass', 'V_AK > 0 et une impulsion de gâchette : il s\'amorce.'], [1, false, false, 'bloq', 'sans impulsion de gâchette, il ne s\'amorce pas, même si V_AK > 0.'],
+                [-1, true, false, 'bloq', 'V_AK < 0 : l\'impulsion n\'a aucun effet, il reste bloqué.'], [1, false, true, 'pass', 'une fois amorcé, il reste passant tant que le courant ne s\'annule pas, même sans gâchette.']]);
+            return { enonce: `${figPhys(svgThyristor(vak, imp))}<p>${deja ? 'Le thyristor a été amorcé un peu plus tôt et le courant ne s\'est pas annulé depuis.' : 'Le thyristor était bloqué.'} Dans la situation du schéma, est-il passant ou bloqué ?</p>`,
+                champs: [gChoix('e', sol, [['pass', 'Passant'], ['bloq', 'Bloqué']], { groupe: 'État' })],
+                correction: `<p><strong class="text-white">${sol === 'pass' ? 'Passant' : 'Bloqué'}</strong> : ${pourquoi.replace(/V_AK/g, '$V_{AK}$')}</p>` };
+        }
+        physExo('2ème Année', 'phys-semi', 'psc', 'Semi-conducteurs', 'Composants à semi-conducteurs', { diode: semiDiode, tr: semiTransistor, th: semiThyristor },
+            { tout: 'Tout', diode: 'Circuit à diode', tr: 'Transistor en commutation', th: 'Thyristor' }, { diode: [2], tr: [4], th: [3] }, 'cpu');
+
+        // ----- 2ème année, chapitre 11 : redressement -----
+        function svgGraetz(positive) {
+            let o = `<circle cx="50" cy="100" r="14"/><path d="M42 100q4 -9 8 0t8 0"/>` + PF.L(50, 86, 50, 40) + PF.L(50, 114, 50, 160) + PF.L(50, 40, 150, 40) + PF.L(50, 160, 150, 160);
+            o += PF.t(30, positive ? 70 : 140, '+', { b: 1, s: 14, c: SVG_ACCENT }) + PF.t(30, 104, 'v', { b: 1, i: 1, a: 'end', c: CB });
+            // losange de diodes : T en haut, Bt en bas, P (sortie +) à droite, N (sortie −) à gauche ; diode orientée de « de » vers « vers »
+            const T = [150, 40], Bt = [150, 160], P = [230, 100], N = [90, 100];
+            const diodeEntre = (de, vers) => { const dx = vers[0] - de[0], dy = vers[1] - de[1], l = Math.hypot(dx, dy), ux = dx / l, uy = dy / l, mx = (de[0] + vers[0]) / 2, my = (de[1] + vers[1]) / 2;
+                return PF.L(de[0], de[1], mx - 20 * ux, my - 20 * uy) + PF.diode(mx, my, Math.atan2(dy, dx) * 180 / Math.PI) + PF.L(mx + 20 * ux, my + 20 * uy, vers[0], vers[1]); };
+            o += diodeEntre(T, P) + diodeEntre(Bt, P) + diodeEntre(N, T) + diodeEntre(N, Bt);
+            o += PF.t(212, 66, 'D1', { b: 1, s: 10 }) + PF.t(212, 144, 'D2', { b: 1, s: 10 }) + PF.t(96, 62, 'D4', { b: 1, s: 10 }) + PF.t(96, 148, 'D3', { b: 1, s: 10 });
+            o += PF.L(230, 100, 300, 100) + PF.L(300, 100, 300, 120) + PF.res(300, 140, 90) + PF.L(300, 160, 300, 190) + PF.L(300, 190, 90, 190) + PF.L(90, 190, 90, 100);
+            o += PF.fleche(320, 170, 320, 110, SVG_ACCENT) + PF.t(328, 144, 'u', { c: SVG_ACCENT, b: 1, i: 1, a: 'start' }) + PF.t(286, 144, 'R', { b: 1, a: 'end' });
+            return PF.svg(380, 206, `<g transform="translate(20 0)">${o}</g>`, 'Pont de Graëtz', 390);
+        }
+        function redGraetz() {
+            const pos = Math.random() < 0.5, Vh = choisir([10, 12, 24, 230 * Math.SQRT2]), v = choisir([0.3, 0.6, 0.9]) * Vh;
+            return { enonce: `${figPhys(svgGraetz(pos))}<p>Pendant l'alternance ${pos ? 'positive' : 'négative'} (borne + du générateur indiquée sur le schéma), à un instant où $|v| = ${centiemeTeX(v)}$ V, quelles diodes conduisent et que vaut $u$ (diodes parfaites) ?</p>`,
+                champs: [{ kind: 'select', cle: 'd', label: 'Diodes passantes :', sol: pos ? 'D1D3' : 'D2D4', options: [['D1D3', 'D1 et D3'], ['D2D4', 'D2 et D4'], ['D1D2', 'D1 et D2'], ['D3D4', 'D3 et D4']], groupe: 'Conduction' }, gNum('u', '$u$ =', v, { unite: 'V', groupe: 'Sortie' })],
+                correction: `<p>Alternance ${pos ? 'positive : le courant part de la borne du haut, passe par <strong class="text-white">D1</strong>, traverse R de haut en bas et revient par <strong class="text-white">D3</strong>' : 'négative : le courant part de la borne du bas, passe par <strong class="text-white">D2</strong>, traverse R dans le même sens et revient par <strong class="text-white">D4</strong>'}. Dans les deux cas $u = |v| = ${centiemeTeX(v)}$ V : la tension est redressée.</p>` };
+        }
+        function redValeurs() {
+            const Vh = choisir([10, 12, 15, 20]), f = choisir([50, 50, 100]), T = 1000 / f;
+            return { enonce: `${figPhys(svgCourbe({ f: (t) => Vh * Math.abs(Math.sin(2 * Math.PI * t / T)), tmax: 2 * T, ymax: Vh + 4, dx: T / 4, dy: Vh <= 12 ? 2 : 5, nomY: 'u (V)', n: 400 }))}<p>Voici la tension en sortie d'un pont de Graëtz (diodes parfaites, charge résistive). Lis sa valeur maximale et sa période, puis donne la fréquence du réseau, la valeur moyenne et la valeur efficace de $u$.</p>`,
+                champs: [gNum('vh', '$\\hat V$ =', Vh, { unite: 'V', groupe: 'Lecture' }), gNum('tp', "$T'$ =", T / 2, { unite: 'ms', groupe: 'Lecture' }), gNum('f', '$f$ réseau =', f, { unite: 'Hz', groupe: 'Calculs' }), gNum('m', '$\\langle u \\rangle$ =', 2 * Vh / Math.PI, { unite: 'V', groupe: 'Calculs' }), gNum('e', '$U$ =', Vh / Math.SQRT2, { unite: 'V', groupe: 'Calculs' })],
+                correction: `<p>$\\hat V = ${Vh}$ V ; deux arches successives sont séparées de $T' = ${centiemeTeX(T / 2)}$ ms. La tension redressée a une période moitié de celle du réseau : $T = 2T' = ${centiemeTeX(T)}$ ms, $f = ${f}$ Hz.</p><p>$\\langle u \\rangle = \\dfrac{2\\hat V}{\\pi} \\approx ${centiemeTeX(2 * Vh / Math.PI)}$ V ; $U = \\dfrac{\\hat V}{\\sqrt2} \\approx ${centiemeTeX(Vh / Math.SQRT2)}$ V.</p>` };
+        }
+        function redCommande() {
+            const Vh = choisir([100, 150, 200, 325]), a = choisir([30, 45, 60, 90, 120]), ar = a * Math.PI / 180;
+            const f = (th) => { const t = th % 180; return t >= a ? Vh * Math.sin(t * Math.PI / 180) : 0; };
+            return { enonce: `${figPhys(svgCourbe({ f, tmax: 360, ymax: Math.ceil(Vh * 1.2 / 50) * 50, dx: 30, dy: 50, nomX: 'θ (°)', nomY: 'u (V)', n: 720 }))}<p>Tension en sortie d'un pont à thyristors sur une charge résistive. Lis la valeur maximale et l'angle d'amorçage $\\alpha$, puis calcule la valeur moyenne de $u$.</p>`,
+                champs: [gNum('vh', '$\\hat V$ =', Vh, { unite: 'V', groupe: 'Lecture' }), gNum('a', '$\\alpha$ =', a, { unite: '°', groupe: 'Lecture' }), gNum('m', '$\\langle u \\rangle$ =', Vh / Math.PI * (1 + Math.cos(ar)), { unite: 'V', groupe: 'Calcul' })],
+                correction: `<p>Les thyristors ne conduisent qu'à partir de $\\theta = \\alpha = ${a}°$ dans chaque demi-période ; $\\hat V = ${Vh}$ V.</p><p>$\\langle u \\rangle = \\dfrac{\\hat V}{\\pi}(1 + \\cos\\alpha) = \\dfrac{${Vh}}{\\pi}(1 + \\cos ${a}°) \\approx ${centiemeTeX(Vh / Math.PI * (1 + Math.cos(ar)))}$ V (pour $\\alpha = 0$, on retrouverait $2\\hat V/\\pi \\approx ${centiemeTeX(2 * Vh / Math.PI)}$ V).</p>` };
+        }
+        function redLissage() {
+            const Ru = choisir([100, 220, 470, 1000]), C = choisir([10, 47, 100, 470, 1000, 2200]) * 1e-6, f = 50, Tp = 1000 / (2 * f), tau = Ru * C * 1000, bon = tau >= 10 * Tp;
+            const fig = PF.svg(400, 170, `<rect x="20" y="50" width="100" height="70" rx="6" fill="${SVG_FOND}" stroke="${SVG_DISCRET}"/>` + PF.t(70, 82, 'pont de', { s: 10, c: SVG_DISCRET }) + PF.t(70, 96, 'Graëtz', { s: 10, c: SVG_DISCRET })
+                + PF.t(70, 140, 'réseau 50 Hz', { s: 10, c: SVG_DISCRET }) + PF.L(120, 60, 330, 60) + PF.L(120, 110, 330, 110) + PF.L(200, 60, 200, 65) + PF.cap(200, 85, 90) + PF.L(200, 105, 200, 110) + PF.L(300, 60, 300, 65) + PF.res(300, 85, 90) + PF.L(300, 105, 300, 110)
+                + PF.t(214, 89, `C = ${fmtC(C)}`, { s: 10, b: 1, a: 'start' }) + PF.t(314, 89, `Ru = ${fmtR(Ru)}`, { s: 10, b: 1, a: 'start' }) + PF.fleche(350, 106, 350, 64, SVG_ACCENT) + PF.t(358, 89, 'u', { c: SVG_ACCENT, b: 1, i: 1, a: 'start' }), 'Lissage par condensateur', 410);
+            return { enonce: `${figPhys(fig)}<p>On lisse la tension redressée (réseau 50 Hz) avec un condensateur C en parallèle sur la charge Ru. Calcule la période de la tension redressée et la constante de décharge $R_u C$, puis juge le lissage (bon si $R_u C$ vaut au moins 10 fois la période).</p>`,
+                champs: [gNum('t', "$T'$ =", Tp, { unite: 'ms' }), gNum('tau', '$R_u C$ =', tau, { unite: 'ms' }), gChoix('b', bon ? 'bon' : 'mauvais', [['bon', 'Bon lissage'], ['mauvais', 'Lissage insuffisant']], { groupe: 'Conclusion' })],
+                correction: `<p>$T' = \\dfrac{T}{2} = ${Tp}$ ms. $R_u C = ${Ru} \\times ${centiemeTeX(C * 1e6)}\\cdot10^{-6} \\approx ${centiemeTeX(tau)}$ ms, soit ${centiemeFR(tau / Tp)} fois $T'$ : lissage <strong class="text-white">${bon ? 'bon' : 'insuffisant'}</strong> (il faut $R_u C \\gg T'$).</p>` };
+        }
+        physExo('2ème Année', 'phys-redress', 'prd', 'Redressement', 'Redressement monophasé', { gr: redGraetz, val: redValeurs, cmd: redCommande, lis: redLissage },
+            { tout: 'Tout', gr: 'Pont de Graëtz', val: 'Lire une tension redressée', cmd: 'Redressement commandé', lis: 'Lissage' }, { gr: [1], val: [2], cmd: [4], lis: [3] }, 'arrow-down-up');
+
+        // ----- 2ème année, chapitre 12 : hacheur -----
+        function hachChrono() {
+            const U = choisir([12, 24, 48, 100, 200]), T = choisir([1, 2, 5, 10]), a = choisir([0.2, 0.25, 0.4, 0.5, 0.6, 0.75, 0.8]);
+            const f = (t) => ((t % T) < a * T ? U : 0);
+            return { enonce: `${figPhys(svgCourbe({ f, tmax: 3 * T, ymax: Math.ceil(U * 1.25 / 10) * 10 || U + 4, dx: T / 4 * (a === 0.2 || a === 0.4 || a === 0.6 || a === 0.8 ? 0.8 : 1), dy: U <= 24 ? 4 : U <= 50 ? 10 : 20, nomY: 'v (V)', n: 900 }))}<p>Tension aux bornes de la charge d'un hacheur série. Lis la tension de la source et la période, détermine le rapport cyclique, puis calcule la fréquence de hachage et la valeur moyenne de $v$.</p>`,
+                champs: [gNum('u', '$U$ =', U, { unite: 'V', groupe: 'Lecture' }), gNum('t', '$T$ =', T, { unite: 'ms', groupe: 'Lecture' }), gNum('a', '$\\alpha$ =', a, { groupe: 'Lecture' }), gNum('f', '$f$ =', 1000 / T, { unite: 'Hz', groupe: 'Calculs' }), gNum('m', '$\\langle v \\rangle$ =', a * U, { unite: 'V', groupe: 'Calculs' })],
+                correction: `<p>$v$ vaut $U = ${U}$ V quand K est fermé, 0 sinon ; la période est $T = ${T}$ ms et K est fermé pendant $${centiemeTeX(a * T)}$ ms, donc $\\alpha = ${centiemeTeX(a * T)}/${T} = ${centiemeTeX(a)}$.</p><p>$f = 1/T = ${centiemeTeX(1000 / T)}$ Hz ; $\\langle v \\rangle = \\alpha\\,U = ${centiemeTeX(a * U)}$ V.</p>` };
+        }
+        function svgHacheurMoteur(U, a) {
+            let o = PF.L(50, 40, 50, 88) + PF.src(50, 100, `U = ${U} V`, false) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 90, 40) + PF.inter(110, 40, 0, true) + PF.t(110, 26, `K (α = ${centiemeFR(a)})`, { b: 1, s: 10 }) + PF.L(130, 40, 330, 40) + PF.L(50, 160, 330, 160);
+            o += PF.L(190, 160, 190, 122) + PF.diode(190, 100, -90) + PF.L(190, 80, 190, 40) + PF.t(176, 104, 'D', { b: 1, a: 'end' });
+            o += PF.L(330, 40, 330, 50) + PF.ind(330, 70, 90) + PF.L(330, 90, 330, 104) + PF.moteur(330, 120) + PF.L(330, 132, 330, 160) + PF.t(344, 74, 'L', { b: 1, a: 'start' }) + PF.fleche(360, 150, 360, 50, SVG_ACCENT) + PF.t(368, 104, 'v', { c: SVG_ACCENT, b: 1, i: 1, a: 'start' });
+            return PF.svg(430, 176, `<g transform="translate(40 0)">${o}</g>`, 'Hacheur série et moteur à courant continu', 440);
+        }
+        function hachMoteur() {
+            const U = choisir([48, 100, 200, 240]), a = choisir([0.25, 0.4, 0.5, 0.6, 0.75, 0.8]), R = choisir([0.5, 1, 2]), I = choisir([2, 4, 5, 10]), nM = choisir([1500, 2000, 3000]);
+            const v = a * U, E = v - R * I;
+            return { enonce: `${figPhys(svgHacheurMoteur(U, a))}<p>Le courant dans le moteur est supposé constant (bobine de lissage) : $I = ${I}$ A, résistance de l'induit $R = ${centiemeTeX(R)}\\ \\Omega$. Calcule la valeur moyenne de $v$, la f.é.m. du moteur, puis sa vitesse si $E$ est proportionnelle à la vitesse, avec $E_{max} = U$ pour $n_M = ${nM}$ tr/min.</p>`,
+                champs: [gNum('v', '$\\langle v \\rangle$ =', v, { unite: 'V' }), gNum('e', '$E$ =', E, { unite: 'V' }), gNum('n', '$n$ =', E / U * nM, { unite: 'tr/min', largeur: '6rem' })],
+                correction: `<p>$\\langle v \\rangle = \\alpha\\,U = ${centiemeTeX(v)}$ V. La bobine ne garde aucune tension moyenne, donc $\\langle v \\rangle = E + R I$ et $E = ${centiemeTeX(v)} - ${centiemeTeX(R * I)} = ${centiemeTeX(E)}$ V.</p><p>$n = n_M\\,\\dfrac{E}{U} \\approx ${centiemeTeX(E / U * nM)}$ tr/min.</p>` };
+        }
+        function svgHacheurEtat(U, ferme) {
+            let o = PF.L(50, 40, 50, 88) + PF.src(50, 100, `U = ${U} V`, false) + PF.L(50, 112, 50, 160) + PF.L(50, 40, 90, 40) + PF.inter(110, 40, 0, ferme) + PF.t(110, 24, `K ${ferme ? 'fermé' : 'ouvert'}`, { b: 1, s: 10 }) + PF.L(130, 40, 330, 40) + PF.L(50, 160, 330, 160);
+            o += PF.L(190, 160, 190, 122) + PF.diode(190, 100, -90) + PF.L(190, 80, 190, 40) + PF.t(176, 104, 'D', { b: 1, a: 'end' });
+            o += PF.L(330, 40, 330, 50) + PF.res(330, 70, 90) + PF.L(330, 90, 330, 104) + PF.ind(330, 124, 90) + PF.L(330, 144, 330, 160) + PF.t(344, 74, 'R', { b: 1, a: 'start' }) + PF.t(344, 128, 'L', { b: 1, a: 'start' }) + PF.fleche(370, 150, 370, 50, SVG_ACCENT) + PF.t(378, 104, 'v', { c: SVG_ACCENT, b: 1, i: 1, a: 'start' });
+            return PF.svg(440, 176, `<g transform="translate(40 0)">${o}</g>`, 'Hacheur série sur charge inductive', 450);
+        }
+        function hachPhase() {
+            const U = choisir([24, 48, 100]), ferme = Math.random() < 0.5;
+            return { enonce: `${figPhys(svgHacheurEtat(U, ferme))}<p>Le courant dans la charge inductive ne s'annule jamais. Dans la situation du schéma, quel élément conduit le courant de la charge, et que vaut $v$ ?</p>`,
+                champs: [gChoix('c', ferme ? 'K' : 'D', [['K', "L'interrupteur K"], ['D', 'La diode de roue libre D']], { groupe: 'Élément passant' }), gNum('v', '$v$ =', ferme ? U : 0, { unite: 'V', groupe: 'Tension' })],
+                correction: `<p>${ferme ? `K est fermé : la source alimente la charge, le courant passe par <strong class="text-white">K</strong> et $v = U = ${U}$ V (la diode est bloquée, sous $-U$).` : `K est ouvert : la bobine maintient le courant, qui se referme par la <strong class="text-white">diode de roue libre</strong> ; elle conduit donc $v = 0$ (diode parfaite).`}</p>` };
+        }
+        physExo('2ème Année', 'phys-hacheur', 'pha', 'Hacheur', 'Hacheur', { chr: hachChrono, mot: hachMoteur, ph: hachPhase },
+            { tout: 'Tout', chr: 'Lire un chronogramme', mot: 'Commande d\'un moteur', ph: 'Qui conduit ?' }, { chr: [2], mot: [4], ph: [3] }, 'activity');
+
         // ---------- leçons ----------
         const svgLevier = () => `<svg viewBox="0 0 360 150" style="width:100%;max-width:420px;height:auto" role="img" aria-label="Barrière articulée en A avec contrepoids, poids propre et butée B">
             <line x1="20" y1="60" x2="340" y2="60" stroke="${SVG_TRAIT}" stroke-width="6"/><rect x="22" y="48" width="26" height="24" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>
@@ -12225,7 +13126,7 @@
         function phALISymbole() {
             const o = p1ali(90, 40, false) + PF.L(40, 62, 90, 62) + PF.L(40, 98, 90, 98) + PF.L(170, 80, 220, 80) + PF.L(130, 40 + 20, 130, 14) + PF.L(130, 100, 130, 146)
                 + p1t(36, 66, 'E− (inverseuse)', SVG_TEXTE, 'end') + p1t(36, 102, 'E+ (non inverseuse)', SVG_TEXTE, 'end') + p1t(226, 84, 'S', SVG_TEXTE, 'start') + p1t(130, 10, 'V alim+', SVG_DISCRET) + p1t(130, 160, 'V alim−', SVG_DISCRET);
-            return PF.svg(300, 170, o, 'Symbole de l\'ALI', 300).replace('viewBox="0 0 300 170"', 'viewBox="-60 0 360 170"');
+            return PF.svg(300, 170, o, 'Symbole de l\'ALI', 330).replace('viewBox="0 0 300 170"', 'viewBox="-100 -8 400 182"');
         }
         function phALICarac() {
             return mfGraph({ w: 340, h: 210, xmin: -3, xmax: 3, ymin: -3, ymax: 3, lx: 'ε = V+ − V−', ly: 'Vs', titre: 'Caractéristique ALI',
@@ -12247,6 +13148,38 @@
                 + PF.L(100, 88, 70, 88) + PF.res(50, 88, 0) + PF.L(30, 88, 20, 88) + p1gnd(20, 88) + `<circle cx="100" cy="88" r="2.5" fill="${SVG_TRAIT}"/>` + PF.L(240, 70, 270, 70)
                 + p1t(24, 56, 'Ve', SVG_TEXTE, 'end') + p1t(50, 74, 'R₁') + p1t(140, 150, 'R₂') + p1t(276, 74, 'Vs = (1 + R₂/R₁) Ve', SVG_ACCENT, 'start');
             return PF.svg(450, 160, o, 'Amplificateur non inverseur', 450);
+        }
+        // ALI : intégrateur et dérivateur
+        function phALIIntegDeriv() {
+            const panneau = (dx, integ) => {
+                let o = p1ali(110, 40, false) + PF.L(20, 62, 40, 62) + (integ ? PF.res(60, 62, 0) : PF.cap(60, 62, 0)) + PF.L(80, 62, 110, 62) + `<circle cx="92" cy="62" r="2.5" fill="${SVG_TRAIT}"/>`;
+                o += PF.L(92, 62, 92, 20) + PF.L(92, 20, 130, 20) + (integ ? PF.cap(150, 20, 0) : PF.res(150, 20, 0)) + PF.L(170, 20, 210, 20) + PF.L(210, 20, 210, 80) + PF.L(190, 80, 232, 80) + `<circle cx="210" cy="80" r="2.5" fill="${SVG_TRAIT}"/>`;
+                o += PF.L(110, 98, 92, 98) + p1gnd(92, 98) + p1t(16, 66, 'Ve', SVG_TEXTE, 'end') + p1t(60, 48, integ ? 'R' : 'C') + p1t(150, 8, integ ? 'C' : 'R') + p1t(236, 84, 'Vs', SVG_ACCENT, 'start');
+                o += p1t(125, 140, integ ? 'Intégrateur : Vs = −(1/RC) ∫ Ve dt' : 'Dérivateur : Vs = −RC dVe/dt', SVG_DISCRET);
+                return `<g transform="translate(${dx} 0)">${o}</g>`;
+            };
+            return PF.svg(560, 152, panneau(30, true) + panneau(310, false), 'Intégrateur et dérivateur à ALI', 560).replace('viewBox="0 0 560 152"', 'viewBox="0 -6 560 158"');
+        }
+        // ALI : comparateur simple et comparateurs à hystérésis
+        // symbole rectangulaire (norme européenne) d'un comparateur : E− en haut, E+ en bas, sortie à droite ; avec ou sans cycle d'hystérésis
+        function p1comp(x, y, hyst) {
+            let o = `<rect x="${x}" y="${y}" width="80" height="80" fill="${SVG_FOND}" stroke="${SVG_TRAIT}"/>` + p1t(x + 9, y + 26, '−', SVG_TEXTE) + p1t(x + 9, y + 62, '+', SVG_TEXTE);
+            o += `<path d="M${x + 34} ${y + 14}V${y + 38}L${x + 54} ${y + 26}Z" stroke="${SVG_TRAIT}" fill="none"/>`;
+            if (hyst) o += `<path d="M${x + 30} ${y + 66}H${x + 46}V${y + 50}H${x + 60}M${x + 38} ${y + 66}V${y + 50}" stroke="${SVG_ACCENT}" fill="none"/>`;
+            return o;
+        }
+        function phALIComparateurs() {
+            const simple = p1comp(100, 40, false) + PF.L(20, 62, 100, 62) + PF.L(20, 98, 100, 98) + PF.L(180, 80, 222, 80) + p1t(16, 66, 'Vref', SVG_TEXTE, 'end') + p1t(16, 102, 'Ve', SVG_TEXTE, 'end') + p1t(226, 84, 'Vs', SVG_ACCENT, 'start')
+                + p1t(120, 196, 'Simple : Vs = ±Vsat', SVG_DISCRET) + p1t(120, 212, 'selon le signe de Ve − Vref', SVG_DISCRET);
+            // hystérésis « négative » (inverseur) : Ve sur E−, pont R1 / R2 sur E+
+            const neg = p1comp(100, 40, true) + PF.L(20, 62, 100, 62) + PF.L(180, 80, 222, 80) + `<circle cx="205" cy="80" r="2.5" fill="${SVG_TRAIT}"/>` + PF.L(100, 98, 70, 98) + `<circle cx="70" cy="98" r="2.5" fill="${SVG_TRAIT}"/>`
+                + PF.L(70, 98, 70, 106) + PF.res(70, 126, 90) + PF.L(70, 146, 70, 150) + p1gnd(70, 150) + PF.L(70, 98, 40, 98) + PF.L(40, 98, 40, 176) + PF.L(40, 176, 115, 176) + PF.res(135, 176, 0) + PF.L(155, 176, 205, 176) + PF.L(205, 176, 205, 80)
+                + p1t(16, 66, 'Ve', SVG_TEXTE, 'end') + p1t(84, 130, 'R1', SVG_TEXTE, 'start') + p1t(135, 164, 'R2') + p1t(226, 84, 'Vs', SVG_ACCENT, 'start') + p1t(120, 196, 'Hystérésis négative', SVG_DISCRET) + p1t(120, 212, '(cycle horaire)', SVG_DISCRET);
+            // hystérésis « positive » (non inverseur) : Ve par R1 sur E+, R2 de E+ vers la sortie, E− à la masse
+            const pos = p1comp(110, 40, true) + PF.L(110, 62, 90, 62) + p1gnd(90, 62) + PF.L(20, 98, 30, 98) + PF.res(50, 98, 0) + PF.L(70, 98, 110, 98) + `<circle cx="85" cy="98" r="2.5" fill="${SVG_TRAIT}"/>` + PF.L(190, 80, 232, 80) + `<circle cx="215" cy="80" r="2.5" fill="${SVG_TRAIT}"/>`
+                + PF.L(85, 98, 85, 176) + PF.L(85, 176, 130, 176) + PF.res(150, 176, 0) + PF.L(170, 176, 215, 176) + PF.L(215, 176, 215, 80) + p1t(16, 102, 'Ve', SVG_TEXTE, 'end') + p1t(50, 86, 'R1') + p1t(150, 164, 'R2') + p1t(236, 84, 'Vs', SVG_ACCENT, 'start')
+                + p1t(130, 196, 'Hystérésis positive', SVG_DISCRET) + p1t(130, 212, '(cycle trigonométrique)', SVG_DISCRET);
+            return PF.svg(840, 222, `<g transform="translate(40 0)">${simple}</g><g transform="translate(320 0)">${neg}</g><g transform="translate(580 0)">${pos}</g>`, 'Comparateurs (symbole rectangulaire)', 840);
         }
         function phHysteresis() {
             const panneau = (dx, neg) => {
@@ -12578,6 +13511,7 @@
                         contenu: [
                             H.figure(phMontagesALI(), "Suiveur et amplificateur inverseur."),
                             H.figure(phMontageNonInv(), "Amplificateur non inverseur."),
+                            H.figure(phALIIntegDeriv(), "Intégrateur (condensateur dans la contre-réaction) et dérivateur (condensateur en entrée)."),
                             H.tableau(["Montage", "Relation"], [
                                 ["Suiveur", "$V_s = V_e$ (adaptation d'impédance)"],
                                 ["Inverseur", "$\\dfrac{V_s}{V_e} = -\\dfrac{R_2}{R_1}$"],
@@ -12593,6 +13527,7 @@
                         contenu: [
                             H.p(R`<strong>Comparateur simple</strong> (pas de contre-réaction) : $V_s = +V_{sat}$ si $V_+ > V_-$, sinon $V_s = -V_{sat}$ (ex. ±15 V).`),
                             H.p(R`<strong>Comparateur à hystérésis</strong> (réaction sur $E^+$) : le basculement dépend de l'état précédent, ce qui évite les commutations parasites dues au bruit. Deux seuils de basculement :`),
+                            H.figure(phALIComparateurs(), "Comparateur simple (aucune liaison sortie → entrée), et comparateurs à hystérésis : la sortie revient sur E⁺ par R2."),
                             H.figure(phHysteresis(), "Cycles d'hystérésis du comparateur : positive (sens trigonométrique) et négative (sens horaire)."),
                             H.tableau(["Type", "Seuils", "Cycle"], [
                                 ["Négative", "$\\pm\\dfrac{R_1}{R_1+R_2}\\,V_{sat}$ (via $V_+ = \\dfrac{R_1}{R_1+R_2}V_s$)", "sens horaire"],
