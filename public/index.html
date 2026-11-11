@@ -2835,7 +2835,7 @@
             'maths-geo-bary': { pos: [1], plan: [2], esp: [2], bal: [1] }, 'maths-geo-scal': { calc: [3], angle: [3], ortho: [3], kashi: [4], plan: [4], dist: [4] },
             'maths-geo-vect': { calc: [5], aire: [5], mixte: [6], dist: [5], moment: [5] },
             'eco1-typo': { taille: [1], secteur: [2], conc: [4] }, 'eco1-stocks': { moyen: [2], cump: [3] }, 'eco1-seuil': { _: [2, 3] }, 'eco1-amort': { lin: [2], deg: [3] },
-            'ce1-production': { energie: [2], solaire: [2], danger: [4], cours: [1, 3] }, 'ce1-schemas': { sym: [1, 4], q: [2, 4, 5] }, 'ce1-mcc': { mot: [3], gen: [4], fem: [2] },
+            'ce1-production': { energie: [2], solaire: [2], eol: [2], danger: [4], cours: [1, 2, 3, 4] }, 'ce1-schemas': { sym: [1, 4], q: [1, 2, 3, 4, 5] }, 'ce1-mcc': { mot: [3], gen: [4], fem: [2] },
             'phys-sli': { rc: [3], dech: [4], rl: [5], ener: [2, 5], assoc: [2], rlc: [6] },
             'cm1-statique': { poids: [2], pression: [2], moment: [5], forces: [4, 5], levier: [4, 5], cours: [1, 2, 3] }, 'cm1-cinematique': { omega: [4], rot: [4], trans: [3] },
             'cm2-inertie': { masse: [1, 2], usuel: [9], huy: [8] }, 'est1-af': { fct: [4], outils: [3, 4] }, 'est1-dessin': { ech: [3], fmt: [2], trait: [4] },
@@ -2869,7 +2869,7 @@
         // ==========================================
         // Calculatrice (outil des exercices de calcul)
         // ==========================================
-        // analyseur d'expressions (descente récursive, sans eval) : + − × ÷ ^, parenthèses, fonctions, π, e, ANS, ×10ⁿ, multiplication implicite
+        // analyseur d'expressions (descente récursive, sans eval) : + − × ÷ ^, parenthèses, fonctions, π, e, REP (réponse précédente), ×10ⁿ, multiplication implicite
         const CALC = { deg: true, ans: 0, hist: [] };
         function calcEvaluer(src) {
             const s = src.replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/π/g, 'pi').replace(/√/g, 'sqrt').replace(/\s+/g, '');
@@ -2877,7 +2877,7 @@
             const ang = (x) => (CALC.deg ? x * Math.PI / 180 : x), angInv = (x) => (CALC.deg ? x * 180 / Math.PI : x);
             const F = { sin: (x) => Math.sin(ang(x)), cos: (x) => Math.cos(ang(x)), tan: (x) => Math.tan(ang(x)), asin: (x) => angInv(Math.asin(x)), acos: (x) => angInv(Math.acos(x)), atan: (x) => angInv(Math.atan(x)),
                 sqrt: Math.sqrt, ln: Math.log, log: Math.log10, exp: Math.exp, abs: Math.abs };
-            const C = { pi: Math.PI, e: Math.E, ans: CALC.ans };
+            const C = { pi: Math.PI, e: Math.E, rep: CALC.ans };
             const erreur = (m) => { throw new Error(m); };
             const voir = () => s[i];
             function primaire() {
@@ -2928,7 +2928,7 @@
                 ['ln', 'ln(', f], ['log', 'log(', f], ['eˣ', 'exp(', f], ['xʸ', '^', f], ['1/x', '#inv', f],
                 ['7', '7', n], ['8', '8', n], ['9', '9', n], ['÷', '÷', o], ['π', 'π', f],
                 ['4', '4', n], ['5', '5', n], ['6', '6', n], ['×', '×', o], ['×10ⁿ', 'E', f],
-                ['1', '1', n], ['2', '2', n], ['3', '3', n], ['−', '−', o], ['ANS', 'ans', f],
+                ['1', '1', n], ['2', '2', n], ['3', '3', n], ['−', '−', o], ['REP', 'REP', f],
                 ['0', '0', n], [',', ',', n], ['(−)', '#neg', f], ['+', '+', o], ['=', '#eq', 'bg-amber-500 text-slate-950 border-amber-400']
             ];
             return `<div id="calc-panneau" hidden role="dialog" aria-label="Calculatrice" class="fixed z-[60] bottom-20 right-4 w-[19rem] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-6rem)] overflow-y-auto bg-darkcard border border-darkborder rounded-2xl shadow-2xl p-3 space-y-2">
@@ -2945,7 +2945,7 @@
         function calcCalculer() {
             const z = document.getElementById('calc-saisie'), expr = z.value.trim(); if (!expr) return;
             try {
-                const r = calcEvaluer(expr); CALC.ans = r; CALC.dernier = r;
+                const r = calcEvaluer(expr); CALC.ans = r; CALC.dernier = r; z.value = '';
                 CALC.hist.unshift(`${expr} = ${calcFormat(r)}`); CALC.hist = CALC.hist.slice(0, 3);
                 document.getElementById('calc-hist').innerHTML = CALC.hist.slice().reverse().map(h => `<div>${h.replace(/</g, '&lt;')}</div>`).join('');
                 calcAfficherResultat(true, '= ' + calcFormat(r));
@@ -2984,9 +2984,9 @@
                 else if (v === '#ac') { saisie.value = ''; calcAfficherResultat(true, ''); }
                 else if (v === '#del') { if (pos === fin && pos > 0) { saisie.value = saisie.value.slice(0, pos - 1) + saisie.value.slice(fin); saisie.setSelectionRange(pos - 1, pos - 1); } else ins(''); }
                 else if (v === '#mode') { CALC.deg = !CALC.deg; document.getElementById('calc-mode').textContent = CALC.deg ? 'DEG' : 'RAD'; if (saisie.value.trim()) calcCalculer(); }
-                else if (v === '#inv') { saisie.value = `1/(${saisie.value || 'ans'})`; calcCalculer(); }
+                else if (v === '#inv') { saisie.value = `1/(${saisie.value || 'REP'})`; calcCalculer(); }
                 else if (v === '#neg') ins('(−');
-                else ins(v);
+                else ins(!saisie.value && ['+', '×', '÷', '^', '²'].includes(v) ? 'REP' + v : v);   // commencer par un opérateur continue sur le résultat précédent
                 saisie.focus({ preventScroll: true });
             });
             saisie.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); calcCalculer(); } else if (ev.key === 'Escape') ouvrir(false); });
@@ -7463,10 +7463,13 @@
         // CE A1 : production d'énergie, composants et schémas, machines à courant continu
         // ==========================================
         const ceX = (id, libelle, titre, icone, types, libelles, lettres) => { EXOS[id] = { chapitre: id, libelle, badge: 'CE • 1ère Année', titre, demarrer: () => exgLancer(lettres, titre, icone, types, libelles) }; };
-        const qcm = (q, sol, opts) => ({ enonce: `<p>${q}</p>`, champs: [gChoix('r', sol, opts, { groupe: 'Réponse' })], correction: `<p>Réponse : <strong class="text-white">${opts.find(o => o[0] === sol)[1]}</strong>.</p>` });
+        // QCM : l'ordre des réponses est mélangé à chaque tirage
+        const qcm = (q, sol, opts, expl) => ({ enonce: `<p>${q}</p>`, champs: [gChoix('r', sol, melanger(opts.slice()), { groupe: 'Réponse' })], correction: `<p>Réponse : <strong class="text-white">${opts.find(o => o[0] === sol)[1]}</strong>.${expl ? ' ' + expl : ''}</p>` });
         // ---------- production ----------
         function ceEnergieAn() {
-            const [nom, P, ru] = choisir([['un réacteur nucléaire de 1 400 MW', 1400, 82], ['un barrage de 90 MW', 90, 70], ['une centrale thermique de 600 MW', 600, 80], ['un parc de 10 éoliennes de 1 MW', 10, 20]]);
+            const [nom, P, ru] = choisir([['un réacteur nucléaire de 1 400 MW', 1400, 82], ['un réacteur EPR de 1 600 MW', 1600, 85], ['un barrage de 90 MW', 90, 70], ['une centrale au fil de l\'eau de 15 MW', 15, 55],
+                ['une centrale thermique de 600 MW', 600, 80], ['une centrale à gaz de 400 MW', 400, 45], ['un parc de 10 éoliennes de 1 MW', 10, 20], ['une éolienne en mer de 8 MW', 8, 40],
+                ['une hydrolienne de 1 MW', 1, 35], ['une centrale géothermique de 5 MW', 5, 90], ['une centrale photovoltaïque de 12 MW', 12, 14], ['une unité de méthanisation de 2 MW', 2, 85]]);
             const E = P * 8760 * ru / 100;
             return { enonce: `<p>Quelle énergie (en MWh) produit en un an ${nom}, avec un rendement d'utilisation de ${ru} % ? (une année = 8 760 h)</p>`,
                 champs: [gNum('e', '$W$ =', E, { unite: 'MWh', largeur: '8rem' })],
@@ -7492,10 +7495,62 @@
                 ['Quel est l\'inconvénient principal d\'une centrale au fil de l\'eau ?', 'd', [['d', 'la production dépend du débit, sans stockage possible'], ['g', 'elle émet beaucoup de CO₂'], ['r', 'elle produit des déchets radioactifs']]],
                 ['Qui gère le transport de l\'électricité sur les longues distances en France ?', 'rte', [['rte', 'RTE'], ['erdf', 'Enedis (ex-ERDF)'], ['cre', 'la CRE']]],
                 ['Au-delà de quelle puissance un client est-il livré en haute tension (HTA) ?', '250', [['250', '250 kVA'], ['36', '36 kVA'], ['1250', '1 250 kVA']]],
-                ['Le tarif bleu correspond à une puissance…', 'b', [['b', 'jusqu\'à 36 kVA'], ['j', 'entre 36 et 250 kVA'], ['h', 'supérieure à 250 kVA']]]]);
+                ['Le tarif bleu correspond à une puissance…', 'b', [['b', 'jusqu\'à 36 kVA'], ['j', 'entre 36 et 250 kVA'], ['h', 'supérieure à 250 kVA']]],
+                // 1. d'où vient le courant
+                ['Qu\'est-ce que le courant électrique dans un métal ?', 'e', [['e', 'un déplacement d\'électrons libres'], ['p', 'un déplacement de protons'], ['n', 'un déplacement de neutrons']]],
+                ['Dans un isolant…', 'b', [['b', 'les électrons ne peuvent pas se déplacer librement'], ['l', 'les électrons circulent plus vite'], ['p', 'il n\'y a pas d\'électrons']]],
+                ['Dans un alternateur, la partie qui tourne et crée le champ magnétique s\'appelle…', 'r', [['r', 'le rotor (inducteur)'], ['s', 'le stator (induit)'], ['c', 'le collecteur']]],
+                ['Les tensions produites dans le stator d\'un alternateur de centrale sont…', 't', [['t', 'alternatives triphasées'], ['c', 'continues'], ['m', 'alternatives monophasées uniquement']]],
+                ['Quelle loi explique l\'apparition d\'une tension dans les enroulements du stator ?', 'f', [['f', 'la loi de Faraday (induction)'], ['o', 'la loi d\'Ohm'], ['k', 'la loi des nœuds']]],
+                ['Pourquoi l\'électricité est-elle une forme d\'énergie très utilisée ?', 'd', [['d', 'elle est facile à transporter et à distribuer'], ['s', 'elle se stocke très facilement en grande quantité'], ['g', 'elle est toujours gratuite']]],
+                // 2. moyens de production
+                ['Dans une centrale nucléaire, la chaleur vient…', 'f', [['f', 'de la fission de l\'uranium 235'], ['c', 'de la combustion du charbon'], ['u', 'de la fusion de l\'hydrogène']]],
+                ['Quelle est la chaîne de conversion d\'une centrale nucléaire ?', 'c', [['c', 'chaleur → vapeur → turbine → alternateur'], ['l', 'lumière → cellule → onduleur'], ['e', 'eau → conduite forcée → turbine']]],
+                ['Quelle est la puissance d\'un réacteur nucléaire classique en France ?', '1400', [['1400', 'environ 1 400 MW'], ['14', 'environ 14 MW'], ['140000', 'environ 140 000 MW']]],
+                ['Quel est le principal inconvénient du nucléaire ?', 'd', [['d', 'les déchets radioactifs et le risque d\'accident'], ['c', 'il rejette beaucoup de CO₂'], ['i', 'sa production est intermittente']]],
+                ['Pourquoi les barrages sont-ils utiles aux heures de pointe ?', 'p', [['p', 'on peut démarrer la production très vite, à la demande'], ['n', 'ils ne fonctionnent que la nuit'], ['c', 'ils consomment de l\'électricité aux heures de pointe']]],
+                ['Dans un barrage, l\'eau arrive à la turbine par…', 'c', [['c', 'une conduite forcée'], ['p', 'une pompe à chaleur'], ['g', 'un générateur de vapeur']]],
+                ['Quel est le rendement approximatif d\'une centrale thermique à flamme ?', '35', [['35', 'environ 35 %'], ['90', 'environ 90 %'], ['17', 'environ 17 %']]],
+                ['Quel combustible n\'est pas utilisé dans une centrale thermique à flamme ?', 'u', [['u', 'l\'uranium'], ['g', 'le gaz'], ['c', 'le charbon']]],
+                ['La puissance d\'une éolienne varie avec la vitesse du vent v comme…', 'v3', [['v3', 'v³ (au cube)'], ['v', 'v'], ['v2', 'v²']]],
+                ['Quel est le rôle du multiplicateur dans une éolienne ?', 'm', [['m', 'augmenter la vitesse de rotation pour l\'alternateur'], ['t', 'élever la tension à 400 kV'], ['o', 'orienter les pales face au vent']]],
+                ['Quel est l\'inconvénient principal de l\'éolien et du solaire ?', 'i', [['i', 'leur production est intermittente'], ['d', 'ils produisent des déchets radioactifs'], ['c', 'ils rejettent beaucoup de CO₂']]],
+                ['Quelle tension fournit environ une cellule photovoltaïque ?', '05', [['05', 'environ 0,5 V'], ['230', 'environ 230 V'], ['12', 'environ 12 V']]],
+                ['Combien produit environ 1 kWc de panneaux solaires par an en France ?', '1000', [['1000', 'environ 1 000 kWh'], ['10', 'environ 10 kWh'], ['100000', 'environ 100 000 kWh']]],
+                ['Le photovoltaïque transforme…', 'l', [['l', 'directement la lumière en électricité'], ['c', 'la chaleur du soleil en vapeur'], ['v', 'le vent en électricité']]],
+                ['Quel est l\'avantage d\'une hydrolienne par rapport à une éolienne ?', 'p', [['p', 'les courants de marée sont prévisibles'], ['s', 'elle se construit beaucoup plus facilement'], ['n', 'elle n\'a pas besoin d\'eau']]],
+                ['La géothermie utilise…', 's', [['s', 'la chaleur du sous-sol'], ['m', 'la force des marées'], ['d', 'la méthanisation des déchets']]],
+                ['Le biogaz est produit par…', 'm', [['m', 'la méthanisation des déchets organiques'], ['f', 'la fission nucléaire'], ['e', 'l\'électrolyse de l\'eau']]],
+                ['Que produit une pile à combustible à hydrogène, en plus de l\'électricité ?', 'eau', [['eau', 'de l\'eau'], ['co2', 'du CO₂'], ['ura', 'des déchets radioactifs']]],
+                ['Comment s\'appelle le réacteur expérimental de fusion nucléaire construit à Cadarache ?', 'iter', [['iter', 'ITER'], ['epr', 'l\'EPR'], ['rte', 'RTE']]],
+                ['Comment calcule-t-on l\'énergie produite en un an par une centrale ?', 'w', [['w', 'W = P × 8 760 h × taux d\'utilisation'], ['p', 'W = P / 8 760 h'], ['u', 'W = U × I']]],
+                // 3. transport et distribution
+                ['Quelle tension sort environ d\'un alternateur de centrale ?', '20', [['20', 'environ 20 kV'], ['400', '400 kV'], ['230', '230 V']]],
+                ['Quelle est la tension des grandes lignes de transport (THT) ?', '400', [['400', '400 kV'], ['20', '20 kV'], ['230', '230 V']]],
+                ['Quel appareil élève ou abaisse la tension sur le réseau ?', 't', [['t', 'le transformateur'], ['a', 'l\'alternateur'], ['r', 'le redresseur']]],
+                ['Un transformateur modifie…', 'u', [['u', 'la tension, sans changer la fréquence'], ['f', 'la fréquence, sans changer la tension'], ['n', 'la nature du courant (alternatif → continu)']]],
+                ['Un transformateur fonctionne…', 'a', [['a', 'seulement en courant alternatif'], ['c', 'seulement en courant continu'], ['d', 'en alternatif comme en continu']]],
+                ['Quelle entreprise gère la distribution locale de l\'électricité (HTA et BT) ?', 'enedis', [['enedis', 'Enedis'], ['rte', 'RTE'], ['iter', 'ITER']]],
+                ['Quelle tension arrive chez un particulier ?', 'bt', [['bt', '230 V entre phase et neutre (400 V entre phases)'], ['hta', '20 kV'], ['tht', '400 kV']]],
+                ['Quelle tension correspond au réseau HTA ?', '20', [['20', '20 kV'], ['400', '400 kV'], ['230', '230 V']]],
+                ['Le tarif jaune concerne les puissances…', 'j', [['j', 'de 36 à 250 kVA'], ['b', 'jusqu\'à 36 kVA'], ['h', 'au-delà de 250 kVA']]],
+                ['Un client livré en HTA…', 'p', [['p', 'possède son propre poste HTA/BT et choisit son régime de neutre'], ['t', 'reçoit directement du 230 V'], ['r', 'est raccordé en 400 kV']]],
+                ['Quel régime de neutre est utilisé chez les clients livrés en basse tension ?', 'tt', [['tt', 'le schéma TT (neutre à la terre)'], ['it', 'le schéma IT'], ['tn', 'le schéma TN']]],
+                ['Si on double la tension de transport pour une même puissance, les pertes par effet Joule…', '4', [['4', 'sont divisées par 4'], ['2', 'sont divisées par 2'], ['x', 'ne changent pas']], 'Le courant est divisé par 2, et les pertes valent R·I².'],
+                // 4. dangers
+                ['De quoi dépend surtout la gravité d\'une électrisation ?', 'i', [['i', 'de l\'intensité qui traverse le corps et du temps de passage'], ['c', 'de la couleur des fils'], ['f', 'de la fréquence de la facture']]],
+                ['Pourquoi une peau humide est-elle plus dangereuse ?', 'r', [['r', 'sa résistance est plus faible, le courant est plus fort'], ['t', 'elle augmente la tension du réseau'], ['c', 'elle bloque le courant']]],
+                ['Quelle est la sensibilité des disjoncteurs différentiels qui protègent les personnes ?', '30', [['30', '30 mA'], ['300', '300 mA'], ['3', '3 A']]],
+                ['À partir de quelques dizaines de mA, le courant dans le corps peut provoquer…', 'm', [['m', 'des contractions musculaires et des difficultés respiratoires'], ['r', 'aucun effet'], ['s', 'seulement une légère sensation de chaleur']]]]);
             return qcm(...q);
         }
-        ceX('ce1-production', 'Production d\'énergie', 'Production et distribution de l\'énergie électrique', 'zap', { energie: ceEnergieAn, solaire: ceSolaire, danger: ceCourantCorps, cours: ceSource }, { tout: 'Tout', energie: 'Énergie annuelle', solaire: 'Solaire', danger: 'Courant dans le corps', cours: 'Questions de cours' }, 'cep');
+        function ceEolien() {
+            const r = choisir([2, 1.5, 0.5, 3]), P1 = choisir([200, 500, 800, 1000]), P2 = P1 * r ** 3;
+            return { enonce: `<p>Une éolienne fournit $${P1}$ kW pour un vent donné. La puissance vaut $P = k\\,S\\,v^3$. Quelle puissance fournit-elle si la vitesse du vent est multipliée par ${centiemeFR(r)} (même éolienne) ?</p>`,
+                champs: [gNum('p', '$P$ =', P2, { unite: 'kW' })],
+                correction: `<p>$k$ et $S$ ne changent pas, donc $P$ est multipliée par $${centiemeTeX(r)}^3 = ${centiemeTeX(r ** 3)}$ : $P = ${P1} \\times ${centiemeTeX(r ** 3)} = ${centiemeTeX(P2)}$ kW. C'est pourquoi on installe les éoliennes là où le vent est fort et régulier.</p>` };
+        }
+        ceX('ce1-production', 'Production d\'énergie', 'Production et distribution de l\'énergie électrique', 'zap', { energie: ceEnergieAn, solaire: ceSolaire, eol: ceEolien, danger: ceCourantCorps, cours: ceSource }, { tout: 'Tout', energie: 'Énergie annuelle', solaire: 'Solaire', eol: 'Éolien', danger: 'Courant dans le corps', cours: 'Questions de cours' }, 'cep');
         // ---------- symboles électriques normalisés (IEC 60617), conducteurs verticaux ----------
         // Chaque fonction dessine un symbole dont la borne haute est en (x, y) et la borne basse en (x, y + 80).
         const SE = {
@@ -7617,7 +7672,64 @@
                 ['Un circuit de prises 16 A en 1,5 mm² est protégé par…', 'c16', [['c16', 'un disjoncteur 16 A, avec au plus 5 prises'], ['c20', 'un disjoncteur 20 A, avec 8 prises'], ['f', 'un fusible 32 A']]],
                 ['Le conducteur de protection (terre) a la couleur…', 'vj', [['vj', 'vert et jaune'], ['b', 'bleu'], ['r', 'rouge']]],
                 ['Le montage qui commande une lampe depuis deux endroits s\'appelle…', 'vv', [['vv', 'va-et-vient'], ['da', 'double allumage'], ['sa', 'simple allumage']]],
-                ['Pour commander un éclairage depuis plus de deux endroits, on utilise…', 'tl', [['tl', 'un télérupteur (ou une minuterie)'], ['vv', 'un va-et-vient'], ['da', 'un double allumage']]]]);
+                ['Pour commander un éclairage depuis plus de deux endroits, on utilise…', 'tl', [['tl', 'un télérupteur (ou une minuterie)'], ['vv', 'un va-et-vient'], ['da', 'un double allumage']]],
+                // 1. représentations
+                ['Dans un schéma unifilaire, comment indique-t-on le nombre de conducteurs ?', 'o', [['o', 'par de petits traits obliques sur le trait'], ['c', 'par la couleur du trait'], ['e', 'par l\'épaisseur du trait']]],
+                ['Quel schéma montre la position réelle du matériel dans le local ?', 'a', [['a', 'le schéma architectural (topographique)'], ['d', 'le schéma développé'], ['m', 'le schéma multifilaire']]],
+                ['Dans une représentation assemblée…', 'e', [['e', 'les éléments d\'un même appareil sont dessinés ensemble'], ['s', 'chaque circuit se lit de haut en bas, éléments séparés'], ['u', 'tous les conducteurs sont sur un seul trait']]],
+                ['Dans une représentation rangée…', 'r', [['r', 'les éléments sont séparés mais alignés pour montrer leurs liaisons mécaniques'], ['t', 'on dessine la position réelle dans le local'], ['e', 'les éléments d\'un appareil sont dessinés ensemble']]],
+                ['Dans un schéma multifilaire…', 'm', [['m', 'chaque conducteur a son propre trait'], ['u', 'plusieurs conducteurs partagent un seul trait'], ['p', 'on ne dessine que la puissance']]],
+                ['Sur un schéma, un contact est toujours dessiné…', 'r', [['r', 'au repos (bobine non alimentée, bouton non appuyé)'], ['t', 'au travail'], ['i', 'dans une position quelconque']]],
+                ['À quoi sert un schéma électrique ?', 't', [['t', 'à expliquer, réaliser, mettre en service et dépanner une installation'], ['p', 'seulement à fixer le prix du matériel'], ['d', 'seulement à décorer l\'armoire']]],
+                // 2. repérage
+                ['Que désigne le repère KM1 ?', 'km', [['km', 'un contacteur moteur'], ['fu', 'un fusible'], ['q', 'un sectionneur']]],
+                ['Que désigne le repère FU ?', 'fu', [['fu', 'un fusible'], ['ft', 'un relais thermique'], ['ka', 'un contacteur auxiliaire']]],
+                ['Que désigne le repère FT ?', 'ft', [['ft', 'un relais thermique'], ['fu', 'un fusible'], ['km', 'un contacteur moteur']]],
+                ['Que désigne le repère KA ?', 'ka', [['ka', 'un contacteur auxiliaire'], ['km', 'un contacteur moteur'], ['q', 'un sectionneur']]],
+                ['Quelle lettre repère souvent un sectionneur ?', 'q', [['q', 'Q'], ['k', 'K'], ['f', 'F']]],
+                ['Comment repère-t-on les bornes du moteur triphasé ?', 'uvw', [['uvw', 'U, V, W'], ['l', 'L1, L2, L3'], ['a', 'A1, A2']]],
+                ['Comment repère-t-on les phases du réseau triphasé ?', 'l', [['l', 'L1, L2, L3'], ['uvw', 'U, V, W'], ['n', 'N, PE']]],
+                ['Quelle borne correspond à la terre (conducteur de protection) ?', 'pe', [['pe', 'PE'], ['n', 'N'], ['l', 'L1']]],
+                ['Les contacts principaux (de puissance) d\'un contacteur sont repérés…', '1', [['1', 'par un seul chiffre : 1-2, 3-4, 5-6'], ['2', 'par deux chiffres : 13-14, 21-22'], ['a', 'par A1-A2']]],
+                ['Dans le repère 23-24 d\'un contact auxiliaire, le chiffre des unités (3-4) indique…', 'no', [['no', 'un contact à fermeture (NO)'], ['nc', 'un contact à ouverture (NC)'], ['s', 'un contact spécial']]],
+                ['Dans le repère 23-24, le chiffre des dizaines (2) indique…', 'n', [['n', 'le numéro d\'ordre du contact (2e contact)'], ['f', 'la fonction du contact'], ['t', 'la tension de la bobine']]],
+                ['Un contact repéré 31-32 est…', 'nc', [['nc', 'le 3e contact, à ouverture (NC)'], ['no', 'le 3e contact, à fermeture (NO)'], ['p', 'un contact de puissance']]],
+                ['Un contact repéré 43-44 est…', 'no', [['no', 'le 4e contact, à fermeture (NO)'], ['nc', 'le 4e contact, à ouverture (NC)'], ['b', 'une bobine']]],
+                ['Quelles lettres n\'utilise-t-on pas dans le repérage des bornes ?', 'oi', [['oi', 'O et I (confusion avec 0 et 1)'], ['ae', 'A et E'], ['uv', 'U et V']]],
+                ['Le contact 95-96 d\'un relais thermique est…', 'nc', [['nc', 'un contact à ouverture qui coupe la commande en cas de surcharge'], ['no', 'un contact à fermeture de marche'], ['p', 'un contact de puissance du moteur']]],
+                // 3. commande et puissance
+                ['Quelle tension est souvent utilisée pour le circuit de commande ?', '24', [['24', '24 V'], ['400', '400 V'], ['20k', '20 kV']]],
+                ['Quel élément appartient au circuit de commande ?', 'b', [['b', 'la bobine du contacteur'], ['m', 'le moteur'], ['c', 'les contacts de puissance 1-2, 3-4, 5-6']]],
+                ['Quel élément appartient au circuit de puissance ?', 'm', [['m', 'le moteur'], ['bp', 'le bouton poussoir Marche'], ['b', 'la bobine du contacteur']]],
+                ['Quelles sont les quatre fonctions d\'un départ moteur ?', 'f', [['f', 'sectionnement, protection, commande, arrêt d\'urgence'], ['m', 'mesure, affichage, comptage, facturation'], ['t', 'transformation, redressement, lissage, filtrage']]],
+                ['À quoi sert le contact 13-14 du contacteur placé en parallèle du bouton Marche ?', 'am', [['am', 'à l\'auto-maintien : la bobine reste alimentée quand on relâche Marche'], ['p', 'à protéger le moteur contre les surcharges'], ['s', 'à sectionner le circuit']]],
+                ['Le bouton Arrêt d\'un départ moteur est un bouton…', 'nc', [['nc', 'à ouverture (NC), placé en série'], ['no', 'à fermeture (NO), placé en parallèle'], ['i', 'inverseur']]],
+                ['Le bouton Marche d\'un départ moteur est un bouton…', 'no', [['no', 'à fermeture (NO)'], ['nc', 'à ouverture (NC)'], ['t', 'temporisé']]],
+                ['Dans un démarrage direct, quel appareil protège le moteur contre les surcharges ?', 'ft', [['ft', 'le relais thermique'], ['q', 'le sectionneur'], ['bp', 'le bouton Arrêt']]],
+                // 4. appareillage
+                ['L\'interrupteur-sectionneur, contrairement au sectionneur…', 'c', [['c', 'peut couper le circuit en charge'], ['n', 'ne peut pas isoler le circuit'], ['f', 'fond en cas de surintensité']]],
+                ['Le fusible gF est utilisé…', 'd', [['d', 'en domestique'], ['m', 'pour accompagner un moteur'], ['s', 'pour protéger les semi-conducteurs']]],
+                ['Pourquoi associe-t-on des fusibles aM et un relais thermique pour un moteur ?', 'aM', [['aM', 'les aM coupent les courts-circuits, le relais thermique les surcharges'], ['p', 'les deux protègent les personnes'], ['s', 'pour sectionner deux fois']]],
+                ['Après un déclenchement, un disjoncteur…', 'r', [['r', 'se réarme (on le remet en service)'], ['c', 'doit être changé comme un fusible'], ['d', 'reste définitivement ouvert']]],
+                ['Comment fonctionne un disjoncteur différentiel ?', 'c', [['c', 'il compare le courant aller et le courant retour'], ['t', 'il mesure la température du câble'], ['v', 'il mesure la tension du réseau']]],
+                ['Le déclencheur thermique d\'un disjoncteur utilise…', 'b', [['b', 'un bilame chauffé par effet Joule'], ['e', 'un électroaimant'], ['f', 'un fil qui fond']]],
+                ['Le déclencheur magnétique d\'un disjoncteur utilise…', 'e', [['e', 'une bobine (électroaimant)'], ['b', 'un bilame'], ['s', 'un ressort de fusible']]],
+                ['À quoi sert un contacteur ?', 'd', [['d', 'à commander à distance un récepteur de puissance grâce à sa bobine'], ['p', 'à protéger les personnes contre les fuites'], ['m', 'à mesurer le courant']]],
+                ['Un relais temporisé…', 't', [['t', 'fait basculer ses contacts après un retard réglable'], ['p', 'protège contre les courts-circuits'], ['s', 'sectionne le circuit']]],
+                ['Que se passe-t-il si le courant de fuite dépasse 30 mA sur un différentiel 30 mA ?', 'c', [['c', 'il coupe le circuit'], ['r', 'rien, il ne surveille que les courts-circuits'], ['a', 'il augmente la tension']]],
+                // 5. installations domestiques
+                ['Quelle couleur peut avoir un conducteur de phase ?', 'p', [['p', 'rouge, noir ou marron'], ['b', 'bleu'], ['vj', 'vert et jaune']]],
+                ['Quelle est la couleur du neutre ?', 'b', [['b', 'bleu'], ['r', 'rouge'], ['vj', 'vert et jaune']]],
+                ['Quelle section de câble pour un circuit d\'éclairage ?', '15', [['15', '1,5 mm²'], ['25', '2,5 mm²'], ['6', '6 mm²']]],
+                ['Un circuit de 8 prises 16 A utilise…', '25', [['25', 'du 2,5 mm² protégé par un disjoncteur 20 A'], ['15', 'du 1,5 mm² protégé par un disjoncteur 16 A'], ['6', 'du 6 mm² protégé par un disjoncteur 32 A']]],
+                ['Combien de circuits d\'éclairage au minimum dans un logement ?', '2', [['2', '2'], ['1', '1'], ['5', '5']]],
+                ['À quelle hauteur place-t-on les commandes d\'éclairage ?', 'h', [['h', 'entre 0,90 et 1,30 m'], ['b', 'au ras du sol'], ['p', 'au plafond']]],
+                ['Dans un va-et-vient, comment s\'appellent les deux fils qui relient les inverseurs ?', 'n', [['n', 'les navettes'], ['p', 'les phases'], ['r', 'les retours']]],
+                ['Le double allumage permet…', 'd', [['d', 'de commander deux circuits depuis un même endroit'], ['v', 'de commander un circuit depuis deux endroits'], ['t', 'de commander depuis autant d\'endroits que voulu']]],
+                ['Dans un simple allumage, l\'interrupteur coupe…', 'ph', [['ph', 'la phase'], ['n', 'le neutre'], ['pe', 'la terre']]],
+                ['Dans quel ordre trouve-t-on les appareils du tableau électrique d\'un logement ?', 'o', [['o', 'disjoncteur d\'abonné, interrupteurs différentiels 30 mA, puis disjoncteurs divisionnaires'], ['i', 'disjoncteurs divisionnaires, puis disjoncteur d\'abonné'], ['d', 'interrupteurs différentiels seulement']]],
+                ['Où regroupe-t-on le tableau électrique et les arrivées d\'un logement ?', 'gtl', [['gtl', 'dans la GTL (gaine technique logement)'], ['vmc', 'dans la VMC'], ['tgbt', 'dans le TGBT de l\'immeuble voisin']]],
+                ['Les prises de courant d\'un logement doivent…', 't', [['t', 'toujours avoir une borne de terre'], ['s', 'être sans terre si elles sont dans une chambre'], ['n', 'être raccordées sur le neutre seulement']]]]);
             return qcm(...q);
         }
         ceX('ce1-schemas', 'Composants et schémas', 'Composants et schémas électriques', 'cable', { sym: ceSymbole, q: ceSchemaQ }, { tout: 'Tout', sym: 'Reconnaître un symbole', q: 'Appareillage et normes' }, 'ces');
@@ -8201,7 +8313,25 @@
                 ['Un opérateur saisit une mauvaise valeur de réglage.', 'as'], ['Une dérive progressive due à l\'usure de l\'outil, non compensée.', 'as'], ['La machine se dérègle brusquement.', 'as'],
                 ['De petites différences normales entre les pièces.', 'al'], ['La température de l\'atelier varie légèrement au cours de la journée.', 'al'], ['Une plaquette de coupe s\'ébrèche pendant la fabrication.', 'as'],
                 ['Le refroidissement tombe en panne et le diamètre augmente.', 'as'], ['Les mesures fluctuent légèrement autour de la cible, sans événement particulier.', 'al'], ['Un outil se desserre.', 'as'],
-                ['Un nouveau lot de matière, hors spécification, est utilisé.', 'as'], ['Le procédé varie légèrement sans aucun signal anormal sur la carte.', 'al']]);
+                ['Un nouveau lot de matière, hors spécification, est utilisé.', 'as'], ['Le procédé varie légèrement sans aucun signal anormal sur la carte.', 'al'],
+                // causes aléatoires (communes) : petites, nombreuses, toujours présentes
+                ['Le léger jeu normal dans les glissières de la machine.', 'al'], ['L\'usure normale et lente de l\'outil entre deux changements prévus.', 'al'], ['De faibles variations de l\'épaisseur des tôles, dans la tolérance du fournisseur.', 'al'],
+                ['La pression du réseau d\'air comprimé fluctue un peu autour de sa valeur nominale.', 'al'], ['L\'humidité de l\'air varie un peu entre le matin et l\'après-midi.', 'al'], ['La tension du réseau électrique varie de quelques volts.', 'al'],
+                ['Les granulés plastiques ont une taille légèrement différente d\'un sac à l\'autre, dans les tolérances.', 'al'], ['La répétabilité normale de l\'instrument de mesure.', 'al'], ['Le serrage de la pièce dans le mandrin varie très légèrement d\'une pièce à l\'autre.', 'al'],
+                ['De petites variations de la vitesse du convoyeur, dans la plage prévue.', 'al'], ['La viscosité de la peinture varie un peu avec la température de l\'atelier.', 'al'], ['Les opérateurs d\'une même équipe, bien formés, ont des gestes très légèrement différents.', 'al'],
+                ['La légère dilatation de la machine pendant sa mise en température habituelle.', 'al'], ['De petites différences de dureté à l\'intérieur d\'une même barre d\'acier.', 'al'], ['Le temps de cycle de la presse varie de quelques centièmes de seconde.', 'al'],
+                ['La masse des sachets remplis varie de quelques grammes autour de la consigne.', 'al'], ['La température du moule oscille faiblement autour de la consigne de régulation.', 'al'], ['La rugosité des pièces varie un peu, sans dépasser la limite habituelle.', 'al'],
+                ['Les points de la carte de contrôle se répartissent au hasard de part et d\'autre de la moyenne.', 'al'], ['Le débit de liquide de coupe varie légèrement au cours de la journée.', 'al'], ['La force de serrage des visseuses varie un peu, dans la précision donnée par le constructeur.', 'al'],
+                ['Les petites variations du cordon de soudure dues à la vitesse de la main du soudeur, toujours présentes.', 'al'], ['Les valeurs mesurées restent toutes entre les limites de surveillance, sans tendance.', 'al'], ['Les poussières normales de l\'atelier, nettoyé selon le planning.', 'al'],
+                // causes assignables (spéciales) : identifiables, ponctuelles, corrigeables
+                ['Un opérateur intérimaire non formé remplace le régleur habituel.', 'as'], ['Le programme de la machine à commande numérique a été modifié par erreur.', 'as'], ['Un roulement de broche se dégrade et provoque des vibrations anormales.', 'as'],
+                ['La pièce est mal positionnée dans le montage d\'usinage à cause d\'un copeau.', 'as'], ['Le fournisseur de matière a changé sans prévenir.', 'as'], ['Le pied à coulisse est tombé et n\'est plus étalonné.', 'as'],
+                ['La régulation de température du four est tombée en panne.', 'as'], ['La pression d\'injection a été changée en cours de série.', 'as'], ['Un outil cassé n\'a pas été détecté et la machine continue de produire.', 'as'],
+                ['Une buse de peinture se bouche.', 'as'], ['La machine a été redémarrée après une coupure de courant sans refaire le réglage.', 'as'], ['On change d\'équipe et le nouveau régleur modifie l\'origine pièce.', 'as'],
+                ['Un vérin du poste d\'assemblage fuit et perd de la force.', 'as'], ['La bobine de fil de soudage a été remplacée par un mauvais diamètre.', 'as'], ['Une fuite d\'huile hydraulique fait baisser la pression de la presse.', 'as'],
+                ['Six points consécutifs de la carte de contrôle sont au-dessus de la moyenne.', 'as'], ['La maintenance a changé la meule de la rectifieuse sans refaire le réglage.', 'as'], ['L\'opérateur oublie de serrer le bridage d\'une pièce.', 'as'],
+                ['Le capteur de la balance de remplissage est déréglé après un choc.', 'as'], ['La climatisation de la salle de métrologie est en panne : 30 °C au lieu de 20 °C.', 'as'], ['Une courroie de transmission patine.', 'as'],
+                ['Un point de la carte de contrôle sort brusquement des limites de contrôle.', 'as'], ['La matière première a été stockée dehors sous la pluie avant l\'utilisation.', 'as'], ['L\'outil a été affûté avec un mauvais angle.', 'as']]);
             return { enonce: `<p>${txt}</p>`, champs: [gChoix('c', sol, [['al', 'Cause aléatoire (commune)'], ['as', 'Cause assignable (spéciale)']], { groupe: 'Type de cause' })],
                 correction: `<p><strong class="text-white">${sol === 'al' ? 'Cause aléatoire' : 'Cause assignable'}</strong>. ${sol === 'al' ? 'Elle fait partie du fonctionnement normal du procédé : on surveille sans retoucher les réglages à chaque variation.' : 'C\'est un événement précis, identifiable et corrigeable : on cherche la cause, on la corrige, puis on vérifie le retour à la stabilité.'}</p>` };
         }
@@ -11154,6 +11284,49 @@
             o += `<path d="M 238 58 Q 262 98 238 142" fill="none" stroke="${SVG_DISCRET}" stroke-width="2"/><path d="M 130 188 Q 98 205 60 188" fill="none" stroke="${SVG_DISCRET}" stroke-width="2"/><path d="M 12 142 Q -8 98 12 58" fill="none" stroke="${SVG_DISCRET}" stroke-width="2"/>`;
             return `<svg viewBox="-20 0 280 205" width="260" role="img" aria-label="Roue de Deming PDCA">${o}</svg>`;
         }
+        // ----- droite de Henry : données du TD 1 (50 mesures de 35,003 à 35,016 mm, 8 classes d'amplitude 0,002) -----
+        const HENRY_TD = { bornes: [35.003, 35.005, 35.007, 35.009, 35.011, 35.013, 35.015, 35.017, 35.019], eff: [1, 6, 17, 18, 6, 1, 1, 0] };
+        // quantile de la loi normale centrée réduite (approximation rationnelle d'Acklam)
+        function quantileNormal(p) {
+            const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239], b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572],
+                c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783], d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416];
+            const pl = 0.02425;
+            if (p < pl) { const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+            if (p > 1 - pl) { const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+            const q = p - 0.5, r = q * q; return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+        }
+        function svgHenryHisto() {
+            const { bornes, eff } = HENRY_TD, x0 = 60, y0 = 190, W = 400, H = 150, n = 8, cw = W / n, X = (k) => x0 + k * cw, Y = (e) => y0 - e / 20 * H;
+            let o = '';
+            for (let e = 0; e <= 20; e += 5) o += PF.L(x0, Y(e), x0 + W, Y(e), '#1e293b') + PF.t(x0 - 6, Y(e) + 3, String(e), { c: SVG_DISCRET, s: 9, a: 'end' });
+            eff.forEach((e, k) => { if (e) o += `<rect x="${X(k) + 1}" y="${Y(e)}" width="${cw - 2}" height="${y0 - Y(e)}" fill="${SVG_ACCENT}" fill-opacity="0.35" stroke="${SVG_ACCENT}"/>` + PF.t(X(k) + cw / 2, Y(e) - 5, String(e), { c: SVG_ACCENT, s: 10, b: 1 }); });
+            bornes.forEach((b, k) => { o += PF.L(X(k), y0, X(k), y0 + 4, SVG_DISCRET) + PF.t(X(k), y0 + 16, b.toFixed(3).replace('.', ',').replace(/^35,/, ','), { c: SVG_DISCRET, s: 9 }); });
+            o += PF.L(x0, y0, x0 + W + 6, y0, SVG_DISCRET) + PF.L(x0, y0, x0, Y(20) - 6, SVG_DISCRET) + PF.t(x0 + W, y0 + 30, 'diamètre (mm) : 35,003 … 35,019', { c: SVG_DISCRET, s: 10, a: 'end' }) + PF.t(x0 + 4, Y(20) - 10, 'effectif ni', { c: SVG_ACCENT, s: 10, a: 'start' });
+            return PF.svg(480, 230, o, 'Histogramme des mesures du TD', 480);
+        }
+        function svgHenryDroite() {
+            const { bornes, eff } = HENRY_TD, n = eff.reduce((a, b) => a + b, 0);
+            let cum = 0; const pts = eff.map((e, k) => { cum += e; return [bornes[k + 1], cum / n * 100]; }).filter(([, F]) => F > 0 && F < 100);
+            const x0 = 70, y0 = 230, W = 380, H = 200, xmin = 35.003, xmax = 35.017, zmin = -2.6, zmax = 2.6;
+            const X = (x) => x0 + (x - xmin) / (xmax - xmin) * W, Y = (z) => y0 - (z - zmin) / (zmax - zmin) * H;
+            // droite ajustée sur les points centraux (5 % à 95 %), comme on le fait à la main : x = m + σ z
+            const centre = pts.filter(([, F]) => F > 5 && F < 95), zs = centre.map(([, F]) => quantileNormal(F / 100)), xs = centre.map(([x]) => x), mz = zs.reduce((a, b) => a + b) / zs.length, mx = xs.reduce((a, b) => a + b) / xs.length;
+            const sig = zs.reduce((s, z, i) => s + (z - mz) * (xs[i] - mx), 0) / zs.reduce((s, z) => s + (z - mz) ** 2, 0), moy = mx - sig * mz;
+            let o = '';
+            [1, 2, 5, 10, 20, 30, 50, 70, 80, 90, 95, 98, 99].forEach(p => { const y = Y(quantileNormal(p / 100)); o += PF.L(x0, y, x0 + W, y, p === 50 ? '#334155' : '#1e293b') + PF.t(x0 - 6, y + 3, `${p} %`, { c: SVG_DISCRET, s: 9, a: 'end' }); });
+            for (let x = 35.003; x <= 35.0171; x += 0.002) o += PF.L(X(x), Y(zmin), X(x), Y(zmax), '#1e293b') + PF.t(X(x), y0 + 14, x.toFixed(3).replace('.', ',').replace(/^35,/, ','), { c: SVG_DISCRET, s: 9 });
+            o += PF.L(x0, y0, x0 + W + 6, y0, SVG_DISCRET) + PF.L(x0, y0, x0, Y(zmax) - 6, SVG_DISCRET);
+            const xa = moy + sig * zmin, xb = moy + sig * zmax;
+            o += PF.L(X(xa), Y(zmin), X(xb), Y(zmax), CB);
+            pts.forEach(([x, F]) => { o += `<circle cx="${X(x)}" cy="${Y(quantileNormal(F / 100))}" r="4" fill="${SVG_ACCENT}" stroke="none"/>`; });
+            // lecture de la moyenne (50 %) et de l'écart-type (84 %)
+            const x84 = moy + sig;
+            o += PF.L(X(moy), Y(0), X(moy), y0, CV, '4 3') + PF.t(X(moy) + 4, y0 - 6, 'x̄', { c: CV, b: 1, s: 12, a: 'start' });
+            o += PF.L(x0, Y(1), X(x84), Y(1), CV, '4 3') + PF.L(X(x84), Y(1), X(x84), y0, CV, '4 3');
+            o += PF.fleche(X(moy), Y(0) - 14, X(x84), Y(0) - 14, CR) + PF.fleche(X(x84), Y(0) - 14, X(moy), Y(0) - 14, CR) + PF.t((X(moy) + X(x84)) / 2, Y(0) - 20, 'σ', { c: CR, b: 1, s: 13 });
+            o += PF.t(x0 + W, y0 + 30, 'borne supérieure de classe (mm) : 35,003 … 35,017', { c: SVG_DISCRET, s: 10, a: 'end' }) + PF.t(x0 + 4, Y(zmax) - 10, 'fréquences cumulées (échelle gausso-arithmétique)', { c: SVG_ACCENT, s: 10, a: 'start' });
+            return { svg: PF.svg(470, 272, o, 'Droite de Henry des mesures du TD', 470), moy, sig };
+        }
         function svgCloche() {
             let d = ''; const x0 = 30, ax = 300, base = 130;
             for (let i = 0; i <= 120; i++) { const z = -4 + i * 8 / 120, x = x0 + (z + 4) / 8 * ax, y = base - Math.exp(-z * z / 2) * 100; d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }
@@ -11513,7 +11686,20 @@
                         H.figure(svgCloche(), 'On utilise très souvent l\'intervalle 6σ, de x̄ − 3σ à x̄ + 3σ.')
                     ].join('') },
                     { titre: "3. Droite de Henry", icone: "trending-up", contenu: [
-                        H.p(R`Pour vérifier qu'une série de mesures suit une loi normale, on trace les <strong>fréquences cumulées</strong> sur un <strong>papier gaussien</strong> : une loi normale y donne une <strong>droite</strong> (droite de Henry).`),
+                        H.p(R`Pour vérifier qu'une série de mesures suit une loi normale, on trace les <strong>fréquences cumulées</strong> sur un <strong>papier gaussien</strong> (gausso-arithmétique) : une loi normale y donne une <strong>droite</strong> (droite de Henry).`),
+                        H.tableau(["Étape", "Formule / méthode"], [
+                            ["1. Nombre de classes $k$", R`$k = \sqrt{n}$ ou $k = 1 + 3{,}3\,\log n$ (log décimal), <strong>arrondi à l'entier supérieur</strong> ($n$ : nombre de mesures)`],
+                            ["2. Étendue", R`$W = x_{max} - x_{min}$`],
+                            ["3. Amplitude d'une classe", R`$a = \dfrac{W}{k}$, <strong>arrondie au-dessus</strong> à la résolution des mesures (ex. 0,001 mm)`],
+                            ["4. Bornes des classes", R`classe $i$ : $[\,x_{min} + (i-1)\,a \;;\; x_{min} + i\,a\,[$ (borne inférieure incluse, supérieure exclue)`],
+                            ["5. Effectif et fréquence", R`$n_i$ = nombre de mesures dans la classe ; $f_i = \dfrac{n_i}{n} \times 100$ (%)`],
+                            ["6. Fréquence cumulée", R`$F_i = \dfrac{n_1 + n_2 + \dots + n_i}{n} \times 100$ (%)`],
+                            ["7. Points de Henry", R`on place $(\text{borne supérieure de la classe } i \;;\; F_i)$ sur le papier gausso-arithmétique (on ne place pas le point à 100 %)`],
+                            ["8. Lecture", R`moyenne $\bar x$ : abscisse de la droite à 50 % ; écart-type : $\sigma = x_{84\,\%} - x_{50\,\%}$ (ou $\dfrac{x_{97,7\,\%} - x_{2,3\,\%}}{4}$)`]
+                        ], { nowrap: false, gauche: true }),
+                        H.p(R`<strong>Exemple du TD</strong> : 50 diamètres de 35,003 à 35,016 mm. $k = \sqrt{50} \approx 7{,}07$, donc 8 classes ; $W = 0{,}013$ mm ; $a = 0{,}013/8 = 0{,}001\,625$, arrondi à 0,002 mm. Effectifs : 1, 6, 17, 18, 6, 1, 1, 0, soit des fréquences cumulées de 2, 14, 48, 84, 96, 98 et 100 %.`),
+                        H.figure(svgHenryHisto(), "Histogramme des 50 mesures : la forme en cloche fait penser à une loi normale."),
+                        (() => { const h = svgHenryDroite(); return H.figure(h.svg, `Droite de Henry : chaque point est (borne supérieure ; fréquence cumulée). Les points sont presque alignés, la loi est normale. On lit x̄ ≈ ${h.moy.toFixed(4).replace('.', ',')} mm à 50 % et σ ≈ ${h.sig.toFixed(4).replace('.', ',')} mm entre 50 % et 84 %.`); })(),
                         H.liste(["Si les points sont alignés : la distribution est normale, on peut passer aux cartes de contrôle.", "Si un point est incohérent : on l'analyse pour l'ignorer ou pour conclure que la loi n'est pas normale.", "Ce test n'est pas le plus précis, mais donne une bonne approximation."])
                     ].join('') },
                     { titre: "4. Mettre un procédé sous contrôle", icone: "gauge", contenu: [
