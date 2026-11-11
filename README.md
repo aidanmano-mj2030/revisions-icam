@@ -21,6 +21,7 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 |---|---|
 | `public/index.html` | Le site : cours et exercices |
 | `public/progression.js` | Enregistre les exercices réussis, affiche les pastilles |
+| `public/revision-ds.js` | Onglet « Révision DS » de l'A2 : examen blanc, QCM, exercices corrigés, formules |
 | `public/connexion.html` | Page de connexion |
 | `src/index.js` | Serveur (Cloudflare Worker) : connexion Google, sessions, progression, protection des pages |
 | `src/regles.js` | Règles de validation, dont le contrôle du jeton Google (testées par `npm test`) |

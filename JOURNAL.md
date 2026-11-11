@@ -96,3 +96,12 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - CE 1ère année, production et distribution de l'énergie : 49 questions, un nouvel exercice sur l'éolien (puissance proportionnelle à v³), réponses mélangées à chaque question.
 - CE 1ère année, composants et schémas : 69 questions d'appareillage et de normes (types de schémas, repérage, commande et puissance, appareillage, NF C 15-100).
 - Calculatrice : la touche = vide la zone de saisie (le calcul passe dans l'historique), le bouton ANS devient REP, et un calcul qui commence par un opérateur repart du résultat précédent.
+
+## 11 novembre 2026 – Révision du DS d'A2 (Aidan)
+
+- Nouvel onglet « Révision DS » en 2ème année (carte au-dessus des domaines) pour le DS du samedi 14 novembre, CE puis OI.
+- Examen blanc : 82 QCM mélangés, filtrables (tout, exposés OI, cours OI, CE), score affiché et meilleur score enregistré.
+- OI : les 16 QCM des 8 exposés de veille technologique avec l'essentiel de chaque exposé (sans nom d'élève), et 8 chapitres de cours (MSP, droite de Henry, cartes de contrôle, Cm et Cmk, MRP, Kanban, contrat de phase, annales).
+- CE : 7 chapitres sans variateur (moteur asynchrone, plaque, bilan des puissances, transmission, environnement, magnétostatique, moteur CC).
+- Exercices corrigés pas à pas : même type que les TD et DS, mais avec d'autres valeurs, recalculées par script. Page de formules avec la légende de chaque symbole. Emplacement des deux DS blancs (sujet puis corrigé masqué), marqué « bientôt ».
+- Progression : chaque chapitre dont tous les QCM sont justes compte comme réussi.
