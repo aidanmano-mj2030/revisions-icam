@@ -811,7 +811,8 @@
             { num: "Introduction", titre: "Management de la qualité", desc: "Définition, SMQ, certification, outils (Pareto, Ishikawa, PDCA, AMDEC) et coûts de la qualité.", lecon: "oi-qualite" },
             { num: "Chapitre n°2", titre: "Kanban et MRP", desc: "Flux poussé et flux tiré, calcul MRP, kanbans, juste-à-temps.", lecon: "oi-kanban", exo: "oi2-mrp" },
             { num: "Chapitre n°3", titre: "La maîtrise statistique des procédés", desc: "Loi normale, droite de Henry, cartes de contrôle, capabilité Cm et Cmk.", lecon: "oi-msp", exo: "oi2-msp" },
-            { num: "Chapitre n°4", titre: "La cotation GPS", desc: "Principe d'indépendance, ajustements, rugosité, tolérances géométriques, enveloppe et maximum de matière.", lecon: "oi2-gps", exo: "oi2-gps" }
+            { num: "Chapitre n°4", titre: "La cotation GPS", desc: "Principe d'indépendance, ajustements, rugosité, tolérances géométriques, enveloppe et maximum de matière.", lecon: "oi2-gps", exo: "oi2-gps" },
+            { num: "Veille technologique", titre: "Les méthodes des oraux", desc: "VSM, maintenance, SMED, équilibrage de ligne, Job Shop / Flow Shop, CND, métrologie, SST : un point par méthode et le QCM de chaque groupe.", lecon: "oi2-veille", exo: "oi2-veille" }
         ],
         "MATHS": [
             { num: "Fonction", titre: "Développement Limité", desc: "Étude de x -> 0, ordre 1, 2, 3...", lecon: "maths-dl", exo: "maths-dl-usuels" },
@@ -14998,6 +14999,218 @@
                 ]
             }
         });
+
+        // ==========================================
+        // OI 2ème année • Veille technologique : les oraux de la promo (une méthode par partie)
+        // ==========================================
+        // Équilibrage de ligne : charge des 3 postes avant / après, avec le takt time
+        function svgEquilibrage() {
+            const T = SVG_TRAIT, X = SVG_TEXTE, D = SVG_DISCRET, A = SVG_ACCENT, V = '#34d399', Rr = '#f87171';
+            const ech = 2.2, base = 170, cols = { A: '#60a5fa', B: '#a78bfa', C: '#f472b6', D: '#fb923c', E: '#2dd4bf', F: '#facc15' };
+            const duree = { A: 30, B: 15, C: 25, D: 20, E: 20, F: 25 };
+            const bloc = (x0, titre, postes) => {
+                let o = `<text x="${x0 + 105}" y="16" fill="${X}" font-size="12" font-weight="700" text-anchor="middle">${titre}</text>`;
+                o += `<path d="M${x0} ${base}H${x0 + 215}" stroke="${D}"/>`;
+                postes.forEach((taches, i) => {
+                    const x = x0 + 20 + i * 66; let y = base, tot = 0;
+                    taches.forEach(t => { const h = duree[t] * ech; y -= h; tot += duree[t];
+                        o += `<rect x="${x}" y="${y}" width="44" height="${h}" fill="${cols[t]}" fill-opacity=".35" stroke="${cols[t]}"/><text x="${x + 22}" y="${y + h / 2 + 4}" fill="${X}" font-size="10" text-anchor="middle">${t} ${duree[t]}</text>`; });
+                    o += `<text x="${x + 22}" y="${base + 14}" fill="${D}" font-size="10" text-anchor="middle">Poste ${i + 1}</text>`;
+                    o += `<text x="${x + 22}" y="${base + 27}" fill="${tot > 45 ? Rr : V}" font-size="10" font-weight="700" text-anchor="middle">${tot} s</text>`;
+                });
+                const yt = base - 45 * ech;
+                o += `<path d="M${x0 + 6} ${yt}H${x0 + 212}" stroke="${A}" stroke-dasharray="5 3"/><text x="${x0 + 212}" y="${yt - 4}" fill="${A}" font-size="10" text-anchor="end">takt 45 s</text>`;
+                return o;
+            };
+            return `<svg viewBox="0 0 470 202" width="470" role="img" aria-label="Charge des postes avant et après équilibrage" fill="none" stroke-width="1.4" style="max-width:100%">`
+                + bloc(10, 'Avant : goulot au poste 2', [['A'], ['B', 'C', 'D'], ['E', 'F']])
+                + bloc(245, 'Après : 3 postes à 45 s', [['A', 'B'], ['C', 'D'], ['E', 'F']]) + `</svg>`;
+        }
+        // VSM : pictogrammes de base
+        function svgPictosVSM() {
+            const T = SVG_TRAIT, X = SVG_TEXTE, A = SVG_ACCENT;
+            const leg = (x, t) => `<text x="${x}" y="88" fill="${X}" font-size="10" text-anchor="middle">${t}</text>`;
+            let o = '';
+            o += `<path d="M14 60V34L28 24V34L42 24V34L56 24V60Z" stroke="${T}"/>` + leg(35, 'Usine') + `<text x="35" y="101" fill="${X}" font-size="10" text-anchor="middle">(fournisseur, client)</text>`;
+            o += `<rect x="96" y="26" width="52" height="34" stroke="${T}"/><path d="M96 38H148" stroke="${T}"/><text x="122" y="35" fill="${X}" font-size="8" text-anchor="middle">Poste</text><text x="122" y="52" fill="${X}" font-size="8" text-anchor="middle">C/T, opérateurs</text>` + leg(122, 'Poste + données');
+            o += `<path d="M200 60L216 28L232 60Z" stroke="${A}"/><text x="216" y="55" fill="${A}" font-size="12" font-weight="700" text-anchor="middle">I</text>` + leg(216, 'Stock');
+            o += `<rect x="262" y="34" width="30" height="18" stroke="${T}"/><path d="M292 40H304L310 46V52H292" stroke="${T}"/><circle cx="270" cy="56" r="4" stroke="${T}"/><circle cx="302" cy="56" r="4" stroke="${T}"/>` + leg(286, 'Livraison');
+            o += `<path d="M336 44H380M374 39L380 44L374 49" stroke="${T}"/>` + leg(358, 'Flux d\'information');
+            o += `<path d="M408 38H440V32L456 44L440 56V50H408Z" stroke="${A}" fill="${A}" fill-opacity=".2"/>` + leg(432, 'Flux matière');
+            return `<svg viewBox="-12 0 482 110" width="470" role="img" aria-label="Pictogrammes du VSM" fill="none" stroke-width="1.5" style="max-width:100%">${o}</svg>`;
+        }
+        Object.assign(LECONS, {
+            "oi2-veille": {
+                badge: "OI • 2ème Année", titre: "Veille technologique : les méthodes des oraux",
+                sections: () => [
+                    { titre: "1. Value Stream Mapping (VSM)", icone: "map", contenu: [
+                        H.p(R`Le <strong>VSM</strong> (<em>Value Stream Mapping</em>), ou <strong>cartographie de la chaîne de valeur</strong>, est un outil du Lean venu de Toyota. Il a été formalisé en 1998 par Mike Rother et John Shook dans <em>Learning to See</em>. On suit un produit depuis la matière première jusqu'au client pour repérer où il perd du temps.`),
+                        H.p(R`Une seule carte montre <strong>deux flux</strong> : le <strong>flux matière</strong> (chemin physique du produit : étapes, stocks, transports) et le <strong>flux d'information</strong> (ce qui déclenche la production : commandes, planning). On y distingue les activités <strong>à valeur ajoutée</strong> (ce que le client paie : usiner, assembler) et <strong>sans valeur ajoutée</strong> (attendre, stocker, déplacer, refaire).`),
+                        H.figure(svgPictosVSM(), 'Les pictogrammes à connaître : le stock est un triangle marqué « I », le flux matière une grosse flèche, le flux d\'information une flèche fine.'),
+                        H.listeNum([R`<strong>Choisir</strong> une famille de produits.`, R`<strong>Observer</strong> : dessiner l'état actuel sur le terrain.`, R`<strong>Mesurer</strong> : temps de cycle (C/T), stocks, opérateurs ; comparer le temps de travail réel au délai total.`, R`<strong>Imaginer</strong> l'état futur : moins de stocks, flux plus fluide.`, R`<strong>Agir</strong> : plan d'action pour y arriver.`]),
+                        H.p(R`<strong>Exemple</strong> : chez Pilgrim Screw (vis et boulons, Arizona), le VSM d'un boulon a révélé de longues attentes et des tâches faites en double ; le processus revu a réduit le délai de <strong>40 %</strong> sur une de leurs gammes les plus rentables. Dans une étude automobile (ligne d'essieux), le délai est passé de 89,5 h à 50,55 h.`),
+                        H.tableau(["Avantages", "Limites"], [["Vision globale du flux", "« Photo » à un instant donné"], ["Simple et visuel (papier, crayon)", "Long à faire à la main"], ["Fait travailler les services ensemble", "Moins adapté à une grande variété de produits"], ["Point de départ d'autres outils Lean (SMED, kanban)", ""]], { nowrap: false }),
+                        H.note(R`<strong>Évolution : le VSM 4.0.</strong> Les données arrivent automatiquement (capteurs, logiciels) et l'état futur peut être simulé sur ordinateur avant de toucher à l'atelier. <strong>À retenir</strong> : le VSM apprend à voir les gaspillages ; c'est souvent la première étape d'une démarche Lean.`)
+                    ].join('') },
+                    { titre: "2. La maintenance industrielle", icone: "wrench", contenu: [
+                        H.p(R`La maintenance regroupe les actions qui <strong>maintiennent ou rétablissent un bien dans un état lui permettant d'accomplir sa fonction</strong> (norme NF EN 13306). Enjeux : <strong>disponibilité</strong>, <strong>coûts</strong>, qualité et <strong>sécurité</strong> (10 à 15 % des accidents mortels du travail sont liés à des opérations de maintenance).`),
+                        H.tableau(["Stratégie", "Quand intervient-on ?", "Exemple", "Limite"], [
+                            ["<strong>Corrective</strong>", "Après la panne : dépannage (provisoire, palliatif) ou réparation (définitive, curatif)", "Remplacer un roulement cassé", "Arrêt subi, urgence, risques accrus"],
+                            ["<strong>Préventive systématique</strong>", "À intervalles fixes : date, heures de marche, cycles", "Graisser les roulements toutes les 500 h", "Pièce changée trop tôt, ou panne avant l'échéance"],
+                            ["<strong>Conditionnelle</strong>", "Quand une mesure de l'état (vibration, usure, température) franchit un seuil", "Intervenir si la vibration dépasse le seuil", "Dit « maintenant », pas « quand »"],
+                            ["<strong>Prédictive (prévisionnelle)</strong>", "Avant la date de défaillance estimée d'après l'évolution des mesures", "Planifier l'arrêt d'après la tendance", "Données, modèles, compétences, coût"]
+                        ], { nowrap: false }),
+                        H.note(R`<strong>À ne pas confondre</strong> : en <strong>conditionnelle</strong>, on agit quand le seuil est franchi ; en <strong>prédictive</strong>, on estime <em>quand</em> la panne arrivera pour planifier avant. Les deux sont des formes de maintenance préventive.`),
+                        H.p(R`Côté corrective, on distingue aussi la corrective <strong>catastrophe</strong> (panne imprévue, la plus risquée et la plus coûteuse), <strong>sélective</strong> (on traite d'abord les équipements critiques) et <strong>liée à la préventive</strong> (anomalie vue pendant une visite, corrigée aussitôt). Le <strong>type</strong> dit quand intervenir, la <strong>tâche</strong> quoi faire (contrôle des paramètres, lubrification), l'<strong>action</strong> le geste précis (mesurer les vibrations).`),
+                        H.p(R`<strong>Maintenance prédictive</strong> : équipement → capteurs (vibrations, température, courant, acoustique, analyse d'huile) → collecte des données → analyse (statistiques, cartes de contrôle ou IA) → alerte et estimation → décision du technicien → intervention planifiée → retour d'expérience. Elle se justifie quand <strong>une panne coûte plus cher que la surveillance</strong> (équipement critique, unique ou dangereux) ; pour un petit composant bon marché, en stock et doublé, ce n'est pas rentable.`),
+                        H.formule(R`D = \dfrac{MTBF}{MTBF + MTTR}`),
+                        H.p(R`<strong>Disponibilité</strong> : MTBF = temps moyen entre deux pannes, MTTR = temps moyen de réparation. Convoyeur avec MTBF = 190 h et MTTR = 10 h : $D = 190 / 200 = 95\ \%$.`),
+                        H.p(R`<strong>Exemples</strong> : la SNCF surveille en continu portes, climatisation, freins et batteries de ses rames (capteurs, 4G/5G) au lieu de contrôles à date fixe : pannes divisées par 2 et −20 % de coûts de maintenance. Une étude sur les axes de 29 machines-outils (Université de Skövde, 2018) estime par simulation −40 % de coût et 6 fois moins de pannes qu'avec la meilleure maintenance systématique.`),
+                        H.note(R`<strong>À retenir</strong> : il n'y a pas de maintenance idéale, mais une stratégie adaptée à chaque équipement (criticité, risques, coûts, données). Les capteurs alertent, mais c'est l'humain qui décide.`)
+                    ].join('') },
+                    { titre: "3. Méthode SMED", icone: "timer", contenu: [
+                        H.p(R`Le <strong>SMED</strong> (<em>Single Minute Exchange of Die</em>) est une méthode du Lean qui réduit le <strong>temps de changement de série</strong>. « Single minute » signifie « un seul chiffre de minutes » : l'objectif est de passer <strong>sous les 10 minutes</strong>, pas à une minute. Elle est associée à Shigeo Shingo et au système de production Toyota.`),
+                        H.p(R`Le <strong>temps de changement</strong> va de la <strong>dernière bonne pièce du lot A</strong> à la <strong>première bonne pièce du lot B</strong>, essais et réglages compris. Les clients veulent plus de variété en plus petites quantités, donc on change de série plus souvent. Un changement long oblige à faire de gros lots (donc des stocks) ou fait perdre du temps machine.`),
+                        H.tableau(["Opérations", "Quand ?", "Exemples"], [
+                            ["<strong>Internes</strong> (temps visible)", "Seulement machine <strong>arrêtée</strong>", "Démonter et monter l'outil, régler, faire les pièces d'essai"],
+                            ["<strong>Externes</strong> (temps masqué)", "Pendant que la machine <strong>produit encore</strong>", "Apporter l'outillage et la matière, préchauffer le moule, vérifier, ranger"]
+                        ], { nowrap: false }),
+                        H.note(R`<strong>Principe</strong> : convertir un maximum d'opérations internes en externes, puis raccourcir ce qui reste.`),
+                        H.listeNum([R`<strong>Observer</strong> un changement réel : chronométrer ou filmer, lister les tâches, tracer un diagramme spaghetti des déplacements de l'opérateur.`, R`<strong>Séparer</strong> l'interne de l'externe, et faire dès maintenant l'externe machine en marche.`, R`<strong>Convertir</strong> l'interne en externe : préparer et préchauffer l'outil à l'avance, chariots et gabarits intermédiaires, standardiser.`, R`<strong>Rationaliser</strong> ce qui reste : fixations rapides (un seul tour de serrage, serrage magnétique ou hydraulique), opérations en parallèle à deux opérateurs, suppression des réglages. Puis on recommence : il faut souvent plusieurs cycles pour passer sous 10 minutes.`]),
+                        H.formule(R`TRS = \text{Disponibilité} \times \text{Performance} \times \text{Qualité}`),
+                        H.p(R`Le SMED améliore la <strong>disponibilité</strong> (machine arrêtée moins longtemps) et la <strong>qualité</strong> (moins de pièces d'essai et de rebuts au démarrage). Exemple construit par le groupe : poste de 480 min, 3 changements, performance 90 %, qualité 98 %. À 60 min par changement, $D = (480 - 3 \times 60) / 480 = 62{,}5\ \%$ et le TRS vaut environ 55 %. À 8 min, $D = (480 - 3 \times 8) / 480 = 95\ \%$ et le TRS monte à environ 84 %.`),
+                        H.p(R`<strong>Exemples</strong> : chez Toyota, le changement d'une presse de 1 000 tonnes est passé de 4 h à 1 h 30 puis à environ 3 min, sans gros investissement (chiffres rapportés par Shingo). Une cellule de soudage automobile (étude de Cranfield, 2013) a gagné 33 % sur le temps de changement en 4 mois. Sur des machines CNC (2023), le gain dépasse 20 %, et des lecteurs de codes-barres ont réduit de 88 % le temps de chargement des programmes.`),
+                        H.tableau(["Avantages", "Limites"], [["Lots plus petits, moins de stocks et d'en-cours", "Gain typique d'environ 60 % ; 90 % au mieux, mais coûteux"], ["Plus de flexibilité, délais plus courts", "Sous 10 min : pas toujours possible ni utile"], ["TRS en hausse, souvent avec peu d'investissement", "À adapter à chaque site ; gains difficiles à tenir ; réglages à sécuriser"]], { nowrap: false }),
+                        H.note(R`<strong>Évolution</strong> : agir dès la conception des machines et outillages, systèmes de changement rapide, objectif <strong>OTED</strong> (moins de 100 secondes). <strong>L'image à retenir</strong> : une équipe de stand change quatre roues en quelques secondes parce que tout est préparé, à portée de main, simplifié (un seul écrou par roue) et entraîné.`)
+                    ].join('') },
+                    { titre: "4. Équilibrage de ligne", icone: "scale", contenu: [
+                        H.p(R`L'<strong>équilibrage de ligne</strong> répartit les tâches entre les postes d'une ligne pour que leurs <strong>charges</strong> (somme des durées des tâches du poste) soient aussi proches que possible, en respectant l'<strong>ordre des opérations</strong> (antériorités) et la cadence demandée. La ligne avance à la vitesse de son poste le plus lent.`),
+                        H.p(R`Une ligne mal équilibrée provoque des <strong>attentes</strong> entre postes, des <strong>goulots d'étranglement</strong> (poste dont la capacité limite le débit de toute la ligne), des <strong>accumulations</strong> de pièces devant le poste lent, donc une perte de productivité.`),
+                        H.tableau(["Notion", "Formule"], [
+                            ["Takt time (rythme imposé par la demande)", R`$T_k = \dfrac{\text{temps disponible}}{\text{quantité demandée}}$`],
+                            ["Temps de cycle (ce que la ligne fait réellement)", R`$TC$ = charge du poste le plus chargé ; objectif $TC \le T_k$`],
+                            ["Nombre minimal de postes", R`$N_{min} = \dfrac{\sum T_i}{T_k}$ (arrondi au supérieur)`],
+                            ["Efficacité d'équilibrage", R`$E = \dfrac{\sum T_i}{N \times TC} \times 100$`],
+                            ["Débit théorique", R`$\dfrac{3600}{TC}$ pièces/h`]
+                        ], { nowrap: false }),
+                        H.listeNum(["Lister les tâches et leur ordre (graphe d'antériorités).", "Mesurer leur durée (chronométrage).", "Calculer le takt time.", "Répartir les tâches entre les postes.", "Tester en atelier et ajuster."]),
+                        H.p(R`<strong>Exemple</strong> : tâches A 30 s, B 15 s, C 25 s, D 20 s, E 20 s, F 25 s ($\sum T_i = 135$ s) ; demande de 560 pièces en 420 min, soit $T_k = 25\,200 / 560 = 45$ s et $N_{min} = 135 / 45 = 3$ postes.`),
+                        H.figure(svgEquilibrage(), 'En déplaçant B (son seul prédécesseur A est déjà au poste 1), le cycle passe de 60 s à 45 s : efficacité 75 % → 100 %, débit 60 → 80 pièces/h.'),
+                        H.p(R`<strong>Application réelle</strong> : un fabricant de composants automobiles en Malaisie (2012) a gagné <strong>+16,3 % d'efficacité d'équilibrage</strong> en passant d'une ligne droite à une <strong>ligne en U</strong> (entrée et sortie du même côté, opérateurs au centre qui couvrent plusieurs postes). C'est un gain d'équilibrage, pas forcément de pièces produites.`),
+                        H.tableau(["Avantages", "Limites"], [["Moins d'attente et de stocks intermédiaires", "Ordre des opérations à respecter"], ["Meilleure utilisation des postes", "Contraintes techniques, pannes, imprévus"], ["Meilleure productivité", "Différences entre opérateurs"]], { nowrap: false }),
+                        H.note(R`<strong>À retenir</strong> : bien équilibrer une ligne permet de produire plus régulièrement sans forcément investir dans de nouvelles machines. Évolution : logiciels de simulation et suivi numérique des temps.`)
+                    ].join('') },
+                    { titre: "5. Job Shop et Flow Shop", icone: "git-fork", contenu: [
+                        H.p(R`L'<strong>implantation</strong> (disposition des machines) fixe le chemin des pièces. Deux logiques opposées, choisies selon le <strong>volume</strong> produit et la <strong>variété</strong> des produits.`),
+                        H.tableau(["", "Job Shop (atelier par fonction)", "Flow Shop (ligne)"], [
+                            ["Principe", "Machines regroupées par métier (tournage, fraisage, perçage…)", "Machines dans l'ordre de la gamme"],
+                            ["Chemin des pièces", "Propre à chaque produit", "Le même pour tous"],
+                            ["Pour", "Petites séries très variées", "Grandes séries standardisées"],
+                            ["Atouts", "Flexible, investissement progressif", "Délais et en-cours réduits, coût unitaire bas si le volume suffit"],
+                            ["Faiblesses", "En-cours et délais élevés, ordonnancement complexe", "Peu adaptable, investissement élevé, une panne peut arrêter le flux"],
+                            ["Exemples", "Usinage à la commande, prototypes, maintenance", "Automobile, électroménager, embouteillage"]
+                        ], { nowrap: false }),
+                        H.p(R`Il n'y a pas de meilleure organisation dans l'absolu : beaucoup d'usines combinent les deux (usinage en atelier par fonction, puis assemblage en ligne). Le <strong>poste fixe</strong>, où le produit reste immobile et où les ouvriers viennent à lui, est une troisième organisation.`),
+                        H.p(R`<strong>Exemple</strong> : Ford, Highland Park, 1913. Le passage du poste fixe à la chaîne mobile fait passer l'assemblage d'une Model T de <strong>12 h 30 à 93 min</strong> (avec aussi des postes spécialisés et des pièces standardisées).`),
+                        H.p(R`<strong>Évolution</strong> : les <strong>cellules de production</strong> (mini-lignes pour une famille de pièces dans l'atelier) et les lignes flexibles (Trumpf assemble des machines-outils en ligne, sur rails ou coussins d'air).`),
+                        H.note(R`<strong>À retenir</strong> : forte variété et faible volume → plutôt Job Shop ; fort volume et faible variété → plutôt Flow Shop. Ne pas confondre le <strong>takt</strong> (rythme cible = temps disponible / demande) et le <strong>goulot</strong> (poste de plus faible capacité, qui limite le débit réel).`)
+                    ].join('') },
+                    { titre: "6. Contrôle non destructif (CND)", icone: "scan-search", contenu: [
+                        H.p(R`Le <strong>CND</strong> (ou END, essais non destructifs) regroupe les méthodes qui renseignent sur l'intégrité d'une pièce <strong>sans l'altérer</strong> : elle reste 100 % utilisable. On cherche les fissures, la corrosion, les inclusions ou les porosités avant qu'elles ne provoquent une rupture, sans jeter de pièces saines. On l'utilise en fabrication (fonderie, soudures), à la réception et en maintenance (usure, fatigue, corrosion), surtout en aéronautique, nucléaire, ferroviaire et pour les équipements sous pression.`),
+                        H.tableau(["Méthode", "Principe", "Défauts / matériaux"], [
+                            ["<strong>Ressuage</strong> (PT)", "Un liquide coloré ou fluorescent pénètre dans les fissures par capillarité, puis un révélateur les fait apparaître", "Défauts débouchants, matériaux non poreux"],
+                            ["<strong>Magnétoscopie</strong> (MT)", "On aimante la pièce et on projette des particules ferromagnétiques ; les fuites de flux révèlent les défauts", "Surface et sous-surface, matériaux ferromagnétiques seulement"],
+                            ["<strong>Ultrasons</strong> (UT)", "Des ondes acoustiques haute fréquence se réfléchissent sur les défauts (principe du sonar)", "Volume ; mesure d'épaisseur, soudures épaisses"],
+                            ["<strong>Radiographie</strong> (RT)", "Rayons X ou gamma : image par absorption différentielle (comme une radio médicale)", "Volume ; porosités, inclusions ; protection contre les rayonnements"],
+                            ["<strong>Courants de Foucault</strong> (ET)", "Courants induits dans un matériau conducteur ; un défaut fait varier l'impédance", "Matériaux conducteurs ; tubes, corrosion, très rapide"]
+                        ], { nowrap: false }),
+                        H.p(R`<strong>Normes</strong> : la <strong>NF EN ISO 9712</strong> qualifie et certifie le <strong>personnel</strong> (en France via la COFREND) en 3 niveaux : le niveau 1 réalise le contrôle, le niveau 2 choisit la technique, le niveau 3 écrit les procédures. Certification valable 5 ans. La NF EN ISO 17025 porte sur la compétence des laboratoires d'essais.`),
+                        H.p(R`<strong>Exemple</strong> : Airbus a développé le <em>Line Tool</em>, un système à ultrasons qui inspecte la structure composite de l'A350 après un choc avec un diagnostic automatique (70 exemplaires commandés par 7 compagnies). En fabrication, le fournisseur Epsilon utilise la tomographie en série sur des pièces composites.`),
+                        H.tableau(["Avantages", "Limites"], [["La pièce n'est pas détruite : contrôle de 100 % de la production possible", "Opérateurs certifiés obligatoires"], ["Défauts détectés avant la panne", "Matériel coûteux, chaque méthode a ses limites"]], { nowrap: false }),
+                        H.note(R`<strong>À retenir</strong> : contrôler sans détruire ; on <strong>combine plusieurs méthodes</strong> car chacune est adaptée à certains matériaux et types de défauts. Évolution : plus de précision et d'automatisation (sondes multiéléments sur manipulateur).`)
+                    ].join('') },
+                    { titre: "7. Métrologie industrielle", icone: "ruler", contenu: [
+                        H.p(R`La <strong>métrologie</strong> est la science de la mesure. Elle a trois branches : <strong>scientifique</strong> (étalons internationaux), <strong>légale</strong> (réglementation des mesures) et <strong>industrielle</strong> (vérifier avec des instruments que les pièces fabriquées respectent leurs spécifications). Des mesures fausses touchent la qualité, la sécurité et les coûts.`),
+                        H.liste([
+                            R`<strong>Mesurer</strong>, c'est comparer une grandeur à une unité de même nature. Aucune mesure n'est exacte : on donne <strong>valeur ± incertitude</strong> (facteur d'élargissement $k = 2$), par exemple $10{,}00 \pm 0{,}002$ mm.`,
+                            R`<strong>Erreur systématique</strong> : toujours dans le même sens ; on la <strong>corrige</strong> (justesse), répéter les mesures ne la supprime pas.`,
+                            R`<strong>Erreur aléatoire</strong> : varie à chaque mesure ; on la <strong>réduit en répétant</strong> (fidélité).`,
+                            R`<strong>Traçabilité</strong> : LNE → laboratoire accrédité Cofrac → entreprise. On mesure à 20 °C et on étalonne régulièrement.`
+                        ]),
+                        H.tableau(["Méthode", "Exemple"], [
+                            ["Mesure directe", "Pied à coulisse (0,02 mm), micromètre (0,01 mm)"],
+                            ["Contrôle par calibre", "Tampon ou mâchoire : ENTRE / N'ENTRE PAS"],
+                            ["Mesure indirecte", "Comparateur ; état de surface au rugosimètre (Ra)"],
+                            ["Règle du 1/10", "La résolution de l'instrument doit être 10 fois plus fine que la tolérance"]
+                        ], { nowrap: false }),
+                        H.p(R`<strong>Exemple</strong> : GKN Driveline (transmissions automobiles, Suède) sortait chaque pièce de la ligne pour la salle de mesure. Une <strong>MMT</strong> (machine à mesurer tridimensionnelle) installée dans la cellule contrôle maintenant une pièce en <strong>90 s</strong> ; pour changer de pièce, on change seulement le programme et les montages.`),
+                        H.tableau(["Avantages", "Limites"], [["Maîtrise de la qualité, moins de rebuts", "Investissement élevé (frein pour les PME)"], ["Standardisation : des pièces de sous-traitants différents s'assemblent", "Environnement d'atelier instable (température, vibrations)"], ["Industrie 4.0 : contrôle en temps réel", "Manque de techniciens qualifiés"]], { nowrap: false }),
+                        H.note(R`<strong>Repères historiques</strong> : en 1791 le mètre est défini à partir du quart du méridien terrestre, le système métrique est mis en place en 1795, et le Système international d'unités (SI) est créé en 1960. <strong>Si un instrument donne des mesures inhabituelles</strong> : le vérifier sur cales étalons, faire mesurer par un autre opérateur ou instrument, et s'il est non conforme, l'écarter et réexaminer les pièces mesurées depuis la dernière vérification satisfaisante.`)
+                    ].join('') },
+                    { titre: "8. SST : Sauveteur Secouriste du Travail", icone: "heart-pulse", contenu: [
+                        H.p(R`Le <strong>SST</strong> est un salarié formé à <strong>protéger, examiner, alerter et secourir</strong> en cas de malaise ou d'accident, qui contribue aussi à la prévention des risques de l'entreprise (rédaction du <strong>DUERP</strong>, document unique d'évaluation des risques professionnels).`),
+                        H.p(R`<strong>Cadre légal</strong> (art. R. 4224-15 du Code du travail) : au moins un SST dans chaque atelier à travaux dangereux et sur chaque chantier de 20 personnes ou plus pendant plus de 15 jours avec travaux dangereux. <strong>Recommandation usuelle</strong> (non réglementaire) : <strong>10 à 15 %</strong> de l'effectif formé.`),
+                        H.tableau(["Formation", "Durée / validité"], [["Formation initiale", "<strong>14 h</strong> (2 jours de 7 h)"], ["Certificat SST", "<strong>24 mois</strong> (Assurance Maladie – Risques professionnels et INRS)"], ["MAC (maintien et actualisation des compétences)", "<strong>7 h</strong> tous les 2 ans"]], { nowrap: false }),
+                        H.listeNum([R`<strong>Protéger</strong> et prévenir d'un danger.`, R`<strong>Examiner</strong> une victime.`, R`<strong>Alerter</strong> : faire alerter et informer.`, R`<strong>Secourir</strong> une victime.`]),
+                        H.p(R`Jour 1 : le SST, sa fonction et son cadre, rechercher les dangers, examiner et faire alerter. Jour 2 : les gestes de secours (saignement, étouffement, malaise, traumatisme, victime qui ne répond pas, qui respire ou non) et l'évaluation pratique. La formation est ouverte à tous les salariés, par volontariat (l'employeur peut l'imposer), auprès d'organismes habilités.`),
+                        H.p(R`<strong>Exemple</strong> : à l'Icam, des affiches avec la photo et le nom de tous les SST du site sont placées aux points de passage de chaque bâtiment (imprimantes, portes à badge) : chacun sait qui peut intervenir.`),
+                        H.tableau(["Avantages", "Limites"], [["Rentable : 1 € investi rapporte en moyenne 2,20 €", "Coût initial : équipements, EPI, locaux"], ["Baisse des cotisations AT/MP et des coûts indirects", "Temps : 14 h puis 7 h tous les 2 ans"], ["Moins de turn-over et d'absentéisme ; vies protégées", "DUERP à rédiger et tenir à jour"]], { nowrap: false })
+                    ].join('') }
+                ]
+            }
+        });
+        // QCM : les 2 questions posées par chaque groupe, avec leurs propositions (mélangées à chaque tirage)
+        const VEILLE_Q = {
+            vsm: [
+                ['Sur une carte VSM, que représente un triangle avec un « I » ?', 'b', [['a', 'Un poste de travail'], ['b', 'Un stock'], ['c', 'Une livraison par camion'], ['d', 'Un contrôle qualité']], 'Le triangle « I » (inventory) est le pictogramme du stock.'],
+                ['Quels sont les deux flux représentés sur une carte VSM ?', 'c', [['a', 'Financier et personnel'], ['b', 'Énergie et déchets'], ['c', 'Matière et information'], ['d', 'Clients et fournisseurs']], 'Le flux matière (grosse flèche) et le flux d\'information (flèche fine).']
+            ],
+            maint: [
+                ['Sur un moteur, un capteur mesure les vibrations chaque jour. Les valeurs sont encore sous le seuil d\'alerte mais augmentent régulièrement. L\'équipe utilise cette tendance pour estimer la date de la panne et planifie l\'intervention avant. De quel type de maintenance s\'agit-il ?', 'd', [['a', 'Maintenance corrective'], ['b', 'Maintenance préventive systématique'], ['c', 'Maintenance conditionnelle simple (intervention dès que le seuil est franchi)'], ['d', 'Maintenance prédictive (prévisionnelle)']], 'Pas de panne (pas corrective), pas de calendrier (pas systématique), seuil pas encore franchi (pas conditionnelle simple) : on exploite la tendance pour estimer la date de la panne.'],
+                ['Dans laquelle de ces situations la maintenance prédictive (capteurs, collecte et analyse des données) est-elle la MOINS justifiée ?', 'b', [['a', 'Un compresseur unique dont l\'arrêt bloque toute l\'usine'], ['b', 'Un petit ventilateur d\'armoire électrique, bon marché, en stock et doublé par un second ventilateur'], ['c', 'Une machine-outil critique avec plusieurs années de données de fonctionnement'], ['d', 'Une pompe dont la défaillance peut mettre en danger les opérateurs']], 'Sa panne est peu coûteuse et sans conséquence grâce à la redondance : la surveillance coûterait plus cher que la panne.']
+            ],
+            smed: [
+                ['Quel est le principe central du SMED ?', 'b', [['a', 'Produire de plus gros lots pour changer moins souvent'], ['b', 'Convertir un maximum d\'opérations internes en externes, puis raccourcir le reste'], ['c', 'Confier le changement à un expert du réglage plus rapide'], ['d', 'Supprimer les opérations externes pour simplifier le changement']], 'Les gros lots et les experts du réglage sont les deux réponses classiques que le SMED dépasse : il réduit le temps de changement lui-même.'],
+                ['Poste de 480 min, 3 changements de 60 min ramenés à 8 min après SMED : quelle est la nouvelle disponibilité ?', 'c', [['a', '62,5 %'], ['b', '85 %'], ['c', '95 %'], ['d', '98 %']], 'L\'arrêt passe à 3 × 8 = 24 min : (480 − 24) / 480 = 95 %. Avant SMED, (480 − 180) / 480 = 62,5 %.']
+            ],
+            equi: [
+                ['Quel est l\'objectif principal de l\'équilibrage de ligne ?', 'b', [['a', 'Augmenter le nombre de machines dans l\'usine'], ['b', 'Répartir les tâches entre les postes pour équilibrer les temps de travail'], ['c', 'Réduire le nombre de contrôles qualité'], ['d', 'Faire travailler tous les opérateurs plus rapidement']], 'On répartit les tâches pour que les charges des postes soient proches, en respectant l\'ordre des opérations et la cadence.'],
+                ['Qu\'est-ce qu\'un goulot d\'étranglement sur une ligne de production ?', 'c', [['a', 'Un poste qui réalise les tâches plus rapidement que les autres'], ['b', 'Une machine qui fonctionne uniquement en automatique'], ['c', 'Un poste dont le temps de travail limite la cadence de toute la ligne'], ['d', 'Un espace destiné au stockage des pièces']], 'La ligne avance à la vitesse de son poste le plus lent.']
+            ],
+            shop: [
+                ['Dans un Job Shop, les machines sont regroupées :', 'b', [['a', 'dans l\'ordre des opérations du produit'], ['b', 'par fonction (tournage, fraisage, perçage…)'], ['c', 'autour d\'un produit qui reste immobile'], ['d', 'selon leur date d\'achat']], 'Dans l\'ordre des opérations, c\'est le Flow Shop ; autour d\'un produit immobile, c\'est le poste fixe.'],
+                ['Quelle situation convient le mieux à un Flow Shop ?', 'c', [['a', 'Des pièces uniques sur plan client'], ['b', 'La réparation de machines de clients différents'], ['c', 'La grande série d\'un produit standardisé'], ['d', 'La réalisation de prototypes']], 'Fort volume et faible variété : toutes les pièces suivent le même chemin.']
+            ],
+            cnd: [
+                ['Quelle méthode de CND permet de détecter des fissures débouchant à la surface d\'une pièce grâce à un liquide pénétrant ?', 'b', [['a', 'La radiographie industrielle'], ['b', 'Le ressuage'], ['c', 'La thermographie infrarouge']], 'Le liquide pénètre dans les fissures par capillarité puis est révélé.'],
+                ['Pourquoi utilise-t-on plusieurs méthodes de contrôle non destructif dans l\'industrie ?', 'c', [['a', 'Parce que chaque méthode permet de détecter tous les types de défauts'], ['b', 'Pour accélérer la fabrication des pièces en supprimant les contrôles'], ['c', 'Parce que chaque méthode est adaptée à certains matériaux et types de défauts']], 'Par exemple, la magnétoscopie ne marche que sur les matériaux ferromagnétiques et le ressuage ne voit que les défauts débouchants.']
+            ],
+            metro: [
+                ['Le pied à coulisse de l\'opérateur du poste de fraisage donne depuis peu des mesures inhabituelles. Parmi ces réactions, laquelle est une ERREUR ?', 'b', [['a', 'Contrôler le pied à coulisse sur des cales étalons, car l\'écart peut aussi venir de la méthode de mesure ou de l\'environnement'], ['b', 'Comme l\'erreur de justesse est une erreur systématique, multiplier les mesures et en faire la moyenne pour l\'éliminer'], ['c', 'Faire mesurer la même pièce par un second opérateur ou avec un autre instrument, pour distinguer un défaut de l\'instrument'], ['d', 'Si l\'instrument est non conforme, le signaler inutilisable puis examiner les pièces mesurées depuis la dernière vérification satisfaisante']], 'Une erreur systématique va toujours dans le même sens : la moyenne ne la supprime pas, il faut la corriger (étalonnage). Répéter les mesures ne réduit que l\'erreur aléatoire.'],
+                ['Selon la règle du 1/10, quelle est la précision minimale de l\'instrument pour une cote de tolérance 0,07 ?', 'c', [['a', '0,001'], ['b', '0,700'], ['c', '0,007'], ['d', '0,010']], 'La résolution doit être 10 fois plus fine que la tolérance : 0,07 / 10 = 0,007.']
+            ],
+            sst: [
+                ['Combien de temps de formation faut-il pour être Sauveteur Secouriste du Travail ?', '14', [['3', '3 h'], ['7', '7 h'], ['14', '14 h'], ['21', '21 h']], 'La formation initiale dure 14 h (2 jours de 7 h) ; le MAC de 7 h tous les 2 ans prolonge le certificat.'],
+                ['Quel pourcentage de SST est recommandé en entreprise ?', '10', [['4', '4 %'], ['10', '10 à 15 %'], ['25', '25 %'], ['37', '37 %']], 'C\'est une recommandation usuelle, non réglementaire : la loi impose au moins un SST dans certains ateliers et chantiers.']
+            ]
+        };
+        // pas de tirage au sort : toutes les questions de l'oral choisi (ou de tous les oraux) d'un coup, réponses dans l'ordre A, B, C, D du groupe
+        const VEILLE_NOMS = { vsm: 'Value Stream Mapping', maint: 'Maintenance industrielle', smed: 'Méthode SMED', equi: 'Équilibrage de ligne', shop: 'Job Shop et Flow Shop', cnd: 'Contrôle non destructif', metro: 'Métrologie industrielle', sst: 'SST' };
+        function veilleSerie(cles) {
+            const champs = [], corr = []; let n = 0;
+            cles.forEach(cle => VEILLE_Q[cle].forEach(([q, sol, opts, expl]) => {
+                n++;
+                const lettres = opts.map((o, i) => [o[0], `${'ABCD'[i]}. ${o[1]}`]);
+                champs.push(gChoix('q' + n, sol, lettres, { groupe: `${cles.length > 1 ? `<span class="text-xs font-mono text-blue-300">${VEILLE_NOMS[cle]}</span><br>` : ''}${n}. ${q}` }));
+                corr.push(`<p><strong class="text-white">${n}.</strong> ${lettres.find(o => o[0] === sol)[1]}. ${expl}</p>`);
+            }));
+            return { enonce: `<p>Réponds aux questions posées par ${cles.length > 1 ? 'les groupes' : 'le groupe'} à la fin de ${cles.length > 1 ? 'leur oral' : 'son oral'} (une seule bonne réponse par question).</p>`, champs, correction: corr.join('') };
+        }
+        const VEILLE_TYPES = { all: () => veilleSerie(Object.keys(VEILLE_Q)) };
+        Object.keys(VEILLE_Q).forEach(cle => { VEILLE_TYPES[cle] = () => veilleSerie([cle]); });
+        EXOS['oi2-veille'] = { chapitre: 'oi2-veille', libelle: 'QCM des oraux', badge: 'OI • 2ème Année', titre: 'Veille technologique : QCM des oraux',
+            demarrer: () => { exgLancer('vt', 'Veille technologique : QCM des oraux', 'presentation', VEILLE_TYPES, { all: 'Tous les oraux', vsm: 'VSM', maint: 'Maintenance', smed: 'SMED', equi: 'Équilibrage', shop: 'Job / Flow Shop', cnd: 'CND', metro: 'Métrologie', sst: 'SST' }); EXG.vt.filtre = 'all'; exgNouvelle('vt'); exgDessiner('vt'); } };
+        Object.assign(RENVOIS, { 'oi2-veille': { all: [1, 2, 3, 4, 5, 6, 7, 8], vsm: [1], maint: [2], smed: [3], equi: [4], shop: [5], cnd: [6], metro: [7], sst: [8] } });
     </script>
 <script src="revision-ds.js" defer></script>
 <script src="progression.js" defer></script>

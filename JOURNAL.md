@@ -97,6 +97,11 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - CE 1ère année, composants et schémas : 69 questions d'appareillage et de normes (types de schémas, repérage, commande et puissance, appareillage, NF C 15-100).
 - Calculatrice : la touche = vide la zone de saisie (le calcul passe dans l'historique), le bouton ANS devient REP, et un calcul qui commence par un opérateur repart du résultat précédent.
 
+## 11 novembre 2026 – Veille technologique en OI (Baptiste)
+
+- OI 2ème année, nouveau chapitre « Veille technologique : les méthodes des oraux », à partir des diapos et fiches synthèse des groupes : VSM, maintenance industrielle, SMED, équilibrage de ligne, Job Shop / Flow Shop, contrôle non destructif, métrologie industrielle, SST. Une partie par méthode (définition, principe, méthode, exemple réel, avantages et limites, à retenir), avec des schémas (pictogrammes du VSM, équilibrage avant / après).
+- QCM des oraux : les 16 questions posées par les groupes, avec leurs propositions A, B, C, D dans l'ordre, toutes affichées d'un coup (ou celles d'un seul oral avec le filtre).
+
 ## 11 novembre 2026 – Révision du DS d'A2 (Aidan)
 
 - Nouvel onglet « Révision DS » en 2ème année (carte au-dessus des domaines) pour le DS du samedi 14 novembre, CE puis OI.
