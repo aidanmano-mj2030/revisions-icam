@@ -88,3 +88,11 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 ## 11 novembre 2026 – Calculatrice (Baptiste)
 
 - Calculatrice scientifique sur tous les exercices avec des calculs (bouton en bas à droite) : opérations, parenthèses, puissances, ×10ⁿ, √, sin / cos / tan et réciproques (degrés ou radians), ln, log, eˣ, π, ANS, historique des 3 derniers calculs, saisie au clavier. Elle affiche le résultat, l'élève le recopie lui-même dans la case.
+
+## 11 novembre 2026 – OI, CE et calculatrice (Baptiste)
+
+- OI 2ème année, maîtrise statistique des procédés : formules de la droite de Henry (fréquences cumulées, quantiles, moyenne et écart-type lus sur la droite) avec l'exemple du TD, histogramme et graphique de la droite de Henry dans la leçon.
+- Exercice « aléatoire ou assignable » : 62 situations différentes.
+- CE 1ère année, production et distribution de l'énergie : 49 questions, un nouvel exercice sur l'éolien (puissance proportionnelle à v³), réponses mélangées à chaque question.
+- CE 1ère année, composants et schémas : 69 questions d'appareillage et de normes (types de schémas, repérage, commande et puissance, appareillage, NF C 15-100).
+- Calculatrice : la touche = vide la zone de saisie (le calcul passe dans l'historique), le bouton ANS devient REP, et un calcul qui commence par un opérateur repart du résultat précédent.
