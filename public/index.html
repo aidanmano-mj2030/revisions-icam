@@ -203,6 +203,26 @@
                     <p id="label-annee-selectionnee" class="text-slate-400 text-sm font-semibold uppercase tracking-widest text-blue-400"></p>
                 </div>
 
+                <!-- Révision du DS (A2 seulement, affichée par choisirAnnee ; contenu dans revision-ds.js) -->
+                <button type="button" id="carte-revision-ds" onclick="ouvrirRevisionDS()" class="hidden group w-full max-w-3xl mx-auto bg-darkcard hover:bg-slate-800/80 p-5 sm:p-6 rounded-2xl border border-indigo-500/40 hover:border-indigo-400 transition-all duration-300 text-left shadow-xl hover:-translate-y-1 flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20 group-hover:scale-110 transition-transform shrink-0 pointer-events-none">
+                        <i data-lucide="calendar-clock" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1 min-w-0 pointer-events-none">
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">Révision DS</span>
+                            <span class="text-xs font-semibold text-slate-400">Samedi 14 novembre · <span id="carte-ds-compte"></span></span>
+                        </div>
+                        <h2 class="text-xl font-bold text-white group-hover:text-indigo-400 transition-colors">DS de CE puis d'OI</h2>
+                        <p class="text-xs text-slate-400 mt-1">Examen blanc, QCM des exposés de veille, cours d'OI et de CE, exercices corrigés, formules.</p>
+                        <div id="carte-ds-progression" class="mt-2"></div>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm font-semibold text-indigo-400 shrink-0 pointer-events-none">
+                        <span>Réviser</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto pt-4">
                     <button type="button" onclick="choisirCategorie('techniques')" class="group relative bg-darkcard hover:bg-slate-800/80 p-8 rounded-2xl border border-darkborder hover:border-amber-500/50 transition-all duration-300 text-left shadow-xl hover:-translate-y-1 flex flex-col justify-between h-64">
                         <div class="flex justify-between items-start pointer-events-none">
@@ -641,6 +661,25 @@
                 <div id="lecon-contenu" class="space-y-6"></div>
             </div>
 
+            <!-- SECTION 9 : RÉVISION DU DS A2 (rendue par revision-ds.js) -->
+            <div id="etape-revision-ds" class="hidden space-y-6 text-left max-w-4xl mx-auto">
+                <div class="flex flex-col items-start gap-4">
+                    <button type="button" onclick="retourCategories()" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white px-4 py-2 rounded-xl bg-darkcard border border-darkborder transition-all hover:border-slate-500">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Retour aux domaines
+                    </button>
+                    <div class="space-y-2">
+                        <div class="inline-block px-3 py-1 rounded-md text-xs font-mono font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">2ème Année • DS du samedi 14 novembre · <span id="ds-compte"></span></div>
+                        <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Révision DS : CE puis OI</h1>
+                        <p class="text-sm text-slate-400 leading-relaxed max-w-2xl">Construction électrique d'abord, organisation industrielle ensuite. Les QCM se corrigent au clic, les exercices montrent leur correction étape par étape.</p>
+                        <div id="ds-stats" class="flex flex-wrap gap-2"></div>
+                        <div id="ds-progression"></div>
+                    </div>
+                </div>
+                <div id="ds-onglets"></div>
+                <div id="ds-contenu" class="space-y-5"></div>
+            </div>
+
         </div>
     </main>
 
@@ -831,7 +870,8 @@
         function choisirAnnee(annee) {
             anneeSelectionnee = annee;
             document.getElementById('label-annee-selectionnee').textContent = "— " + annee + " —";
-            
+            document.getElementById('carte-revision-ds').classList.toggle('hidden', annee !== '2ème Année');
+
             cacherToutesLesEtapes();
             document.getElementById('etape-categories').classList.remove('hidden');
             chargerIconesEtMaths();
@@ -1038,6 +1078,7 @@
             document.getElementById('etape-chapitre-a1-interactif').classList.add('hidden');
             document.getElementById('etape-lecon-generique').classList.add('hidden');
             document.getElementById('etape-exercice-generique').classList.add('hidden');
+            document.getElementById('etape-revision-ds').classList.add('hidden');
         }
 
         function reinitialiserFond() {
@@ -15171,6 +15212,8 @@
             demarrer: () => { exgLancer('vt', 'Veille technologique : QCM des oraux', 'presentation', VEILLE_TYPES, { all: 'Tous les oraux', vsm: 'VSM', maint: 'Maintenance', smed: 'SMED', equi: 'Équilibrage', shop: 'Job / Flow Shop', cnd: 'CND', metro: 'Métrologie', sst: 'SST' }); EXG.vt.filtre = 'all'; exgNouvelle('vt'); exgDessiner('vt'); } };
         Object.assign(RENVOIS, { 'oi2-veille': { all: [1, 2, 3, 4, 5, 6, 7, 8], vsm: [1], maint: [2], smed: [3], equi: [4], shop: [5], cnd: [6], metro: [7], sst: [8] } });
     </script>
+<script src="revision-ds-blancs.js" defer></script>
+<script src="revision-ds.js" defer></script>
 <script src="progression.js" defer></script>
 </body>
 </html>

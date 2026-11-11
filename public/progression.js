@@ -37,7 +37,13 @@
  * dernier tirage (nouveau*, generer*, ciNouveau, demarrerExoCodes, mxNouvelle, exgNouvelle).
  * Une fois un exercice réussi, on n'envoie plus que les scores meilleurs.
  *
- * Point d'entrée public : window.studicamResultat(cle, reussi, score?)
+ * revision-ds.js (onglet Révision DS de l'A2) appelle directement studicamResultat :
+ *   a2/ds/ds-2026-11/<chapitre>          QCM du chapitre tous répondus ; réussi si tous justes
+ *   a2/ds/ds-2026-11/examen-<filtre>     examen blanc terminé ; score = % de bonnes réponses
+ *
+ * Points d'entrée publics : window.studicamResultat(cle, reussi, score?),
+ * window.studicamLire(cle) (état connu de cette clé, ou null) et l'événement
+ * « studicam:progression » sur document, émis quand la progression lue change.
  */
 (function () {
     'use strict';
@@ -109,6 +115,7 @@
             .catch(e => console.warn('Studicam : progression non enregistrée', e));
     }
     window.studicamResultat = enregistrer;
+    window.studicamLire = (cle) => (charge && progression[nettoyer(cle)]) || null;
 
     // ---------- clés ----------
     function prefixeChapitre(idChapitre) {
@@ -391,6 +398,7 @@
     function decorer() {
         if (!charge) return;
         try { decorerChapitres(); decorerMatieres(); } catch (e) { console.warn('Studicam : affichage de la progression', e); }
+        document.dispatchEvent(new CustomEvent('studicam:progression'));
     }
     envelopper('ouvrirMatiere', () => decorer());
     envelopper('choisirCategorie', () => decorer());

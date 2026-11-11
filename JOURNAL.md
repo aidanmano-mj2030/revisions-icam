@@ -101,3 +101,13 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 
 - OI 2ème année, nouveau chapitre « Veille technologique : les méthodes des oraux », à partir des diapos et fiches synthèse des groupes : VSM, maintenance industrielle, SMED, équilibrage de ligne, Job Shop / Flow Shop, contrôle non destructif, métrologie industrielle, SST. Une partie par méthode (définition, principe, méthode, exemple réel, avantages et limites, à retenir), avec des schémas (pictogrammes du VSM, équilibrage avant / après).
 - QCM des oraux : les 16 questions posées par les groupes, avec leurs propositions A, B, C, D dans l'ordre, toutes affichées d'un coup (ou celles d'un seul oral avec le filtre).
+
+## 11 novembre 2026 – Révision du DS d'A2 (Aidan)
+
+- Nouvel onglet « Révision DS » en 2ème année (carte au-dessus des domaines) pour le DS du samedi 14 novembre, CE puis OI.
+- Examen blanc : 82 QCM mélangés, filtrables (tout, exposés OI, cours OI, CE), score affiché et meilleur score enregistré.
+- OI : les 16 QCM des 8 exposés de veille technologique avec l'essentiel de chaque exposé (sans nom d'élève), et 8 chapitres de cours (MSP, droite de Henry, cartes de contrôle, Cm et Cmk, MRP, Kanban, contrat de phase, annales).
+- CE : 7 chapitres sans variateur (moteur asynchrone, plaque, bilan des puissances, transmission, environnement, magnétostatique, moteur CC).
+- Exercices corrigés pas à pas : même type que les TD et DS, mais avec d'autres valeurs, recalculées par script. Page de formules avec la légende de chaque symbole. Emplacement des deux DS blancs (sujet puis corrigé masqué), marqué « bientôt ».
+- Progression : chaque chapitre dont tous les QCM sont justes compte comme réussi.
+- DS blancs ajoutés dans l'onglet : CE (7 exercices, 25 questions) et OI (9 exercices, 26 questions et les 16 QCM des exposés), sujet puis corrigé masqué. Même type que les DS du professeur, avec d'autres données ; résultats calculés par script (`public/revision-ds-blancs.js`).
