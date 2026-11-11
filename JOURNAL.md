@@ -110,3 +110,4 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - CE : 7 chapitres sans variateur (moteur asynchrone, plaque, bilan des puissances, transmission, environnement, magnétostatique, moteur CC).
 - Exercices corrigés pas à pas : même type que les TD et DS, mais avec d'autres valeurs, recalculées par script. Page de formules avec la légende de chaque symbole. Emplacement des deux DS blancs (sujet puis corrigé masqué), marqué « bientôt ».
 - Progression : chaque chapitre dont tous les QCM sont justes compte comme réussi.
+- DS blancs ajoutés dans l'onglet : CE (7 exercices, 25 questions) et OI (9 exercices, 26 questions et les 16 QCM des exposés), sujet puis corrigé masqué. Même type que les DS du professeur, avec d'autres données ; résultats calculés par script (`public/revision-ds-blancs.js`).

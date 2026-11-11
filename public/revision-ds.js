@@ -939,12 +939,14 @@
     ];
 
     // ==========================================
-    // DS blancs : sujet puis corrigé masqué. sujet / corrige = HTML, null tant qu'ils ne sont pas prêts.
+    // DS blancs : sujet puis corrigé masqué. Le HTML vient de revision-ds-blancs.js (généré par script) ;
+    // sans ce fichier, la carte affiche « Bientôt ».
     // ==========================================
+    const DSB = window.STUDICAM_DS_BLANCS || {};
     const DS_BLANCS = [
-        { id: 'ce', titre: 'DS blanc de construction électrique', sujet: null, corrige: null },
-        { id: 'oi', titre: 'DS blanc d\'organisation industrielle', sujet: null, corrige: null }
-    ];
+        { id: 'ce', titre: 'DS blanc de construction électrique' },
+        { id: 'oi', titre: 'DS blanc d\'organisation industrielle' }
+    ].map(d => Object.assign(d, { sujet: (DSB[d.id] && DSB[d.id].sujet) || null, corrige: (DSB[d.id] && DSB[d.id].corrige) || null }));
 
     const PARTIES = {
         ce: { titre: 'Construction électrique', court: 'CE', icone: 'zap', sujets: CE,
