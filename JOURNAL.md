@@ -84,3 +84,7 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - Théorèmes généraux : exercice de superposition, et cinq montages différents pour Thévenin.
 - Analyse spectrale : on trace soi-même les spectres (clic dans les colonnes ou saisie des amplitudes), depuis une expression, une courbe ou un signal carré.
 - Leçon ALI : schémas de l'intégrateur, du dérivateur et des comparateurs (symbole rectangulaire, avec le cycle d'hystérésis).
+
+## 11 novembre 2026 – Calculatrice (Baptiste)
+
+- Calculatrice scientifique sur tous les exercices avec des calculs (bouton en bas à droite) : opérations, parenthèses, puissances, ×10ⁿ, √, sin / cos / tan et réciproques (degrés ou radians), ln, log, eˣ, π, ANS, historique des 3 derniers calculs, saisie au clavier. Elle affiche le résultat, l'élève le recopie lui-même dans la case.

@@ -2865,6 +2865,136 @@
             const h = renvoiHTML(exo, type);
             if (h) { zone.insertAdjacentHTML('beforeend', h); if (window.lucide) lucide.createIcons(); }
         }
+
+        // ==========================================
+        // Calculatrice (outil des exercices de calcul)
+        // ==========================================
+        // analyseur d'expressions (descente récursive, sans eval) : + − × ÷ ^, parenthèses, fonctions, π, e, ANS, ×10ⁿ, multiplication implicite
+        const CALC = { deg: true, ans: 0, hist: [] };
+        function calcEvaluer(src) {
+            const s = src.replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/π/g, 'pi').replace(/√/g, 'sqrt').replace(/\s+/g, '');
+            let i = 0;
+            const ang = (x) => (CALC.deg ? x * Math.PI / 180 : x), angInv = (x) => (CALC.deg ? x * 180 / Math.PI : x);
+            const F = { sin: (x) => Math.sin(ang(x)), cos: (x) => Math.cos(ang(x)), tan: (x) => Math.tan(ang(x)), asin: (x) => angInv(Math.asin(x)), acos: (x) => angInv(Math.acos(x)), atan: (x) => angInv(Math.atan(x)),
+                sqrt: Math.sqrt, ln: Math.log, log: Math.log10, exp: Math.exp, abs: Math.abs };
+            const C = { pi: Math.PI, e: Math.E, ans: CALC.ans };
+            const erreur = (m) => { throw new Error(m); };
+            const voir = () => s[i];
+            function primaire() {
+                let c = voir();
+                if (c === undefined) erreur('expression incomplète');
+                if (c === '(') { i++; const v = somme(); if (voir() !== ')') erreur('parenthèse manquante'); i++; return v; }
+                if (/[0-9.]/.test(c)) { const m = s.slice(i).match(/^(\d+\.?\d*|\.\d+)(E[+-]?\d+)?/i); if (!m) erreur('nombre'); i += m[0].length; return parseFloat(m[0]); }
+                if (/[a-z]/i.test(c)) {
+                    const m = s.slice(i).match(/^[a-z]+/i)[0].toLowerCase(), nom = Object.keys(F).concat(Object.keys(C)).sort((a, b) => b.length - a.length).find(n => m.startsWith(n));
+                    if (!nom) erreur(`« ${m} » inconnu`);
+                    i += nom.length;
+                    if (nom in C) return C[nom];
+                    const arg = voir() === '(' ? primaire() : puissance();
+                    return F[nom](arg);
+                }
+                erreur(c === undefined ? 'expression incomplète' : `« ${c} » inattendu`);
+            }
+            function puissance() {
+                let b = primaire();
+                while (voir() === '²') { i++; b = b * b; }
+                if (voir() === '^') { i++; const ex = unaire(); return Math.pow(b, ex); }
+                return b;
+            }
+            function unaire() { if (voir() === '-') { i++; return -unaire(); } if (voir() === '+') { i++; return unaire(); } return puissance(); }
+            function produit() {
+                let v = unaire();
+                for (;;) {
+                    const c = voir();
+                    if (c === '*' || c === '/') { i++; const w = unaire(); v = c === '*' ? v * w : v / w; }
+                    else if (c !== undefined && /[0-9.(a-z]/i.test(c)) v *= unaire();   // multiplication implicite : 2π, 3(4+1), 2sin30
+                    else return v;
+                }
+            }
+            function somme() { let v = produit(); for (;;) { const c = voir(); if (c === '+' || c === '-') { i++; const w = produit(); v = c === '+' ? v + w : v - w; } else return v; } }
+            if (!s) erreur('vide');
+            const r = somme();
+            if (i < s.length) erreur(`« ${s[i]} » inattendu`);
+            if (!isFinite(r)) erreur(isNaN(r) ? 'calcul impossible' : 'division par zéro');
+            return r;
+        }
+        const calcFormat = (x) => { if (x === 0) return '0'; const a = Math.abs(x); const t = a >= 1e10 || a < 1e-6 ? x.toExponential(6).replace(/\.?0+e/, 'e') : String(Number(x.toPrecision(12))); return t.replace('.', ','); };
+        function calcHTML() {
+            const b = (lab, val, cls = '') => `<button type="button" data-cv="${val}" class="calc-b px-1 py-2 rounded-lg text-sm font-semibold border border-darkborder hover:border-amber-400 ${cls}">${lab}</button>`;
+            const n = 'bg-slate-900 text-slate-100', f = 'bg-slate-800 text-slate-300', o = 'bg-slate-800 text-amber-300';
+            const touches = [
+                [`<span id="calc-mode">DEG</span>`, '#mode', f], ['(', '(', f], [')', ')', f], ['⌫', '#del', f], ['AC', '#ac', 'bg-slate-800 text-red-300'],
+                ['sin', 'sin(', f], ['cos', 'cos(', f], ['tan', 'tan(', f], ['√', '√(', f], ['x²', '²', f],
+                ['ln', 'ln(', f], ['log', 'log(', f], ['eˣ', 'exp(', f], ['xʸ', '^', f], ['1/x', '#inv', f],
+                ['7', '7', n], ['8', '8', n], ['9', '9', n], ['÷', '÷', o], ['π', 'π', f],
+                ['4', '4', n], ['5', '5', n], ['6', '6', n], ['×', '×', o], ['×10ⁿ', 'E', f],
+                ['1', '1', n], ['2', '2', n], ['3', '3', n], ['−', '−', o], ['ANS', 'ans', f],
+                ['0', '0', n], [',', ',', n], ['(−)', '#neg', f], ['+', '+', o], ['=', '#eq', 'bg-amber-500 text-slate-950 border-amber-400']
+            ];
+            return `<div id="calc-panneau" hidden role="dialog" aria-label="Calculatrice" class="fixed z-[60] bottom-20 right-4 w-[19rem] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-6rem)] overflow-y-auto bg-darkcard border border-darkborder rounded-2xl shadow-2xl p-3 space-y-2">
+                <div class="flex items-center justify-between"><span class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="calculator" class="w-4 h-4 text-amber-400"></i> Calculatrice</span>
+                    <button type="button" id="calc-fermer" aria-label="Fermer la calculatrice" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+                <div id="calc-hist" class="text-[11px] text-slate-500 font-mono text-right min-h-[1rem] space-y-0.5"></div>
+                <input id="calc-saisie" type="text" inputmode="text" autocomplete="off" spellcheck="false" aria-label="Expression à calculer" placeholder="ex : 2×π×50" class="w-full rounded-lg px-3 py-2 font-mono text-right text-slate-100 bg-slate-950 border border-slate-700 focus:outline-none focus:border-amber-400">
+                <div id="calc-res" class="font-mono text-right text-lg text-amber-300 min-h-[1.75rem]" aria-live="polite"></div>
+                <div class="grid grid-cols-5 gap-1.5">${touches.map(([l, v, c]) => b(l, v, c)).join('')}</div>
+            </div>
+            <button type="button" id="calc-bouton" style="display:none" aria-label="Ouvrir la calculatrice" class="fixed z-[60] bottom-4 right-4 px-4 py-3 rounded-2xl shadow-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm flex items-center gap-2"><i data-lucide="calculator" class="w-5 h-5"></i> Calculatrice</button>`;
+        }
+        function calcAfficherResultat(ok, texte) { const r = document.getElementById('calc-res'); r.textContent = texte; r.className = 'font-mono text-right text-lg min-h-[1.75rem] ' + (ok ? 'text-amber-300' : 'text-red-300 text-sm'); }
+        function calcCalculer() {
+            const z = document.getElementById('calc-saisie'), expr = z.value.trim(); if (!expr) return;
+            try {
+                const r = calcEvaluer(expr); CALC.ans = r; CALC.dernier = r;
+                CALC.hist.unshift(`${expr} = ${calcFormat(r)}`); CALC.hist = CALC.hist.slice(0, 3);
+                document.getElementById('calc-hist').innerHTML = CALC.hist.slice().reverse().map(h => `<div>${h.replace(/</g, '&lt;')}</div>`).join('');
+                calcAfficherResultat(true, '= ' + calcFormat(r));
+            } catch (e) { calcAfficherResultat(false, 'Erreur : ' + e.message); }
+        }
+        // un exercice « de calcul » : au moins un de ses types de questions demande une valeur numérique (calculé une fois par exercice)
+        const CALC_EXOS = {};
+        function calcExoAvecCalculs(exo) {
+            if (!exo) return false;
+            if (exo in CALC_EXOS) return CALC_EXOS[exo];
+            const blocs = [...document.querySelectorAll('#exo-contenu [id^="bloc-"][id$="-corps"]')].map(b => b.id.slice(5, -6)).filter(b => EXG[b]);
+            if (!blocs.length) return false;   // ancien moteur : on regarde seulement les cases affichées
+            let oui = false;
+            for (const b of blocs) for (const t of Object.keys(EXG[b].types)) { try { const q = EXG[b].types[t](); if ((q.champs || []).some(c => c.kind === undefined || c.kind === 'num')) { oui = true; break; } } catch (e) { /* type ignoré */ } }
+            return (CALC_EXOS[exo] = oui);
+        }
+        // le bouton n'apparaît que sur un exercice qui a des cases de calcul
+        function calcMajVisibilite() {
+            const etape = document.getElementById('etape-exercice-generique'), bouton = document.getElementById('calc-bouton');
+            if (!etape || !bouton) return;
+            const calcul = !etape.classList.contains('hidden') && (calcExoAvecCalculs(exoCourant) || !!document.querySelector('#exo-contenu input[inputmode="decimal"]'));
+            bouton.style.display = calcul && document.getElementById('calc-panneau').hidden ? '' : 'none';
+            if (!calcul) document.getElementById('calc-panneau').hidden = true;
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.insertAdjacentHTML('beforeend', calcHTML());
+            const panneau = document.getElementById('calc-panneau'), saisie = document.getElementById('calc-saisie');
+            const ouvrir = (o) => { panneau.hidden = !o; calcMajVisibilite(); if (o) setTimeout(() => saisie.focus({ preventScroll: true }), 30); };
+            document.getElementById('calc-bouton').onclick = () => ouvrir(true);
+            document.getElementById('calc-fermer').onclick = () => ouvrir(false);
+            panneau.addEventListener('click', (ev) => {
+                const t = ev.target.closest('button[data-cv]'); if (!t) return;
+                const v = t.dataset.cv, pos = saisie.selectionStart ?? saisie.value.length, fin = saisie.selectionEnd ?? pos;
+                const ins = (txt) => { saisie.value = saisie.value.slice(0, pos) + txt + saisie.value.slice(fin); const p = pos + txt.length; saisie.setSelectionRange(p, p); };
+                if (v === '#eq') calcCalculer();
+                else if (v === '#ac') { saisie.value = ''; calcAfficherResultat(true, ''); }
+                else if (v === '#del') { if (pos === fin && pos > 0) { saisie.value = saisie.value.slice(0, pos - 1) + saisie.value.slice(fin); saisie.setSelectionRange(pos - 1, pos - 1); } else ins(''); }
+                else if (v === '#mode') { CALC.deg = !CALC.deg; document.getElementById('calc-mode').textContent = CALC.deg ? 'DEG' : 'RAD'; if (saisie.value.trim()) calcCalculer(); }
+                else if (v === '#inv') { saisie.value = `1/(${saisie.value || 'ans'})`; calcCalculer(); }
+                else if (v === '#neg') ins('(−');
+                else ins(v);
+                saisie.focus({ preventScroll: true });
+            });
+            saisie.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); calcCalculer(); } else if (ev.key === 'Escape') ouvrir(false); });
+            new MutationObserver(calcMajVisibilite).observe(document.getElementById('exo-contenu'), { childList: true, subtree: true });
+            new MutationObserver(calcMajVisibilite).observe(document.getElementById('etape-exercice-generique'), { attributes: true, attributeFilter: ['class'] });
+            if (window.lucide) lucide.createIcons();
+            calcMajVisibilite();
+        });
         // anciens moteurs d'exercices : on ajoute le renvoi après leur propre correction
         [['corrigerExoCodes', () => 'conv-bilan'], ['corrigerBloc', id => `${id}-solution`], ['corrigerRemplir', () => 'kv-bilan'], ['corrigerPortes', id => `${id}-bilan`],
             ['corrigerChrono', id => `${id}-bilan`], ['corrigerNum', id => `${id}-solution`], ['ciCorriger', () => 'cin-solution'], ['mxCorriger', () => 'mt-solution']].forEach(([nom, zoneDe]) => {
