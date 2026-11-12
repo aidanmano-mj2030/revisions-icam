@@ -74,11 +74,32 @@ $env:XDG_CONFIG_HOME = "C:\Users\aidan\.config-wrangler-aidan"
 npx wrangler d1 execute studicam --remote --command "INSERT INTO roles (email, role, perimetre, ajoute_par, ajoute_le) VALUES ('prenom.nom@icam.fr', 'prof', 'a2/ce', 'aidan', datetime('now')) ON CONFLICT(email) DO UPDATE SET role = excluded.role, perimetre = excluded.perimetre, ajoute_par = excluded.ajoute_par, ajoute_le = excluded.ajoute_le"
 ```
 
+Puis, pour que ses sessions déjà ouvertes passent tout de suite à 30 jours :
+
+```
+npx wrangler d1 execute studicam --remote --command "UPDATE sessions SET expire_le = MIN(expire_le, strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '+30 days')) WHERE utilisateur_id = (SELECT id FROM utilisateurs WHERE email = 'prenom.nom@icam.fr')"
+```
+
 Retirer un rôle : `--command "DELETE FROM roles WHERE email = 'prenom.nom@icam.fr'"`. Pour la
 base locale, remplacer `--remote` par `--local`.
 
 La migration `0003_roles.sql` doit être appliquée en ligne **avant** le merge (voir « Mise en
 ligne ») : sans la table `roles`, plus aucune page ne s'ouvre.
+
+### Relecture et signalements
+
+Migration `0005_relecture_signalements.sql`. Sous chaque leçon et chaque exercice, « Signaler
+une erreur » (5 par compte sur 24 heures). Les profs traitent ceux de leur périmètre dans
+l'onglet « Signalements » de l'Espace prof, sans l'adresse de l'élève ni l'heure (le jour
+seulement) ; l'équipe voit tout, avec l'adresse. Un prof marque une leçon de son périmètre
+comme relue : les élèves voient « Relu par Prénom Nom », un nom tiré de l'adresse.
+
+Effacer un compte efface ses signalements (`ON DELETE CASCADE`). Purge des signalements
+traités, une fois par an après la fin de l'année scolaire (début juillet) :
+
+```
+npx wrangler d1 execute studicam --remote --command "DELETE FROM signalements WHERE statut IN ('corrige', 'rejete') AND traite_le < '2027-07-01'"
+```
 
 ## Tester en local
 
