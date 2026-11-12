@@ -326,7 +326,9 @@
     })();
 
     // ---------- affichage de la progression ----------
-    function clesChapitre(chap, annee, matId) {
+    // Clés d'un chapitre. connues : clés déjà vues (par défaut, celles de l'élève), pour les
+    // exercices absents de UNITES. Exposée pour l'Espace prof (window.studicamClesChapitre).
+    function clesChapitre(chap, annee, matId, connues = Object.keys(progression)) {
         if (chap.interactif && annee === '2ème Année' && matId === 'CM') return CLES_PS;
         if (chap.interactifA1 && annee === '1ère Année' && matId === 'CM') return CLES_LIAISONS;
         if (!chap.lecon || typeof EXOS === 'undefined') return [];
@@ -337,12 +339,13 @@
             else {
                 // exercice inconnu de la table : ses clés déjà enregistrées, ou une unité
                 const debut = cleExo(k, '');
-                const vues = Object.keys(progression).filter(c => c.startsWith(debut));
+                const vues = connues.filter(c => c.startsWith(debut));
                 if (vues.length) cles.push(...vues); else cles.push(debut + '?');
             }
         });
         return cles;
     }
+    window.studicamClesChapitre = clesChapitre;
     function compter(cles) {
         return { faits: cles.filter(c => progression[c] && progression[c].reussi).length, total: cles.length };
     }
