@@ -262,6 +262,11 @@
         const j = aujourdhui();
         Object.assign(debut, { type: 'date', value: j, min: j });
         Object.assign(fin, { type: 'date', value: plusJours(j, 7), min: j });
+        debut.addEventListener('change', () => {
+            if (!debut.value) return;
+            fin.min = debut.value;
+            if (!fin.value || fin.value < debut.value) fin.value = debut.value;
+        });
         const texte = el('textarea', CLASSE_CHAMP + ' min-h-[96px] resize-y');
         Object.assign(texte, { maxLength: TEXTE_MAX, rows: 3, placeholder: 'Ex. : DS jeudi 14 sur le triphasé et la MAS. Revoyez les chapitres cochés.' });
         const compteur = el('span', 'block text-[11px] text-slate-500 text-right', `0/${TEXTE_MAX}`);
