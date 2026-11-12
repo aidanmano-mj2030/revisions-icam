@@ -4,6 +4,7 @@ import {
   sessionCourante, exigerRole,
 } from "./commun.js";
 import { apiSignalements } from "./prof-signalements.js";
+import { apiAnnonces } from "./prof-annonces.js";
 
 const COOKIE_GOOGLE = "studicam_google"; // état, nonce et vérificateur PKCE pendant l'aller-retour Google
 const DUREE_COOKIE_GOOGLE = 600;         // secondes
@@ -137,10 +138,15 @@ async function ouvrirSession(env, email) {
     env.DB.prepare("DELETE FROM sessions WHERE expire_le <= ? OR methode IS NULL").bind(iso),
     env.DB.prepare("INSERT INTO sessions (jeton_hash, utilisateur_id, expire_le, methode) VALUES (?, ?, ?, 'google')")
       .bind(await sha256Hex(jeton), utilisateur.id, expire),
+    // Compte à rôle : ses anciennes sessions de 180 jours passent à 30 jours, avant l'élagage
+    // (sinon la nouvelle, la plus courte, serait supprimée aussitôt).
+    ...(aUnRole
+      ? [env.DB.prepare("UPDATE sessions SET expire_le = MIN(expire_le, ?) WHERE utilisateur_id = ?").bind(expire, utilisateur.id)]
+      : []),
     env.DB.prepare("UPDATE utilisateurs SET vu_le = ? WHERE id = ?").bind(iso, utilisateur.id),
     env.DB.prepare(
       `DELETE FROM sessions WHERE utilisateur_id = ?1 AND jeton_hash NOT IN
-         (SELECT jeton_hash FROM sessions WHERE utilisateur_id = ?1 ORDER BY expire_le DESC LIMIT ?2)`
+         (SELECT jeton_hash FROM sessions WHERE utilisateur_id = ?1 ORDER BY expire_le DESC, rowid DESC LIMIT ?2)`
     ).bind(utilisateur.id, SESSIONS_MAX),
   ]);
   return { jeton, duree };
@@ -155,6 +161,7 @@ async function ouvrirSession(env, email) {
 // exigerProf(session, annee, matiere) de src/commun.js, et une route POST ou PUT lireJson.
 const MODULES_API = [
   apiSignalements,  // relecture et signalements (PR 3)
+  apiAnnonces,  // annonces des profs (PR 2)
 ];
 
 async function api(request, env, chemin) {
