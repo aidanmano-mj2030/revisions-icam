@@ -4,7 +4,9 @@
  * Chargé à la fin de index.html, après progression.js. Ne fait aucun appel réseau : il lit
  * ce que progression.js a reçu de /api/moi (window.studicamMoi(), ou l'événement
  * « studicam:moi »). Si le compte a un rôle (prof ou equipe), il ajoute un bouton
- * « Espace prof » au bandeau #studicam-session, qui ouvre l'étape #etape-espace-prof.
+ * « Vue prof » en haut à gauche de l'en-tête, près du logo : il ouvre l'étape
+ * #etape-espace-prof, puis devient « Vue élève » et ramène le site là où on l'avait laissé.
+ * Le site s'ouvre toujours en vue élève (rien de mémorisé). Un élève ne voit rien de nouveau.
  *
  * Le bouton n'est qu'un raccourci : chaque route /api/prof/... vérifie le rôle et le
  * périmètre côté serveur (garderProf de src/index.js, exigerProf de src/commun.js).
@@ -34,6 +36,7 @@
     let moi = null;                // {email, role, perimetre} d'un compte qui a un rôle
     const sections = [];           // {id, titre, afficher}, dans l'ordre d'ajout
     let ongletActif = null;
+    let vueEleve = null;           // site laissé en ouvrant l'Espace prof : {etapes, fond, defilement}
 
     function el(tag, cls, texte) {
         const e = document.createElement(tag);
@@ -143,12 +146,40 @@
         const etape = creerEtape();
         if (!etape) return;
         if (typeof idSection === 'string') ongletActif = idSection;
+        if (etape.classList.contains('hidden')) vueEleve = photoVueEleve();
         if (typeof cacherToutesLesEtapes === 'function') cacherToutesLesEtapes();
         if (typeof reinitialiserFond === 'function') reinitialiserFond();
         remplirEntete(etape);
         etape.classList.remove('hidden');
+        majBouton(true);
         rendreSections(etape);
         window.scrollTo(0, 0);
+    }
+
+    // ---------- retour à la vue élève ----------
+    function photoVueEleve() {
+        const corps = $('main-body');
+        return {
+            etapes: [...document.querySelectorAll('[id^="etape-"]')]
+                .filter(e => e.id !== 'etape-espace-prof' && !e.classList.contains('hidden')),
+            fond: corps ? corps.className : null,
+            defilement: window.scrollY
+        };
+    }
+
+    function revenirVueEleve() {
+        const photo = vueEleve;
+        vueEleve = null;
+        if (typeof cacherToutesLesEtapes === 'function') cacherToutesLesEtapes();
+        if (!photo || !photo.etapes.length) {
+            if (typeof retourAnnee === 'function') retourAnnee();
+            return;
+        }
+        photo.etapes.forEach(e => e.classList.remove('hidden'));
+        const corps = $('main-body');
+        if (corps && photo.fond !== null) corps.className = photo.fond;
+        if (window.lucide) lucide.createIcons();
+        window.scrollTo(0, photo.defilement);
     }
 
     function ajouterSection(section) {
@@ -173,26 +204,52 @@
             const r = original.apply(this, args);
             const etape = $('etape-espace-prof');
             if (etape) etape.classList.add('hidden');
+            majBouton(false);              // navigation du site : on est revenu en vue élève
             return r;
         };
     })();
 
-    // ---------- bouton du bandeau ----------
-    function boutonBandeau() {
-        const barre = $('studicam-session');
-        if (!barre || barre.querySelector('[data-prof-bouton]')) return;
-        const deconnexion = barre.querySelector('button');
-        const b = el('button', 'shrink-0 px-2 py-0.5 rounded-md border border-blue-500/30 bg-blue-500/10 text-blue-300 hover:text-white hover:border-blue-400 transition-colors', 'Espace prof');
+    // ---------- bouton « Vue prof » / « Vue élève » de l'en-tête ----------
+    // Seul point d'entrée de l'Espace prof, placé juste après le logo (à gauche).
+    function creerBouton() {
+        if (document.querySelector('[data-prof-bouton]')) return;
+        const logo = document.querySelector('header [onclick="retourAnnee()"]');
+        if (!logo) { console.warn("Studicam : logo de l'en-tête introuvable, bouton Vue prof non ajouté"); return; }
+        const b = el('button', 'shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-300 hover:text-white hover:border-blue-400 text-xs font-semibold whitespace-nowrap transition-colors');
         b.type = 'button';
         b.dataset.profBouton = '1';
-        b.addEventListener('click', () => ouvrirEspaceProf());
-        if (deconnexion) deconnexion.before(b); else barre.firstElementChild.appendChild(b);
+        b.addEventListener('click', () => {
+            const etape = $('etape-espace-prof');
+            if (etape && !etape.classList.contains('hidden')) revenirVueEleve(); else ouvrirEspaceProf();
+        });
+        // Le titre « Icam BTS ATI » cède la place au bouton sur les petits écrans.
+        const titre = logo.querySelector('span');
+        if (titre) titre.classList.add('hidden', 'sm:inline');
+        logo.parentElement.classList.add('gap-3');
+        logo.classList.add('min-w-0');
+        const groupe = el('div', 'flex items-center gap-3 min-w-0');
+        logo.before(groupe);
+        groupe.append(logo, b);
+        majBouton(false);
+    }
+
+    function majBouton(espaceOuvert) {
+        const b = document.querySelector('[data-prof-bouton]');
+        if (!b) return;
+        b.replaceChildren();
+        const icone = document.createElement('i');
+        icone.dataset.lucide = espaceOuvert ? 'graduation-cap' : 'presentation';
+        icone.className = 'w-3.5 h-3.5';
+        b.append(icone, document.createTextNode(espaceOuvert ? 'Vue élève' : 'Vue prof'));
+        b.setAttribute('aria-pressed', espaceOuvert ? 'true' : 'false');
+        b.title = espaceOuvert ? "Revenir au site, là où vous l'aviez laissé" : "Ouvrir l'Espace prof";
+        if (window.lucide) lucide.createIcons();
     }
 
     function recevoir(donnees) {
         if (!aUnRole(donnees)) return;
         moi = donnees;
-        boutonBandeau();
+        creerBouton();
     }
     if (typeof window.studicamMoi === 'function') recevoir(window.studicamMoi());
     document.addEventListener('studicam:moi', (e) => recevoir(e.detail));
