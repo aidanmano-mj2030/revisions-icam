@@ -23,7 +23,7 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 | `public/progression.js` | Enregistre les exercices réussis, affiche les pastilles |
 | `public/revision-ds.js` | Onglet « Révision DS » de l'A2 : examen blanc, QCM, exercices corrigés, formules |
 | `public/revision-ds-blancs.js` | Les deux DS blancs de cet onglet (sujets et corrigés, fichier généré) |
-| `public/prof.js` | Bouton et vue « Espace prof » pour les comptes qui ont un rôle |
+| `public/prof.js` | Bouton « Vue prof » / « Vue élève » de l'en-tête et Espace prof, pour les comptes qui ont un rôle |
 | `public/connexion.html` | Page de connexion |
 | `src/index.js` | Serveur (Cloudflare Worker) : connexion Google, sessions, progression, accès prof, protection des pages ; les modules d'API s'ajoutent au tableau `MODULES_API` |
 | `src/commun.js` | Outils partagés par le serveur et ses modules : session, rôle, réponses JSON, limites |
@@ -63,8 +63,9 @@ adresse `@icam.fr` seule ne donne rien. Deux rôles :
 
 Le rôle est rangé par adresse : on peut ajouter un prof avant sa première connexion. Il est
 relu à chaque requête, donc un ajout ou un retrait vaut tout de suite. La session d'un compte
-qui a un rôle dure 30 jours (180 pour un élève). Le bouton « Espace prof » du bandeau n'est
-qu'un raccourci : chaque route `/api/prof/...` vérifie le rôle et le périmètre côté serveur.
+qui a un rôle dure 30 jours (180 pour un élève). Le site s'ouvre toujours en vue élève : le
+bouton « Vue prof », en haut à gauche près du logo, ouvre l'Espace prof, puis devient « Vue
+élève » et ramène là où on en était. Ce bouton n'est qu'un raccourci : chaque route `/api/prof/...` vérifie le rôle et le périmètre côté serveur.
 Les statistiques montrées aux profs seront seulement agrégées, jamais par élève.
 
 Ajouter ou modifier un prof (Aidan, dans PowerShell, adresse en minuscules) :
