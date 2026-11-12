@@ -23,9 +23,10 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 | `public/progression.js` | Enregistre les exercices réussis, affiche les pastilles |
 | `public/revision-ds.js` | Onglet « Révision DS » de l'A2 : examen blanc, QCM, exercices corrigés, formules |
 | `public/revision-ds-blancs.js` | Les deux DS blancs de cet onglet (sujets et corrigés, fichier généré) |
+| `public/prof.js` | Bouton et vue « Espace prof » pour les comptes qui ont un rôle |
 | `public/connexion.html` | Page de connexion |
-| `src/index.js` | Serveur (Cloudflare Worker) : connexion Google, sessions, progression, protection des pages |
-| `src/regles.js` | Règles de validation, dont le contrôle du jeton Google (testées par `npm test`) |
+| `src/index.js` | Serveur (Cloudflare Worker) : connexion Google, sessions, progression, accès prof, protection des pages |
+| `src/regles.js` | Règles de validation : jeton Google, progression, périmètre des profs (testées par `npm test`) |
 | `migrations/` | Structure de la base D1 |
 
 Nouvel exercice : ajouter ses blocs dans la table `UNITES` en tête de `public/progression.js`,
@@ -48,6 +49,35 @@ ces deux URI de redirection autorisées :
 L'identifiant client est dans `wrangler.jsonc` (`GOOGLE_CLIENT_ID`). Le secret n'est jamais
 dans le dépôt : en ligne, `npx wrangler secret put GOOGLE_CLIENT_SECRET` ; en local, un
 fichier `.dev.vars` (ignoré par git) avec `GOOGLE_CLIENT_ID=...` et `GOOGLE_CLIENT_SECRET=...`.
+
+## Accès prof
+
+Un compte n'a un rôle que s'il est dans la table `roles` (migration `0003_roles.sql`) : une
+adresse `@icam.fr` seule ne donne rien. Deux rôles :
+
+- `prof` : agit seulement sur son périmètre, une liste de paires année/matière séparées par
+  des virgules (`a2/ce` ou `a2/ce,a2/oi`). Années `a1`, `a2` ; matières `cm`, `ce`, `aii`,
+  `oi`, `est`, `maths`, `phys`, `eco`.
+- `equipe` : Aidan et Baptiste, voient tout (périmètre ignoré).
+
+Le rôle est rangé par adresse : on peut ajouter un prof avant sa première connexion. Il est
+relu à chaque requête, donc un ajout ou un retrait vaut tout de suite. La session d'un compte
+qui a un rôle dure 30 jours (180 pour un élève). Le bouton « Espace prof » du bandeau n'est
+qu'un raccourci : chaque route `/api/prof/...` vérifie le rôle et le périmètre côté serveur.
+Les statistiques montrées aux profs seront seulement agrégées, jamais par élève.
+
+Ajouter ou modifier un prof (Aidan, dans PowerShell, adresse en minuscules) :
+
+```
+$env:XDG_CONFIG_HOME = "C:\Users\aidan\.config-wrangler-aidan"
+npx wrangler d1 execute studicam --remote --command "INSERT INTO roles (email, role, perimetre, ajoute_par, ajoute_le) VALUES ('prenom.nom@icam.fr', 'prof', 'a2/ce', 'aidan', datetime('now')) ON CONFLICT(email) DO UPDATE SET role = excluded.role, perimetre = excluded.perimetre, ajoute_par = excluded.ajoute_par, ajoute_le = excluded.ajoute_le"
+```
+
+Retirer un rôle : `--command "DELETE FROM roles WHERE email = 'prenom.nom@icam.fr'"`. Pour la
+base locale, remplacer `--remote` par `--local`.
+
+La migration `0003_roles.sql` doit être appliquée en ligne **avant** le merge (voir « Mise en
+ligne ») : sans la table `roles`, plus aucune page ne s'ouvre.
 
 ## Tester en local
 
