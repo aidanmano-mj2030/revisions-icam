@@ -153,7 +153,9 @@ async function ouvrirSession(env, email) {
 // Tout chemin /api/prof/... est déjà gardé avant les modules (session 401, LIMITE_PROF 429,
 // rôle 403, voir garderProf) ; une route liée à une matière appelle en plus
 // exigerProf(session, annee, matiere) de src/commun.js, et une route POST ou PUT lireJson.
-const MODULES_API = [apiProfStats];
+const MODULES_API = [
+  apiProfStats,  // tableau de bord (PR 4)
+];
 
 async function api(request, env, chemin) {
   const methode = request.method;
