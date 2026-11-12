@@ -23,6 +23,7 @@
     }
     const pourcent = (x) => Math.round(100 * x) + ' %';
     const moinsDe = (seuil) => 'moins de ' + seuil;
+    const decimal = (x) => String(x).replace('.', ',');  // 53.3 → 53,3 (page et CSV)
 
     function nomMatiere(id) {
         if (typeof MATIERES === 'undefined') return id.toUpperCase();
@@ -153,7 +154,7 @@
             tr.append(nom,
                 el('td', 'py-2 pl-3 text-right whitespace-nowrap ' + (s ? 'text-slate-200' : 'text-slate-500'), s ? String(s.tentes) : moinsDe(seuil)),
                 el('td', 'py-2 pl-3 text-right whitespace-nowrap text-slate-200', s ? `${s.reussis} (${pourcent(s.reussis / s.tentes)})` : '–'),
-                el('td', 'py-2 pl-3 text-right whitespace-nowrap text-slate-200', s && s.scoreMoyen !== null ? s.scoreMoyen + ' / 100' : '–'));
+                el('td', 'py-2 pl-3 text-right whitespace-nowrap text-slate-200', s && s.scoreMoyen !== null ? decimal(s.scoreMoyen) + ' / 100' : '–'));
             table.tBodies[0].append(tr);
         });
         corps.append(table);
@@ -213,7 +214,7 @@
                 const s = promo.cles[cle];
                 lignes.push([promo.promo, g.titre, libelleCle(cle), cle, promo.inscrits, promo.actifs,
                     s ? s.tentes : '', s ? s.reussis : '', s ? Math.round(100 * s.reussis / s.tentes) : '',
-                    s && s.scoreMoyen !== null ? s.scoreMoyen : '',
+                    s && s.scoreMoyen !== null ? decimal(s.scoreMoyen) : '',
                     s ? '' : `tenté par moins de ${donnees.seuil} élèves`]);
             }));
         });

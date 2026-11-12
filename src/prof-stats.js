@@ -4,7 +4,7 @@
 // une ligne par élève : les regroupements se font en SQL (GROUP BY), puis assemblerStats
 // remplace par null tout chiffre calculé sur moins de 5 élèves (voir regles-stats.js).
 
-import { json, sessionCourante, exigerProf, tropDeRequetes, ErreurHttp } from "./commun.js";
+import { json, sessionCourante, exigerProf } from "./commun.js";
 import { matiereDeCle } from "./regles.js";
 import { assemblerStats, debutActivite } from "./regles-stats.js";
 
@@ -48,11 +48,9 @@ async function routeStats(request, env) {
   const params = new URL(request.url).searchParams;
   const annee = (params.get("annee") || "").toLowerCase();
   const matiere = (params.get("matiere") || "").toLowerCase();
-  const session = await sessionCourante(request, env);
-  if (!session) throw new ErreurHttp(401, "Non connecté");
-  if (await tropDeRequetes(env.LIMITE_PROF, String(session.id))) return json({ erreur: "Trop de requêtes" }, 429);
-  // Refuse aussi (403) une année ou une matière inconnue : rien d'autre n'arrive au SQL.
-  exigerProf(session, annee, matiere);
+  // garderProf (src/index.js) a déjà vérifié session, LIMITE_PROF et rôle ; exigerProf revérifie
+  // la session et refuse (403) une paire hors périmètre ou inconnue : rien d'autre n'arrive au SQL.
+  exigerProf(await sessionCourante(request, env), annee, matiere);
   return json(await statsClasse(env.DB, { annee, matiere }));
 }
 

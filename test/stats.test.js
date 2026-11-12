@@ -205,6 +205,14 @@ test("GET /api/prof/stats : contrôle d'accès côté serveur", { skip: sansSqli
   assert.equal(corps.promos[0].cles["a2/ce/ce2-dimensions/dim"].tentes, 6);
   assert.doesNotMatch(JSON.stringify(corps), /@/);
 
+  // par le Worker complet : garderProf puis MODULES_API
+  const worker = (await import("../src/index.js")).default;
+  const parWorker = (jeton, requete = "annee=a2&matiere=ce") => worker.fetch(new Request(
+    "https://studicam.pages.dev/api/prof/stats?" + requete, { headers: { Cookie: "studicam_session=" + jeton } }), env);
+  assert.equal((await parWorker(jetonProf)).status, 200);
+  assert.equal((await parWorker(jetonProf, "annee=a2&matiere=oi")).status, 403);
+  assert.equal((await parWorker(jetonEleve)).status, 403);
+
   // equipe voit toutes les matières
   db.base.prepare("UPDATE roles SET role = 'equipe', perimetre = '' WHERE email = 'prof.ce@icam.fr'").run();
   assert.equal((await appel("/api/prof/stats?annee=a2&matiere=oi", jetonProf)).status, 200);
