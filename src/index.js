@@ -1,44 +1,20 @@
 import { emailDepuisGoogle, lirePayloadJwt, validerProgression } from "./regles.js";
+import {
+  COOKIE, DUREE_SESSION_ROLE, ErreurHttp, json, lireJson, tropDeRequetes, sha256Hex, lireCookie,
+  sessionCourante, exigerRole,
+} from "./commun.js";
 
-const COOKIE = "studicam_session";
 const COOKIE_GOOGLE = "studicam_google"; // état, nonce et vérificateur PKCE pendant l'aller-retour Google
 const DUREE_COOKIE_GOOGLE = 600;         // secondes
 const GOOGLE_AUTORISATION = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_JETON = "https://oauth2.googleapis.com/token";
 const DUREE_SESSION = 180 * 24 * 3600; // secondes
-const TAILLE_MAX_CORPS = 4096;
 const SESSIONS_MAX = 5;          // par élève, les plus anciennes sont supprimées
 const LIGNES_PROGRESSION_MAX = 500;
 const PAGES_PUBLIQUES = new Set(["/connexion", "/connexion.html", "/confidentialite", "/confidentialite.html"]);
 
-// true si la limite est dépassée. Sans binding (tests), rien n'est limité.
-async function tropDeRequetes(limiteur, cle) {
-  if (!limiteur) return false;
-  const { success } = await limiteur.limit({ key: cle });
-  return !success;
-}
-
-class ErreurHttp extends Error {
-  constructor(statut, message) {
-    super(message);
-    this.statut = statut;
-  }
-}
-
-function json(donnees, statut = 200, enTetes = {}) {
-  return new Response(JSON.stringify(donnees), {
-    status: statut,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...enTetes },
-  });
-}
-
 function redirection(chemin) {
   return new Response(null, { status: 302, headers: { Location: chemin, "Cache-Control": "no-store" } });
-}
-
-async function sha256Hex(texte) {
-  const octets = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texte));
-  return [...new Uint8Array(octets)].map((o) => o.toString(16).padStart(2, "0")).join("");
 }
 
 function nouveauJeton() {
@@ -50,15 +26,6 @@ function base64Url(octets) {
   return btoa(String.fromCharCode(...octets)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function lireCookie(request, nomCherche = COOKIE) {
-  const brut = request.headers.get("Cookie") || "";
-  for (const morceau of brut.split(";")) {
-    const [nom, ...reste] = morceau.trim().split("=");
-    if (nom === nomCherche) return reste.join("=");
-  }
-  return null;
-}
-
 function cookieSession(valeur, maxAge) {
   return `${COOKIE}=${valeur}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
 }
@@ -66,51 +33,6 @@ function cookieSession(valeur, maxAge) {
 // Lax : le retour de Google est une navigation de premier niveau, le cookie est donc envoyé.
 function cookieGoogle(valeur, maxAge) {
   return `${COOKIE_GOOGLE}=${valeur}; HttpOnly; Secure; SameSite=Lax; Path=/api/google; Max-Age=${maxAge}`;
-}
-
-// Retourne {id, email, jetonHash} si la session est valide, sinon null.
-async function sessionCourante(request, env) {
-  const jeton = lireCookie(request);
-  if (!jeton || !/^[0-9a-f]{64}$/.test(jeton)) return null;
-  const jetonHash = await sha256Hex(jeton);
-  const ligne = await env.DB.prepare(
-    `SELECT s.expire_le, u.id, u.email, u.vu_le FROM sessions s
-     JOIN utilisateurs u ON u.id = s.utilisateur_id WHERE s.jeton_hash = ? AND s.methode = 'google'`
-  ).bind(jetonHash).first();
-  if (!ligne) return null;
-
-  const maintenant = new Date().toISOString();
-  if (ligne.expire_le <= maintenant) {
-    await env.DB.prepare("DELETE FROM sessions WHERE jeton_hash = ?").bind(jetonHash).run();
-    return null;
-  }
-  // vu_le au plus une fois par jour
-  if (!ligne.vu_le || ligne.vu_le.slice(0, 10) !== maintenant.slice(0, 10)) {
-    await env.DB.prepare("UPDATE utilisateurs SET vu_le = ? WHERE id = ?").bind(maintenant, ligne.id).run();
-  }
-  return { id: ligne.id, email: ligne.email, jetonHash };
-}
-
-// Contrôles communs aux POST et PUT, puis lecture du JSON.
-async function lireJson(request) {
-  const origine = request.headers.get("Origin");
-  if (origine !== null && origine !== new URL(request.url).origin) throw new ErreurHttp(403, "Origine refusée");
-
-  const type = (request.headers.get("Content-Type") || "").split(";")[0].trim().toLowerCase();
-  if (type !== "application/json") throw new ErreurHttp(415, "Content-Type application/json attendu");
-
-  // Sans Content-Length (envoi par morceaux), on ne lit pas le corps.
-  const enTete = request.headers.get("Content-Length");
-  if (enTete === null || !/^\d+$/.test(enTete)) throw new ErreurHttp(411, "Content-Length attendu");
-  if (Number(enTete) > TAILLE_MAX_CORPS) throw new ErreurHttp(413, "Corps trop volumineux");
-  const brut = await request.arrayBuffer();
-  if (brut.byteLength > TAILLE_MAX_CORPS) throw new ErreurHttp(413, "Corps trop volumineux");
-
-  try {
-    return JSON.parse(new TextDecoder().decode(brut));
-  } catch {
-    throw new ErreurHttp(400, "JSON invalide");
-  }
 }
 
 function retourConnexion(erreur, cookies = []) {
@@ -188,18 +110,21 @@ async function retourGoogle(request, env) {
   });
   if (!email) return retourConnexion("compte", [effacer]);
 
-  const jeton = await ouvrirSession(env, email);
+  const { jeton, duree } = await ouvrirSession(env, email);
   const enTetes = new Headers({ Location: "/", "Cache-Control": "no-store" });
   enTetes.append("Set-Cookie", effacer);
-  enTetes.append("Set-Cookie", cookieSession(jeton, DUREE_SESSION));
+  enTetes.append("Set-Cookie", cookieSession(jeton, duree));
   return new Response(null, { status: 302, headers: enTetes });
 }
 
-// Crée l'élève si besoin et renvoie le jeton d'une nouvelle session.
+// Crée l'élève si besoin et renvoie {jeton, duree} d'une nouvelle session :
+// 30 jours pour un compte qui a un rôle, 180 jours sinon.
 async function ouvrirSession(env, email) {
   const maintenant = new Date();
   const iso = maintenant.toISOString();
-  const expire = new Date(maintenant.getTime() + DUREE_SESSION * 1000).toISOString();
+  const aUnRole = await env.DB.prepare("SELECT 1 AS oui FROM roles WHERE email = ?").bind(email).first();
+  const duree = aUnRole ? DUREE_SESSION_ROLE : DUREE_SESSION;
+  const expire = new Date(maintenant.getTime() + duree * 1000).toISOString();
 
   await env.DB.prepare("INSERT INTO utilisateurs (email, cree_le, vu_le) VALUES (?, ?, ?) ON CONFLICT(email) DO NOTHING")
     .bind(email, iso, iso).run();
@@ -211,14 +136,28 @@ async function ouvrirSession(env, email) {
     env.DB.prepare("DELETE FROM sessions WHERE expire_le <= ? OR methode IS NULL").bind(iso),
     env.DB.prepare("INSERT INTO sessions (jeton_hash, utilisateur_id, expire_le, methode) VALUES (?, ?, ?, 'google')")
       .bind(await sha256Hex(jeton), utilisateur.id, expire),
+    // Compte à rôle : ses anciennes sessions de 180 jours passent à 30 jours, avant l'élagage
+    // (sinon la nouvelle, la plus courte, serait supprimée aussitôt).
+    ...(aUnRole
+      ? [env.DB.prepare("UPDATE sessions SET expire_le = MIN(expire_le, ?) WHERE utilisateur_id = ?").bind(expire, utilisateur.id)]
+      : []),
     env.DB.prepare("UPDATE utilisateurs SET vu_le = ? WHERE id = ?").bind(iso, utilisateur.id),
     env.DB.prepare(
       `DELETE FROM sessions WHERE utilisateur_id = ?1 AND jeton_hash NOT IN
-         (SELECT jeton_hash FROM sessions WHERE utilisateur_id = ?1 ORDER BY expire_le DESC LIMIT ?2)`
+         (SELECT jeton_hash FROM sessions WHERE utilisateur_id = ?1 ORDER BY expire_le DESC, rowid DESC LIMIT ?2)`
     ).bind(utilisateur.id, SESSIONS_MAX),
   ]);
-  return jeton;
+  return { jeton, duree };
 }
+
+// Modules d'API des PR suivantes. Chacun est une fonction async (request, env, chemin) qui
+// renvoie une Response pour ses routes, ou null pour laisser la main au suivant. Ils sont
+// essayés dans l'ordre, après les routes de ce fichier et avant le 404 final de api().
+// Pour en ajouter un : une ligne d'import en tête de fichier et une entrée ici, rien d'autre.
+// Tout chemin /api/prof/... est déjà gardé avant les modules (session 401, LIMITE_PROF 429,
+// rôle 403, voir garderProf) ; une route liée à une matière appelle en plus
+// exigerProf(session, annee, matiere) de src/commun.js, et une route POST ou PUT lireJson.
+const MODULES_API = [];
 
 async function api(request, env, chemin) {
   const methode = request.method;
@@ -235,7 +174,16 @@ async function api(request, env, chemin) {
 
   if (chemin === "/api/moi" && methode === "GET") {
     const session = await sessionCourante(request, env);
-    return session ? json({ email: session.email }) : json({ erreur: "Non connecté" }, 401);
+    if (!session) return json({ erreur: "Non connecté" }, 401);
+    return json({ email: session.email, role: session.role, perimetre: session.perimetre });
+  }
+
+  if (chemin.startsWith("/api/prof/")) {
+    const session = await garderProf(request, env);
+    // Sert de test : rôle et périmètre vus par le serveur.
+    if (chemin === "/api/prof/moi" && methode === "GET") {
+      return json({ email: session.email, role: session.role, perimetre: session.perimetre });
+    }
   }
 
   if (chemin === "/api/progression" && methode === "GET") {
@@ -274,7 +222,20 @@ async function api(request, env, chemin) {
     return json({ ok: true });
   }
 
+  for (const module of MODULES_API) {
+    const reponse = await module(request, env, chemin);
+    if (reponse) return reponse;
+  }
+
   return json({ erreur: "Introuvable" }, 404);
+}
+
+// Garde de tout /api/prof/... : session (401), limite par utilisateur (429), rôle (403).
+async function garderProf(request, env) {
+  const session = await sessionCourante(request, env);
+  if (!session) throw new ErreurHttp(401, "Non connecté");
+  if (await tropDeRequetes(env.LIMITE_PROF, String(session.id))) throw new ErreurHttp(429, "Trop de requêtes");
+  return exigerRole(session);
 }
 
 // La déconnexion accepte un corps vide ; si un corps est envoyé, il passe les mêmes contrôles.
