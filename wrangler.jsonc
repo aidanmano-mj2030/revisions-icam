@@ -24,9 +24,10 @@
     "GOOGLE_CLIENT_ID": "815727012676-53222kn5tkji2rb52na64qghu9fdg5pb.apps.googleusercontent.com"
   },
   // Limites de débit : connexions par IP (large, l'école partage une IP),
-  // écritures de progression par élève.
+  // écritures de progression par élève, routes /api/prof/... par utilisateur.
   "ratelimits": [
     { "name": "LIMITE_CONNEXION", "namespace_id": "1001", "simple": { "limit": 300, "period": 60 } },
-    { "name": "LIMITE_ECRITURE", "namespace_id": "1002", "simple": { "limit": 60, "period": 60 } }
+    { "name": "LIMITE_ECRITURE", "namespace_id": "1002", "simple": { "limit": 60, "period": 60 } },
+    { "name": "LIMITE_PROF", "namespace_id": "1003", "simple": { "limit": 120, "period": 60 } }
   ]
 }

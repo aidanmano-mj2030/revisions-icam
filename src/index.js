@@ -1,4 +1,4 @@
-import { emailDepuisGoogle, lirePayloadJwt, validerProgression } from "./regles.js";
+import { emailDepuisGoogle, lirePayloadJwt, validerProgression, lirePerimetre, dansPerimetre } from "./regles.js";
 
 const COOKIE = "studicam_session";
 const COOKIE_GOOGLE = "studicam_google"; // état, nonce et vérificateur PKCE pendant l'aller-retour Google
@@ -6,6 +6,7 @@ const DUREE_COOKIE_GOOGLE = 600;         // secondes
 const GOOGLE_AUTORISATION = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_JETON = "https://oauth2.googleapis.com/token";
 const DUREE_SESSION = 180 * 24 * 3600; // secondes
+const DUREE_SESSION_ROLE = 30 * 24 * 3600; // secondes, pour un compte qui a un rôle (prof, equipe)
 const TAILLE_MAX_CORPS = 4096;
 const SESSIONS_MAX = 5;          // par élève, les plus anciennes sont supprimées
 const LIGNES_PROGRESSION_MAX = 500;
@@ -68,14 +69,18 @@ function cookieGoogle(valeur, maxAge) {
   return `${COOKIE_GOOGLE}=${valeur}; HttpOnly; Secure; SameSite=Lax; Path=/api/google; Max-Age=${maxAge}`;
 }
 
-// Retourne {id, email, jetonHash} si la session est valide, sinon null.
+// Retourne {id, email, jetonHash, role, perimetre} si la session est valide, sinon null.
+// role : 'prof', 'equipe' ou null (élève) ; perimetre : tableau de paires "a2/ce" ([] sans rôle).
+// Le rôle est relu à chaque requête : un rôle retiré ne vaut plus dès la requête suivante.
 async function sessionCourante(request, env) {
   const jeton = lireCookie(request);
   if (!jeton || !/^[0-9a-f]{64}$/.test(jeton)) return null;
   const jetonHash = await sha256Hex(jeton);
   const ligne = await env.DB.prepare(
-    `SELECT s.expire_le, u.id, u.email, u.vu_le FROM sessions s
-     JOIN utilisateurs u ON u.id = s.utilisateur_id WHERE s.jeton_hash = ? AND s.methode = 'google'`
+    `SELECT s.expire_le, u.id, u.email, u.vu_le, r.role, r.perimetre FROM sessions s
+     JOIN utilisateurs u ON u.id = s.utilisateur_id
+     LEFT JOIN roles r ON r.email = u.email
+     WHERE s.jeton_hash = ? AND s.methode = 'google'`
   ).bind(jetonHash).first();
   if (!ligne) return null;
 
@@ -84,11 +89,35 @@ async function sessionCourante(request, env) {
     await env.DB.prepare("DELETE FROM sessions WHERE jeton_hash = ?").bind(jetonHash).run();
     return null;
   }
+  const role = ligne.role || null;
+  // Rôle ajouté après l'ouverture de la session : on ramène son expiration à 30 jours.
+  if (role) {
+    const limite = new Date(Date.now() + DUREE_SESSION_ROLE * 1000).toISOString();
+    if (ligne.expire_le > limite) {
+      await env.DB.prepare("UPDATE sessions SET expire_le = ? WHERE jeton_hash = ?").bind(limite, jetonHash).run();
+    }
+  }
   // vu_le au plus une fois par jour
   if (!ligne.vu_le || ligne.vu_le.slice(0, 10) !== maintenant.slice(0, 10)) {
     await env.DB.prepare("UPDATE utilisateurs SET vu_le = ? WHERE id = ?").bind(maintenant, ligne.id).run();
   }
-  return { id: ligne.id, email: ligne.email, jetonHash };
+  return { id: ligne.id, email: ligne.email, jetonHash, role, perimetre: role === "prof" ? lirePerimetre(ligne.perimetre) : [] };
+}
+
+// Accès prof. Chaque route /api/prof/... appelle l'une de ces deux fonctions avant d'agir.
+// exigerRole : il faut une session (401) et un rôle prof ou equipe (403).
+function exigerRole(session) {
+  if (!session) throw new ErreurHttp(401, "Non connecté");
+  if (session.role !== "prof" && session.role !== "equipe") throw new ErreurHttp(403, "Accès réservé aux profs");
+  return session;
+}
+
+// exigerProf : en plus, annee/matiere ("a2", "ce") doivent être dans le périmètre (equipe : tout).
+// Une paire absente ou inconnue est refusée (403), même pour equipe.
+function exigerProf(session, annee, matiere) {
+  exigerRole(session);
+  if (!dansPerimetre(session.role, session.perimetre, annee, matiere)) throw new ErreurHttp(403, "Hors de votre périmètre");
+  return session;
 }
 
 // Contrôles communs aux POST et PUT, puis lecture du JSON.
@@ -188,18 +217,21 @@ async function retourGoogle(request, env) {
   });
   if (!email) return retourConnexion("compte", [effacer]);
 
-  const jeton = await ouvrirSession(env, email);
+  const { jeton, duree } = await ouvrirSession(env, email);
   const enTetes = new Headers({ Location: "/", "Cache-Control": "no-store" });
   enTetes.append("Set-Cookie", effacer);
-  enTetes.append("Set-Cookie", cookieSession(jeton, DUREE_SESSION));
+  enTetes.append("Set-Cookie", cookieSession(jeton, duree));
   return new Response(null, { status: 302, headers: enTetes });
 }
 
-// Crée l'élève si besoin et renvoie le jeton d'une nouvelle session.
+// Crée l'élève si besoin et renvoie {jeton, duree} d'une nouvelle session :
+// 30 jours pour un compte qui a un rôle, 180 jours sinon.
 async function ouvrirSession(env, email) {
   const maintenant = new Date();
   const iso = maintenant.toISOString();
-  const expire = new Date(maintenant.getTime() + DUREE_SESSION * 1000).toISOString();
+  const aUnRole = await env.DB.prepare("SELECT 1 AS oui FROM roles WHERE email = ?").bind(email).first();
+  const duree = aUnRole ? DUREE_SESSION_ROLE : DUREE_SESSION;
+  const expire = new Date(maintenant.getTime() + duree * 1000).toISOString();
 
   await env.DB.prepare("INSERT INTO utilisateurs (email, cree_le, vu_le) VALUES (?, ?, ?) ON CONFLICT(email) DO NOTHING")
     .bind(email, iso, iso).run();
@@ -217,7 +249,7 @@ async function ouvrirSession(env, email) {
          (SELECT jeton_hash FROM sessions WHERE utilisateur_id = ?1 ORDER BY expire_le DESC LIMIT ?2)`
     ).bind(utilisateur.id, SESSIONS_MAX),
   ]);
-  return jeton;
+  return { jeton, duree };
 }
 
 async function api(request, env, chemin) {
@@ -235,8 +267,11 @@ async function api(request, env, chemin) {
 
   if (chemin === "/api/moi" && methode === "GET") {
     const session = await sessionCourante(request, env);
-    return session ? json({ email: session.email }) : json({ erreur: "Non connecté" }, 401);
+    if (!session) return json({ erreur: "Non connecté" }, 401);
+    return json({ email: session.email, role: session.role, perimetre: session.perimetre });
   }
+
+  if (chemin.startsWith("/api/prof/")) return apiProf(request, env, chemin);
 
   if (chemin === "/api/progression" && methode === "GET") {
     const session = await sessionCourante(request, env);
@@ -272,6 +307,23 @@ async function api(request, env, chemin) {
          maj_le = excluded.maj_le`
     ).bind(session.id, entree.cle, entree.reussi ? 1 : 0, entree.score, new Date().toISOString()).run();
     return json({ ok: true });
+  }
+
+  return json({ erreur: "Introuvable" }, 404);
+}
+
+// Routes de l'accès prof : session, limite de débit par utilisateur, rôle, puis la route.
+// Une route liée à une matière appelle aussi exigerProf(session, annee, matiere).
+async function apiProf(request, env, chemin) {
+  const methode = request.method;
+  const session = await sessionCourante(request, env);
+  if (!session) throw new ErreurHttp(401, "Non connecté");
+  if (await tropDeRequetes(env.LIMITE_PROF, String(session.id))) return json({ erreur: "Trop de requêtes" }, 429);
+  exigerRole(session);
+
+  // Sert de test : rôle et périmètre vus par le serveur.
+  if (chemin === "/api/prof/moi" && methode === "GET") {
+    return json({ email: session.email, role: session.role, perimetre: session.perimetre });
   }
 
   return json({ erreur: "Introuvable" }, 404);
