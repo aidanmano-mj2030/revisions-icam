@@ -1,12 +1,15 @@
 // Tableau de bord prof : règles pures d'agrégation, testées par node --test.
 //
-// Le serveur ne renvoie que des chiffres agrégés par promo, jamais une ligne par élève.
-// Tout chiffre calculé sur un groupe de moins de SEUIL_ELEVES élèves est remplacé par null :
-//   - promo de moins de SEUIL_ELEVES inscrits : aucun chiffre pour cette promo ;
+// Le serveur ne renvoie que des chiffres agrégés par promo, jamais une ligne par élève, et
+// jamais le nombre exact d'élèves qui ont réussi ou raté un exercice : seulement une tranche
+// de 20 % du taux de réussite (trancheReussite). Seuil de SEUIL_ELEVES élèves :
+//   - toute promo ayant des élèves inscrits apparaît, même sans aucune tentative (sa présence
+//     ne révèle rien) ; sous SEUIL_ELEVES inscrits, elle n'a aucun chiffre ;
 //   - exercice tenté par moins de SEUIL_ELEVES élèves : absent de la réponse (0 et 1 à 4
 //     ne se distinguent pas) ;
-//   - score moyen calculé sur moins de SEUIL_ELEVES scores : null ;
-//   - élèves actifs sur 7 jours : null s'ils sont moins de SEUIL_ELEVES.
+//   - score moyen calculé sur moins de SEUIL_ELEVES scores : null ; sinon arrondi à l'entier ;
+//   - élèves actifs sur 7 jours : null s'ils sont moins de SEUIL_ELEVES ;
+//   - aucun total entre promos.
 
 export const SEUIL_ELEVES = 5;
 export const JOURS_ACTIFS = 7;
@@ -43,16 +46,23 @@ export function debutActivite(maintenant, jours = JOURS_ACTIFS) {
   return new Date(maintenant - jours * 24 * 3600 * 1000).toISOString();
 }
 
-function arrondi(x, decimales = 1) {
-  const f = 10 ** decimales;
-  return Math.round(Number(x) * f) / f;
+export const LARGEUR_TRANCHE = 20;  // en points de pourcentage
+
+// Tranche du taux de réussite, {min, max} en % : [0, 20[, [20, 40[, [40, 60[, [60, 80[ et
+// [80, 100]. 0 % tombe dans 0-20 et 100 % dans 80-100. Calcul en entiers (pas d'arrondi
+// flottant à une borne) : 1 sur 5 = 20 % → 20-40 ; 2 sur 30 → 0-20. Null sans tentative.
+export function trancheReussite(reussis, tentes) {
+  if (!Number.isInteger(reussis) || !Number.isInteger(tentes) || tentes <= 0 || reussis < 0 || reussis > tentes) return null;
+  const nombre = 100 / LARGEUR_TRANCHE;  // 5 tranches
+  const i = Math.min(nombre - 1, Math.floor((nombre * reussis) / tentes));
+  return { min: i * LARGEUR_TRANCHE, max: (i + 1) * LARGEUR_TRANCHE };
 }
 
 // Assemble la réponse de GET /api/prof/stats à partir de lignes déjà agrégées en SQL.
 //   effectifs : [{domaine, inscrits, actifs}]                       une ligne par domaine
 //   cles      : [{domaine, cle, tentes, reussis, score_moyen, scores}] une ligne par domaine et clé
 //   garderCle : (cle) => booléen, garde les clés de la matière demandée
-// Une promo n'apparaît que si au moins un de ses élèves a tenté un exercice gardé.
+// reussis sert seulement à calculer la tranche ; il ne sort jamais.
 export function assemblerStats({ annee, matiere, effectifs, cles, garderCle, maintenant }) {
   const parPromo = new Map();
   for (const e of effectifs || []) {
@@ -71,7 +81,6 @@ export function assemblerStats({ annee, matiere, effectifs, cles, garderCle, mai
 
   const promos = [];
   for (const [promo, p] of parPromo) {
-    if (p.cles.length === 0) continue;
     const inscrits = masquer(p.inscrits);
     const sortie = { promo, inscrits, actifs: inscrits === null ? null : masquer(p.actifs), cles: {} };
     if (inscrits !== null) {
@@ -80,8 +89,8 @@ export function assemblerStats({ annee, matiere, effectifs, cles, garderCle, mai
         if (tentes === null) continue;  // absente : la page affiche « moins de 5 », sans distinguer 0
         sortie.cles[l.cle] = {
           tentes,
-          reussis: Number(l.reussis) || 0,
-          scoreMoyen: masquer(l.scores) === null || l.score_moyen == null ? null : arrondi(l.score_moyen),
+          reussite: trancheReussite(Number(l.reussis) || 0, Number(l.tentes)),
+          scoreMoyen: masquer(l.scores) === null || l.score_moyen == null ? null : Math.round(Number(l.score_moyen)),
         };
       }
     }
@@ -92,6 +101,7 @@ export function assemblerStats({ annee, matiere, effectifs, cles, garderCle, mai
     annee,
     matiere,
     seuil: SEUIL_ELEVES,
+    largeurTranche: LARGEUR_TRANCHE,
     joursActifs: JOURS_ACTIFS,
     genereLe: new Date(maintenant).toISOString(),
     promos,

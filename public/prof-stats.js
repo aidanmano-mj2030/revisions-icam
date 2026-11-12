@@ -2,8 +2,9 @@
  * Studicam : section « Tableau de bord » de l'Espace prof (ajoutée par window.studicamEspaceProf).
  *
  * Lit GET /api/prof/stats?annee=a2&matiere=ce : chiffres agrégés par promo, jamais une ligne
- * par élève. Un exercice tenté par moins de 5 élèves n'y figure pas, une promo de moins de
- * 5 inscrits n'a aucun chiffre : la page affiche alors « moins de 5 ».
+ * par élève, et pour la réussite seulement une tranche de 20 % (jamais le nombre de réussis).
+ * Un exercice tenté par moins de 5 élèves n'y figure pas, une promo de moins de 5 inscrits
+ * n'a aucun chiffre : la page affiche alors « moins de 5 ».
  * Les clés sont regroupées par chapitre avec CHAPITRES et window.studicamClesChapitre
  * (progression.js) ; les clés de la Révision DS et les clés inconnues vont dans des groupes à part.
  * L'export CSV est fabriqué dans le navigateur à partir de la même réponse.
@@ -23,7 +24,7 @@
     }
     const pourcent = (x) => Math.round(100 * x) + ' %';
     const moinsDe = (seuil) => 'moins de ' + seuil;
-    const decimal = (x) => String(x).replace('.', ',');  // 53.3 → 53,3 (page et CSV)
+    const tranche = (t) => t ? `${t.min} à ${t.max} %` : '–';
 
     function nomMatiere(id) {
         if (typeof MATIERES === 'undefined') return id.toUpperCase();
@@ -82,41 +83,48 @@
     // par 5 élèves ou plus) : une clé masquée n'entre dans aucune somme, on ne peut donc pas la
     // reconstituer par soustraction. Il n'y a pas non plus de total « toutes promos ».
     //   tentesMax : élèves de l'exercice le plus tenté (null si aucun n'atteint 5)
-    //   reussite  : réussis / tentés, sommés sur les exercices reçus
+    //   reussite  : fourchette {min, max} en % du taux de réussite du groupe, déduite des seules
+    //               tranches reçues (bornes moyennées, pondérées par les tentés) : le vrai taux
+    //               est dedans. Pour un exercice seul, c'est sa tranche.
     function bilan(cles, statsCles, inscrits) {
-        let tentesMax = null, tentes = 0, reussis = 0;
+        let tentesMax = null, tentes = 0, bas = 0, haut = 0;
         cles.forEach(c => {
             const s = statsCles[c];
-            if (!s) return;
+            if (!s || !s.reussite) return;
             tentesMax = Math.max(tentesMax || 0, s.tentes);
             tentes += s.tentes;
-            reussis += s.reussis;
+            bas += s.tentes * s.reussite.min;
+            haut += s.tentes * s.reussite.max;
         });
         const part = tentesMax !== null && inscrits ? Math.min(1, tentesMax / inscrits) : null;
         return {
             tentesMax,
             part,
-            reussite: tentes ? reussis / tentes : null,
+            reussite: tentes ? { min: Math.floor(bas / tentes), max: Math.ceil(haut / tentes) } : null,
             peuTravaille: cles.length > 0 && (part === null || part < PART_PEU_TRAVAILLE)
         };
     }
 
     // ---------- affichage ----------
-    function barre(fraction, couleur, titre) {
-        const piste = el('div', 'h-2 w-full rounded-full bg-slate-800 overflow-hidden');
+    // Barre de debut à fin (en %, de 0 à 100) : jauge pleine (debut = 0) ou fourchette ; vide si fin est null.
+    function barre(debut, fin, couleur, titre) {
+        const piste = el('div', 'relative h-2 w-full rounded-full bg-slate-800 overflow-hidden');
         piste.setAttribute('role', 'img');
         piste.setAttribute('aria-label', titre);
         piste.title = titre;
-        const plein = el('div', 'h-full rounded-full ' + couleur);
-        plein.style.width = (fraction === null ? 0 : Math.round(100 * fraction)) + '%';
-        piste.appendChild(plein);
+        if (fin !== null) {
+            const plein = el('div', 'absolute inset-y-0 rounded-full ' + couleur);
+            plein.style.left = debut + '%';
+            plein.style.width = Math.max(0, fin - debut) + '%';
+            piste.appendChild(plein);
+        }
         return piste;
     }
-    function mesure(libelle, valeur, fraction, couleur) {
+    function mesure(libelle, valeur, debut, fin, couleur) {
         const bloc = el('div', 'min-w-0');
         const ligne = el('div', 'flex items-baseline justify-between gap-2 text-xs mb-1');
         ligne.append(el('span', 'text-slate-500', libelle), el('span', 'font-semibold text-slate-200 whitespace-nowrap', valeur));
-        bloc.append(ligne, barre(fraction, couleur, libelle + ' : ' + valeur));
+        bloc.append(ligne, barre(debut, fin, couleur, libelle + ' : ' + valeur));
         return bloc;
     }
 
@@ -135,8 +143,10 @@
         resume.append(titre);
         if (n) {
             resume.append(
-                mesure('Élèves (exercice le plus tenté)', b.tentesMax === null ? moinsDe(seuil) : `${b.tentesMax} (${pourcent(b.part)})`, b.part, 'bg-blue-500'),
-                mesure('Réussite', b.reussite === null ? '–' : pourcent(b.reussite), b.reussite, 'bg-emerald-500')
+                mesure('Élèves (exercice le plus tenté)', b.tentesMax === null ? moinsDe(seuil) : `${b.tentesMax} (${pourcent(b.part)})`,
+                    0, b.part === null ? null : Math.round(100 * b.part), 'bg-blue-500'),
+                mesure('Réussite (fourchette)', tranche(b.reussite),
+                    b.reussite ? b.reussite.min : 0, b.reussite ? b.reussite.max : null, 'bg-emerald-500')
             );
         }
         carte.append(resume);
@@ -145,7 +155,7 @@
         const corps = el('div', 'px-4 pb-4 overflow-x-auto');
         const table = el('table', 'w-full text-sm');
         const tete = el('tr', 'text-left text-xs text-slate-500');
-        ['Exercice', 'Ont tenté', 'Ont réussi', 'Score moyen'].forEach((t, i) => tete.append(el('th', 'py-2 font-medium' + (i ? ' text-right pl-3 whitespace-nowrap' : ''), t)));
+        ['Exercice', 'Ont tenté', 'Réussite', 'Score moyen'].forEach((t, i) => tete.append(el('th', 'py-2 font-medium' + (i ? ' text-right pl-3 whitespace-nowrap' : ''), t)));
         table.append(el('thead'), el('tbody'));
         table.tHead.append(tete);
         groupe.cles.forEach(cle => {
@@ -155,8 +165,8 @@
             nom.title = cle;
             tr.append(nom,
                 el('td', 'py-2 pl-3 text-right whitespace-nowrap ' + (s ? 'text-slate-200' : 'text-slate-500'), s ? String(s.tentes) : moinsDe(seuil)),
-                el('td', 'py-2 pl-3 text-right whitespace-nowrap text-slate-200', s ? `${s.reussis} (${pourcent(s.reussis / s.tentes)})` : '–'),
-                el('td', 'py-2 pl-3 text-right whitespace-nowrap text-slate-200', s && s.scoreMoyen !== null ? decimal(s.scoreMoyen) + ' / 100' : '–'));
+                el('td', 'py-2 pl-3 text-right whitespace-nowrap text-slate-200', s ? tranche(s.reussite) : '–'),
+                el('td', 'py-2 pl-3 text-right whitespace-nowrap text-slate-200', s && s.scoreMoyen !== null ? s.scoreMoyen + ' / 100' : '–'));
             table.tBodies[0].append(tr);
         });
         corps.append(table);
@@ -205,7 +215,7 @@
     }
     function exporterCsv(donnees, paire) {
         const lignes = [['promo', 'chapitre', 'exercice', 'cle', 'eleves_inscrits', `actifs_${donnees.joursActifs}_jours`,
-            'eleves_ayant_tente', 'eleves_ayant_reussi', 'reussite_pct', 'score_moyen_sur_100', 'remarque']];
+            'eleves_ayant_tente', 'reussite_min_pct', 'reussite_max_pct', 'score_moyen_sur_100', 'remarque']];
         const groupes = grouper(paire, cleConnues(donnees));
         donnees.promos.forEach(promo => {
             if (promo.inscrits === null) {
@@ -215,8 +225,8 @@
             groupes.forEach(g => g.cles.forEach(cle => {
                 const s = promo.cles[cle];
                 lignes.push([promo.promo, g.titre, libelleCle(cle), cle, promo.inscrits, promo.actifs,
-                    s ? s.tentes : '', s ? s.reussis : '', s ? Math.round(100 * s.reussis / s.tentes) : '',
-                    s && s.scoreMoyen !== null ? decimal(s.scoreMoyen) : '',
+                    s ? s.tentes : '', s && s.reussite ? s.reussite.min : '', s && s.reussite ? s.reussite.max : '',
+                    s && s.scoreMoyen !== null ? s.scoreMoyen : '',
                     s ? '' : `tenté par moins de ${donnees.seuil} élèves`]);
             }));
         });
@@ -287,10 +297,11 @@
             }
             if (choixMatiere.value !== paire) return;  // une autre matière a été choisie entre-temps
             courant = { paire, donnees };
-            if (!donnees.promos.length) { etat.textContent = 'Aucun élève n\'a encore travaillé cette matière sur Studicam.'; return; }
+            if (!donnees.promos.length) { etat.textContent = 'Aucun élève n\'est encore inscrit sur Studicam.'; return; }
             donnees.promos.forEach(p => choixPromo.append(new Option('Promo ' + p.promo, p.promo)));
-            const avecChiffres = donnees.promos.find(p => p.inscrits !== null);
-            choixPromo.value = (avecChiffres || donnees.promos[0]).promo;
+            // par défaut : la promo qui a le plus d'exercices tentés par 5 élèves ou plus
+            const parDefaut = [...donnees.promos].sort((a, b) => Object.keys(b.cles).length - Object.keys(a.cles).length)[0];
+            choixPromo.value = parDefaut.promo;
             etat.textContent = 'Chiffres du ' + new Date(donnees.genereLe).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' }) + '.';
             bouton.disabled = false;
             afficherPromo(zone, donnees, paire, choixPromo.value);
