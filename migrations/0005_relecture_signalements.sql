@@ -9,6 +9,8 @@
 --   cle_exo = clé de EXOS si le signalement vient d'un exercice, sinon NULL.
 --   Les profs voient ceux de leur périmètre sans l'identité de l'élève ; l'équipe voit tout.
 --   statut : ouvert à la création, puis corrige ou rejete (traite_par = adresse du prof).
+--   Les profs reçoivent la date au jour (pas l'heure, qui pourrait désigner l'élève).
+--   ON DELETE CASCADE : effacer un compte (voir /confidentialite) efface ses signalements.
 CREATE TABLE relectures (
   lecon TEXT NOT NULL,
   annee TEXT NOT NULL,
@@ -20,7 +22,7 @@ CREATE TABLE relectures (
 
 CREATE TABLE signalements (
   id INTEGER PRIMARY KEY,
-  utilisateur_id INTEGER NOT NULL REFERENCES utilisateurs(id),
+  utilisateur_id INTEGER NOT NULL REFERENCES utilisateurs(id) ON DELETE CASCADE,
   annee TEXT NOT NULL,
   matiere TEXT NOT NULL,
   lecon TEXT NOT NULL,

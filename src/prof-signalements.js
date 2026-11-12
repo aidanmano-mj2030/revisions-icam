@@ -92,7 +92,10 @@ async function listerSignalements(request, env) {
   ]);
 
   // Seconde barrière : on ne renvoie rien hors du périmètre, quoi que dise la requête SQL.
-  const signalements = lignes.results.filter((l) => dansPerimetre(session.role, session.perimetre, l.annee, l.matiere));
+  // Un prof n'a que le jour : l'heure exacte pourrait désigner l'élève qui écrivait en cours.
+  const signalements = lignes.results
+    .filter((l) => dansPerimetre(session.role, session.perimetre, l.annee, l.matiere))
+    .map((l) => (equipe ? l : { ...l, cree_le: String(l.cree_le).slice(0, 10) }));
   const compte = Object.fromEntries(STATUTS.map((s) => [s, 0]));
   for (const c of comptes.results) if (STATUTS.includes(c.statut)) compte[c.statut] = c.n;
   return json({ signalements, compte, voit_eleves: equipe });

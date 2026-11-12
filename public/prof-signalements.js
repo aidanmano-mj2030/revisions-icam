@@ -93,7 +93,7 @@
         return 'Relu par ' + noms.slice(0, -1).join(', ') + ' et ' + noms[noms.length - 1];
     }
     function badgeRelu(liste) {
-        const b = el('span', 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border align-middle bg-emerald-500/10 text-emerald-300 border-emerald-500/30');
+        const b = el('span', 'mathjax_ignore inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border align-middle bg-emerald-500/10 text-emerald-300 border-emerald-500/30');
         b.appendChild(el('span', null, '✓'));
         b.appendChild(el('span', null, texteRelu(liste)));
         b.title = 'Leçon relue par un prof de l\'ICAM';
@@ -222,7 +222,7 @@
     let fenetre = null;
     function creerFenetre() {
         if (fenetre) return fenetre;
-        const fond = el('div', 'hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4');
+        const fond = el('div', 'mathjax_ignore hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4');
         fond.id = 'studicam-signalement';
         fond.innerHTML = ''
             + '<div role="dialog" aria-modal="true" aria-labelledby="studicam-signalement-titre" class="w-full max-w-lg bg-darkcard border border-darkborder rounded-2xl p-5 space-y-4 shadow-2xl text-left">'
@@ -339,6 +339,11 @@
     // ---------- Espace prof : section « Signalements » ----------
     function dateCourte(iso) {
         if (!iso) return '';
+        // les profs ne reçoivent que le jour (AAAA-MM-JJ), l'équipe l'heure exacte
+        if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+            try { return new Date(iso + 'T12:00:00Z').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }); }
+            catch (e) { return iso; }
+        }
         try { return new Date(iso).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
         catch (e) { return iso.slice(0, 16).replace('T', ' '); }
     }
@@ -379,13 +384,13 @@
                 else if (typeof ouvrirLecon === 'function') ouvrirLecon(s.lecon);
             });
             c.appendChild(lien);
-            c.appendChild(el('p', 'text-sm text-slate-300 whitespace-pre-wrap break-words', s.message));
+            c.appendChild(el('p', 'mathjax_ignore text-sm text-slate-300 whitespace-pre-wrap break-words', s.message));
 
             const bas = el('div', 'flex flex-wrap items-center gap-2 pt-1');
             const infos = [];
             if (voitEleves && s.email_eleve) infos.push('Élève : ' + s.email_eleve);
             if (s.traite_par) infos.push((s.statut === 'corrige' ? 'Corrigé' : 'Rejeté') + ' par ' + s.traite_par + ', ' + dateCourte(s.traite_le));
-            if (infos.length) bas.appendChild(el('span', 'text-xs text-slate-500 break-all', infos.join(' · ')));
+            if (infos.length) bas.appendChild(el('span', 'mathjax_ignore text-xs text-slate-500 break-all', infos.join(' · ')));
             const actions = el('div', 'ml-auto flex gap-2');
             const action = (statut, libelle, cls) => {
                 const b = el('button', 'px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ' + cls, libelle);
