@@ -103,7 +103,7 @@ function fausseD1() {
 
 const IL_Y_A = (jours) => new Date(MAINTENANT - jours * 24 * 3600 * 1000).toISOString();
 
-// Promo 2027 : 8 élèves (5 actifs) ; promo 2028 : 3 élèves ; un prof en @icam.fr.
+// Promo 2027 : 6 élèves (5 actifs) ; promo 2028 : 4 élèves ; un prof en @icam.fr.
 function remplir(db) {
   const eleves = [];
   const ajouter = (email, vu) => {
@@ -112,9 +112,9 @@ function remplir(db) {
     return Number(r.lastInsertRowid);
   };
   const a = [];
-  for (let i = 0; i < 8; i++) a.push(ajouter(`eleve${i}@2027.icam.fr`, IL_Y_A(i < 5 ? 1 : 20)));
+  for (let i = 0; i < 6; i++) a.push(ajouter(`eleve${i}@2027.icam.fr`, IL_Y_A(i < 5 ? 1 : 20)));
   const b = [];
-  for (let i = 0; i < 3; i++) b.push(ajouter(`eleve${i}@2028.icam.fr`, IL_Y_A(1)));
+  for (let i = 0; i < 4; i++) b.push(ajouter(`eleve${i}@2028.icam.fr`, IL_Y_A(1)));
   const prof = ajouter("prof.ce@icam.fr", IL_Y_A(0));
   const p = (id, cle, reussi, score = null) => db.base.prepare(
     "INSERT INTO progression (utilisateur_id, cle, reussi, score, maj_le) VALUES (?, ?, ?, ?, ?)"
@@ -127,8 +127,9 @@ function remplir(db) {
   [0, 1, 2, 3, 4, 5].forEach((i) => p(a[i], "a2/ds/ds-2026-11/kanban", 1));
   [0, 1, 2, 3, 4, 5].forEach((i) => p(a[i], "a2/ds/ds-2026-11/examen-tout", 1, 70));
   [0, 1, 2, 3, 4, 5].forEach((i) => p(a[i], "a1/ce/ce1-mcc/mcc", 1));
-  // 2028 : 3 élèves sur dim
+  // 2028 : ses 4 élèves sur dim et tri (de quoi compléter 2027 si on additionnait les promos)
   b.forEach((id) => p(id, "a2/ce/ce2-dimensions/dim", 1, 100));
+  b.forEach((id) => p(id, "a2/ce/ce2-triphase/tri", 1, 100));
   // le prof a essayé lui aussi : jamais compté
   p(prof, "a2/ce/ce2-dimensions/dim", 1, 100);
   return { prof, eleve: a[0] };
@@ -141,7 +142,7 @@ test("statsClasse : agrégats SQL et seuil, sur les migrations", { skip: sansSql
   const r = await statsClasse(db, { annee: "a2", matiere: "ce", maintenant: MAINTENANT });
   assert.deepEqual(r.promos, [
     {
-      promo: "2027", inscrits: 8, actifs: 5,
+      promo: "2027", inscrits: 6, actifs: 5,
       cles: {
         "a2/ce/ce2-dimensions/dim": { tentes: 6, reussis: 4, scoreMoyen: 73.3 },
         "a2/ds/ds-2026-11/mcc": { tentes: 5, reussis: 2, scoreMoyen: null },
@@ -151,9 +152,31 @@ test("statsClasse : agrégats SQL et seuil, sur les migrations", { skip: sansSql
   ]);
   assert.deepEqual(chiffresSousSeuil(r), []);
   assert.doesNotMatch(JSON.stringify(r), /@|eleve|prof\.ce/);
+  // pas de total « toutes promos » : la promo masquée (4 élèves) ne se retrouve par aucune
+  // soustraction, et ses essais sur tri (3 + 4 = 7 toutes promos) n'apparaissent nulle part
+  assert.deepEqual(Object.keys(r).sort(), ["annee", "genereLe", "joursActifs", "matiere", "promos", "seuil"]);
+  assert.equal(r.promos[0].cles["a2/ce/ce2-dimensions/dim"].tentes, 6);
+  assert.ok(!("a2/ce/ce2-triphase/tri" in r.promos[0].cles));
 
   const oi = await statsClasse(db, { annee: "a2", matiere: "oi", maintenant: MAINTENANT });
   assert.deepEqual(Object.keys(oi.promos[0].cles), ["a2/ds/ds-2026-11/kanban"]);
+});
+
+// ---------- page : chiffres d'un chapitre (public/prof-stats.js) ----------
+
+test("chapitre : calculé sur les seules clés non masquées", async () => {
+  const { runInNewContext } = await import("node:vm");
+  const fenetre = {};
+  runInNewContext(readFileSync(new URL("../public/prof-stats.js", import.meta.url), "utf8"),
+    { window: fenetre, document: { addEventListener() {} } });
+  const bilan = (...a) => JSON.parse(JSON.stringify(fenetre.studicamTableauDeBord.bilan(...a)));
+  // promo de 6 : a tentée par 6 (3 réussis), b masquée (tentée par 1 à 4 élèves, absente)
+  const statsCles = { "a/1": { tentes: 6, reussis: 3, scoreMoyen: 50 } };
+  const seule = bilan(["a/1"], statsCles, 6);
+  const avecMasquee = bilan(["a/1", "b/1"], statsCles, 6);
+  assert.deepEqual(avecMasquee, seule);  // b n'entre dans aucune somme
+  assert.deepEqual(seule, { tentesMax: 6, part: 1, reussite: 0.5, peuTravaille: false });
+  assert.deepEqual(bilan(["b/1"], statsCles, 6), { tentesMax: null, part: null, reussite: null, peuTravaille: true });
 });
 
 // ---------- route complète : session, rôle, périmètre ----------

@@ -78,9 +78,11 @@
         return groupes;
     }
 
-    // Chiffres d'un groupe de clés pour une promo. Les clés absentes comptent « moins de 5 ».
+    // Chiffres d'un groupe de clés pour une promo, calculés sur les seules clés reçues (tentées
+    // par 5 élèves ou plus) : une clé masquée n'entre dans aucune somme, on ne peut donc pas la
+    // reconstituer par soustraction. Il n'y a pas non plus de total « toutes promos ».
     //   tentesMax : élèves de l'exercice le plus tenté (null si aucun n'atteint 5)
-    //   reussite  : réussis / tentés, sommés sur les exercices connus
+    //   reussite  : réussis / tentés, sommés sur les exercices reçus
     function bilan(cles, statsCles, inscrits) {
         let tentesMax = null, tentes = 0, reussis = 0;
         cles.forEach(c => {
@@ -298,6 +300,8 @@
         bouton.addEventListener('click', () => { if (courant) exporterCsv(courant.donnees, courant.paire); });
         charger();
     }
+
+    window.studicamTableauDeBord = { bilan };  // pour test/stats.test.js
 
     // prof.js est chargé avant ce fichier ; s'il n'a pas encore créé l'Espace prof, on attend /api/moi.
     function inscrire() {
