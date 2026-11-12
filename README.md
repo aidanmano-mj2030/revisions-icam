@@ -25,7 +25,8 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 | `public/revision-ds-blancs.js` | Les deux DS blancs de cet onglet (sujets et corrigés, fichier généré) |
 | `public/prof.js` | Bouton et vue « Espace prof » pour les comptes qui ont un rôle |
 | `public/connexion.html` | Page de connexion |
-| `src/index.js` | Serveur (Cloudflare Worker) : connexion Google, sessions, progression, accès prof, protection des pages |
+| `src/index.js` | Serveur (Cloudflare Worker) : connexion Google, sessions, progression, accès prof, protection des pages ; les modules d'API s'ajoutent au tableau `MODULES_API` |
+| `src/commun.js` | Outils partagés par le serveur et ses modules : session, rôle, réponses JSON, limites |
 | `src/regles.js` | Règles de validation : jeton Google, progression, périmètre des profs (testées par `npm test`) |
 | `migrations/` | Structure de la base D1 |
 

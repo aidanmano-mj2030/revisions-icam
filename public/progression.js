@@ -44,8 +44,9 @@
  * Points d'entrée publics : window.studicamResultat(cle, reussi, score?),
  * window.studicamLire(cle) (état connu de cette clé, ou null) et l'événement
  * « studicam:progression » sur document, émis quand la progression lue change.
- * Après lecture de /api/moi et création du bandeau #studicam-session : window.studicamMoi
- * ({email, role, perimetre}) et l'événement « studicam:moi » (detail = le même objet).
+ * Après lecture de /api/moi et création du bandeau #studicam-session : l'événement
+ * « studicam:moi » sur document (detail = {email, role, perimetre}, role null pour un élève),
+ * émis une fois ; window.studicamMoi() renvoie cette dernière valeur, ou null avant.
  */
 (function () {
     'use strict';
@@ -430,6 +431,8 @@
     }
 
     // ---------- démarrage ----------
+    let moiLu = null;              // {email, role, perimetre} de /api/moi, role null pour un élève
+    window.studicamMoi = () => moiLu;
     async function demarrer() {
         let r;
         try { r = await api('GET', '/api/moi'); }
@@ -439,9 +442,9 @@
         try {
             const moi = await r.json();
             bandeau(moi.email);
-            // pour prof.js (et les suivants) : pas de second appel à /api/moi
-            window.studicamMoi = moi;
-            document.dispatchEvent(new CustomEvent('studicam:moi', { detail: moi }));
+            // pour prof.js et les autres scripts : pas de second appel à /api/moi
+            moiLu = { email: moi.email, role: moi.role || null, perimetre: Array.isArray(moi.perimetre) ? moi.perimetre : [] };
+            document.dispatchEvent(new CustomEvent('studicam:moi', { detail: moiLu }));
         } catch (e) { console.warn('Studicam : /api/moi illisible', e); }
         try {
             const p = await api('GET', '/api/progression');
