@@ -44,6 +44,8 @@
  * Points d'entrée publics : window.studicamResultat(cle, reussi, score?),
  * window.studicamLire(cle) (état connu de cette clé, ou null) et l'événement
  * « studicam:progression » sur document, émis quand la progression lue change.
+ * Après lecture de /api/moi et création du bandeau #studicam-session : window.studicamMoi
+ * ({email, role, perimetre}) et l'événement « studicam:moi » (detail = le même objet).
  */
 (function () {
     'use strict';
@@ -434,7 +436,13 @@
         catch (e) { console.warn('Studicam : serveur injoignable, progression désactivée', e); return; }
         if (r.status === 401) { location.replace('/connexion'); return; }
         if (!r.ok) { console.warn('Studicam : /api/moi', r.status); return; }
-        try { const moi = await r.json(); bandeau(moi.email); } catch (e) { console.warn('Studicam : /api/moi illisible', e); }
+        try {
+            const moi = await r.json();
+            bandeau(moi.email);
+            // pour prof.js (et les suivants) : pas de second appel à /api/moi
+            window.studicamMoi = moi;
+            document.dispatchEvent(new CustomEvent('studicam:moi', { detail: moi }));
+        } catch (e) { console.warn('Studicam : /api/moi illisible', e); }
         try {
             const p = await api('GET', '/api/progression');
             if (!p.ok) { console.warn('Studicam : /api/progression', p.status); return; }
