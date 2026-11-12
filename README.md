@@ -74,6 +74,12 @@ $env:XDG_CONFIG_HOME = "C:\Users\aidan\.config-wrangler-aidan"
 npx wrangler d1 execute studicam --remote --command "INSERT INTO roles (email, role, perimetre, ajoute_par, ajoute_le) VALUES ('prenom.nom@icam.fr', 'prof', 'a2/ce', 'aidan', datetime('now')) ON CONFLICT(email) DO UPDATE SET role = excluded.role, perimetre = excluded.perimetre, ajoute_par = excluded.ajoute_par, ajoute_le = excluded.ajoute_le"
 ```
 
+Puis, pour que ses sessions déjà ouvertes passent tout de suite à 30 jours :
+
+```
+npx wrangler d1 execute studicam --remote --command "UPDATE sessions SET expire_le = MIN(expire_le, strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '+30 days')) WHERE utilisateur_id = (SELECT id FROM utilisateurs WHERE email = 'prenom.nom@icam.fr')"
+```
+
 Retirer un rôle : `--command "DELETE FROM roles WHERE email = 'prenom.nom@icam.fr'"`. Pour la
 base locale, remplacer `--remote` par `--local`.
 

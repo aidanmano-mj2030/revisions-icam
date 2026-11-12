@@ -136,6 +136,11 @@ async function ouvrirSession(env, email) {
     env.DB.prepare("DELETE FROM sessions WHERE expire_le <= ? OR methode IS NULL").bind(iso),
     env.DB.prepare("INSERT INTO sessions (jeton_hash, utilisateur_id, expire_le, methode) VALUES (?, ?, ?, 'google')")
       .bind(await sha256Hex(jeton), utilisateur.id, expire),
+    // Compte à rôle : ses anciennes sessions de 180 jours passent à 30 jours, avant l'élagage
+    // (sinon la nouvelle, la plus courte, serait supprimée aussitôt).
+    ...(aUnRole
+      ? [env.DB.prepare("UPDATE sessions SET expire_le = MIN(expire_le, ?) WHERE utilisateur_id = ?").bind(expire, utilisateur.id)]
+      : []),
     env.DB.prepare("UPDATE utilisateurs SET vu_le = ? WHERE id = ?").bind(iso, utilisateur.id),
     env.DB.prepare(
       `DELETE FROM sessions WHERE utilisateur_id = ?1 AND jeton_hash NOT IN
