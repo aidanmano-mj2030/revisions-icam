@@ -27,7 +27,7 @@ export function nettoyerMessage(valeur) {
   if (typeof valeur !== "string") return null;
   const texte = valeur
     .replace(/\r\n?/g, "\n")
-    .replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f  ]/g, "")
+    .replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f\u2028\u2029]/g, "")
     .trim();
   const longueur = [...texte].length;   // en caractères, comme length() de SQLite
   return longueur >= 1 && longueur <= MESSAGE_MAX ? texte : null;

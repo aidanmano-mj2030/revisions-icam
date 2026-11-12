@@ -10,7 +10,7 @@
 // Le serveur ne connaît pas la liste des leçons (elle est dans public/index.html) : il vérifie
 // le format des identifiants et la paire année/matière. La page n'affiche une relecture que
 // si son année et sa matière sont bien celles de la leçon dans CHAPITRES.
-import { ErreurHttp, json, lireJson, tropDeRequetes, sessionCourante, exigerProf } from "./commun.js";
+import { ErreurHttp, json, lireJson, tropDeRequetes, sessionCourante, exigerRole, exigerProf } from "./commun.js";
 import { dansPerimetre } from "./regles.js";
 import {
   validerSignalement, validerRelecture, validerTraitement, lireFiltreStatut, nomAffichable,
@@ -26,16 +26,10 @@ function exigerSession(session) {
   return session;
 }
 
-function aUnRole(session) {
-  return session.role === "prof" || session.role === "equipe";
-}
-
-// Session, limite de débit des routes prof, puis rôle prof ou equipe.
+// index.js (garderProf) a déjà vérifié la session, LIMITE_PROF et le rôle pour tout
+// /api/prof/... ; on revérifie le rôle ici pour ne pas dépendre de l'ordre des routes.
 async function sessionProf(request, env) {
-  const session = exigerSession(await sessionCourante(request, env));
-  if (await tropDeRequetes(env.LIMITE_PROF, String(session.id))) throw new ErreurHttp(429, "Trop de requêtes");
-  if (!aUnRole(session)) throw new ErreurHttp(403, "Accès réservé aux profs");
-  return session;
+  return exigerRole(await sessionCourante(request, env));
 }
 
 async function creerSignalement(request, env) {

@@ -16,7 +16,7 @@ test("identifiants de leçon et d'exercice", () => {
 
 test("message nettoyé", () => {
   assert.equal(nettoyerMessage("  Erreur de signe\r\nligne 2 \u0000"), "Erreur de signe\nligne 2");
-  assert.equal(nettoyerMessage("a b\tc"), "ab\tc");
+  assert.equal(nettoyerMessage("a\u2028b\tc"), "ab\tc");
   assert.equal(nettoyerMessage("é".repeat(MESSAGE_MAX)), "é".repeat(MESSAGE_MAX));
   assert.equal(nettoyerMessage("😀".repeat(MESSAGE_MAX)).length, 2 * MESSAGE_MAX);  // compté en caractères
   for (const m of ["", "   \n\t ", "\u0000", "a".repeat(MESSAGE_MAX + 1), null, 42, ["a"]]) {
