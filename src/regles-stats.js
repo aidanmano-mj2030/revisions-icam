@@ -12,16 +12,17 @@ export const SEUIL_ELEVES = 5;
 export const JOURS_ACTIFS = 7;
 
 const SUFFIXE_ICAM = ".icam.fr";
-const MOTIF_PROMO = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+const MOTIF_PROMO = /^\d{4}$/;  // comme regles-annonces.js : année de promo, ex. 2027
 
 // Promo d'un domaine d'adresse : "2027.icam.fr" → "2027". Null pour icam.fr (profs,
-// personnel), pour un sous-domaine à plusieurs niveaux, ou pour un autre domaine.
+// personnel), pour un sous-domaine qui n'est pas une année sur 4 chiffres (personnel d'un
+// site, ex. toulouse.icam.fr), pour un sous-domaine à plusieurs niveaux ou un autre domaine.
 export function promoDeDomaine(domaine) {
   if (typeof domaine !== "string") return null;
   const d = domaine.trim().toLowerCase();
   if (!d.endsWith(SUFFIXE_ICAM)) return null;
   const promo = d.slice(0, -SUFFIXE_ICAM.length);
-  return promo.length <= 63 && MOTIF_PROMO.test(promo) ? promo : null;
+  return MOTIF_PROMO.test(promo) ? promo : null;
 }
 
 // Promo d'une adresse élève "prenom.nom@2027.icam.fr" → "2027", sinon null.

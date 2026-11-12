@@ -10,9 +10,10 @@ import { assemblerStats, debutActivite } from "./regles-stats.js";
 
 const LIGNES_MAX = 5000;  // (promo, clé) ; une matière compte quelques dizaines de clés
 
-// Élèves seulement : adresse en <promo>.icam.fr (les profs sont en @icam.fr).
+// Élèves seulement : adresse en <année sur 4 chiffres>.icam.fr. Les profs (@icam.fr) et le
+// personnel d'un site (@toulouse.icam.fr) ne sont jamais comptés ; promoDeDomaine revérifie.
 const DOMAINE = "substr(u.email, instr(u.email, '@') + 1)";
-const ELEVE = "u.email LIKE '%_@_%.icam.fr'";
+const ELEVE = "u.email GLOB '?*@[0-9][0-9][0-9][0-9].icam.fr'";
 
 // Chiffres de la classe pour annee/matiere, sans contrôle d'accès (fait par la route).
 // db : binding D1 (ou équivalent dans les tests).

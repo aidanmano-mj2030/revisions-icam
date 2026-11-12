@@ -9,10 +9,11 @@ import {
 
 test("promo lue dans le domaine de l'adresse", () => {
   assert.equal(promoDeEmail("prenom.nom@2027.icam.fr"), "2027");
-  assert.equal(promoDeEmail("x@A2-toulouse.ICAM.fr"), "a2-toulouse");
+  assert.equal(promoDeEmail("x@2030.ICAM.fr"), "2030");
   assert.equal(promoDeDomaine("2028.icam.fr"), "2028");
   for (const email of [
-    "prof@icam.fr", "x@a.b.icam.fr", "x@2027.icam.com", "x@2027.fauxicam.fr", "x@-a.icam.fr",
+    "prof@icam.fr", "x@toulouse.icam.fr", "x@a2-toulouse.icam.fr", "x@20271.icam.fr", "x@202.icam.fr",
+    "x@2027a.icam.fr", "x@2027.2028.icam.fr", "x@a.b.icam.fr", "x@2027.icam.com", "x@2027.fauxicam.fr", "x@-a.icam.fr",
     "x@.icam.fr", "2027.icam.fr", "", null, undefined, 42,
   ]) {
     assert.equal(promoDeEmail(email), null, String(email));
@@ -116,6 +117,9 @@ function remplir(db) {
   const b = [];
   for (let i = 0; i < 4; i++) b.push(ajouter(`eleve${i}@2028.icam.fr`, IL_Y_A(1)));
   const prof = ajouter("prof.ce@icam.fr", IL_Y_A(0));
+  // personnel d'un site en sous-domaine : ni promo, ni compté
+  const personnel = [];
+  for (let i = 0; i < 6; i++) personnel.push(ajouter(`agent${i}@toulouse.icam.fr`, IL_Y_A(1)));
   const p = (id, cle, reussi, score = null) => db.base.prepare(
     "INSERT INTO progression (utilisateur_id, cle, reussi, score, maj_le) VALUES (?, ?, ?, ?, ?)"
   ).run(id, cle, reussi, score, IL_Y_A(2));
@@ -132,6 +136,7 @@ function remplir(db) {
   b.forEach((id) => p(id, "a2/ce/ce2-triphase/tri", 1, 100));
   // le prof a essayé lui aussi : jamais compté
   p(prof, "a2/ce/ce2-dimensions/dim", 1, 100);
+  personnel.forEach((id) => p(id, "a2/ce/ce2-dimensions/dim", 1, 100));
   return { prof, eleve: a[0] };
 }
 
@@ -151,7 +156,7 @@ test("statsClasse : agrégats SQL et seuil, sur les migrations", { skip: sansSql
     { promo: "2028", inscrits: null, actifs: null, cles: {} },
   ]);
   assert.deepEqual(chiffresSousSeuil(r), []);
-  assert.doesNotMatch(JSON.stringify(r), /@|eleve|prof\.ce/);
+  assert.doesNotMatch(JSON.stringify(r), /@|eleve|prof\.ce|toulouse|agent/);
   // pas de total « toutes promos » : la promo masquée (4 élèves) ne se retrouve par aucune
   // soustraction, et ses essais sur tri (3 + 4 = 7 toutes promos) n'apparaissent nulle part
   assert.deepEqual(Object.keys(r).sort(), ["annee", "genereLe", "joursActifs", "matiere", "promos", "seuil"]);
