@@ -3,6 +3,7 @@ import {
   COOKIE, DUREE_SESSION_ROLE, ErreurHttp, json, lireJson, tropDeRequetes, sha256Hex, lireCookie,
   sessionCourante, exigerRole,
 } from "./commun.js";
+import { apiSignalements } from "./prof-signalements.js";
 import { apiAnnonces } from "./prof-annonces.js";
 
 const COOKIE_GOOGLE = "studicam_google"; // état, nonce et vérificateur PKCE pendant l'aller-retour Google
@@ -159,6 +160,7 @@ async function ouvrirSession(env, email) {
 // rôle 403, voir garderProf) ; une route liée à une matière appelle en plus
 // exigerProf(session, annee, matiere) de src/commun.js, et une route POST ou PUT lireJson.
 const MODULES_API = [
+  apiSignalements,  // relecture et signalements (PR 3)
   apiAnnonces,  // annonces des profs (PR 2)
 ];
 

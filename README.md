@@ -86,6 +86,21 @@ base locale, remplacer `--remote` par `--local`.
 La migration `0003_roles.sql` doit être appliquée en ligne **avant** le merge (voir « Mise en
 ligne ») : sans la table `roles`, plus aucune page ne s'ouvre.
 
+### Relecture et signalements
+
+Migration `0005_relecture_signalements.sql`. Sous chaque leçon et chaque exercice, « Signaler
+une erreur » (5 par compte sur 24 heures). Les profs traitent ceux de leur périmètre dans
+l'onglet « Signalements » de l'Espace prof, sans l'adresse de l'élève ni l'heure (le jour
+seulement) ; l'équipe voit tout, avec l'adresse. Un prof marque une leçon de son périmètre
+comme relue : les élèves voient « Relu par Prénom Nom », un nom tiré de l'adresse.
+
+Effacer un compte efface ses signalements (`ON DELETE CASCADE`). Purge des signalements
+traités, une fois par an après la fin de l'année scolaire (début juillet) :
+
+```
+npx wrangler d1 execute studicam --remote --command "DELETE FROM signalements WHERE statut IN ('corrige', 'rejete') AND traite_le < '2027-07-01'"
+```
+
 ## Tester en local
 
 ```
