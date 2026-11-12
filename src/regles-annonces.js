@@ -1,5 +1,6 @@
 // Règles pures des annonces de profs (PR 2), testées par node --test (test/annonces.test.js).
 // Le contrôle du rôle et du périmètre est fait à part, par exigerProf (src/commun.js).
+import { ANNEES, MATIERES } from "./regles.js";
 
 export const TEXTE_MAX = 500;           // caractères
 export const CHAPITRES_MAX = 30;
@@ -8,10 +9,48 @@ export const DUREE_MAX_JOURS = 120;     // de debut à fin
 export const AVANCE_MAX_JOURS = 365;    // debut au plus tard dans un an
 
 const MOTIF_DATE = /^\d{4}-\d{2}-\d{2}$/;
-const MOTIF_MATIERE = /^[a-z]{1,10}$/;
 const MOTIF_PROMO = /^\d{4}$/;
 const MOTIF_CHAPITRE = /^[a-z0-9](?:[a-z0-9-]{0,58}[a-z0-9])?$/;
 const JOUR = 24 * 3600 * 1000;
+
+// Identifiants de leçons (CHAPITRES de index.html) admis pour chaque année et matière :
+// une entrée finie par « - » est un préfixe, les autres sont des identifiants exacts (les deux
+// chapitres interactifs sans leçon). Le serveur ne connaît pas la liste des chapitres : il
+// vérifie seulement qu'un chapitre ne vient pas d'une autre matière. Un chapitre nommé
+// autrement doit être ajouté ici (test garde-fou dans test/annonces.test.js).
+const PREFIXES_CHAPITRES = {
+  a1: {
+    cm: ["cm1-", "liaisons"], ce: ["ce1-"], aii: ["aii-"], oi: ["oi1-"], est: ["est1-"],
+    maths: ["m1-"], phys: ["ph1-"], eco: ["eco1-"],
+  },
+  a2: {
+    cm: ["cm2-", "produit-scalaire"], ce: ["ce2-"], aii: ["aii2-"], oi: ["oi-", "oi2-"], est: ["est2-"],
+    maths: ["maths-"], phys: ["phys-"], eco: ["eco2-"],
+  },
+};
+
+// true si ce chapitre peut appartenir à annee/matiere (false pour une paire inconnue).
+export function chapitreDeLaMatiere(id, annee, matiere) {
+  const prefixes = Object.hasOwn(PREFIXES_CHAPITRES, annee) && Object.hasOwn(PREFIXES_CHAPITRES[annee], matiere)
+    ? PREFIXES_CHAPITRES[annee][matiere] : null;
+  if (!prefixes || typeof id !== "string") return false;
+  return prefixes.some((p) => (p.endsWith("-") ? id.startsWith(p) && id.length > p.length : id === p));
+}
+
+// Nom montré aux élèves à la place de l'adresse du prof : « jean-pierre.dupont2@icam.fr »
+// → « Jean-Pierre Dupont ». Sans accents (l'adresse n'en a pas). « Un prof » si illisible.
+// Même règle que nomAffichable de la PR 3 (relectures) ; à mettre en commun plus tard.
+export function nomAffichable(email) {
+  if (typeof email !== "string") return "Un prof";
+  const locale = email.split("@")[0].toLowerCase();
+  const mots = locale
+    .split(/[._]+/)
+    .map((m) => m.replace(/[^a-z-]/g, "").replace(/^-+|-+$/g, ""))
+    .filter((m) => m.length > 0);
+  if (mots.length === 0) return "Un prof";
+  const majuscule = (m) => m.split("-").filter(Boolean).map((p) => p[0].toUpperCase() + p.slice(1)).join("-");
+  return mots.map(majuscule).join(" ").slice(0, 60);
+}
 
 // Date du jour à Paris, AAAA-MM-JJ : une annonce « jusqu'au 14 » reste visible le 14 au soir.
 export function dateDuJour(maintenant = Date.now()) {
@@ -75,14 +114,13 @@ export function chapitresDepuisTexte(texte) {
 }
 
 // Corps de POST /api/prof/annonces → {annonce} ou {erreur} (message montré au prof).
-// aujourdhui : dateDuJour(). La matière n'est contrôlée ici que sur sa forme ; exigerProf
-// refuse ensuite toute paire année/matière inconnue ou hors périmètre.
+// aujourdhui : dateDuJour(). exigerProf contrôle ensuite le périmètre.
 export function validerAnnonce(corps, aujourdhui) {
   if (!corps || typeof corps !== "object" || Array.isArray(corps)) return { erreur: "Annonce invalide" };
   const { annee, matiere, promo, texte, chapitres, debut, fin } = corps;
 
-  if (annee !== "a1" && annee !== "a2") return { erreur: "Année invalide" };
-  if (typeof matiere !== "string" || !MOTIF_MATIERE.test(matiere)) return { erreur: "Matière invalide" };
+  if (!ANNEES.includes(annee)) return { erreur: "Année invalide" };
+  if (!MATIERES.includes(matiere)) return { erreur: "Matière invalide" };
 
   let promoLue = null;
   if (promo !== undefined && promo !== null && promo !== "") {
@@ -95,6 +133,9 @@ export function validerAnnonce(corps, aujourdhui) {
 
   const chapitresLus = lireChapitres(chapitres);
   if (chapitresLus === null) return { erreur: "Chapitres invalides" };
+  if (!chapitresLus.every((id) => chapitreDeLaMatiere(id, annee, matiere))) {
+    return { erreur: "Un chapitre coché n'appartient pas à cette matière" };
+  }
 
   if (!dateValide(debut) || !dateValide(fin)) return { erreur: "Dates invalides" };
   if (fin < debut) return { erreur: "La fin est avant le début" };

@@ -96,7 +96,7 @@ test("création par un prof puis lecture par l'élève", async () => {
   assert.equal(statut, 200);
   assert.equal(corps.annonces.length, 1);
   assert.deepEqual(corps.annonces[0], {
-    id: cree.corps.id, auteur: "prof.ce@icam.fr", promo: null, texte: "<b>DS</b>\njeudi",
+    id: cree.corps.id, auteur: "Prof Ce", promo: null, texte: "<b>DS</b>\njeudi",
     chapitres: ["ce2-triphase"], debut: J, fin: ajouterJours(J, 2),
   });
   // autre matière, autre année : rien
@@ -127,8 +127,10 @@ test("routes prof réservées au rôle et au périmètre", async () => {
   assert.equal((await appeler("profOi", "POST", "/api/prof/annonces", annonce())).statut, 403);
   assert.equal((await appeler("prof", "POST", "/api/prof/annonces", annonce({ annee: "a1" }))).statut, 403);
   // paire inconnue : refusée même pour l'équipe
-  assert.equal((await appeler("equipe", "POST", "/api/prof/annonces", annonce({ matiere: "latin" }))).statut, 403);
-  assert.equal((await appeler("equipe", "POST", "/api/prof/annonces", annonce({ annee: "a1", matiere: "eco" }))).statut, 201);
+  assert.equal((await appeler("equipe", "POST", "/api/prof/annonces", annonce({ matiere: "latin", chapitres: [] }))).statut, 403);
+  // chapitre d'une autre matière : refusé
+  assert.equal((await appeler("equipe", "POST", "/api/prof/annonces", annonce({ annee: "a1", matiere: "eco" }))).statut, 400);
+  assert.equal((await appeler("equipe", "POST", "/api/prof/annonces", annonce({ annee: "a1", matiere: "eco", chapitres: ["eco1-couts"] }))).statut, 201);
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM annonces").get().n, 1);
 });
 
@@ -155,8 +157,8 @@ test(`au plus ${ACTIVES_MAX} annonces actives par prof`, async () => {
 test("liste prof : périmètre, état, droits de suppression", async () => {
   await appeler("prof", "POST", "/api/prof/annonces", annonce({ texte: "ce du prof" }));
   await appeler("collegue", "POST", "/api/prof/annonces", annonce({ texte: "ce du collègue", debut: ajouterJours(J, 3), fin: ajouterJours(J, 4) }));
-  await appeler("collegue", "POST", "/api/prof/annonces", annonce({ annee: "a1", texte: "a1 du collègue" }));
-  await appeler("profOi", "POST", "/api/prof/annonces", annonce({ matiere: "oi", texte: "oi" }));
+  await appeler("collegue", "POST", "/api/prof/annonces", annonce({ annee: "a1", chapitres: ["ce1-mcc"], texte: "a1 du collègue" }));
+  await appeler("profOi", "POST", "/api/prof/annonces", annonce({ matiere: "oi", chapitres: ["oi2-gps"], texte: "oi" }));
   db.prepare(`INSERT INTO annonces (email_prof, annee, matiere, texte, debut, fin, cree_le)
     VALUES ('prof.ce@icam.fr', 'a2', 'ce', 'vieille', ?1, ?1, ?1)`).run(ajouterJours(J, -60));
 

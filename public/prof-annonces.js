@@ -15,7 +15,9 @@
  *
  * Identifiant d'un chapitre : chap.lecon ; pour les deux chapitres interactifs sans leçon,
  * « liaisons » (CM A1) et « produit-scalaire » (CM A2), comme les clés de progression.js.
- * Tout texte venant du serveur s'affiche par textContent.
+ * Tout texte venant du serveur s'affiche par textContent. Bandeau, cartes et section prof portent
+ * la classe « mathjax_ignore » : chargerIconesEtMaths() passe MathJax sur toute la page, et un
+ * « $\href{javascript:...}{...}$ » écrit dans une annonce ne doit jamais devenir un lien.
  */
 (function () {
     'use strict';
@@ -26,6 +28,7 @@
     const DUREE_CACHE = 60 * 1000;   // une annonce créée apparaît au plus une minute après
     const $ = (id) => document.getElementById(id);
     const cache = new Map();         // "a2/ce" → {t, annonces}
+    const SANS_MATHJAX = 'mathjax_ignore';  // ignoreHtmlClass par défaut de MathJax 3
 
     function el(tag, cls, texte) {
         const e = document.createElement(tag);
@@ -122,7 +125,7 @@
     }
 
     function carteAnnonce(a, chapitres) {
-        const carte = el('article', 'rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5 space-y-3 shadow-lg');
+        const carte = el('article', SANS_MATHJAX + ' rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5 space-y-3 shadow-lg');
         const tete = el('div', 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-bold uppercase tracking-wider text-amber-400');
         const icone = el('i', 'w-3.5 h-3.5');
         icone.dataset.lucide = 'pin';
@@ -184,7 +187,7 @@
 
         retirerBandeau();
         const chapitres = chapitresDe(annee, mat);
-        const bandeau = el('section', 'space-y-3');
+        const bandeau = el('section', SANS_MATHJAX + ' space-y-3');
         bandeau.id = 'studicam-annonces';
         bandeau.setAttribute('aria-label', 'Annonces des profs');
         annonces.forEach(a => bandeau.appendChild(carteAnnonce(a, chapitres)));
@@ -234,8 +237,11 @@
         return bloc;
     }
 
-    function afficherSection(conteneur, moi) {
-        conteneur.replaceChildren();
+    function afficherSection(conteneurProf, moi) {
+        conteneurProf.replaceChildren();
+        // tout le contenu de la section, formulaire compris, hors de portée de MathJax
+        const conteneur = el('div', SANS_MATHJAX + ' space-y-4');
+        conteneurProf.appendChild(conteneur);
         const paires = pairesDe(moi);
         conteneur.appendChild(el('p', 'text-sm text-slate-400 leading-relaxed',
             "Message épinglé en tête de la matière pour les élèves, du début à la fin incluse, puis plus rien. "
@@ -333,7 +339,7 @@
         }
 
         function ligneAnnonce(a) {
-            const carte = el('article', 'bg-slate-900 border border-slate-700 rounded-xl p-4 space-y-2' + (a.etat === 'terminee' ? ' opacity-70' : ''));
+            const carte = el('article', SANS_MATHJAX + ' bg-slate-900 border border-slate-700 rounded-xl p-4 space-y-2' + (a.etat === 'terminee' ? ' opacity-70' : ''));
             const tete = el('div', 'flex flex-wrap items-center gap-2 text-xs');
             const [nomEtat, classeEtat] = ETATS[a.etat] || ETATS.terminee;
             tete.appendChild(el('span', 'px-2 py-0.5 rounded-full border font-semibold ' + classeEtat, nomEtat));

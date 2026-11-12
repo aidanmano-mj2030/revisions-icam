@@ -1,6 +1,7 @@
 // Annonces des profs (PR 2) : routes branchées dans MODULES_API (src/index.js).
 //   GET    /api/annonces?annee=a2&matiere=ce   tout connecté : annonces en cours de la matière,
-//                                              filtrées sur la promo de l'élève si l'annonce en vise une
+//                                              filtrées sur la promo de l'élève si l'annonce en vise une,
+//                                              auteur = nom affichable (pas l'adresse)
 //   GET    /api/prof/annonces                  prof ou équipe : annonces de son périmètre
 //   POST   /api/prof/annonces                  créer {annee, matiere, promo?, texte, chapitres?, debut, fin}
 //   DELETE /api/prof/annonces                  supprimer {id} : ses annonces (prof), toutes (équipe)
@@ -8,10 +9,10 @@
 // /api/prof/... passe d'abord par garderProf (index.js) : session, LIMITE_PROF, rôle. exigerRole est
 // rappelé ici pour que le module reste sûr même appelé seul ; exigerProf contrôle le périmètre.
 import { json, lireJson, sessionCourante, exigerRole, exigerProf } from "./commun.js";
-import { dansPerimetre } from "./regles.js";
+import { ANNEES, MATIERES, dansPerimetre } from "./regles.js";
 import {
   ACTIVES_MAX, ajouterJours, annonceVisible, chapitresDepuisTexte, dateDuJour, lireId,
-  promoDeEmail, validerAnnonce,
+  nomAffichable, promoDeEmail, validerAnnonce,
 } from "./regles-annonces.js";
 
 const LIGNES_ELEVE_MAX = 20;
@@ -30,7 +31,7 @@ async function annoncesEleve(request, env) {
   const params = new URL(request.url).searchParams;
   const annee = params.get("annee");
   const matiere = params.get("matiere") || "";
-  if ((annee !== "a1" && annee !== "a2") || !/^[a-z]{1,10}$/.test(matiere)) {
+  if (!ANNEES.includes(annee) || !MATIERES.includes(matiere)) {
     return json({ erreur: "Paramètres annee et matiere attendus" }, 400);
   }
 
@@ -44,7 +45,8 @@ async function annoncesEleve(request, env) {
   ).bind(annee, matiere, aujourdhui, promo, LIGNES_ELEVE_MAX).all();
 
   const annonces = results.filter((l) => annonceVisible(l, aujourdhui, promo)).map((l) => ({
-    id: l.id, auteur: l.email_prof, promo: l.promo, texte: l.texte,
+    // élèves : un nom lisible, jamais l'adresse du prof (visible seulement dans l'Espace prof)
+    id: l.id, auteur: nomAffichable(l.email_prof), promo: l.promo, texte: l.texte,
     chapitres: chapitresDepuisTexte(l.chapitres), debut: l.debut, fin: l.fin,
   }));
   return json({ annonces });
@@ -88,10 +90,12 @@ async function creer(request, env) {
   const corps = await lireJson(request);
   const session = await sessionCourante(request, env);
   exigerRole(session);
+  // Périmètre d'abord (403, paire inconnue comprise), puis le reste du corps (400).
+  const cible = corps && typeof corps === "object" && !Array.isArray(corps) ? corps : {};
+  exigerProf(session, cible.annee, cible.matiere);
   const aujourdhui = dateDuJour();
   const { annonce, erreur } = validerAnnonce(corps, aujourdhui);
   if (erreur) return json({ erreur }, 400);
-  exigerProf(session, annonce.annee, annonce.matiere);
 
   // Une seule requête : la limite d'annonces actives tient même avec deux envois simultanés.
   const cree = await env.DB.prepare(

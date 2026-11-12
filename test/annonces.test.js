@@ -1,8 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { ANNEES, MATIERES } from "../src/regles.js";
 import {
   dateDuJour, dateValide, ajouterJours, promoDeEmail, normaliserTexte, lireChapitres,
   chapitresDepuisTexte, validerAnnonce, annonceVisible, lireId, TEXTE_MAX, CHAPITRES_MAX,
+  chapitreDeLaMatiere, nomAffichable,
 } from "../src/regles-annonces.js";
 
 const AUJOURDHUI = "2026-11-12";
@@ -83,7 +86,11 @@ test("annonces refusées", () => {
     { ...base, matiere: "CE" }, { ...base, matiere: "c e" }, { ...base, matiere: "" }, { ...base, matiere: 3 },
     { ...base, promo: "30" }, { ...base, promo: "2030a" }, { ...base, promo: 2030 },
     { ...base, texte: "" }, { ...base, texte: "a".repeat(501) },
+    { ...base, matiere: "latin" }, { ...base, matiere: "constructor" },
     { ...base, chapitres: "ce2-triphase" }, { ...base, chapitres: ["<script>"] },
+    { ...base, chapitres: ["ce2-triphase", "ce1-mcc"] },                // CE de 1ère année
+    { ...base, chapitres: ["oi2-gps"] },                                // autre matière
+    { ...base, chapitres: ["ce2-"] },                                   // préfixe seul
     { ...base, debut: "2026-11-31" }, { ...base, fin: undefined },
     { ...base, debut: "2026-11-14", fin: "2026-11-13" },                  // fin avant début
     { ...base, debut: "2026-11-01", fin: "2026-11-11" },                  // déjà terminée
@@ -114,4 +121,42 @@ test("identifiants", () => {
   for (const v of [0, -1, 1.5, "01", "1e3", "", null, "12a", Number.MAX_SAFE_INTEGER * 10]) {
     assert.equal(lireId(v), null, String(v));
   }
+});
+
+test("chapitres rattachés à leur année et leur matière", () => {
+  assert.ok(chapitreDeLaMatiere("ce2-triphase", "a2", "ce"));
+  assert.ok(chapitreDeLaMatiere("liaisons", "a1", "cm"));
+  assert.ok(chapitreDeLaMatiere("produit-scalaire", "a2", "cm"));
+  assert.ok(chapitreDeLaMatiere("oi-kanban", "a2", "oi"));
+  assert.ok(chapitreDeLaMatiere("oi2-gps", "a2", "oi"));
+  for (const [id, annee, matiere] of [
+    ["ce2-triphase", "a1", "ce"], ["ce1-mcc", "a2", "ce"], ["oi1-coupe", "a2", "oi"], ["aii2-gemma", "a1", "aii"],
+    ["liaisons", "a2", "cm"], ["liaisons-x", "a1", "cm"], ["cm1-", "a1", "cm"], ["ce2-triphase", "a2", "latin"],
+    ["ce2-triphase", "a3", "ce"], ["x", "a2", "toString"], [42, "a2", "ce"],
+  ]) {
+    assert.equal(chapitreDeLaMatiere(id, annee, matiere), false, `${id} ${annee}/${matiere}`);
+  }
+  assert.ok(validerAnnonce({ ...base, annee: "a1", matiere: "cm", chapitres: ["liaisons", "cm1-statique"] }, AUJOURDHUI).annonce);
+});
+
+// Garde-fou : tout identifiant de leçon de la page doit appartenir à une seule paire
+// année/matière, sinon un prof ne pourrait pas le cocher (ajouter son préfixe dans
+// PREFIXES_CHAPITRES de src/regles-annonces.js).
+test("toutes les leçons de index.html sont rattachées à une seule matière", () => {
+  const page = readFileSync(new URL("../public/index.html", import.meta.url), "utf8");
+  const ids = [...new Set([...page.matchAll(/lecon: "([a-z0-9-]+)"/g)].map((m) => m[1]))];
+  assert.ok(ids.length > 50, "lecture de index.html");
+  for (const id of [...ids, "liaisons", "produit-scalaire"]) {
+    const paires = ANNEES.flatMap((a) => MATIERES.filter((m) => chapitreDeLaMatiere(id, a, m)).map((m) => a + "/" + m));
+    assert.equal(paires.length, 1, `${id} : ${paires.join(", ") || "aucune paire"}`);
+  }
+});
+
+test("nom affiché aux élèves à la place de l'adresse", () => {
+  assert.equal(nomAffichable("jean-pierre.dupont2@icam.fr"), "Jean-Pierre Dupont");
+  assert.equal(nomAffichable("prof.ce@icam.fr"), "Prof Ce");
+  assert.equal(nomAffichable("marie_curie@icam.fr"), "Marie Curie");
+  assert.equal(nomAffichable("123@icam.fr"), "Un prof");
+  assert.equal(nomAffichable(null), "Un prof");
+  assert.ok(!nomAffichable("a.b@icam.fr").includes("@"));
 });
