@@ -4,6 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import worker from "../src/index.js";
 
 const JOUR = 24 * 3600 * 1000;
@@ -74,9 +75,12 @@ test("compte à rôle avec 5 anciennes sessions de 180 jours : la nouvelle conne
   assert.equal(reponse.status, 200, "la nouvelle session n'est pas élaguée");
   assert.equal((await reponse.json()).role, "prof");
 
-  // Toutes les sessions restantes expirent dans 30 jours au plus.
-  const sessions = DB.db.prepare("SELECT expire_le FROM sessions").all();
+  // Le jeton neuf est parmi les 5 gardés (à égalité d'expiration, le plus récent gagne).
+  const sessions = DB.db.prepare("SELECT jeton_hash, expire_le FROM sessions").all();
   assert.equal(sessions.length, 5);
+  const hashNeuf = createHash("sha256").update(cookie.split("=")[1]).digest("hex");
+  assert.ok(sessions.some((s) => s.jeton_hash === hashNeuf), "jeton neuf gardé");
+  // Toutes les sessions restantes expirent dans 30 jours au plus.
   const limite = new Date(Date.now() + 30 * JOUR + 60_000).toISOString();
   for (const s of sessions) assert.ok(s.expire_le <= limite, s.expire_le);
 });

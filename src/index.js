@@ -144,7 +144,7 @@ async function ouvrirSession(env, email) {
     env.DB.prepare("UPDATE utilisateurs SET vu_le = ? WHERE id = ?").bind(iso, utilisateur.id),
     env.DB.prepare(
       `DELETE FROM sessions WHERE utilisateur_id = ?1 AND jeton_hash NOT IN
-         (SELECT jeton_hash FROM sessions WHERE utilisateur_id = ?1 ORDER BY expire_le DESC LIMIT ?2)`
+         (SELECT jeton_hash FROM sessions WHERE utilisateur_id = ?1 ORDER BY expire_le DESC, rowid DESC LIMIT ?2)`
     ).bind(utilisateur.id, SESSIONS_MAX),
   ]);
   return { jeton, duree };
