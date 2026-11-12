@@ -1,13 +1,13 @@
-// Routes des annonces de bout en bout, sur une D1 simulée par node:sqlite avec toutes les
-// migrations du dossier migrations/. Les sessions sont de vraies lignes sessions/roles :
-// sessionCourante, exigerProf et lireJson sont ceux de src/commun.js.
+// Routes des annonces de bout en bout, par le fetch du Worker (src/index.js : garderProf,
+// MODULES_API), sur une D1 simulée par node:sqlite avec toutes les migrations du dossier
+// migrations/. Les sessions sont de vraies lignes sessions/roles.
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readdirSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { apiAnnonces } from "../src/prof-annonces.js";
-import { ErreurHttp, json } from "../src/commun.js";
+import worker from "../src/index.js";
 import { dateDuJour, ajouterJours, ACTIVES_MAX } from "../src/regles-annonces.js";
 
 const ORIGINE = "https://studicam.pages.dev";
@@ -54,7 +54,6 @@ beforeEach(() => {
   };
 });
 
-// Comme le fetch de src/index.js : ErreurHttp → JSON, et null → 404.
 async function appeler(qui, methode, chemin, corps, enTetes = {}) {
   const h = { ...enTetes };
   if (qui) h.Cookie = "studicam_session=" + jetons[qui];
@@ -65,13 +64,7 @@ async function appeler(qui, methode, chemin, corps, enTetes = {}) {
     h["Content-Length"] = String(Buffer.byteLength(body));
   }
   const request = new Request(ORIGINE + chemin, { method: methode, headers: h, body });
-  let reponse;
-  try {
-    reponse = (await apiAnnonces(request, env, new URL(request.url).pathname)) ?? json({ erreur: "Introuvable" }, 404);
-  } catch (e) {
-    if (!(e instanceof ErreurHttp)) throw e;
-    reponse = json({ erreur: e.message }, e.statut);
-  }
+  const reponse = await worker.fetch(request, env);
   return { statut: reponse.status, corps: await reponse.json() };
 }
 

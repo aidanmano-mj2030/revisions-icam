@@ -5,7 +5,9 @@
 //   POST   /api/prof/annonces                  créer {annee, matiere, promo?, texte, chapitres?, debut, fin}
 //   DELETE /api/prof/annonces                  supprimer {id} : ses annonces (prof), toutes (équipe)
 // Validation pure dans regles-annonces.js ; rôle et périmètre relus à chaque requête (sessionCourante).
-import { ErreurHttp, json, lireJson, tropDeRequetes, sessionCourante, exigerProf } from "./commun.js";
+// /api/prof/... passe d'abord par garderProf (index.js) : session, LIMITE_PROF, rôle. exigerRole est
+// rappelé ici pour que le module reste sûr même appelé seul ; exigerProf contrôle le périmètre.
+import { json, lireJson, sessionCourante, exigerRole, exigerProf } from "./commun.js";
 import { dansPerimetre } from "./regles.js";
 import {
   ACTIVES_MAX, ajouterJours, annonceVisible, chapitresDepuisTexte, dateDuJour, lireId,
@@ -16,15 +18,6 @@ const LIGNES_ELEVE_MAX = 20;
 const LIGNES_PROF_MAX = 300;
 const HISTORIQUE_JOURS = 30;    // annonces terminées encore listées côté prof
 const CONSERVATION_JOURS = 90;  // annonces terminées depuis plus longtemps : supprimées
-
-function exigerRole(session) {
-  if (!session) throw new ErreurHttp(401, "Non connecté");
-  if (session.role !== "prof" && session.role !== "equipe") throw new ErreurHttp(403, "Accès réservé aux profs");
-}
-
-async function limiter(env, session) {
-  if (await tropDeRequetes(env.LIMITE_PROF, "prof:" + session.id)) throw new ErreurHttp(429, "Trop de requêtes");
-}
 
 function etat(ligne, aujourdhui) {
   if (ligne.debut > aujourdhui) return "a_venir";
@@ -60,7 +53,6 @@ async function annoncesEleve(request, env) {
 async function listeProf(request, env) {
   const session = await sessionCourante(request, env);
   exigerRole(session);
-  await limiter(env, session);
 
   const aujourdhui = dateDuJour();
   const depuis = ajouterJours(aujourdhui, -HISTORIQUE_JOURS);
@@ -100,7 +92,6 @@ async function creer(request, env) {
   const { annonce, erreur } = validerAnnonce(corps, aujourdhui);
   if (erreur) return json({ erreur }, 400);
   exigerProf(session, annonce.annee, annonce.matiere);
-  await limiter(env, session);
 
   // Une seule requête : la limite d'annonces actives tient même avec deux envois simultanés.
   const cree = await env.DB.prepare(
@@ -125,7 +116,6 @@ async function supprimer(request, env) {
   exigerRole(session);
   const id = lireId(corps && typeof corps === "object" ? corps.id : null);
   if (id === null) return json({ erreur: "Identifiant invalide" }, 400);
-  await limiter(env, session);
 
   const ligne = await env.DB.prepare("SELECT email_prof, annee, matiere FROM annonces WHERE id = ?").bind(id).first();
   if (!ligne) return json({ erreur: "Annonce introuvable" }, 404);

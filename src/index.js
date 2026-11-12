@@ -3,6 +3,7 @@ import {
   COOKIE, DUREE_SESSION_ROLE, ErreurHttp, json, lireJson, tropDeRequetes, sha256Hex, lireCookie,
   sessionCourante, exigerRole,
 } from "./commun.js";
+import { apiAnnonces } from "./prof-annonces.js";
 
 const COOKIE_GOOGLE = "studicam_google"; // état, nonce et vérificateur PKCE pendant l'aller-retour Google
 const DUREE_COOKIE_GOOGLE = 600;         // secondes
@@ -152,7 +153,9 @@ async function ouvrirSession(env, email) {
 // Tout chemin /api/prof/... est déjà gardé avant les modules (session 401, LIMITE_PROF 429,
 // rôle 403, voir garderProf) ; une route liée à une matière appelle en plus
 // exigerProf(session, annee, matiere) de src/commun.js, et une route POST ou PUT lireJson.
-const MODULES_API = [];
+const MODULES_API = [
+  apiAnnonces,  // annonces des profs (PR 2)
+];
 
 async function api(request, env, chemin) {
   const methode = request.method;
