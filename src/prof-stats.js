@@ -5,7 +5,7 @@
 // remplace par null tout chiffre calculé sur moins de 5 élèves (voir regles-stats.js).
 
 import { json, sessionCourante, exigerProf } from "./commun.js";
-import { matiereDeCle } from "./regles.js";
+import { matiereDeCle, clesDsDeMatiere } from "./regles.js";
 import { assemblerStats, debutActivite } from "./regles-stats.js";
 
 const LIGNES_MAX = 5000;  // (promo, clé) ; une matière compte quelques dizaines de clés
@@ -14,29 +14,40 @@ const LIGNES_MAX = 5000;  // (promo, clé) ; une matière compte quelques dizain
 // personnel d'un site (@toulouse.icam.fr) ne sont jamais comptés ; promoDeDomaine revérifie.
 const DOMAINE = "substr(u.email, instr(u.email, '@') + 1)";
 const ELEVE = "u.email GLOB '?*@[0-9][0-9][0-9][0-9].icam.fr'";
+// Un compte à rôle (Aidan et Baptiste ont des adresses de promo) n'est jamais compté comme élève.
+const SANS_ROLE = "NOT EXISTS (SELECT 1 FROM roles r WHERE r.email = lower(u.email))";
 
 // Chiffres de la classe pour annee/matiere, sans contrôle d'accès (fait par la route).
 // db : binding D1 (ou équivalent dans les tests).
 export async function statsClasse(db, { annee, matiere, maintenant = Date.now() }) {
-  const [effectifs, cles] = await Promise.all([
+  const [effectifs, cles, eleves] = await Promise.all([
     db.prepare(
       `SELECT ${DOMAINE} AS domaine, COUNT(*) AS inscrits, SUM(u.vu_le >= ?1) AS actifs
-       FROM utilisateurs u WHERE ${ELEVE} GROUP BY domaine`
+       FROM utilisateurs u WHERE ${ELEVE} AND ${SANS_ROLE} GROUP BY domaine`
     ).bind(debutActivite(maintenant)).all(),
     // La Révision DS (a2/ds/...) mélange CE et OI : matiereDeCle trie ces clés ensuite.
     db.prepare(
       `SELECT ${DOMAINE} AS domaine, p.cle, COUNT(*) AS tentes, SUM(p.reussi = 1) AS reussis,
               AVG(p.score) AS score_moyen, COUNT(p.score) AS scores
        FROM progression p JOIN utilisateurs u ON u.id = p.utilisateur_id
-       WHERE ${ELEVE} AND (p.cle LIKE ?1 OR p.cle LIKE ?2)
+       WHERE ${ELEVE} AND ${SANS_ROLE} AND (p.cle LIKE ?1 OR p.cle LIKE ?2)
        GROUP BY domaine, p.cle LIMIT ?3`
     ).bind(`${annee}/${matiere}/%`, `${annee}/ds/%`, LIGNES_MAX).all(),
+    // Élèves distincts ayant fait au moins un exercice de la matière (Révision DS comprise,
+    // seulement ses clés de cette matière ; l'examen « tout » n'en a aucune).
+    db.prepare(
+      `SELECT ${DOMAINE} AS domaine, COUNT(DISTINCT p.utilisateur_id) AS eleves
+       FROM progression p JOIN utilisateurs u ON u.id = p.utilisateur_id
+       WHERE ${ELEVE} AND ${SANS_ROLE} AND (p.cle LIKE ?1 OR p.cle IN (SELECT value FROM json_each(?2)))
+       GROUP BY domaine`
+    ).bind(`${annee}/${matiere}/%`, JSON.stringify(clesDsDeMatiere(annee, matiere))).all(),
   ]);
   return assemblerStats({
     annee,
     matiere,
     effectifs: effectifs.results,
     cles: cles.results,
+    eleves: eleves.results,
     maintenant,
     garderCle: (cle) => {
       const m = matiereDeCle(cle);
