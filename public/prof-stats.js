@@ -183,9 +183,11 @@
             zone.append(el('p', 'text-sm text-slate-400', `Promo ${promo.promo} : ${moinsDe(seuil)} élèves inscrits sur Studicam, aucun chiffre n'est affiché.`));
             return;
         }
-        const chiffres = el('div', 'grid grid-cols-2 sm:grid-cols-3 gap-3');
-        [['Élèves inscrits', String(promo.inscrits)],
-         [`Actifs sur ${donnees.joursActifs} jours`, promo.actifs === null ? moinsDe(seuil) : String(promo.actifs)],
+        const chiffres = el('div', 'grid grid-cols-2 lg:grid-cols-4 gap-3');
+        const nombre = (v) => v === null || v === undefined ? moinsDe(seuil) : String(v);
+        [['Comptes de la promo sur Studicam (toutes matières)', String(promo.inscrits)],
+         [`Venus sur le site en ${donnees.joursActifs} jours (toutes matières)`, nombre(promo.actifs)],
+         ['Élèves ayant fait au moins un exercice de cette matière', nombre(promo.eleves)],
          ['Exercices tentés par 5 élèves ou plus', String(Object.keys(promo.cles).length)]].forEach(([l, v]) => {
             const c = el('div', 'rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3');
             c.append(el('div', 'text-xs text-slate-500', l), el('div', 'text-xl font-bold text-white mt-1', v));
@@ -214,18 +216,18 @@
         return /[";\n\r]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
     }
     function exporterCsv(donnees, paire) {
-        const lignes = [['promo', 'chapitre', 'exercice', 'cle', 'eleves_inscrits', `actifs_${donnees.joursActifs}_jours`,
-            'eleves_ayant_tente', 'reussite_min_pct', 'reussite_max_pct', 'score_moyen_sur_100', 'remarque']];
+        const lignes = [['promo', 'chapitre', 'exercice', 'cle', 'comptes_promo', `venus_${donnees.joursActifs}_jours`,
+            'eleves_matiere', 'eleves_ayant_tente', 'reussite_min_pct', 'reussite_max_pct', 'score_moyen_sur_100', 'remarque']];
         const groupes = grouper(paire, cleConnues(donnees));
         donnees.promos.forEach(promo => {
             if (promo.inscrits === null) {
-                lignes.push([promo.promo, '', '', '', '', '', '', '', '', '', `moins de ${donnees.seuil} élèves inscrits`]);
+                lignes.push([promo.promo, '', '', '', '', '', '', '', '', '', '', `moins de ${donnees.seuil} élèves inscrits`]);
                 return;
             }
             groupes.forEach(g => g.cles.forEach(cle => {
                 const s = promo.cles[cle];
                 lignes.push([promo.promo, g.titre, libelleCle(cle), cle, promo.inscrits, promo.actifs,
-                    s ? s.tentes : '', s && s.reussite ? s.reussite.min : '', s && s.reussite ? s.reussite.max : '',
+                    promo.eleves, s ? s.tentes : '', s && s.reussite ? s.reussite.min : '', s && s.reussite ? s.reussite.max : '',
                     s && s.scoreMoyen !== null ? s.scoreMoyen : '',
                     s ? '' : `tenté par moins de ${donnees.seuil} élèves`]);
             }));

@@ -9,6 +9,7 @@
 //     ne se distinguent pas) ;
 //   - score moyen calculé sur moins de SEUIL_ELEVES scores : null ; sinon arrondi à l'entier ;
 //   - élèves actifs sur 7 jours : null s'ils sont moins de SEUIL_ELEVES ;
+//   - élèves ayant fait au moins un exercice de la matière : null sous SEUIL_ELEVES ;
 //   - aucun total entre promos.
 
 export const SEUIL_ELEVES = 5;
@@ -61,17 +62,22 @@ export function trancheReussite(reussis, tentes) {
 // Assemble la réponse de GET /api/prof/stats à partir de lignes déjà agrégées en SQL.
 //   effectifs : [{domaine, inscrits, actifs}]                       une ligne par domaine
 //   cles      : [{domaine, cle, tentes, reussis, score_moyen, scores}] une ligne par domaine et clé
+//   eleves    : [{domaine, eleves}]  élèves distincts ayant fait un exercice de la matière
 //   garderCle : (cle) => booléen, garde les clés de la matière demandée
 // reussis sert seulement à calculer la tranche ; il ne sort jamais.
-export function assemblerStats({ annee, matiere, effectifs, cles, garderCle, maintenant }) {
+export function assemblerStats({ annee, matiere, effectifs, cles, eleves, garderCle, maintenant }) {
   const parPromo = new Map();
   for (const e of effectifs || []) {
     const promo = promoDeDomaine(e.domaine);
     if (!promo) continue;
-    const p = parPromo.get(promo) || { inscrits: 0, actifs: 0, cles: [] };
+    const p = parPromo.get(promo) || { inscrits: 0, actifs: 0, eleves: 0, cles: [] };
     p.inscrits += Number(e.inscrits) || 0;
     p.actifs += Number(e.actifs) || 0;
     parPromo.set(promo, p);
+  }
+  for (const e of eleves || []) {
+    const promo = promoDeDomaine(e.domaine);
+    if (promo && parPromo.has(promo)) parPromo.get(promo).eleves += Number(e.eleves) || 0;
   }
   for (const l of cles || []) {
     const promo = promoDeDomaine(l.domaine);
@@ -82,7 +88,13 @@ export function assemblerStats({ annee, matiere, effectifs, cles, garderCle, mai
   const promos = [];
   for (const [promo, p] of parPromo) {
     const inscrits = masquer(p.inscrits);
-    const sortie = { promo, inscrits, actifs: inscrits === null ? null : masquer(p.actifs), cles: {} };
+    const sortie = {
+      promo,
+      inscrits,
+      actifs: inscrits === null ? null : masquer(p.actifs),
+      eleves: inscrits === null ? null : masquer(p.eleves),
+      cles: {},
+    };
     if (inscrits !== null) {
       for (const l of p.cles) {
         const tentes = masquer(l.tentes);
