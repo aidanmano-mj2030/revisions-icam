@@ -111,3 +111,8 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - Exercices corrigés pas à pas : même type que les TD et DS, mais avec d'autres valeurs, recalculées par script. Page de formules avec la légende de chaque symbole. Emplacement des deux DS blancs (sujet puis corrigé masqué), marqué « bientôt ».
 - Progression : chaque chapitre dont tous les QCM sont justes compte comme réussi.
 - DS blancs ajoutés dans l'onglet : CE (7 exercices, 25 questions) et OI (9 exercices, 26 questions et les 16 QCM des exposés), sujet puis corrigé masqué. Même type que les DS du professeur, avec d'autres données ; résultats calculés par script (`public/revision-ds-blancs.js`).
+
+## 13 novembre 2026 – Nouveaux exposés de veille (Baptiste)
+
+- Trois sujets présentés par un 2e groupe (CND, équilibrage de ligne, métrologie) : leur cours est ajouté dans la leçon « Veille technologique » (cas du nucléaire en CND, exemple du coffret électrique et lignes multi-modèles en équilibrage, SI, incertitude, étalonnage, R&R et laser tracker d'Airbus en métrologie).
+- 5 nouvelles questions de QCM (la question du ressuage, posée par les deux groupes CND, n'est pas doublée) : QCM du site (21 questions), exposés de l'onglet « Révision DS » (21 QCM) et exercice 9 du DS blanc d'OI (21 × 0,25 pt, corrigé compris).
