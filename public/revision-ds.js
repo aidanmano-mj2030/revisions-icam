@@ -235,7 +235,16 @@
                         `<b>ICAM</b> : affiches avec photo et nom de tous les SST du site, aux points de passage (imprimantes, portes à badge).`,
                         `Avantages : 1 € investi rapporte 2,20 € en moyenne (étude ISSA 2011, estimations d'experts), baisse des cotisations AT/MP, moins d'absentéisme.`,
                         `Limites : coût initial, temps (14 h puis 7 h tous les 2 ans), DUERP à tenir à jour. Programme conforme au référentiel INRS V8.`
-                    ]))
+                    ])),
+                S('2e exposé : santé et sécurité au travail', 'shield-alert',
+                    UL([
+                        `Protéger la santé physique et mentale, éviter <b>AT</b> et <b>MP</b>. L'employeur a une <b>obligation de sécurité</b> (L4121-1) ; salariés : consignes, droit d'alerte et de retrait ; aussi CSE/CSSCT, médecin du travail, Carsat, INRS, inspection du travail.`,
+                        `<b>Danger</b> = ce qui peut causer un dommage ; <b>risque</b> = y être exposé. <b>DUERP</b> : dès le 1er salarié, mis à jour au moins 1 fois par an à partir de 11 salariés, conservé 40 ans.`,
+                        `Prévenir dans l'ordre (9 principes, L4121-2) : supprimer, réduire à la source, protection collective, <b>EPI en dernier</b>, former.`,
+                        `<b>Pyramide de Bird</b> : 1 accident grave, 10 blessures légères, 30 accidents matériels, 600 presque-accidents. Causes : arbre des causes, 5 Pourquoi, Ishikawa. <b>ISO 45001</b> (2018), en PDCA, non obligatoire.`,
+                        `France 2024 : 549 614 AT, 764 décès. Airbus : FR1 = 1,62 en 2025 ; zone robot interdite pendant le cycle, habilitation et consignation, le « S » du SQCDP.`
+                    ]),
+                    F(R`TF = \dfrac{\text{AT avec arrêt} \times 10^6}{\text{heures travaillées}} \qquad TG = \dfrac{\text{jours d'arrêt} \times 10^3}{\text{heures travaillées}}`, `TF taux de fréquence · TG taux de gravité. Exemple : 3 AT avec arrêt pour 500 000 h, TF = 6.`))
             ],
             qcm: [
                 { q: "Combien de temps de formation faut-il pour être Sauveteur Secouriste du Travail ?",
@@ -245,7 +254,15 @@
                 { q: "Quel pourcentage de SST est recommandé en entreprise ?",
                     opts: ["4 %", "10 à 15 %", "25 %", "37 %"], ok: [1],
                     expl: "10 à 15 % de l'effectif. C'est un repère usuel, pas une obligation : la loi (R. 4224-15) impose seulement au moins un SST dans certains ateliers et chantiers.",
-                    src: "Bonne réponse non marquée par l'exposé, déduite de sa fiche" }
+                    src: "Bonne réponse non marquée par l'exposé, déduite de sa fiche" },
+                { q: "Selon les principes généraux de prévention du Code du travail, quelle mesure faut-il privilégier en premier ?",
+                    opts: ["Fournir des équipements de protection individuelle (EPI)", "Former les salariés aux risques", "Supprimer ou réduire le risque à la source", "Afficher des consignes de sécurité au poste"], ok: [2],
+                    expl: "On supprime ou réduit d'abord le risque, puis on protège collectivement ; les EPI viennent en dernier recours car ils ne protègent que celui qui les porte (art. L4121-2).",
+                    src: "Exposé santé et sécurité au travail, 2e groupe (bonne réponse non marquée, déduite de son cours)" },
+                { q: "Une entreprise a eu 4 accidents du travail avec arrêt pour 800 000 heures travaillées dans l'année. Quel est son taux de fréquence (TF) ?",
+                    opts: ["0,5", "3,2", "5", "200"], ok: [2],
+                    expl: "TF = AT avec arrêt × 1 000 000 / heures travaillées = 4 × 1 000 000 / 800 000 = 5.",
+                    src: "Exposé santé et sécurité au travail, 2e groupe (réponse calculée par la formule du TF)" }
             ]
         },
         {
@@ -1016,7 +1033,7 @@
         ce: { titre: 'Construction électrique', court: 'CE', icone: 'zap', sujets: CE,
             intro: `Hors DS selon le professeur : le variateur (choix, rampes, chronogrammes, câblage du bornier), la loi U/f et le redresseur. Ce qui reste : le moteur asynchrone, sa plaque, le bilan des puissances, la chaîne de transmission, l'environnement, la magnétostatique et le moteur CC.` },
         expo: { titre: 'OI : exposés de veille technologique', court: 'Exposés OI', icone: 'presentation', sujets: EXPOSES,
-            intro: `Une partie du DS portera sur ces exposés. Chaque groupe a écrit 2 questions de QCM pour la classe (maintenance, Job Shop / Flow Shop, CND, équilibrage et métrologie ont été présentés par deux groupes) : les voici avec leur corrigé et l'essentiel de l'exposé.` },
+            intro: `Une partie du DS portera sur ces exposés. Chaque groupe a écrit 2 questions de QCM pour la classe (maintenance, Job Shop / Flow Shop, CND, équilibrage, métrologie et SST ont été présentés par deux groupes) : les voici avec leur corrigé et l'essentiel de l'exposé.` },
         cours: { titre: 'OI : cours et TD', court: 'Cours OI', icone: 'factory', sujets: COURS_OI,
             intro: `MSP (loi normale, droite de Henry, cartes de contrôle, Cm et Cmk), MRP, Kanban, contrat de phase, puis ce qui tombe dans les annales (qualité, AMDEC, PERT, Wilson, charge). Les exercices reprennent le type des TD et des DS avec d'autres valeurs.` }
     };
