@@ -57,7 +57,14 @@
                 S('Indicateur et cas réel', 'gauge',
                     F(R`D = \dfrac{MTBF}{MTBF + MTTR}`, `D disponibilité (%) · MTBF temps moyen de bon fonctionnement entre deux pannes (h) · MTTR temps moyen de réparation (h). Exemple de l'exposé, un convoyeur : 190 / (190 + 10) = 95 %.`),
                     P(`<b>SNCF</b> : avant, contrôles à date fixe (monter sur le toit pour les pantographes). Aujourd'hui, capteurs et 4G/5G sur portes, climatisation, freins, batteries, intervention sur alerte. Résultat : pannes divisées par 2 sur les rames en télédiagnostic, −20 % de coûts, un train de plus à l'heure de pointe à Paris-Nord.`),
-                    P(`La prédictive se justifie quand une panne coûte plus cher que la surveillance : équipement critique, risque pour la sécurité, données disponibles. Les capteurs alertent, mais c'est l'humain qui décide.`))
+                    P(`La prédictive se justifie quand une panne coûte plus cher que la surveillance : équipement critique, risque pour la sécurité, données disponibles. Les capteurs alertent, mais c'est l'humain qui décide.`)),
+                S('2e exposé : organiser la maintenance', 'clipboard-list',
+                    UL([
+                        `<b>5 niveaux</b> (NF X 60-000) : du niveau 1, action simple de l'opérateur, au niveau 5, rénovation par le constructeur. <b>GMAO</b> : logiciel qui planifie et suit les interventions.`,
+                        `On veut un <b>MTBF grand</b> et un <b>MTTR petit</b>. La préventive réduit le risque de panne sans le supprimer.`,
+                        `<b>SNCF</b> : capteurs depuis 2013, données de 900 trains (dont 300 Francilien), 20 % de pannes en moins ; une porte défaillante est repérée et la rame peut rouler encore trois jours avant l'intervention.`,
+                        `Évolution : réparer → planifier → surveiller → prévoir (IA, capteurs, jumeau numérique).`
+                    ]))
             ],
             qcm: [
                 { q: "Sur un moteur, un capteur mesure les vibrations chaque jour. Les valeurs sont encore sous le seuil d'alerte, mais elles augmentent régulièrement. L'équipe utilise cette tendance pour estimer la date à laquelle le moteur risque de tomber en panne et planifie l'intervention avant cette date. De quel type de maintenance s'agit-il ?",
@@ -67,7 +74,15 @@
                 { q: "Dans laquelle de ces situations la mise en place d'une maintenance prédictive (capteurs, collecte et analyse des données) est-elle la MOINS justifiée ?",
                     opts: ["Un compresseur unique dont l'arrêt bloque toute l'usine", "Un petit ventilateur d'armoire électrique, bon marché, disponible en stock et doublé par un second ventilateur", "Une machine-outil critique pour laquelle on dispose de plusieurs années de données de fonctionnement", "Une pompe dont la défaillance peut mettre en danger les opérateurs"], ok: [1],
                     expl: "La prédictive coûte cher (capteurs, logiciel, compétences). Elle se justifie si la panne est coûteuse ou dangereuse, et si des données existent. Un ventilateur bon marché, en stock et redondant : sa panne n'arrête rien, la surveillance coûterait plus que la panne.",
-                    src: "Corrigé de l'exposé" }
+                    src: "Corrigé de l'exposé" },
+                { q: "Un roulement est remplacé dès que son capteur de vibrations dépasse un seuil fixé. Quel type de maintenance ?",
+                    opts: ["Corrective", "Préventive systématique", "Préventive conditionnelle", "Prévisionnelle"], ok: [2],
+                    expl: "L'intervention est déclenchée par un seuil surveillé : conditionnelle. En prévisionnelle, on extrapolerait la tendance pour estimer la date de la panne (comparer avec la 1re question).",
+                    src: "Corrigé de l'exposé, 2e groupe" },
+                { q: "Que mesure le MTBF ?",
+                    opts: ["Le temps moyen de réparation", "Le temps moyen entre deux pannes", "Le taux de rendement global", "Le coût de maintenance par unité produite"], ok: [1],
+                    expl: "MTBF = temps moyen entre deux pannes, on le veut grand. Le temps moyen de réparation est le MTTR, on le veut petit.",
+                    src: "Corrigé de l'exposé, 2e groupe" }
             ]
         },
         {
@@ -100,11 +115,11 @@
             ],
             qcm: [
                 { q: "Quelle méthode de CND permet de détecter des fissures débouchant à la surface d'une pièce grâce à un liquide pénétrant ?",
-                    opts: ["La radiographie industrielle", "Le ressuage", "La thermographie infrarouge"], ok: [1],
-                    expl: "Le ressuage : le liquide pénètre par capillarité dans les fissures débouchantes puis ressort à la révélation. La radiographie est une méthode volumique.",
-                    src: "Corrigé de l'exposé (3 propositions seulement)" },
+                    opts: ["La radiographie industrielle", "Le ressuage", "La thermographie infrarouge", "La magnétoscopie"], ok: [1],
+                    expl: "Le ressuage : le liquide pénètre par capillarité dans les fissures débouchantes puis ressort à la révélation. La radiographie est une méthode volumique ; la magnétoscopie révèle aussi des fissures de surface, mais avec des particules magnétiques, et seulement sur les matériaux ferromagnétiques.",
+                    src: "Corrigé de l'exposé" },
                 { q: "Pourquoi utilise-t-on plusieurs méthodes de contrôle non destructif dans l'industrie ?",
-                    opts: ["Parce que chaque méthode permet de détecter tous les types de défauts", "Pour accélérer la fabrication des pièces en supprimant les contrôles", "Parce que chaque méthode est adaptée à certains matériaux et types de défauts"], ok: [2],
+                    opts: ["Parce que chaque méthode permet de détecter tous les types de défauts", "Pour accélérer la fabrication des pièces en supprimant les contrôles", "Parce que chaque méthode est adaptée à certains matériaux et types de défauts", "Pour accélérer le processus de contrôle"], ok: [2],
                     expl: "Aucune méthode ne voit tout : la magnétoscopie ne marche que sur les ferromagnétiques, le ressuage ne voit que la surface, les ultrasons et la radiographie voient le volume. On choisit selon le matériau et le défaut cherché.",
                     src: "Corrigé de l'exposé" },                { q: "Dans l'exemple du nucléaire, que font les professionnels lorsqu'une anomalie non conforme est détectée sur la pièce forgée ?",
                     opts: ["Ils jettent immédiatement la pièce", "Ils livrent la pièce telle quelle au client", "Ils réparent le défaut par soudure", "Ils modifient l'usinage pour retirer la zone défectueuse tout en gardant assez de matière saine"], ok: [3],
@@ -142,7 +157,15 @@
                 { q: "Quelle situation convient le mieux à un Flow Shop ?",
                     opts: ["Des pièces uniques sur plan client", "La réparation de machines de clients différents", "La grande série d'un produit standardisé", "La réalisation de prototypes"], ok: [2],
                     expl: "Fort volume et faible variété : ligne. Les trois autres sont des cas de faible volume et forte variété, donc Job Shop.",
-                    src: "Corrigé de l'exposé" }
+                    src: "Corrigé de l'exposé" },
+                { q: "Quelle est la différence entre un job shop et un flow shop ?",
+                    opts: ["Le job shop fabrique en grande série, le flow shop fabrique à l'unité.", "Le job shop est entièrement automatisé, le flow shop est manuel.", "Dans le job shop, les machines sont regroupées par métier et chaque pièce suit son propre chemin. Dans le flow shop, les postes sont alignés dans l'ordre de la gamme et toutes les pièces suivent le même chemin.", "Aucune : ce sont deux noms différents pour la chaîne de montage."], ok: [2],
+                    expl: "Le job shop sert à fabriquer beaucoup de produits différents en petites quantités, le flow shop peu de produits différents en grandes quantités. A inverse les deux.",
+                    src: "Corrigé de l'exposé, 2e groupe" },
+                { q: "Un flow shop peut-il produire plusieurs modèles ?",
+                    opts: ["Non, jamais : une ligne ne peut produire qu'un seul modèle.", "Oui, si les modèles se ressemblent (une même famille), mais chaque changement de série fait perdre du temps.", "Oui, autant de modèles différents qu'un job shop, sans aucune contrainte.", "Oui, mais seulement en retirant des postes de la ligne."], ok: [1],
+                    expl: "Une ligne peut produire des variantes proches, mais il faut la régler à chaque changement de modèle : d'où les méthodes comme le SMED, qui accélèrent les changements de série.",
+                    src: "Corrigé de l'exposé, 2e groupe" }
             ]
         },
         {
@@ -993,7 +1016,7 @@
         ce: { titre: 'Construction électrique', court: 'CE', icone: 'zap', sujets: CE,
             intro: `Hors DS selon le professeur : le variateur (choix, rampes, chronogrammes, câblage du bornier), la loi U/f et le redresseur. Ce qui reste : le moteur asynchrone, sa plaque, le bilan des puissances, la chaîne de transmission, l'environnement, la magnétostatique et le moteur CC.` },
         expo: { titre: 'OI : exposés de veille technologique', court: 'Exposés OI', icone: 'presentation', sujets: EXPOSES,
-            intro: `Une partie du DS portera sur ces exposés. Chaque groupe a écrit 2 questions de QCM pour la classe (CND, équilibrage et métrologie ont été présentés par deux groupes) : les voici avec leur corrigé et l'essentiel de l'exposé.` },
+            intro: `Une partie du DS portera sur ces exposés. Chaque groupe a écrit 2 questions de QCM pour la classe (maintenance, Job Shop / Flow Shop, CND, équilibrage et métrologie ont été présentés par deux groupes) : les voici avec leur corrigé et l'essentiel de l'exposé.` },
         cours: { titre: 'OI : cours et TD', court: 'Cours OI', icone: 'factory', sujets: COURS_OI,
             intro: `MSP (loi normale, droite de Henry, cartes de contrôle, Cm et Cmk), MRP, Kanban, contrat de phase, puis ce qui tombe dans les annales (qualité, AMDEC, PERT, Wilson, charge). Les exercices reprennent le type des TD et des DS avec d'autres valeurs.` }
     };
