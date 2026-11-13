@@ -79,6 +79,21 @@ const DS_CHAPITRES = {
 // Filtres de l'examen blanc : « tout » mélange CE et OI, il n'a pas de matière.
 const DS_FILTRES = { ce: "ce", expo: "oi", cours: "oi" };
 
+// Clés exactes de la Révision DS rangées dans annee/matiere : chapitres et examen blanc filtré
+// (même tri que matiereDeCle). [] pour une paire inconnue.
+export function clesDsDeMatiere(annee, matiere) {
+  if (!paireValide(annee, matiere)) return [];
+  const cles = [];
+  for (const [ds, def] of Object.entries(DS_CHAPITRES)) {
+    if (def.annee !== annee) continue;
+    for (const chapitre of Array.isArray(def[matiere]) ? def[matiere] : []) cles.push(`${annee}/ds/${ds}/${chapitre}`);
+    for (const [filtre, m] of Object.entries(DS_FILTRES)) {
+      if (m === matiere) cles.push(`${annee}/ds/${ds}/examen-${filtre}`);
+    }
+  }
+  return cles;
+}
+
 function paireValide(annee, matiere) {
   return ANNEES.includes(annee) && MATIERES.includes(matiere);
 }

@@ -4,6 +4,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import {
   SEUIL_ELEVES, LARGEUR_TRANCHE, promoDeDomaine, promoDeEmail, masquer, debutActivite, trancheReussite, assemblerStats,
 } from "../src/regles-stats.js";
+import { clesDsDeMatiere } from "../src/regles.js";
 
 // ---------- règles pures ----------
 
@@ -49,6 +50,18 @@ test("tranches du taux de réussite : [0, 20[, [20, 40[, [40, 60[, [60, 80[, [80
   }
 });
 
+test("clés de la Révision DS d'une matière", () => {
+  assert.ok(clesDsDeMatiere("a2", "ce").includes("a2/ds/ds-2026-11/mcc"));
+  assert.ok(clesDsDeMatiere("a2", "ce").includes("a2/ds/ds-2026-11/examen-ce"));
+  const oi = clesDsDeMatiere("a2", "oi");
+  assert.ok(oi.includes("a2/ds/ds-2026-11/kanban") && oi.includes("a2/ds/ds-2026-11/examen-expo"));
+  assert.ok(!oi.includes("a2/ds/ds-2026-11/mcc"));
+  for (const cles of [clesDsDeMatiere("a2", "ce"), oi]) assert.ok(!cles.some((c) => c.endsWith("examen-tout")));
+  assert.deepEqual(clesDsDeMatiere("a1", "ce"), []);
+  assert.deepEqual(clesDsDeMatiere("a2", "annee"), []);
+  assert.deepEqual(clesDsDeMatiere("a2", "x"), []);
+});
+
 const MAINTENANT = Date.UTC(2026, 10, 12, 10);
 const garderCe = (cle) => cle.startsWith("a2/ce/");
 
@@ -69,20 +82,26 @@ test("assemblage : tranches, petits groupes, promos sans tentative", () => {
       { domaine: "2028.icam.fr", cle: "a2/ce/x/a", tentes: 4, reussis: 1, score_moyen: 50, scores: 4 },
       { domaine: "icam.fr", cle: "a2/ce/x/a", tentes: 9, reussis: 9, score_moyen: 100, scores: 9 },
     ],
+    eleves: [
+      { domaine: "2027.icam.fr", eleves: 8 },
+      { domaine: "2028.icam.fr", eleves: 4 },
+      { domaine: "2029.icam.fr", eleves: 3 },   // moins de 5 : masqué
+      { domaine: "icam.fr", eleves: 9 },
+    ],
   });
   assert.equal(r.seuil, 5);
   assert.equal(r.largeurTranche, 20);
   assert.equal(r.genereLe, "2026-11-12T10:00:00.000Z");
   assert.deepEqual(r.promos, [
     {
-      promo: "2027", inscrits: 12, actifs: null,
+      promo: "2027", inscrits: 12, actifs: null, eleves: 8,
       cles: {
         "a2/ce/x/a": { tentes: 6, reussite: { min: 20, max: 40 }, scoreMoyen: 62 },
         "a2/ce/x/c": { tentes: 7, reussite: { min: 0, max: 20 }, scoreMoyen: null },
       },
     },
-    { promo: "2028", inscrits: null, actifs: null, cles: {} },
-    { promo: "2029", inscrits: 40, actifs: 20, cles: {} },
+    { promo: "2028", inscrits: null, actifs: null, eleves: null, cles: {} },
+    { promo: "2029", inscrits: 40, actifs: 20, eleves: null, cles: {} },
   ]);
 });
 
@@ -90,7 +109,7 @@ test("assemblage : tranches, petits groupes, promos sans tentative", () => {
 function chiffresSousSeuil(reponse) {
   const trouves = [];
   for (const p of reponse.promos) {
-    for (const [nom, v] of [["inscrits", p.inscrits], ["actifs", p.actifs]]) {
+    for (const [nom, v] of [["inscrits", p.inscrits], ["actifs", p.actifs], ["eleves", p.eleves]]) {
       if (v !== null && v < SEUIL_ELEVES) trouves.push(`${p.promo} ${nom}=${v}`);
     }
     for (const [cle, s] of Object.entries(p.cles)) {
@@ -144,6 +163,9 @@ function remplir(db) {
   promo(2028, 4, 4);
   const d = promo(2025, 4, 4);
   const prof = ajouter("prof.ce@icam.fr", IL_Y_A(0));
+  // compte de l'équipe avec une adresse de promo : jamais compté comme élève
+  const equipe = ajouter("responsable@2026.icam.fr", IL_Y_A(0));
+  db.base.prepare("INSERT INTO roles (email, role, perimetre) VALUES ('responsable@2026.icam.fr', 'equipe', '')").run();
   const personnel = Array.from({ length: 6 }, (_, i) => ajouter(`agent${i}@toulouse.icam.fr`, IL_Y_A(1)));
   const p = (id, cle, reussi, score = null) => db.base.prepare(
     "INSERT INTO progression (utilisateur_id, cle, reussi, score, maj_le) VALUES (?, ?, ?, ?, ?)"
@@ -163,6 +185,9 @@ function remplir(db) {
   d.forEach((id) => p(id, "a2/ce/ce2-triphase/tri", 1, 100));
   // le prof et le personnel ont essayé aussi : jamais comptés
   p(prof, "a2/ce/ce2-choix/chx", 1, 100);
+  p(equipe, "a2/ce/ce2-choix/chx", 1, 100);
+  p(equipe, "a2/ce/ce2-triphase/tri", 1, 100);
+  p(equipe, "a2/ce/ce2-triphase/tri2", 1, 100);
   personnel.forEach((id) => p(id, "a2/ce/ce2-choix/chx", 1, 100));
   return { prof, eleve: a[0] };
 }
@@ -173,9 +198,9 @@ test("statsClasse : agrégats SQL, tranches et seuil, sur les migrations", { ski
   remplir(db);
   const r = await statsClasse(db, { annee: "a2", matiere: "ce", maintenant: MAINTENANT });
   assert.deepEqual(r.promos, [
-    { promo: "2025", inscrits: null, actifs: null, cles: {} },
+    { promo: "2025", inscrits: null, actifs: null, eleves: null, cles: {} },
     {
-      promo: "2026", inscrits: 30, actifs: 20,
+      promo: "2026", inscrits: 30, actifs: 20, eleves: 30,
       cles: {
         "a2/ce/ce2-asynchrone/asy": { tentes: 7, reussite: { min: 0, max: 20 }, scoreMoyen: 10 },
         "a2/ce/ce2-choix/chx": { tentes: 30, reussite: { min: 0, max: 20 }, scoreMoyen: 53 },
@@ -183,11 +208,12 @@ test("statsClasse : agrégats SQL, tranches et seuil, sur les migrations", { ski
       },
     },
     // promos sans aucune tentative : présentes quand même, celle de 4 sans aucun chiffre
-    { promo: "2027", inscrits: 6, actifs: 5, cles: {} },
-    { promo: "2028", inscrits: null, actifs: null, cles: {} },
+    { promo: "2027", inscrits: 6, actifs: 5, eleves: null, cles: {} },
+    { promo: "2028", inscrits: null, actifs: null, eleves: null, cles: {} },
   ]);
   assert.deepEqual(chiffresSousSeuil(r), []);
-  assert.doesNotMatch(JSON.stringify(r), /@|eleve|prof\.ce|toulouse|agent/);
+  assert.doesNotMatch(JSON.stringify(r), /responsable/);
+  assert.doesNotMatch(JSON.stringify(r), /@|eleve[0-9]|prof\.ce|toulouse|agent/);
 
   // 0 réussi sur 7, 2 sur 30 : aucun nombre exact de réussis ni de ratés dans la réponse
   assert.doesNotMatch(JSON.stringify(r), /reussis|rates|echecs/);
@@ -201,7 +227,10 @@ test("statsClasse : agrégats SQL, tranches et seuil, sur les migrations", { ski
   assert.ok(!("a2/ce/ce2-triphase/tri" in r.promos[1].cles));
 
   const oi = await statsClasse(db, { annee: "a2", matiere: "oi", maintenant: MAINTENANT });
-  assert.deepEqual(Object.keys(oi.promos.find((p) => p.promo === "2026").cles), ["a2/ds/ds-2026-11/kanban"]);
+  const oi2026 = oi.promos.find((p) => p.promo === "2026");
+  assert.deepEqual(Object.keys(oi2026.cles), ["a2/ds/ds-2026-11/kanban"]);
+  // OI : les 6 élèves du DS kanban ; l'examen « tout » et la clé A1 ne comptent pas
+  assert.equal(oi2026.eleves, 6);
 });
 
 // ---------- page : chiffres d'un chapitre (public/prof-stats.js) ----------
