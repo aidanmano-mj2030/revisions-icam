@@ -90,6 +90,12 @@
                         `<b>NF EN ISO 17025</b> : compétence des laboratoires d'essais et d'étalonnage.`,
                         `<b>Airbus A350</b> (composite) : le Line Tool, système à ultrasons à diagnostic automatique après un choc, 70 exemplaires commandés par 7 compagnies. En fabrication, Epsilon est qualifié pour la tomographie en série.`,
                         `Avantages : contrôle de 100 % de la production, détection avant la panne. Limites : opérateurs certifiés, matériel cher, chaque méthode a son domaine. Évolution : automatisation, sondes multiéléments sur manipulateur.`
+                    ])),
+                S('2e exposé : un cas dans le nucléaire', 'atom',
+                    P(`Une pièce forgée doit être usinée. Avant l'usinage : <b>ressuage</b> pour les défauts de surface, <b>ultrasons</b> pour les défauts internes. Une anomalie non conforme est détectée. La pièce finale étant asymétrique, on <b>modifie l'usinage pour retirer la zone défectueuse</b> en copeaux, en gardant assez de matière saine et en respectant les exigences de sécurité et de qualité : pas de rebut.`),
+                    UL([
+                        `Autres limites : aucune méthode ne voit tout (il faut les combiner), les très petits défauts peuvent passer, le résultat dépend de l'opérateur, il faut préparer la surface et accéder à la zone, risques (radioprotection, produits chimiques).`,
+                        `Évolutions : IA, drones et robots d'inspection, capteurs connectés, ultrasons avancés (Phased Array, TOFD), vers la maintenance prédictive.`
                     ]))
             ],
             qcm: [
@@ -100,7 +106,10 @@
                 { q: "Pourquoi utilise-t-on plusieurs méthodes de contrôle non destructif dans l'industrie ?",
                     opts: ["Parce que chaque méthode permet de détecter tous les types de défauts", "Pour accélérer la fabrication des pièces en supprimant les contrôles", "Parce que chaque méthode est adaptée à certains matériaux et types de défauts"], ok: [2],
                     expl: "Aucune méthode ne voit tout : la magnétoscopie ne marche que sur les ferromagnétiques, le ressuage ne voit que la surface, les ultrasons et la radiographie voient le volume. On choisit selon le matériau et le défaut cherché.",
-                    src: "Corrigé de l'exposé" }
+                    src: "Corrigé de l'exposé" },                { q: "Dans l'exemple du nucléaire, que font les professionnels lorsqu'une anomalie non conforme est détectée sur la pièce forgée ?",
+                    opts: ["Ils jettent immédiatement la pièce", "Ils livrent la pièce telle quelle au client", "Ils réparent le défaut par soudure", "Ils modifient l'usinage pour retirer la zone défectueuse tout en gardant assez de matière saine"], ok: [3],
+                    expl: "La pièce finale est asymétrique : on décale l'usinage pour que le défaut parte en copeaux, en respectant les exigences de sécurité et de qualité. Le CND évite ainsi le rebut et le gaspillage de matière.",
+                    src: "Corrigé de l'exposé, 2e groupe" }
             ]
         },
         {
@@ -153,7 +162,14 @@
                         ['Après', 'A+B = 45 s', 'C+D = 45 s', 'E+F = 45 s', '45 s', '100 %', '80 p/h']
                     ]),
                     P(`B peut passer au poste 1 parce que son seul prédécesseur, A, y est déjà. Capacité +33 %.`),
-                    P(`<b>Cas réel</b> (Malaisie, 2012, composants automobiles) : passage d'une ligne droite à une <b>ligne en U</b>, +16,3 % d'efficacité d'équilibrage. Ce n'est pas +16,3 % de pièces produites. Le U aide car un opérateur peut couvrir plusieurs postes.`))
+                    P(`<b>Cas réel</b> (Malaisie, 2012, composants automobiles) : passage d'une ligne droite à une <b>ligne en U</b>, +16,3 % d'efficacité d'équilibrage. Ce n'est pas +16,3 % de pièces produites. Le U aide car un opérateur peut couvrir plusieurs postes.`)),
+                S("2e exposé : le coffret électrique", 'table',
+                    P(`7 tâches, ΣT<sub>i</sub> = 210 s ; 7 h par jour (25 200 s) pour 420 coffrets, donc T<sub>k</sub> = <b>60 s</b> et N<sub>min</sub> = 210 / 60 = 3,5, soit <b>4 postes</b> (toujours arrondi au-dessus).`),
+                    T(['', 'Postes', 'Cycle', 'Taux d\'équilibrage', 'Production / jour'], [
+                        ['Sans méthode', '45, 70, 35, 60 s', '70 s (goulot)', '210 / (4 × 70) = 75 %', '25 200 / 70 = 360'],
+                        ['Dans l\'ordre du graphe, ≤ takt', '50, 60, 40, 60 s', '60 s', '210 / (4 × 60) = 87,5 %', '420']
+                    ]),
+                    P(`100 % est rarement atteint : une tâche ne se coupe pas en deux. Ford 1913 : volant magnétique 20 min (un ouvrier seul) → 13 min (travail découpé en ligne) → 5 min (après réglages). Limites : ligne rigide si la demande change, opérateurs polyvalents, une panne bloque tout. Évolution : logiciels d'équilibrage (+25 % d'utilisation des équipements chez Volvo Cars), lignes multi-modèles.`))
             ],
             qcm: [
                 { q: "Quel est l'objectif principal de l'équilibrage de ligne ?",
@@ -163,7 +179,15 @@
                 { q: "Qu'est-ce qu'un goulot d'étranglement sur une ligne de production ?",
                     opts: ["Un poste qui réalise les tâches plus rapidement que les autres.", "Une machine qui fonctionne uniquement en automatique.", "Un poste dont le temps de travail limite la cadence de toute la ligne.", "Un espace destiné au stockage des pièces."], ok: [2],
                     expl: "Le goulot est le poste le plus chargé : il fixe le temps de cycle de toute la ligne (60 s au poste 2 dans l'exemple avant équilibrage).",
-                    src: "Corrigé de l'exposé" }
+                    src: "Corrigé de l'exposé" },
+                { q: "Une ligne compte 4 postes, chargés à 40 s, 55 s, 75 s et 45 s. Quel est son temps de cycle ?",
+                    opts: ["40 s", "53,75 s", "75 s", "215 s"], ok: [2],
+                    expl: "La ligne avance au rythme de son poste le plus lent, le goulot. 40 s est le poste le plus rapide, 53,75 s la moyenne des postes et 215 s la somme des temps.",
+                    src: "Corrigé de l'exposé, 2e groupe" },
+                { q: "La somme des temps des tâches vaut 250 s et le takt time est de 60 s. Combien faut-il de postes au minimum ?",
+                    opts: ["4", "4,17", "5", "6"], ok: [2],
+                    expl: "250 / 60 = 4,17. On ne peut pas avoir une fraction de poste, et avec 4 postes au moins un poste dépasserait le takt : on arrondit à l'entier supérieur, 5 postes.",
+                    src: "Corrigé de l'exposé, 2e groupe" }
             ]
         },
         {
@@ -226,7 +250,16 @@
                         `<b>GKN Driveline</b> (Suède, transmissions automobiles) : avant, chaque pièce partait en salle de mesure. Une MMT (machine à mesurer tridimensionnelle, Hexagon) installée dans la cellule contrôle une pièce en 90 s. Changer de pièce = changer le programme et les montages.`,
                         `Avantages : qualité, moins de rebuts, interchangeabilité entre sous-traitants, industrie 4.0. Limites : investissement lourd pour les PME, environnement d'atelier instable, manque de techniciens.`,
                         `Histoire : 1791, le mètre défini sur le quart du méridien ; 1795, système métrique ; 1960, création du SI.`
-                    ]))
+                    ])),
+                S('2e exposé : incertitude, étalonnage, Airbus', 'crosshair',
+                    UL([
+                        `<b>SI</b> : 7 unités de base (m, kg, s, A, K, mol, cd), redéfinies à partir de 7 constantes depuis le 20 mai 2019.`,
+                        `<b>Erreur</b> = |V<sub>mes</sub> − V<sub>ref</sub>|. <b>Incertitude</b> = dispersion des valeurs attribuables à la grandeur. <b>Étalonnage</b> = comparer l'instrument à un étalon. <b>Traçabilité</b> : SI → LNE → laboratoires COFRAC → atelier.`,
+                        `<b>Répétabilité</b> : mêmes conditions. <b>Reproductibilité</b> : on change une condition (souvent l'opérateur). Étude <b>R&amp;R</b> : &lt; 10 % adéquat, &gt; 30 % inacceptable.`,
+                        `Normes : ISO/IEC 17025 (laboratoires), ISO 10012 (management de la mesure), rédigées par des organismes privés indépendants (ISO, AFNOR).`,
+                        `<b>Airbus</b> : laser tracker (faisceau qui suit un réflecteur, 2 angles + 1 distance). Saint-Éloi : 50 % de temps de mesure gagné ; Hambourg : 30 trackers pour l'assemblage final de l'A320. Limites : coût, formation, ligne de vue.`
+                    ]),
+                    NOTE('Piège', `Cote 20,00 ± 0,05 mm, mesure 20,04 ± 0,02 mm : la vraie valeur peut aller jusqu'à 20,06, hors tolérance. La conformité n'est pas garantie.`))
             ],
             qcm: [
                 { q: "Le mesurage de l'opérateur du poste de fraisage avec un pied à coulisse relève récemment des mesures inhabituelles. Comment faut-il réagir ?", multi: true,
@@ -236,7 +269,15 @@
                 { q: "Selon la règle du 1/10e, quelle est la précision minimale de l'instrument de mesure d'une cote de tolérance 0,07 ?",
                     opts: ["0,001", "0,700", "0,007", "0,010"], ok: [2],
                     expl: "0,07 / 10 = 0,007. Le piège est 0,010 : c'est plus grossier que 0,007, donc insuffisant. 0,001 conviendrait aussi mais ce n'est pas le minimum demandé.",
-                    src: "Bonne réponse non marquée par l'exposé, calculée par la règle du 1/10" }
+                    src: "Bonne réponse non marquée par l'exposé, calculée par la règle du 1/10" },
+                { q: "Que signifie étalonnage ?",
+                    opts: ["Comparer l'instrument à un étalon", "Calculer la dispersion des mesures", "Ajuster les instruments pour qu'ils soient parfaitement à zéro", "Je ne sais pas"], ok: [0],
+                    expl: "Étalonner, c'est comparer l'instrument à un étalon, lui-même rattaché au SI par la chaîne de traçabilité (LNE, laboratoires COFRAC, atelier). La dispersion des mesures, c'est l'incertitude ; régler à zéro, c'est un ajustage.",
+                    src: "Exposé métrologie, 2e groupe (bonne réponse non marquée, déduite de sa définition)" },
+                { q: "Les normes sont imposées par :",
+                    opts: ["Un organisme privé, externe à l'entreprise", "Un service interne à l'entreprise", "Exclusivement l'État", "Je ne sais pas"], ok: [0],
+                    expl: "Les normes (ISO/IEC 17025, ISO 10012…) sont rédigées par des organismes de normalisation indépendants comme l'ISO ou l'AFNOR, ni par l'État ni par l'entreprise elle-même.",
+                    src: "Exposé métrologie, 2e groupe (bonne réponse non marquée, déduite de son cours)" }
             ]
         },
         {
@@ -952,7 +993,7 @@
         ce: { titre: 'Construction électrique', court: 'CE', icone: 'zap', sujets: CE,
             intro: `Hors DS selon le professeur : le variateur (choix, rampes, chronogrammes, câblage du bornier), la loi U/f et le redresseur. Ce qui reste : le moteur asynchrone, sa plaque, le bilan des puissances, la chaîne de transmission, l'environnement, la magnétostatique et le moteur CC.` },
         expo: { titre: 'OI : exposés de veille technologique', court: 'Exposés OI', icone: 'presentation', sujets: EXPOSES,
-            intro: `Une partie du DS portera sur ces exposés. Chaque exposé a écrit 2 questions de QCM pour la classe : les voici avec leur corrigé et l'essentiel de l'exposé.` },
+            intro: `Une partie du DS portera sur ces exposés. Chaque groupe a écrit 2 questions de QCM pour la classe (CND, équilibrage et métrologie ont été présentés par deux groupes) : les voici avec leur corrigé et l'essentiel de l'exposé.` },
         cours: { titre: 'OI : cours et TD', court: 'Cours OI', icone: 'factory', sujets: COURS_OI,
             intro: `MSP (loi normale, droite de Henry, cartes de contrôle, Cm et Cmk), MRP, Kanban, contrat de phase, puis ce qui tombe dans les annales (qualité, AMDEC, PERT, Wilson, charge). Les exercices reprennent le type des TD et des DS avec d'autres valeurs.` }
     };
