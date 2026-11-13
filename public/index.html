@@ -96,6 +96,8 @@
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.js"></script>
 <script>
     window.MathJax = {
+        // ui/safe : filtre \href, \class, \style… dans les formules (corrections écrites par les profs)
+        loader: { load: ['ui/safe'] },
         tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
             displayMath: [['$$', '$$'], ['\\[', '\\]']]
@@ -15238,5 +15240,6 @@
 <script src="prof-stats.js" defer></script>
 <script src="prof-signalements.js" defer></script>
 <script src="prof-annonces.js" defer></script>
+<script src="prof-corrections.js" defer></script>
 </body>
 </html>

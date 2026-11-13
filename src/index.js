@@ -6,6 +6,7 @@ import {
 import { apiProfStats } from "./prof-stats.js";
 import { apiSignalements } from "./prof-signalements.js";
 import { apiAnnonces } from "./prof-annonces.js";
+import { apiCorrections } from "./prof-corrections.js";
 
 const COOKIE_GOOGLE = "studicam_google"; // état, nonce et vérificateur PKCE pendant l'aller-retour Google
 const DUREE_COOKIE_GOOGLE = 600;         // secondes
@@ -164,6 +165,7 @@ const MODULES_API = [
   apiProfStats,  // tableau de bord (PR 4)
   apiSignalements,  // relecture et signalements (PR 3)
   apiAnnonces,  // annonces des profs (PR 2)
+  apiCorrections,  // corrections de cours par les profs
 ];
 
 async function api(request, env, chemin) {

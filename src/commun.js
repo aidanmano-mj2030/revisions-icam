@@ -95,8 +95,9 @@ export function exigerProf(session, annee, matiere) {
   return session;
 }
 
-// Contrôles communs aux POST et PUT, puis lecture du JSON.
-export async function lireJson(request) {
+// Contrôles communs aux POST et PUT, puis lecture du JSON. tailleMax : octets acceptés
+// (4 Ko par défaut ; les corrections de cours ont besoin de plus).
+export async function lireJson(request, tailleMax = TAILLE_MAX_CORPS) {
   const origine = request.headers.get("Origin");
   if (origine !== null && origine !== new URL(request.url).origin) throw new ErreurHttp(403, "Origine refusée");
 
@@ -106,9 +107,9 @@ export async function lireJson(request) {
   // Sans Content-Length (envoi par morceaux), on ne lit pas le corps.
   const enTete = request.headers.get("Content-Length");
   if (enTete === null || !/^\d+$/.test(enTete)) throw new ErreurHttp(411, "Content-Length attendu");
-  if (Number(enTete) > TAILLE_MAX_CORPS) throw new ErreurHttp(413, "Corps trop volumineux");
+  if (Number(enTete) > tailleMax) throw new ErreurHttp(413, "Corps trop volumineux");
   const brut = await request.arrayBuffer();
-  if (brut.byteLength > TAILLE_MAX_CORPS) throw new ErreurHttp(413, "Corps trop volumineux");
+  if (brut.byteLength > tailleMax) throw new ErreurHttp(413, "Corps trop volumineux");
 
   try {
     return JSON.parse(new TextDecoder().decode(brut));
