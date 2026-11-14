@@ -498,6 +498,10 @@
         if (!restauration) minuterieY = setTimeout(() => memoriserY(window.scrollY), 400);   // pour un rafraîchissement
     }, { passive: true });
 
+    // position relevée avant que le clic ne change d'écran (les événements de défilement
+    // arrivent après coup, et pas du tout dans un onglet en arrière-plan)
+    document.addEventListener('click', () => { if (!restauration) dernierY = window.scrollY; }, true);
+
     window.addEventListener('popstate', (ev) => {
         const h = location.hash;
         if (h && h !== '#' && !h.startsWith('#/')) return;     // ancre dans la page
