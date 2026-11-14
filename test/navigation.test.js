@@ -7,7 +7,7 @@ import { lieuxDepuisIndex } from "../scripts/maj-lecons.mjs";
 
 const contexte = {};
 runInNewContext(readFileSync(new URL("../public/navigation.js", import.meta.url), "utf8"), contexte);
-const { analyserAdresse, construireAdresse, slugChapitre, correspondMotif, memeAdresse, ONGLETS_DS } = contexte.studicamAdresses;
+const { analyserAdresse, construireAdresse, slugChapitre, correspondMotif, memeAdresse, ONGLETS_FIXES_DS } = contexte.studicamAdresses;
 const simple = (x) => JSON.parse(JSON.stringify(x));   // objets créés dans un autre contexte vm
 
 test("analyse des adresses du site", () => {
@@ -26,8 +26,13 @@ test("analyse des adresses du site", () => {
     "#/a2/ce/asynchrone/exo/ce2-asynchrone": { ecran: "exo", annee: "a2", matiere: "ce", chapitre: "asynchrone", exo: "ce2-asynchrone" },
     "#/a2/cm/vecteurs/exo/exo1": { ecran: "exo", annee: "a2", matiere: "cm", chapitre: "vecteurs", exo: "exo1" },
     "#/a2/revision-ds": { ecran: "revision-ds", annee: "a2" },
-    "#/a2/revision-ds/examen": { ecran: "revision-ds", annee: "a2", onglet: "examen" },
-    "#/a2/revision-ds/ce/mas": { ecran: "revision-ds", annee: "a2", onglet: "ce", chap: "mas" },
+    "#/a2/revision-ds/ds-2026-11": { ecran: "revision-ds", annee: "a2", ds: "ds-2026-11" },
+    "#/a2/revision-ds/ds-2026-11/examen": { ecran: "revision-ds", annee: "a2", ds: "ds-2026-11", onglet: "examen" },
+    "#/a2/revision-ds/ds-2026-11/ce/mas": { ecran: "revision-ds", annee: "a2", ds: "ds-2026-11", onglet: "ce", chap: "mas" },
+    "#/a2/revision-ds/ds-2026-11-phys/phys/ondes": { ecran: "revision-ds", annee: "a2", ds: "ds-2026-11-phys", onglet: "phys", chap: "ondes" },
+    // anciennes adresses, sans id : le DS du 14/11/2026
+    "#/a2/revision-ds/examen": { ecran: "revision-ds", annee: "a2", ds: "ds-2026-11", onglet: "examen" },
+    "#/a2/revision-ds/ce/mas": { ecran: "revision-ds", annee: "a2", ds: "ds-2026-11", onglet: "ce", chap: "mas" },
     "#/prof": { ecran: "prof" },
     "#/serie": { ecran: "serie" },
     "#/prof/signalements": { ecran: "prof", section: "signalements" },
@@ -44,8 +49,8 @@ test("adresses refusées (retour à l'accueil)", () => {
   for (const adresse of [
     "#section", "#a2", "#/a3", "#/a2/x1", "#/a2/ce/asynchrone/autre", "#/a2/ce/asynchrone/lecon/0",
     "#/a2/ce/asynchrone/lecon/x", "#/a2/ce/asynchrone/lecon/100", "#/a2/ce/asynchrone/exo",
-    "#/a2/ce/a/b/c/d", "#/a2/techniques/plus", "#/a2/revision-ds/inconnu", "#/a2/revision-ds/examen/mas",
-    "#/a2/revision-ds/ce/mas/plus", "#/prof/a/b", "#/serie/x", "#/a2/<script>", "#/a2/ce/%3Cimg%3E/lecon",
+    "#/a2/ce/a/b/c/d", "#/a2/techniques/plus", "#/a2/revision-ds/In-connu", "#/a2/revision-ds/examen/mas",
+    "#/a2/revision-ds/ce/mas/plus", "#/a2/revision-ds/ds-2026-11/dsblanc/x", "#/a2/revision-ds/ds-2026-11/ce/mas/plus", "#/prof/a/b", "#/serie/x", "#/a2/<script>", "#/a2/ce/%3Cimg%3E/lecon",
     "#/a2/ce/%E0%A4%A/lecon", "#/a2/ce/" + "x".repeat(81), "#/a2//ce", "#/..", "#/a2/ce/-x/lecon",
     "javascript:alert(1)", null,
   ]) {
@@ -64,8 +69,9 @@ test("construction puis analyse : même écran", () => {
     { ecran: "lecon", annee: "a2", matiere: "oi", chapitre: "msp", partie: 12 },
     { ecran: "exo", annee: "a1", matiere: "aii", chapitre: "combinatoire", exo: "aii-karnaugh" },
     { ecran: "revision-ds", annee: "a2" },
-    { ecran: "revision-ds", annee: "a2", onglet: "formules" },
-    { ecran: "revision-ds", annee: "a2", onglet: "expo", chap: "smed" },
+    { ecran: "revision-ds", annee: "a2", ds: "ds-2026-11" },
+    { ecran: "revision-ds", annee: "a2", ds: "ds-2026-11", onglet: "formules" },
+    { ecran: "revision-ds", annee: "a2", ds: "ds-2026-11", onglet: "expo", chap: "smed" },
     { ecran: "prof" },
     { ecran: "prof", section: "tableau-de-bord" },
     { ecran: "serie" },
@@ -80,7 +86,7 @@ test("construction puis analyse : même écran", () => {
   assert.equal(construireAdresse({ ecran: "accueil" }), "#/");
   assert.equal(construireAdresse({ ecran: "lecon", annee: "a2", matiere: "ce", chapitre: "asynchrone" }), "#/a2/ce/asynchrone/lecon");
   assert.equal(construireAdresse({ ecran: "exo", annee: "a2", matiere: "ce", chapitre: "asynchrone", exo: "ce2-asynchrone" }), "#/a2/ce/asynchrone/exo/ce2-asynchrone");
-  assert.equal(construireAdresse({ ecran: "revision-ds", annee: "a2", onglet: "examen", chap: "mas" }), "#/a2/revision-ds/examen");
+  assert.equal(construireAdresse({ ecran: "revision-ds", annee: "a2", ds: "ds-2026-11", onglet: "examen", chap: "mas" }), "#/a2/revision-ds/ds-2026-11/examen");
   assert.equal(construireAdresse(null), "#/");
   assert.equal(construireAdresse({ ecran: "inconnu" }), "#/");
 });
@@ -109,12 +115,10 @@ test("segment de chapitre : leçon sans préfixe, unique dans chaque matière", 
   assert.ok(Object.keys(parMatiere).length >= 10);
 });
 
-test("onglets de la Révision DS : mêmes clés que revision-ds.js", () => {
+test("onglets fixes de la Révision DS : les mêmes que revision-ds.js", () => {
   const source = readFileSync(new URL("../public/revision-ds.js", import.meta.url), "utf8");
-  const ligne = source.match(/const ONGLETS = (\[.*\]);/);
-  assert.ok(ligne, "ONGLETS introuvable dans revision-ds.js");
-  const cles = [...ligne[1].matchAll(/\['([a-z]+)'/g)].map((m) => m[1]);
-  assert.deepEqual(cles, Object.keys(ONGLETS_DS));
+  for (const cle of Object.keys(ONGLETS_FIXES_DS)) assert.ok(source.includes(`['${cle}', '`), cle);
+  assert.deepEqual(Object.keys(ONGLETS_FIXES_DS), ["examen", "formules", "dsblanc"]);
 });
 
 test("routes ajoutées (contrat studicamRoutes.ajouter)", () => {

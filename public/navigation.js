@@ -16,9 +16,12 @@
  *   #/a2/ce/asynchrone/lecon/3           leçon ouverte sur sa partie 3 (renvoi d'une correction)
  *   #/a2/ce/asynchrone/exo/<clé>         exercice (clé de EXOS) ; chapitres interactifs :
  *                                        #/a2/cm/vecteurs/exo/exo1, #/a1/cm/liaisons/exo/exo
- *   #/a2/revision-ds                     Révision DS, sur son dernier onglet
- *   #/a2/revision-ds/examen              un onglet : examen, ce, expo, cours, formules, dsblanc
- *   #/a2/revision-ds/ce/<sujet>          un chapitre des onglets ce, expo, cours
+ *   #/a2/revision-ds                     Révision DS : le prochain DS, sinon le plus récent
+ *   #/a2/revision-ds/ds-2026-11          un DS précis (id de revision-ds-<aaaa-mm>.js), passé ou à venir
+ *   #/a2/revision-ds/ds-2026-11/examen   un onglet : examen, formules, dsblanc ou une partie du DS (ce, expo…)
+ *   #/a2/revision-ds/ds-2026-11/ce/<sujet>  un chapitre d'une partie
+ *                                        Sans id (anciennes adresses, avant les « DS passés ») : le DS du
+ *                                        14/11/2026, le seul qui existait alors.
  *   #/prof, #/prof/<section>             Espace prof (comptes qui ont un rôle)
  *   #/serie                              série « Refaire » de serie.js (studicamLancerSerie) ; gardée
  *                                        en mémoire seulement : après un rafraîchissement, accueil
@@ -51,8 +54,11 @@
     // ---------- analyse et construction des adresses (sans DOM, testées par npm test) ----------
     const ANNEES = { a1: '1ère Année', a2: '2ème Année' };
     const DOMAINES = { techniques: 'techniques', sciences: 'scientifiques' };   // adresse -> clé de MATIERES
-    const ONGLETS_DS = { examen: 'Examen blanc', ce: 'CE', expo: 'OI : exposés', cours: 'OI : cours', formules: 'Formules', dsblanc: 'DS blanc' };
-    const PARTIES_DS = ['ce', 'expo', 'cours'];
+    // Révision DS : onglets communs à tous les DS ; les autres onglets sont les parties du DS (ce, expo, phys…)
+    const ONGLETS_FIXES_DS = { examen: 'Examen blanc', formules: 'Formules', dsblanc: 'DS blanc' };
+    const ONGLET_DS = /^[a-z]{1,20}$/;
+    const ID_DS = /^ds-[a-z0-9-]{1,40}$/;
+    const DS_SANS_ID = 'ds-2026-11';   // anciennes adresses #/a2/revision-ds/<onglet>
     const SEGMENT = /^[a-z0-9][a-z0-9_.-]{0,79}$/i;
 
     // « #/a2/ce » -> ['a2', 'ce'] ; '' ou '#' ou '#/' -> [] ; autre chose -> null
@@ -88,9 +94,12 @@
         const b = s[1].toLowerCase();
         if (b === 'revision-ds') {
             const r = { ecran: 'revision-ds', annee };
-            if (n >= 3) { if (!ONGLETS_DS[s[2]]) return null; r.onglet = s[2]; }
-            if (n === 4) { if (!PARTIES_DS.includes(s[2])) return null; r.chap = s[3]; }
-            return n <= 4 ? r : null;
+            let k = 2;
+            if (n > k && ID_DS.test(s[k])) r.ds = s[k++];
+            else if (n > k) r.ds = DS_SANS_ID;
+            if (n > k) { if (!ONGLET_DS.test(s[k])) return null; r.onglet = s[k++]; }
+            if (n > k) { if (ONGLETS_FIXES_DS[r.onglet]) return null; r.chap = s[k++]; }
+            return n === k ? r : null;
         }
         if (DOMAINES[b]) return n === 2 ? { ecran: 'domaine', annee, domaine: b } : null;
         if (!/^[a-z]+$/.test(b)) return null;
@@ -118,7 +127,8 @@
                 if (!r.annee) return `#/exo/${seg(r.exo)}`;
                 return chap() + '/exo/' + seg(r.exo);
             case 'revision-ds':
-                return `#/${r.annee || 'a2'}/revision-ds` + (r.onglet ? '/' + r.onglet + (r.chap && PARTIES_DS.includes(r.onglet) ? '/' + seg(r.chap) : '') : '');
+                return `#/${r.annee || 'a2'}/revision-ds` + (r.ds ? '/' + seg(r.ds) : '')
+                    + (r.ds && r.onglet ? '/' + r.onglet + (r.chap && !ONGLETS_FIXES_DS[r.onglet] ? '/' + seg(r.chap) : '') : '');
             case 'prof': return '#/prof' + (r.section ? '/' + seg(r.section) : '');
             case 'serie': return '#/serie';
             default: return '#/';
@@ -159,7 +169,7 @@
         return n(a) === n(b);
     }
 
-    racine.studicamAdresses = { analyserAdresse, construireAdresse, slugChapitre, correspondMotif, memeAdresse, ONGLETS_DS };
+    racine.studicamAdresses = { analyserAdresse, construireAdresse, slugChapitre, correspondMotif, memeAdresse, ONGLETS_FIXES_DS };
     if (typeof document === 'undefined' || typeof history === 'undefined' || typeof location === 'undefined') return;
 
     // ---------- côté page ----------
@@ -220,7 +230,10 @@
         if (visible('etape-espace-prof')) return etat.prof ? { ecran: 'prof', section: etat.prof } : { ecran: 'prof' };
         if (visible('etape-revision-ds')) {
             const r = { ecran: 'revision-ds', annee: 'a2' };
-            if (etat.ds && ONGLETS_DS[etat.ds.onglet]) { r.onglet = etat.ds.onglet; if (etat.ds.chap) r.chap = etat.ds.chap; }
+            if (etat.ds && etat.ds.id) {
+                r.ds = etat.ds.id;
+                if (ONGLET_DS.test(etat.ds.onglet || '')) { r.onglet = etat.ds.onglet; if (etat.ds.chap) r.chap = etat.ds.chap; }
+            }
             return r;
         }
         if (visible('etape-lecon-generique')) {
@@ -271,7 +284,8 @@
             case 'lecon': { const l = r.lecon && site.lecons()[r.lecon]; return avec(l ? l.titre : r.titreChapitre); }
             case 'exo': { const e = site.exos()[r.exo]; return avec(e && !r.titreChapitre ? e.titre : (r.titreChapitre || '') + ' : exercices'); }
             case 'revision-ds': {
-                let t = 'Révision DS' + (r.onglet ? ' : ' + ONGLETS_DS[r.onglet] : '');
+                const rd = racine.StudicamRevisionDS, nomOnglet = r.onglet && ((rd && rd.titreOnglet(r.ds, r.onglet)) || ONGLETS_FIXES_DS[r.onglet]);
+                let t = 'Révision DS' + (nomOnglet ? ' : ' + nomOnglet : '');
                 const h = r.chap && document.querySelector('#ds-contenu h2');
                 if (h) t += ' · ' + h.textContent;
                 return avec(t);
@@ -398,8 +412,7 @@
             case 'revision-ds':
                 if (r.annee !== 'a2' || typeof racine.ouvrirRevisionDS !== 'function') return false;
                 preparer('a2');
-                racine.ouvrirRevisionDS(r.onglet, r.chap);
-                return true;
+                return racine.ouvrirRevisionDS(r.onglet, r.chap, r.ds) !== false;
             case 'prof': {
                 const espace = racine.studicamEspaceProf;
                 if (!espace) return false;

@@ -624,12 +624,13 @@
                 remplirResume(boite, resume(donnees, s => s.annee === a && s.matiere === m, q => q.annee === a && q.matiere === m), a + '/' + m);
             }
         }
-        // Révision DS : toutes ses séries (CE, OI et l'examen mélangé) et ses erreurs
+        // Révision DS affichée : ses séries (parties et examen mélangé) et ses erreurs, sans celles des autres DS
         const ds = $('etape-revision-ds');
         const repere = $('ds-progression');
-        if (ds && repere && !ds.classList.contains('hidden')) {
+        const courant = window.StudicamRevisionDS && window.StudicamRevisionDS.courant();
+        if (ds && repere && courant && !ds.classList.contains('hidden')) {
             const boite = boiteResume(repere.parentElement, repere, 'data-mp-resume-ds');
-            remplirResume(boite, resume(donnees, s => String(s.cle).startsWith(PREFIXE_DS), q => String(q.id).startsWith('rds/'), true), null);
+            remplirResume(boite, resume(donnees, s => String(s.cle).startsWith(courant.prefixeCle), q => String(q.id).startsWith(courant.prefixeId), true), null);
         }
     }
 

@@ -62,11 +62,15 @@ export const ANNEES = ["a1", "a2"];
 export const MATIERES = ["cm", "ce", "aii", "oi", "est", "maths", "phys", "eco"];
 export const ROLES = ["prof", "equipe"];
 
-// Chapitres de l'onglet Révision DS (public/revision-ds.js), rangés par matière.
+// Révisions DS (public/revision-ds-<aaaa-mm>.js) : chapitres rangés par matière, et matière de
+// chaque filtre de l'examen blanc (« tout » mélange les matières, il n'en a pas).
 // Les clés sont <annee>/ds/<ds>/<chapitre> et <annee>/ds/<ds>/examen-<filtre>.
+// Ajouter ici chaque nouveau DS (même id que dans son fichier), sinon ses résultats n'entrent
+// pas dans le tableau de bord des profs.
 const DS_CHAPITRES = {
   "ds-2026-11": {
     annee: "a2",
+    filtres: { ce: "ce", expo: "oi", cours: "oi" },
     ce: ["mas", "plaque", "bilan", "charge", "normes", "magneto", "mcc"],
     oi: [
       // exposés de veille technologique
@@ -76,8 +80,6 @@ const DS_CHAPITRES = {
     ],
   },
 };
-// Filtres de l'examen blanc : « tout » mélange CE et OI, il n'a pas de matière.
-const DS_FILTRES = { ce: "ce", expo: "oi", cours: "oi" };
 
 // Clés exactes de la Révision DS rangées dans annee/matiere : chapitres et examen blanc filtré
 // (même tri que matiereDeCle). [] pour une paire inconnue.
@@ -87,7 +89,7 @@ export function clesDsDeMatiere(annee, matiere) {
   for (const [ds, def] of Object.entries(DS_CHAPITRES)) {
     if (def.annee !== annee) continue;
     for (const chapitre of Array.isArray(def[matiere]) ? def[matiere] : []) cles.push(`${annee}/ds/${ds}/${chapitre}`);
-    for (const [filtre, m] of Object.entries(DS_FILTRES)) {
+    for (const [filtre, m] of Object.entries(def.filtres || {})) {
       if (m === matiere) cles.push(`${annee}/ds/${ds}/examen-${filtre}`);
     }
   }
@@ -133,7 +135,8 @@ export function matiereDeCle(cle) {
   if (!ds || ds.annee !== annee || quatrieme === undefined || reste.length > 0) return null;
   if (quatrieme.startsWith("examen-")) {
     const filtre = quatrieme.slice("examen-".length);
-    return Object.hasOwn(DS_FILTRES, filtre) ? { annee, matiere: DS_FILTRES[filtre] } : null;
+    const filtres = ds.filtres || {};
+    return Object.hasOwn(filtres, filtre) ? { annee, matiere: filtres[filtre] } : null;
   }
   for (const matiere of MATIERES) {
     if (ds[matiere] && ds[matiere].includes(quatrieme)) return { annee, matiere };
