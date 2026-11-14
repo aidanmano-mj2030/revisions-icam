@@ -22,6 +22,7 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 | `public/index.html` | Le site : cours et exercices |
 | `public/progression.js` | Enregistre les exercices réussis, affiche les pastilles |
 | `public/navigation.js` | Une adresse `#/...` par écran, bouton retour du navigateur, routes ajoutées par d'autres scripts (voir « Adresses des écrans ») |
+| `public/ma-progression.js` | Page « Ma progression » : notes des séries terminées, carnet d'erreurs, résumé en tête de chaque matière |
 | `public/revision-ds.js` | Onglet « Révision DS » de l'A2 : examen blanc, QCM, exercices corrigés, formules |
 | `public/revision-ds-blancs.js` | Les deux DS blancs de cet onglet (sujets et corrigés, fichier généré) |
 | `public/prof.js` | Bouton « Vue prof » / « Vue élève » de l'en-tête et Espace prof, pour les comptes qui ont un rôle |
@@ -131,6 +132,25 @@ traités, une fois par an après la fin de l'année scolaire (début juillet) :
 
 ```
 npx wrangler d1 execute studicam --remote --command "DELETE FROM signalements WHERE statut IN ('corrige', 'rejete') AND traite_le < '2027-07-01'"
+```
+
+### Ma progression et carnet d'erreurs
+
+Migration `0007_series_carnet.sql`. À chaque « Terminer » d'une série de QCM,
+`public/ma-progression.js` envoie la série à `POST /api/series` (`src/series.js`, règles dans
+`src/regles-series.js`) : note, durée, et pour chaque question répondue, juste ou fausse.
+L'élève a sa page « Ma progression » (adresse `#/progression`, bouton dans l'en-tête) : courbe
+des notes par matière, dernières séries, carnet d'erreurs avec « Refaire ces questions » ; et un
+résumé en tête de chaque matière. Limites : 60 envois par minute, 1 000 séries et 3 000 questions
+par élève, deux ans au plus (élagage à chaque envoi). Les profs ont l'onglet « Questions ratées »
+(`src/prof-questions.js`) : par promo, taux d'échec à la première réponse par tranches de 20 %,
+seulement pour les questions répondues par 5 élèves ou plus, jamais nominatif.
+
+Effacer un compte efface ses séries et son carnet (`ON DELETE CASCADE`). Purge annuelle (début
+juillet) des lignes de plus de deux ans des comptes qui ne viennent plus :
+
+```
+npx wrangler d1 execute studicam --remote --command "DELETE FROM series WHERE fait_le < strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-2 years'); DELETE FROM questions_suivi WHERE maj_le < strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-2 years')"
 ```
 
 ## Tester en local
