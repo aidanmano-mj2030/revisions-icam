@@ -130,3 +130,10 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 ## 14 novembre 2026 – Ma progression et carnet d'erreurs (Aidan, avec Claude)
 
 - Chaque série de QCM terminée est enregistrée (note sur 20, %, durée, mode), ainsi que les questions ratées : page « Ma progression » (adresse #/progression, bouton dans l'en-tête) avec la courbe des notes par matière, les dernières séries et le carnet d'erreurs par chapitre (« Refaire ces questions » jusqu'à les réussir) ; résumé en tête de chaque matière et de la Révision DS. Espace prof : onglet « Questions ratées » (par promo, taux d'échec à la première réponse par tranches de 20 %, à partir de 5 élèves, jamais nominatif). Page de confidentialité mise à jour, migration `0007_series_carnet.sql` appliquée en ligne (PR #29).
+
+## 14 novembre 2026 – DS passés et plusieurs Révisions DS (Aidan, avec Claude)
+
+- La Révision DS du 14/11 (CE puis OI) quitte l'accueil A2 : elle est rangée dans une rubrique « DS passés », toujours consultable avec la progression (mêmes clés et mêmes identifiants de questions, carnet d'erreurs inchangé).
+- Le site accepte plusieurs Révisions DS : `revision-ds.js` devient un moteur commun, le contenu du 14/11 passe dans `revision-ds-2026-11.js`. Un DS à venir a sa carte sur l'accueil, un DS passé (ou marqué `archive: true`) va dans « DS passés ».
+- Adresses : `#/a2/revision-ds/<id du DS>/<onglet>/<chapitre>` ; les anciennes adresses sans id ouvrent le DS du 14/11.
+- Côté serveur, chaque DS déclare ses filtres d'examen dans `DS_CHAPITRES` ; un test vérifie que chaque fichier de Révision DS y figure. Marche à suivre dans le README, « Ajouter une Révision DS ».

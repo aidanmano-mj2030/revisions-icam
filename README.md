@@ -23,8 +23,9 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 | `public/progression.js` | Enregistre les exercices réussis, affiche les pastilles |
 | `public/navigation.js` | Une adresse `#/...` par écran, bouton retour du navigateur, routes ajoutées par d'autres scripts (voir « Adresses des écrans ») |
 | `public/ma-progression.js` | Page « Ma progression » : notes des séries terminées, carnet d'erreurs, résumé en tête de chaque matière |
-| `public/revision-ds.js` | Onglet « Révision DS » de l'A2 : examen blanc, QCM, exercices corrigés, formules |
-| `public/revision-ds-blancs.js` | Les deux DS blancs de cet onglet (sujets et corrigés, fichier généré) |
+| `public/revision-ds.js` | Moteur de l'onglet « Révision DS » de l'A2 : cartes de l'accueil, rubrique « DS passés », examen blanc, QCM, exercices corrigés, formules |
+| `public/revision-ds-2026-11.js` | Contenu de la Révision DS du 14/11/2026 (CE puis OI), rangée dans « DS passés » (voir « Ajouter une Révision DS ») |
+| `public/revision-ds-blancs.js` | Les deux DS blancs du 14/11/2026 (sujets et corrigés, fichier généré) |
 | `public/prof.js` | Bouton « Vue prof » / « Vue élève » de l'en-tête et Espace prof, pour les comptes qui ont un rôle |
 | `public/connexion.html` | Page de connexion |
 | `src/index.js` | Serveur (Cloudflare Worker) : connexion Google, sessions, progression, accès prof, protection des pages ; les modules d'API s'ajoutent au tableau `MODULES_API` |
@@ -51,8 +52,9 @@ copiée ramène au même écran. Le serveur ne voit pas cette partie de l'adress
 | `#/a2/ce/asynchrone/lecon` | Leçon : identifiant de la leçon sans son préfixe (`ce2-asynchrone` donne `asynchrone`) |
 | `#/a2/ce/asynchrone/lecon/3` | Leçon ouverte sur sa partie 3 (renvoi depuis une correction) |
 | `#/a2/ce/asynchrone/exo/ce2-asynchrone` | Exercice (clé de `EXOS`) ; chapitres interactifs : `#/a2/cm/vecteurs/exo/exo1`, `#/a1/cm/liaisons/exo/exo` |
-| `#/a2/revision-ds/examen` | Révision DS, un onglet : `examen`, `ce`, `expo`, `cours`, `formules`, `dsblanc` |
-| `#/a2/revision-ds/ce/mas` | Un chapitre des onglets `ce`, `expo`, `cours` |
+| `#/a2/revision-ds` | Révision DS : le prochain DS, sinon le plus récent |
+| `#/a2/revision-ds/ds-2026-11/examen` | Un DS précis, sur un onglet : `examen`, `formules`, `dsblanc` ou une de ses parties (`ce`, `expo`, `cours`…) |
+| `#/a2/revision-ds/ds-2026-11/ce/mas` | Un chapitre d'une partie. Les anciennes adresses sans id (`#/a2/revision-ds/examen`) ouvrent le DS du 14/11/2026 |
 | `#/prof`, `#/prof/annonces` | Espace prof, sur un onglet |
 | `#/serie` | Série « Refaire » ouverte par `studicamLancerSerie` (gardée en mémoire : après un rafraîchissement, accueil) |
 
@@ -152,6 +154,26 @@ juillet) des lignes de plus de deux ans des comptes qui ne viennent plus :
 ```
 npx wrangler d1 execute studicam --remote --command "DELETE FROM series WHERE fait_le < strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-2 years'); DELETE FROM questions_suivi WHERE maj_le < strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-2 years')"
 ```
+
+## Ajouter une Révision DS
+
+Chaque DS a son fichier de contenu ; `public/revision-ds.js` est le moteur commun et ne change pas.
+
+1. Copier `public/revision-ds-2026-11.js` en `public/revision-ds-<aaaa-mm>.js` (ajouter un suffixe s'il y a
+   deux DS le même mois, par exemple `revision-ds-2026-11-phys.js`), puis remplacer le contenu : les
+   parties (`PARTIES`, chacune avec ses chapitres, leurs sections et leurs QCM), `ORDRE_PARTIES`, `FILTRES`
+   de l'examen blanc, `FORMULES` et `DS_BLANCS` (listes vides possibles).
+2. Dans l'appel `RD.enregistrer({...})` : nouvel `id` (`ds-<aaaa-mm>[-suffixe]`), `date`, `libelle`, `titre`,
+   `titrePage`, `resume`, `intro`, `chap` (premier chapitre de chaque partie) et `matiere` (matière de
+   chaque partie). Retirer `prefixeId: 'rds'` et `archive: true`, propres au DS du 14/11 : les questions
+   d'un nouveau DS ont pour identifiant `ds/<id>/<partie>/<chapitre>#<hash>`.
+3. Ajouter `<script src="revision-ds-<aaaa-mm>.js" defer></script>` dans `public/index.html`, juste après les
+   autres fichiers de Révision DS.
+4. Déclarer le DS dans `DS_CHAPITRES` de `src/regles.js` (chapitres par matière et matière de chaque filtre
+   de l'examen), sinon le tableau de bord des profs ne le compte pas ; `npm test` le vérifie.
+
+Un DS dont la date est passée, ou qui porte `archive: true`, quitte l'accueil A2 et rejoint la rubrique
+« DS passés » : il reste consultable, avec la progression des élèves.
 
 ## Tester en local
 
