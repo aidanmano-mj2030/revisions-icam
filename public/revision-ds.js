@@ -1132,6 +1132,7 @@
     function afficherOnglet(cle, idChap) {
         ETAT.onglet = cle;
         if (idChap && PARTIES[cle]) ETAT.chap[cle] = idChap;
+        window.studicamNav?.noter({ ds: { onglet: cle, chap: PARTIES[cle] ? (PARTIES[cle].sujets.find(x => x.id === ETAT.chap[cle]) || PARTIES[cle].sujets[0]).id : null } });   // adresse (navigation.js)
         rendreOnglets();
         const zone = $('ds-contenu');
         zone.innerHTML = '';
@@ -1315,7 +1316,7 @@
     document.addEventListener('studicam:progression', () => { progressionLue = true; majProgression(); });
 
     // ---------- entrée ----------
-    function ouvrirRevisionDS(onglet) {
+    function ouvrirRevisionDS(onglet, idChap) {
         if (typeof cacherToutesLesEtapes === 'function') cacherToutesLesEtapes();
         $('etape-revision-ds').classList.remove('hidden');
         $('ds-compte').textContent = texteCompteARebours();
@@ -1324,7 +1325,7 @@
             `OI cours : <b>${COURS_OI.length}</b> chapitres`, `<b>${poolDe('tout').length}</b> QCM au total`
         ].map(t => `<span class="text-xs px-2.5 py-1 rounded-lg bg-darkcard border border-darkborder text-slate-300">${t}</span>`).join('');
         majProgression();
-        afficherOnglet(onglet || ETAT.onglet);
+        afficherOnglet(onglet || ETAT.onglet, idChap);
         window.scrollTo(0, 0);
     }
     window.ouvrirRevisionDS = ouvrirRevisionDS;

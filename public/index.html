@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cours Icam BTS ATI</title>
+<link rel="icon" href="data:,"><!-- pas de requête /favicon.ico à chaque changement d'adresse (navigation.js) -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
     /* Page volontairement sombre : fond et couleurs fixés explicitement */
@@ -1040,6 +1041,7 @@
         }
 
         function afficherOngletInter(nom) {
+            window.studicamNav?.noter();
             ['lecon', 'exo1', 'exo2'].forEach(tab => {
                 document.getElementById('section-' + tab).classList.add('hidden');
                 const btn = document.getElementById('tab-btn-' + tab);
@@ -1054,6 +1056,7 @@
         }
 
         function afficherOngletInterA1(nom) {
+            window.studicamNav?.noter();
             ['lecon', 'exo'].forEach(tab => {
                 document.getElementById('section-a1-' + tab).classList.add('hidden');
                 const btn = document.getElementById('tab-a1-btn-' + tab);
@@ -1097,6 +1100,7 @@
             document.getElementById('etape-exercice-generique').classList.add('hidden');
             document.getElementById('etape-revision-ds').classList.add('hidden');
             document.getElementById('etape-serie').classList.add('hidden');
+            window.studicamNav?.etapesCachees();   // adresse de l'écran (navigation.js)
         }
 
         function reinitialiserFond() {
@@ -2856,6 +2860,7 @@
                 return;
             }
             exoRanger();
+            window.studicamNav?.noter({ lecon: id, partie: null });
             cacherToutesLesEtapes();
             document.getElementById('etape-lecon-generique').classList.remove('hidden');
             document.getElementById('lecon-badge').textContent = lecon.badge;
@@ -2871,6 +2876,7 @@
         function allerLecon(idLecon, n) {
             const exo = exoCourant;
             ouvrirLecon(idLecon);
+            if (LECONS[idLecon]) window.studicamNav?.noter({ lecon: idLecon, partie: n });
             const zone = document.getElementById('lecon-contenu');
             if (exo && EXOS[exo]) zone.insertAdjacentHTML('afterbegin', `<button type="button" onclick="ouvrirExercice('${exo}')" class="sticky top-20 z-10 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 shadow-lg"><i data-lucide="arrow-left" class="w-4 h-4"></i> Revenir à l'exercice</button>`);
             const sec = document.getElementById('lecon-sec-' + n);
@@ -15318,5 +15324,6 @@
 <script src="prof-signalements.js" defer></script>
 <script src="prof-annonces.js" defer></script>
 <script src="prof-corrections.js" defer></script>
+<script src="navigation.js" defer></script>
 </body>
 </html>

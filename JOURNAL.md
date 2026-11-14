@@ -122,3 +122,7 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 ## 14 novembre 2026 – Fin d'examen et retour au cours (Aidan, avec Claude)
 
 - Examen blanc et QCM de la Révision DS, QCM des oraux de la veille OI : mode Entraînement ou Mode DS, bouton Terminer collant, bilan (note sur 20 et en %, durée, détail par chapitre, questions ratées avec correction et lien vers le chapitre), « Refaire mes erreurs » jusqu'au sans-faute, retour au cours sans perdre l'examen et série en cours gardée dans le navigateur (nouveau fichier `public/serie.js`, tests dans `test/serie.test.js`).
+
+## 14 novembre 2026 – Une adresse par écran et bouton retour (Aidan, avec Claude)
+
+- Chaque écran a son adresse après un « # » (#/a2/ce, #/a2/ce/asynchrone/lecon, #/a2/revision-ds/examen…, schéma dans le README) : le bouton retour du navigateur ou le geste retour du téléphone réaffiche l'écran précédent au lieu de quitter le site, l'exercice, l'examen en cours et la position dans la page sont retrouvés, rafraîchir ou coller une adresse rouvre le même écran, et l'adresse demandée est rouverte après la connexion Google (nouveau fichier `public/navigation.js`, tests dans `test/navigation.test.js`, PR #30).

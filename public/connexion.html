@@ -74,6 +74,11 @@
 </main>
 <script>
     (function () {
+        // adresse demandée avant la connexion (#/a2/ce...) : rouverte au retour par navigation.js
+        try {
+            if (/^#\/./.test(location.hash) && location.hash.length <= 300) sessionStorage.setItem('studicam-adresse', location.hash);
+            else if (!new URLSearchParams(location.search).get('erreur')) sessionStorage.removeItem('studicam-adresse');
+        } catch (e) { /* stockage bloqué : on reviendra à l'accueil */ }
         const messages = {
             annule: 'Connexion annulée. Réessaie quand tu veux.',
             compte: 'Utilise ton compte ICAM (…@icam.fr). Les comptes Google personnels ne sont pas acceptés.',

@@ -21,6 +21,7 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 |---|---|
 | `public/index.html` | Le site : cours et exercices |
 | `public/progression.js` | Enregistre les exercices réussis, affiche les pastilles |
+| `public/navigation.js` | Une adresse `#/...` par écran, bouton retour du navigateur, routes ajoutées par d'autres scripts (voir « Adresses des écrans ») |
 | `public/revision-ds.js` | Onglet « Révision DS » de l'A2 : examen blanc, QCM, exercices corrigés, formules |
 | `public/revision-ds-blancs.js` | Les deux DS blancs de cet onglet (sujets et corrigés, fichier généré) |
 | `public/prof.js` | Bouton « Vue prof » / « Vue élève » de l'en-tête et Espace prof, pour les comptes qui ont un rôle |
@@ -33,6 +34,36 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 Nouvel exercice : ajouter ses blocs dans la table `UNITES` en tête de `public/progression.js`,
 et garder les classes de correction (`border-emerald-500`, `border-red-500`, bilans
 `emerald` / `red`), sinon la réussite n'est pas comptée.
+
+## Adresses des écrans
+
+Chaque écran a sa propre adresse, après un `#` : le bouton retour du navigateur (ou le geste
+retour du téléphone) réaffiche l'écran précédent, et rafraîchir la page ou ouvrir une adresse
+copiée ramène au même écran. Le serveur ne voit pas cette partie de l'adresse.
+
+| Adresse | Écran |
+|---|---|
+| `#/` | Accueil (choix de l'année) |
+| `#/a2` | Choix du domaine de l'année (`a1` ou `a2`) |
+| `#/a2/techniques`, `#/a2/sciences` | Matières du domaine |
+| `#/a2/ce` | Chapitres d'une matière (`cm`, `ce`, `aii`, `oi`, `est`, `maths`, `phys`, `eco`) |
+| `#/a2/ce/asynchrone/lecon` | Leçon : identifiant de la leçon sans son préfixe (`ce2-asynchrone` donne `asynchrone`) |
+| `#/a2/ce/asynchrone/lecon/3` | Leçon ouverte sur sa partie 3 (renvoi depuis une correction) |
+| `#/a2/ce/asynchrone/exo/ce2-asynchrone` | Exercice (clé de `EXOS`) ; chapitres interactifs : `#/a2/cm/vecteurs/exo/exo1`, `#/a1/cm/liaisons/exo/exo` |
+| `#/a2/revision-ds/examen` | Révision DS, un onglet : `examen`, `ce`, `expo`, `cours`, `formules`, `dsblanc` |
+| `#/a2/revision-ds/ce/mas` | Un chapitre des onglets `ce`, `expo`, `cours` |
+| `#/prof`, `#/prof/annonces` | Espace prof, sur un onglet |
+| `#/serie` | Série « Refaire » ouverte par `studicamLancerSerie` (gardée en mémoire : après un rafraîchissement, accueil) |
+
+Une adresse inconnue, ou dont le contenu n'existe plus, ramène à l'accueil sans erreur. Si
+l'élève n'est pas connecté, la page de connexion garde l'adresse demandée (`sessionStorage`)
+et le site la rouvre après la connexion Google. Renommer une leçon (son identifiant dans
+`CHAPITRES`) change son adresse : les liens déjà partagés mènent alors à l'accueil.
+
+Pour un nouvel écran hors de ces adresses, un script chargé après `navigation.js` appelle
+`window.studicamRoutes.ajouter('#/progression', fonction, titre)` et l'ouvre avec
+`window.studicamRoutes.aller('#/progression')`. L'événement `studicam:ecran` est émis à chaque
+changement d'écran. Le détail est en tête de `public/navigation.js`.
 
 ## Connexion
 
