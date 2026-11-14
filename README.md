@@ -53,6 +53,7 @@ copiée ramène au même écran. Le serveur ne voit pas cette partie de l'adress
 | `#/a2/revision-ds/examen` | Révision DS, un onglet : `examen`, `ce`, `expo`, `cours`, `formules`, `dsblanc` |
 | `#/a2/revision-ds/ce/mas` | Un chapitre des onglets `ce`, `expo`, `cours` |
 | `#/prof`, `#/prof/annonces` | Espace prof, sur un onglet |
+| `#/serie` | Série « Refaire » ouverte par `studicamLancerSerie` (gardée en mémoire : après un rafraîchissement, accueil) |
 
 Une adresse inconnue, ou dont le contenu n'existe plus, ramène à l'accueil sans erreur. Si
 l'élève n'est pas connecté, la page de connexion garde l'adresse demandée (`sessionStorage`)

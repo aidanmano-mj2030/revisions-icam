@@ -29,6 +29,7 @@ test("analyse des adresses du site", () => {
     "#/a2/revision-ds/examen": { ecran: "revision-ds", annee: "a2", onglet: "examen" },
     "#/a2/revision-ds/ce/mas": { ecran: "revision-ds", annee: "a2", onglet: "ce", chap: "mas" },
     "#/prof": { ecran: "prof" },
+    "#/serie": { ecran: "serie" },
     "#/prof/signalements": { ecran: "prof", section: "signalements" },
     "#/lecon/oi-msp": { ecran: "lecon", lecon: "oi-msp" },
     "#/exo/aii-codes": { ecran: "exo", exo: "aii-codes" },
@@ -44,7 +45,7 @@ test("adresses refusées (retour à l'accueil)", () => {
     "#section", "#a2", "#/a3", "#/a2/x1", "#/a2/ce/asynchrone/autre", "#/a2/ce/asynchrone/lecon/0",
     "#/a2/ce/asynchrone/lecon/x", "#/a2/ce/asynchrone/lecon/100", "#/a2/ce/asynchrone/exo",
     "#/a2/ce/a/b/c/d", "#/a2/techniques/plus", "#/a2/revision-ds/inconnu", "#/a2/revision-ds/examen/mas",
-    "#/a2/revision-ds/ce/mas/plus", "#/prof/a/b", "#/a2/<script>", "#/a2/ce/%3Cimg%3E/lecon",
+    "#/a2/revision-ds/ce/mas/plus", "#/prof/a/b", "#/serie/x", "#/a2/<script>", "#/a2/ce/%3Cimg%3E/lecon",
     "#/a2/ce/%E0%A4%A/lecon", "#/a2/ce/" + "x".repeat(81), "#/a2//ce", "#/..", "#/a2/ce/-x/lecon",
     "javascript:alert(1)", null,
   ]) {
@@ -67,6 +68,7 @@ test("construction puis analyse : même écran", () => {
     { ecran: "revision-ds", annee: "a2", onglet: "expo", chap: "smed" },
     { ecran: "prof" },
     { ecran: "prof", section: "tableau-de-bord" },
+    { ecran: "serie" },
     { ecran: "lecon", lecon: "ph1-ali" },
     { ecran: "exo", exo: "m1x-suites" },
   ];

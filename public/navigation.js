@@ -20,6 +20,8 @@
  *   #/a2/revision-ds/examen              un onglet : examen, ce, expo, cours, formules, dsblanc
  *   #/a2/revision-ds/ce/<sujet>          un chapitre des onglets ce, expo, cours
  *   #/prof, #/prof/<section>             Espace prof (comptes qui ont un rôle)
+ *   #/serie                              série « Refaire » de serie.js (studicamLancerSerie) ; gardée
+ *                                        en mémoire seulement : après un rafraîchissement, accueil
  *   #/lecon/<id>, #/exo/<clé>            leçon ou exercice absents de CHAPITRES
  * Adresse inconnue, ou contenu absent : accueil, sans erreur.
  *
@@ -39,7 +41,7 @@
  *   window.studicamRoutes.aller(adresse) ouvre une adresse en ajoutant une entrée d'historique.
  * Événement « studicam:ecran » sur document à chaque changement d'écran,
  *   detail = { adresse, ecran, titre } (ecran : accueil, annee, domaine, matiere, lecon, exo,
- *   revision-ds, prof, ou perso pour une route ajoutée).
+ *   revision-ds, prof, serie, ou perso pour une route ajoutée).
  * Avant la connexion Google, connexion.html garde l'adresse demandée dans sessionStorage
  * (« studicam-adresse ») ; elle est rouverte ici au retour.
  */
@@ -77,6 +79,7 @@
         if (s.length === 0) return { ecran: 'accueil' };
         const n = s.length, tete = s[0].toLowerCase();
         if (tete === 'prof') return n === 1 ? { ecran: 'prof' } : n === 2 ? { ecran: 'prof', section: s[1] } : null;
+        if (tete === 'serie' && n === 1) return { ecran: 'serie' };
         if (tete === 'lecon' && n === 2) return { ecran: 'lecon', lecon: s[1] };
         if (tete === 'exo' && n === 2) return { ecran: 'exo', exo: s[1] };
         if (!ANNEES[tete]) return null;
@@ -117,6 +120,7 @@
             case 'revision-ds':
                 return `#/${r.annee || 'a2'}/revision-ds` + (r.onglet ? '/' + r.onglet + (r.chap && PARTIES_DS.includes(r.onglet) ? '/' + seg(r.chap) : '') : '');
             case 'prof': return '#/prof' + (r.section ? '/' + seg(r.section) : '');
+            case 'serie': return '#/serie';
             default: return '#/';
         }
     }
@@ -212,6 +216,7 @@
     // ---------- écran visible -> adresse ----------
     function ecranCourant() {
         if (perso) return { ecran: 'perso', adresse: perso.adresse };
+        if (visible('etape-serie')) return { ecran: 'serie' };
         if (visible('etape-espace-prof')) return etat.prof ? { ecran: 'prof', section: etat.prof } : { ecran: 'prof' };
         if (visible('etape-revision-ds')) {
             const r = { ecran: 'revision-ds', annee: 'a2' };
@@ -272,6 +277,7 @@
                 return avec(t);
             }
             case 'prof': return avec('Espace prof');
+            case 'serie': { const t = document.getElementById('serie-titre'); return avec(t && t.textContent); }
             case 'perso': return avec(perso && perso.titre);
             default: return TITRE_BASE;
         }
@@ -381,6 +387,14 @@
                 if (!site.exos()[r.exo]) return false;
                 ouvrirExercice(r.exo);
                 return true;
+            case 'serie': {
+                // la série montée reste dans la page tant qu'on ne la recharge pas
+                const etape = document.getElementById('etape-serie'), zone = document.getElementById('serie-contenu');
+                if (!etape || !zone || !zone.firstElementChild) return false;
+                cacherToutesLesEtapes();
+                etape.classList.remove('hidden');
+                return true;
+            }
             case 'revision-ds':
                 if (r.annee !== 'a2' || typeof racine.ouvrirRevisionDS !== 'function') return false;
                 preparer('a2');

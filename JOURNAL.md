@@ -118,3 +118,7 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - 5 nouvelles questions de QCM (la question du ressuage, posée par les deux groupes CND, n'est pas doublée) : QCM du site (21 questions), exposés de l'onglet « Révision DS » (21 QCM) et exercice 9 du DS blanc d'OI (21 × 0,25 pt, corrigé compris).
 - Deux autres groupes ajoutés (maintenance et Job Shop / Flow Shop) : 4 nouvelles questions et leur cours (5 niveaux de maintenance, GMAO, SNCF ; flow shop et familles de modèles). Le QCM du site, les exposés de la révision DS et l'exercice 9 du DS blanc d'OI passent à 25 questions (25 × 0,25 pt).
 - 2e groupe SST (santé et sécurité au travail) : cours ajouté à la partie SST de la leçon (DUERP, principes de prévention, TF, TG, pyramide de Bird, ISO 45001, exemple Airbus) et 2 nouvelles questions. Le QCM du site, les exposés de la révision DS et l'exercice 9 du DS blanc d'OI passent à 27 questions (27 × 0,25 pt).
+
+## 14 novembre 2026 – Fin d'examen et retour au cours (Aidan, avec Claude)
+
+- Examen blanc et QCM de la Révision DS, QCM des oraux de la veille OI : mode Entraînement ou Mode DS, bouton Terminer collant, bilan (note sur 20 et en %, durée, détail par chapitre, questions ratées avec correction et lien vers le chapitre), « Refaire mes erreurs » jusqu'au sans-faute, retour au cours sans perdre l'examen et série en cours gardée dans le navigateur (nouveau fichier `public/serie.js`, tests dans `test/serie.test.js`).
