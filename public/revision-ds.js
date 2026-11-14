@@ -12,10 +12,14 @@
  *     des TD et DS mais avec d'autres données, recalculées et vérifiées par script.
  *   - Variateur hors programme du DS de CE : volontairement absent.
  *
- * Progression (via window.studicamResultat de progression.js) :
- *   a2/ds/ds-2026-11/<chapitre>          tous les QCM du chapitre répondus ; réussi si tous justes
+ * Examen blanc et QCM des chapitres : séries de serie.js (mode Entraînement ou DS, Terminer, bilan,
+ * refaire ses erreurs, série en cours gardée dans le navigateur). Identifiant d'une question :
+ * rds/<partie>/<id du chapitre>#<hash de l'énoncé> (window.studicamIdQuestion).
+ *
+ * Progression (via window.studicamResultat de progression.js), envoyée à Terminer :
+ *   a2/ds/ds-2026-11/<chapitre>          QCM du chapitre terminés ; réussi si tous justes
  *   a2/ds/ds-2026-11/examen-<filtre>     examen blanc terminé ; score = % de bonnes réponses
- * Les exercices de calcul ne sont pas comptés (on lit la correction, on ne saisit rien).
+ * « Refaire mes erreurs » n'est pas enregistré. Les exercices de calcul ne sont pas comptés.
  */
 (function () {
     'use strict';
@@ -1040,7 +1044,6 @@
     const ORDRE_PARTIES = ['ce', 'expo', 'cours'];
     const TOUS = ORDRE_PARTIES.flatMap(p => PARTIES[p].sujets.map(s => ({ s, part: p })));
     const FILTRES = [['tout', 'Tout'], ['expo', 'Exposés OI'], ['cours', 'Cours OI'], ['ce', 'CE']];
-    const LETTRES = 'ABCDEFG';
 
     // ---------- état ----------
     const ETAT = { onglet: 'examen', chap: { ce: 'mas', expo: 'maintenance', cours: 'msp' }, filtre: 'tout' };
@@ -1055,8 +1058,21 @@
     const cleChap = (id) => `a2/ds/${DS.id}/${id}`;
     const cleExamen = (f) => `a2/ds/${DS.id}/examen-${f}`;
     function lire(cle) { try { return typeof window.studicamLire === 'function' ? window.studicamLire(cle) : null; } catch (e) { return null; } }
-    function enregistrer(cle, reussi, score) { try { if (typeof window.studicamResultat === 'function') window.studicamResultat(cle, reussi, score); } catch (e) { console.warn('Studicam : révision DS', e); } }
     const qcmDe = (s) => s.qcm.filter(q => !q.calc);
+    const SERIE = window.StudicamSerie || null;   // serie.js, chargé avant ce fichier
+    const matiereDe = (part) => (part === 'ce' ? 'ce' : 'oi');
+    const libelleChapitre = (part, s) => `${PARTIES[part].court} · ${s.titre}`;
+    // QCM au format de serie.js, calculés une fois (même objet pour l'examen et les chapitres)
+    const QSERIE = new Map();
+    function enSerie(q, s, part) {
+        if (!QSERIE.has(q)) QSERIE.set(q, {
+            id: window.studicamIdQuestion(`rds/${part}/${s.id}`, q.q), q: q.q, opts: q.opts, ok: q.ok, multi: !!q.multi,
+            expl: q.expl, src: q.src || '', chapitre: libelleChapitre(part, s), matiere: matiereDe(part), annee: 'a2',
+            ouvrir: () => { ETAT.chap[part] = s.id; ouvrirRevisionDS(part); return $('ds-contenu'); }
+        });
+        return QSERIE.get(q);
+    }
+    if (SERIE) (window.studicamSourcesQcm = window.studicamSourcesQcm || []).push(['rds', () => TOUS.flatMap(({ s, part }) => qcmDe(s).map(q => enSerie(q, s, part)))]);
     function joursAvantDS() {
         const auj = new Date(); auj.setHours(0, 0, 0, 0);
         return Math.round((DS.date - auj) / 86400000);
@@ -1067,58 +1083,6 @@
         if (j === 1) return 'demain';
         if (j === 0) return "aujourd'hui";
         return 'passé';
-    }
-
-    // ---------- QCM ----------
-    const CL_OPT = 'w-full flex items-start gap-3 text-left text-sm rounded-xl border px-3 py-2.5 transition-all ';
-    const OPT_NEUTRE = 'bg-slate-950/50 border-slate-700 text-slate-200 hover:border-slate-500';
-    const OPT_JUSTE = 'bg-emerald-500/10 border-emerald-500 text-slate-100';
-    const OPT_FAUX = 'bg-red-500/10 border-red-500 text-slate-100';
-
-    function rendreQcm(q, meta, onDone) {
-        const box = el('div', 'bg-slate-950/40 border border-slate-800 border-l-4 border-l-amber-500/70 rounded-xl p-4 space-y-3');
-        box.appendChild(el('p', 'text-[11px] font-bold uppercase tracking-wider text-slate-400', meta + (q.multi ? ' · plusieurs bonnes réponses' : '')));
-        box.appendChild(el('p', 'text-sm font-semibold text-white leading-relaxed', q.q));
-        const liste = el('div', 'grid gap-2');
-        const opts = [];
-        let valider = null;
-        function finir(choisis) {
-            const bon = q.ok.length === choisis.length && q.ok.every(i => choisis.includes(i));
-            opts.forEach((b, i) => {
-                b.disabled = true; b.classList.remove('hover:border-slate-500');
-                const inp = b.querySelector('input'); if (inp) inp.disabled = true;
-                const etat = q.ok.includes(i) ? OPT_JUSTE : choisis.includes(i) ? OPT_FAUX : 'bg-slate-950/50 border-slate-800 text-slate-400';
-                b.className = CL_OPT + etat + ' cursor-default';
-            });
-            if (valider) valider.remove();
-            const ex = el('div', 'rounded-xl border px-4 py-3 text-sm leading-relaxed space-y-1.5 ' + (bon ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-red-500/40 bg-red-500/10'));
-            ex.setAttribute('role', 'status');
-            ex.appendChild(el('p', 'font-bold ' + (bon ? 'text-emerald-300' : 'text-red-300'), bon ? 'Juste.' : 'Raté. Bonne réponse : ' + q.ok.map(i => LETTRES[i]).join(', ') + '.'));
-            ex.appendChild(el('p', 'text-slate-200', q.expl));
-            if (q.src) ex.appendChild(el('p', 'text-xs text-slate-400', q.src));
-            box.appendChild(ex);
-            if (onDone) onDone(bon, ex);
-            rafraichir(ex);
-        }
-        q.opts.forEach((t, i) => {
-            let b;
-            if (q.multi) {
-                b = el('label', CL_OPT + OPT_NEUTRE + ' cursor-pointer', `<input type="checkbox" class="mt-1 w-4 h-4 accent-amber-400 shrink-0"><span class="font-mono font-bold text-slate-400 shrink-0">${LETTRES[i]}</span><span>${t}</span>`);
-            } else {
-                b = bouton(CL_OPT + OPT_NEUTRE, `<span class="font-mono font-bold text-slate-400 shrink-0">${LETTRES[i]}</span><span>${t}</span>`, () => finir([i]));
-            }
-            opts.push(b); liste.appendChild(b);
-        });
-        box.appendChild(liste);
-        if (q.multi) {
-            valider = bouton('px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold flex items-center gap-2 transition-all', '<i data-lucide="check-circle-2" class="w-4 h-4"></i> Valider mes réponses', () => {
-                const choisis = opts.map((b, i) => b.querySelector('input').checked ? i : -1).filter(i => i >= 0);
-                if (!choisis.length) { if (typeof afficherToast === 'function') afficherToast('Coche au moins une réponse.'); return; }
-                finir(choisis);
-            });
-            box.appendChild(valider);
-        }
-        return box;
     }
 
     function rendreCalc(q, n) {
@@ -1175,6 +1139,8 @@
         else if (PARTIES[cle]) rendrePartie(zone, cle);
         else if (cle === 'formules') rendreFormules(zone);
         else rendreDsBlanc(zone);
+        // venu d'un lien « Chapitre : … » d'une série : bouton collant pour y revenir
+        if (SERIE && cle !== 'examen') SERIE.reposerRetour(zone);
         rafraichir(zone);
     }
 
@@ -1210,39 +1176,19 @@
                 + `<h3 class="text-lg font-bold text-white">${sec.titre}</h3></div>${sec.contenu}</div>`);
         });
 
-        // QCM du chapitre : comptés une fois tous répondus
+        // QCM du chapitre : série de serie.js, enregistrée à Terminer (réussi si tous justes)
         const qcm = qcmDe(s);
         const carteQ = el('div', 'bg-darkcard border border-darkborder rounded-2xl p-5 sm:p-6 shadow-xl space-y-4');
-        const titreQ = el('div', 'flex flex-wrap items-center justify-between gap-2');
-        titreQ.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 shrink-0"><i data-lucide="list-checks" class="w-4 h-4"></i></div><h3 class="text-lg font-bold text-white">${part === 'expo' ? "QCM de l'exposé" : 'QCM'}</h3></div>`;
-        const score = el('span', 'text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300');
-        score.setAttribute('aria-live', 'polite');
-        titreQ.appendChild(score);
-        carteQ.appendChild(titreQ);
-        const listeQ = el('div', 'space-y-3');
-        carteQ.appendChild(listeQ);
-        const recommencer = bouton('px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-sm font-semibold flex items-center gap-2 transition-all', '<i data-lucide="rotate-ccw" class="w-4 h-4"></i> Recommencer les QCM', () => lancerQ());
-        carteQ.appendChild(recommencer);
+        carteQ.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 shrink-0"><i data-lucide="list-checks" class="w-4 h-4"></i></div><h3 class="text-lg font-bold text-white">${part === 'expo' ? "QCM de l'exposé" : 'QCM'}</h3></div>`;
+        const serieQ = SERIE.monter({
+            slot: `rds/chap/${part}/${s.id}`, melanger: false, enregistrer: true, lienCorrection: false,
+            depart: () => ({ questions: qcm.map(q => enSerie(q, s, part)), cle: cleChap(s.id), annee: 'a2', matiere: matiereDe(part), titre: `QCM · ${libelleChapitre(part, s)}` }),
+            surChapitre: () => window.scrollTo({ top: Math.max(0, tete.getBoundingClientRect().top + window.scrollY - 120), behavior: 'smooth' }),
+            revenir: () => afficherOnglet(part),
+            apresTerminer: () => { majPastilleChapitre(tete, s); majProgression(); }
+        });
+        carteQ.appendChild(serieQ.racine);
         zone.appendChild(carteQ);
-
-        function lancerQ() {
-            let rep = 0, justes = 0;
-            score.textContent = `0 / ${qcm.length}`;
-            listeQ.innerHTML = '';
-            qcm.forEach((q, i) => {
-                const meta = (part === 'expo' ? "QCM de l'exposé" : 'QCM') + ' · question ' + (i + 1);
-                listeQ.appendChild(rendreQcm(q, meta, (bon) => {
-                    rep++; if (bon) justes++;
-                    score.textContent = `${justes} / ${qcm.length}` + (rep < qcm.length ? ` · ${rep} répondue${rep > 1 ? 's' : ''}` : '');
-                    if (rep === qcm.length) {
-                        enregistrer(cleChap(s.id), justes === qcm.length, 100 * justes / qcm.length);
-                        score.textContent = `${justes} / ${qcm.length} · ` + (justes === qcm.length ? 'sans faute' : 'recommence pour viser le sans-faute');
-                    }
-                }));
-            });
-            rafraichir(listeQ);
-        }
-        lancerQ();
 
         // exercices corrigés
         const calcs = s.qcm.filter(q => q.calc);
@@ -1280,58 +1226,38 @@
     function poolDe(f) {
         return TOUS.filter(({ part }) => f === 'tout' || part === f).flatMap(({ s, part }) => qcmDe(s).map(q => ({ q, s, part })));
     }
+    // L'examen est une seule série gardée en mémoire (et dans le navigateur) : revenir sur l'onglet,
+    // y compris depuis un lien « Chapitre : … », retrouve l'ordre, les réponses et le bilan.
+    let EXAMEN = null;
     function rendreExamen(zone) {
-        zone.appendChild(el('p', 'text-sm text-slate-300 leading-relaxed', "Toutes les questions de QCM, mélangées. Le chapitre n'est révélé qu'après ta réponse. Vise le sans-faute, puis relance pour un nouvel ordre. Les exercices de calcul sont dans les onglets CE et OI."));
-        const barre = el('div', 'flex flex-wrap items-center gap-2');
-        const filtres = el('div', 'flex flex-wrap gap-2');
-        filtres.setAttribute('role', 'group'); filtres.setAttribute('aria-label', "Matière de l'examen");
-        FILTRES.forEach(([f, lib]) => {
-            const actif = ETAT.filtre === f;
-            const b = bouton(`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${actif ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'}`, `${lib} · ${poolDe(f).length}`, () => { ETAT.filtre = f; afficherOnglet('examen'); });
-            b.setAttribute('aria-pressed', String(actif));
-            filtres.appendChild(b);
+        zone.appendChild(el('p', 'text-sm text-slate-300 leading-relaxed', "Toutes les questions de QCM, mélangées. Le chapitre n'est révélé qu'après la correction. En Entraînement, chaque réponse est corrigée tout de suite ; en Mode DS, tout est corrigé à Terminer. Ton examen en cours est gardé sur cet appareil jusqu'à Terminer. Les exercices de calcul sont dans les onglets CE et OI."));
+        if (!EXAMEN) EXAMEN = SERIE.monter({
+            slot: 'rds/examen', choixModeAvant: true, melanger: true, enregistrer: true, libelleRetour: "à l'examen",
+            avantDepart: (z, redessiner) => {
+                const filtres = el('div', 'flex flex-wrap gap-2');
+                filtres.setAttribute('role', 'group'); filtres.setAttribute('aria-label', "Matière de l'examen");
+                FILTRES.forEach(([f, lib]) => {
+                    const actif = ETAT.filtre === f;
+                    const b = bouton(`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${actif ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'}`, `${lib} · ${poolDe(f).length}`, () => { ETAT.filtre = f; redessiner(); });
+                    b.setAttribute('aria-pressed', String(actif));
+                    filtres.appendChild(b);
+                });
+                z.appendChild(filtres);
+                const p = lire(cleExamen(ETAT.filtre));
+                if (p && p.score != null) z.appendChild(el('p', 'text-xs text-slate-400', `Meilleur score enregistré : ${Math.round(p.score)} %`));
+            },
+            depart: () => {
+                const lib = FILTRES.find(([f]) => f === ETAT.filtre)[1];
+                return {
+                    questions: poolDe(ETAT.filtre).map(({ q, s, part }) => enSerie(q, s, part)), cle: cleExamen(ETAT.filtre), annee: 'a2',
+                    matiere: ETAT.filtre === 'tout' ? 'ds' : matiereDe(ETAT.filtre), titre: `Examen blanc · ${lib}`
+                };
+            },
+            revenir: () => ouvrirRevisionDS('examen'),
+            apresTerminer: () => majProgression()
         });
-        barre.appendChild(filtres);
-        zone.appendChild(barre);
-
-        const ligne = el('div', 'flex flex-wrap items-center gap-2');
-        const score = el('span', 'text-sm font-mono font-bold px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-amber-300');
-        score.setAttribute('aria-live', 'polite');
-        const meilleur = el('span', 'text-xs text-slate-400');
-        ligne.appendChild(score);
-        ligne.appendChild(bouton('px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30 text-sm font-semibold flex items-center gap-2 transition-all', '<i data-lucide="shuffle" class="w-4 h-4"></i> Nouvel ordre', () => lancer()));
-        ligne.appendChild(meilleur);
-        zone.appendChild(ligne);
-        const liste = el('div', 'space-y-3');
-        zone.appendChild(liste);
-
-        function majMeilleur() {
-            const p = lire(cleExamen(ETAT.filtre));
-            meilleur.textContent = p && p.score != null ? `Meilleur score enregistré : ${Math.round(p.score)} %` : '';
-        }
-        function lancer() {
-            const pool = poolDe(ETAT.filtre);
-            for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-            let rep = 0, justes = 0;
-            const maj = () => { score.textContent = `${justes} / ${pool.length} · ${rep} répondue${rep > 1 ? 's' : ''}`; };
-            maj(); majMeilleur();
-            liste.innerHTML = '';
-            pool.forEach(({ q, s, part }, n) => {
-                liste.appendChild(rendreQcm(q, `Question ${n + 1} / ${pool.length}`, (bon, ex) => {
-                    rep++; if (bon) justes++; maj();
-                    const lien = el('p', 'text-xs text-slate-400');
-                    lien.append('Chapitre : ');
-                    lien.appendChild(bouton('underline decoration-dotted underline-offset-2 text-blue-300 hover:text-blue-200 font-semibold text-left', `${PARTIES[part].court} · ${s.titre}`, () => { afficherOnglet(part, s.id); window.scrollTo(0, 0); }));
-                    ex.appendChild(lien);
-                    if (rep === pool.length) {
-                        enregistrer(cleExamen(ETAT.filtre), justes === pool.length, 100 * justes / pool.length);
-                        score.textContent = `${justes} / ${pool.length} · terminé (${Math.round(100 * justes / pool.length)} %)`;
-                    }
-                }));
-            });
-            rafraichir(liste);
-        }
-        lancer();
+        SERIE.oublierRetour();
+        zone.appendChild(EXAMEN.racine);
     }
 
     // ---------- formules ----------

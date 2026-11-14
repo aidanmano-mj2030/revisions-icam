@@ -673,13 +673,28 @@
                     <div class="space-y-2">
                         <div class="inline-block px-3 py-1 rounded-md text-xs font-mono font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">2ème Année • DS du samedi 14 novembre · <span id="ds-compte"></span></div>
                         <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Révision DS : CE puis OI</h1>
-                        <p class="text-sm text-slate-400 leading-relaxed max-w-2xl">Construction électrique d'abord, organisation industrielle ensuite. Les QCM se corrigent au clic, les exercices montrent leur correction étape par étape.</p>
+                        <p class="text-sm text-slate-400 leading-relaxed max-w-2xl">Construction électrique d'abord, organisation industrielle ensuite. Les QCM se corrigent au clic (Entraînement) ou à la fin (Mode DS), les exercices montrent leur correction étape par étape.</p>
                         <div id="ds-stats" class="flex flex-wrap gap-2"></div>
                         <div id="ds-progression"></div>
                     </div>
                 </div>
                 <div id="ds-onglets"></div>
                 <div id="ds-contenu" class="space-y-5"></div>
+            </div>
+
+            <!-- SECTION 10 : SÉRIE « REFAIRE » DE QUESTIONS CHOISIES (rendue par serie.js, window.studicamLancerSerie) -->
+            <div id="etape-serie" class="hidden space-y-6 text-left max-w-4xl mx-auto">
+                <div class="flex flex-col items-start gap-4">
+                    <button type="button" onclick="window.studicamRoutes ? history.back() : retourCategories()" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white px-4 py-2 rounded-xl bg-darkcard border border-darkborder transition-all hover:border-slate-500">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Retour
+                    </button>
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Refaire mes erreurs</div>
+                        <h1 id="serie-titre" class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight"></h1>
+                    </div>
+                </div>
+                <div id="serie-contenu" class="space-y-5"></div>
             </div>
 
         </div>
@@ -1081,6 +1096,7 @@
             document.getElementById('etape-lecon-generique').classList.add('hidden');
             document.getElementById('etape-exercice-generique').classList.add('hidden');
             document.getElementById('etape-revision-ds').classList.add('hidden');
+            document.getElementById('etape-serie').classList.add('hidden');
         }
 
         function reinitialiserFond() {
@@ -6551,7 +6567,8 @@
             const e = EXG[id], q = e.q;
             const chips = e.libelles ? `<div class="flex flex-wrap items-center gap-2">${Object.keys(e.libelles).map(k => `<button type="button" data-filtre="${k}" class="px-3 py-1.5 rounded-full text-xs font-semibold border ${e.filtre === k ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700'}">${e.libelles[k]}</button>`).join('')}</div>` : '';
             const corps = document.getElementById(`bloc-${id}-corps`);
-            corps.innerHTML = `${chips}
+            const serie = q.serie && window.StudicamSerie;
+            corps.innerHTML = serie ? `${chips}<div id="${id}-serie"></div>` : `${chips}
                 <div class="rounded-xl bg-slate-950 border border-slate-800 p-4 space-y-3 text-sm text-slate-300 leading-relaxed overflow-x-auto">${q.enonce}</div>
                 ${q.champs.some(c => c.chiffres === 3) ? CONSIGNE_CENTIEME.replace('centième', 'centième, ou au millième pour les mesures en mm').replace('2 chiffres', '2 ou 3 chiffres') : q.champs.some(c => (c.kind === undefined || c.kind === 'num') && estDecimal(c.sol)) ? CONSIGNE_CENTIEME : ''}
                 <div class="space-y-3">${q.grille && q.grilleAvant ? exgGrille(id, q.grille) : ''}${exgChamps(id, q)}${q.grille && !q.grilleAvant ? exgGrille(id, q.grille) : ''}${q.extra ? `<div id="${id}-extra" class="space-y-3">${q.extra.html(id)}</div>` : ''}<p id="${id}-bilan" class="text-sm min-h-[1.25rem]" role="status" aria-live="polite"></p></div>
@@ -6573,12 +6590,36 @@
                     if (k >= 0 && k < champs.length - 1) champs[k + 1].focus(); else exgVerifier(id);
                 });
             }
+            if (serie) { exgSerie(id, q); chargerIconesEtMaths(); return; }
             document.getElementById(`${id}-verifier`).onclick = () => exgVerifier(id);
             document.getElementById(`${id}-reinitialiser`).onclick = () => exgReinit(id);
             document.getElementById(`${id}-nouveau`).onclick = () => { exgNouvelle(id); exgDessiner(id); };
             document.getElementById(`${id}-correction`).onclick = () => exgCorriger(id);
             if (q.extra) q.extra.init(id);
             chargerIconesEtMaths();
+        }
+        // Série de QCM (tous ses champs sont des gChoix, marquée `serie`, comme les QCM des oraux) :
+        // modes Entraînement / DS, Terminer, bilan et refaire ses erreurs de serie.js. Une série par
+        // filtre, gardée avec ses réponses ; résultat enregistré à Terminer sous la clé habituelle.
+        function exgSerie(id, q) {
+            const s = q.serie, ref = cleExoProgression(s.exo, s.bloc);
+            const c = StudicamSerie.monter({
+                slot: `exo/${s.exo}/${q.type}`, melanger: false, enregistrer: true, montrerChapitre: true, libelleRetour: 'à la série',
+                depart: () => ({ questions: s.questions(), cle: ref.cle, annee: ref.annee, matiere: ref.matiere, titre: s.titre }),
+                revenir: () => ouvrirExercice(s.exo)
+            });
+            document.getElementById(`${id}-serie`).appendChild(c.racine);
+        }
+        // même clé que progression.js (cleExo) : <année>/<matière>/<exercice>/<bloc>
+        function cleExoProgression(exo, bloc) {
+            const ANNEES = { '1ère Année': 'a1', '2ème Année': 'a2' }, chap = EXOS[exo] && EXOS[exo].chapitre;
+            for (const an of Object.keys(CHAPITRES)) for (const mat of Object.keys(CHAPITRES[an])) {
+                if (CHAPITRES[an][mat].some(c => c.lecon === chap)) {
+                    const annee = ANNEES[an] || 'ax', matiere = mat.toLowerCase();
+                    return { cle: `${annee}/${matiere}/${exo}/${bloc}`, annee, matiere };
+                }
+            }
+            return { cle: `ax/autre/${exo}/${bloc}`, annee: null, matiere: null };
         }
         function exgVerifier(id) {
             const e = EXG[id], q = e.q; let vides = 0, faux = 0, total = 0, decimales = 0;
@@ -15242,8 +15283,26 @@
                 champs.push(gChoix('q' + n, sol, lettres, { groupe: `${cles.length > 1 ? `<span class="text-xs font-mono text-blue-300">${VEILLE_NOMS[cle]}</span><br>` : ''}${n}. ${q}` }));
                 corr.push(`<p><strong class="text-white">${n}.</strong> ${lettres.find(o => o[0] === sol)[1]}. ${expl}</p>`);
             }));
-            return { enonce: `<p>Réponds aux questions posées par ${cles.length > 1 ? 'les groupes' : 'le groupe'} à la fin de ${cles.length > 1 ? 'leur oral' : 'son oral'} (une seule bonne réponse par question).</p>`, champs, correction: corr.join('') };
+            return { enonce: `<p>Réponds aux questions posées par ${cles.length > 1 ? 'les groupes' : 'le groupe'} à la fin de ${cles.length > 1 ? 'leur oral' : 'son oral'} (une seule bonne réponse par question).</p>`, champs, correction: corr.join(''),
+                serie: { exo: 'oi2-veille', bloc: 'vt', titre: 'QCM des oraux · ' + (cles.length > 1 ? 'tous les oraux' : VEILLE_NOMS[cles[0]]), questions: () => veilleQuestions(cles) } };
         }
+        // les mêmes questions au format de serie.js ; identifiant exo/oi2-veille#<hash de l'énoncé>
+        function veilleQuestions(cles) {
+            return cles.flatMap(cle => VEILLE_Q[cle].map(([q, sol, opts, expl]) => ({
+                id: window.studicamIdQuestion('exo/oi2-veille', q), q, opts: opts.map(o => o[1]), ok: [opts.findIndex(o => o[0] === sol)], multi: false,
+                expl, chapitre: 'OI · ' + VEILLE_NOMS[cle], matiere: 'oi', annee: 'a2', ouvrir: () => veilleOuvrirLecon(cle)
+            })));
+        }
+        function veilleOuvrirLecon(cle) {
+            const n = RENVOIS['oi2-veille'][cle][0];
+            allerLecon('oi2-veille', n);
+            const z = document.getElementById('lecon-contenu'), sec = document.getElementById('lecon-sec-' + n);
+            if (sec) sec.style.scrollMarginTop = '10rem';   // le titre de la partie reste visible sous le bouton de retour
+            // allerLecon pose « Revenir à l'exercice » ; serie.js pose le sien, qui ramène à la question
+            z.querySelectorAll(':scope > button[onclick^="ouvrirExercice"]').forEach(b => b.remove());
+            return z;
+        }
+        (window.studicamSourcesQcm = window.studicamSourcesQcm || []).push(['exo/oi2-veille', () => veilleQuestions(Object.keys(VEILLE_Q))]);
         const VEILLE_TYPES = { all: () => veilleSerie(Object.keys(VEILLE_Q)) };
         Object.keys(VEILLE_Q).forEach(cle => { VEILLE_TYPES[cle] = () => veilleSerie([cle]); });
         EXOS['oi2-veille'] = { chapitre: 'oi2-veille', libelle: 'QCM des oraux', badge: 'OI • 2ème Année', titre: 'Veille technologique : QCM des oraux',
@@ -15251,6 +15310,7 @@
         Object.assign(RENVOIS, { 'oi2-veille': { all: [1, 2, 3, 4, 5, 6, 7, 8], vsm: [1], maint: [2], smed: [3], equi: [4], shop: [5], cnd: [6], metro: [7], sst: [8] } });
     </script>
 <script src="revision-ds-blancs.js" defer></script>
+<script src="serie.js" defer></script>
 <script src="revision-ds.js" defer></script>
 <script src="progression.js" defer></script>
 <script src="prof.js" defer></script>
