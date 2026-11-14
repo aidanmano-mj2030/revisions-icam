@@ -126,3 +126,7 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 ## 14 novembre 2026 – Une adresse par écran et bouton retour (Aidan, avec Claude)
 
 - Chaque écran a son adresse après un « # » (#/a2/ce, #/a2/ce/asynchrone/lecon, #/a2/revision-ds/examen…, schéma dans le README) : le bouton retour du navigateur ou le geste retour du téléphone réaffiche l'écran précédent au lieu de quitter le site, l'exercice, l'examen en cours et la position dans la page sont retrouvés, rafraîchir ou coller une adresse rouvre le même écran, et l'adresse demandée est rouverte après la connexion Google (nouveau fichier `public/navigation.js`, tests dans `test/navigation.test.js`, PR #30).
+
+## 14 novembre 2026 – Ma progression et carnet d'erreurs (Aidan, avec Claude)
+
+- Chaque série de QCM terminée est enregistrée (note sur 20, %, durée, mode), ainsi que les questions ratées : page « Ma progression » (adresse #/progression, bouton dans l'en-tête) avec la courbe des notes par matière, les dernières séries et le carnet d'erreurs par chapitre (« Refaire ces questions » jusqu'à les réussir) ; résumé en tête de chaque matière et de la Révision DS. Espace prof : onglet « Questions ratées » (par promo, taux d'échec à la première réponse par tranches de 20 %, à partir de 5 élèves, jamais nominatif). Page de confidentialité mise à jour, migration `0007_series_carnet.sql` appliquée en ligne (PR #29).
