@@ -107,6 +107,7 @@
             return;
         }
         if (!sections.some(s => s.id === ongletActif)) ongletActif = sections[0].id;
+        window.studicamNav?.noter({ prof: ongletActif });   // adresse #/prof/<onglet> (navigation.js)
         if (sections.length > 1) {
             const barre = el('div', 'flex gap-1 overflow-x-auto border-b border-darkborder');
             barre.setAttribute('role', 'tablist');
