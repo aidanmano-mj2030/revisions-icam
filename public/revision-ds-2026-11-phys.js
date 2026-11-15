@@ -19,6 +19,219 @@
     const { R, P, UL, NOTE, F, T, S } = RD.outils;
 
     // ==========================================
+    // Schémas (SVG). On réutilise les dessins des leçons de physique d'index.html (figPont,
+    // figHacheurMoteur, svgOndPont…, globaux) et leur boîte à outils PF ; les montages propres
+    // aux polys et aux anciens DS sont dessinés ici avec les mêmes couleurs (mode clair géré
+    // par le CSS d'index.html). Si index.html change, un schéma absent donne '' sans erreur.
+    // ==========================================
+    const OK_PF = typeof PF !== 'undefined' && typeof H !== 'undefined';
+    const dessin = (nom, ...a) => (typeof window[nom] === 'function' ? window[nom](...a) : '');
+    const FIGURE = (svg, legende) => (svg && OK_PF ? H.figure(svg, legende) : '');
+    const sur = (f) => { try { return OK_PF ? f() : ''; } catch (e) { console.warn('Studicam : schéma', e); return ''; } };
+    const TX = (x, y, s, o = {}) => PF.t(x, y, s, Object.assign({ s: 10, c: SVG_TEXTE }, o));
+    const BLEU = '#60a5fa', ROUGE = '#f87171';
+    const point = (x, y) => `<circle cx="${x}" cy="${y}" r="2.6" fill="${SVG_TRAIT}"/>`;
+    const masse = (x, y) => PF.L(x - 8, y, x + 8, y) + PF.L(x - 5, y + 3, x + 5, y + 3) + PF.L(x - 2, y + 6, x + 2, y + 6);
+    const tension = (x, y1, y2, nom, c) => PF.fleche(x, y1, x, y2, c || BLEU) + TX(x + 6, (y1 + y2) / 2 + 4, nom, { a: 'start', c: c || BLEU });
+    // phototransistor : barre en (x, y), collecteur vers le haut, émetteur vers le bas, rayons IR à gauche
+    const photo = (x, y) => PF.L(x - 12, y - 12, x - 12, y + 12) + PF.L(x - 12, y - 6, x, y - 16) + PF.L(x - 12, y + 6, x, y + 16) + PF.fleche(x - 6, y + 11, x, y + 16, SVG_TRAIT)
+        + PF.fleche(x - 38, y - 10, x - 20, y - 2, SVG_ACCENT) + PF.fleche(x - 38, y + 2, x - 20, y + 10, SVG_ACCENT);
+
+    // Pont à quatre éléments, dessiné comme dans les polys : D1 et D2 en haut, D4 et D3 en bas
+    // (noms modifiables), source à gauche reliée aux deux points milieux, charge à droite.
+    // o.types {hg,hd,bg,bd} : 'd' diode ou 't' thyristor ; o.src : 'v' ou 'transfo' ;
+    // o.charge : 'R' (défaut), 'RL', 'LM', 'RfilM', 'filtre', 'CRIT'.
+    function pont4(o = {}) {
+        const n = Object.assign({ hg: 'D1', hd: 'D2', bg: 'D4', bd: 'D3' }, o.noms || {});
+        const ty = Object.assign({ hg: 'd', hd: 'd', bg: 'd', bd: 'd' }, o.types || {});
+        const xg = o.src === 'transfo' ? 160 : 140, xd = xg + 80, yh = 25, yb = 140, ymg = 70, ymd = 94;
+        const elt = (x, y, k, nom) => (ty[k] === 't' ? PF.thyristor(x, y, -90) : PF.diode(x, y, -90)) + TX(x + (ty[k] === 't' ? 19 : 13), y + 4, nom, { a: 'start', c: SVG_ACCENT });
+        let s = PF.L(xg, yh, xd, yh) + PF.L(xg, yb, xd, yb);
+        [xg, xd].forEach(x => { s += PF.L(x, yh, x, 28) + PF.L(x, 68, x, 97) + PF.L(x, 137, x, yb); });
+        s += elt(xg, 48, 'hg', n.hg) + elt(xd, 48, 'hd', n.hd) + elt(xg, 117, 'bg', n.bg) + elt(xd, 117, 'bd', n.bd);
+        s += point(xg, ymg) + point(xd, ymd);
+        let xs;   // source, puis liaisons aux points milieux (la liaison basse enjambe la branche gauche)
+        if (o.src === 'transfo') {
+            s += `<circle cx="52" cy="82" r="13"/><circle cx="70" cy="82" r="13"/>` + TX(61, 116, o.transfo || '', { s: 9, c: SVG_DISCRET });
+            s += PF.L(52, 69, 52, 60) + PF.L(52, 60, 14, 60) + PF.L(52, 95, 52, 104) + PF.L(52, 104, 14, 104) + tension(22, 100, 64, o.u1 || 'u1');
+            s += PF.L(70, 69, 70, ymg) + PF.L(70, ymg, xg, ymg) + PF.L(70, 95, 70, ymd);
+            xs = 70;
+            s += tension(110, ymd - 3, ymg + 3, o.v || 'u2');
+        } else {
+            s += PF.src(60, 82, '', true) + PF.L(60, 70, 60, ymg) + PF.L(60, ymg, xg, ymg) + PF.L(60, 94, 60, ymd);
+            xs = 60;
+            s += tension(26, 94, 70, o.v || 'v');
+        }
+        s += PF.L(xs, ymd, xg - 6, ymd) + `<path d="M${xg - 6} ${ymd}A6 6 0 0 1 ${xg + 6} ${ymd}"/>` + PF.L(xg + 6, ymd, xd, ymd);
+        const x0 = xd, xc = xd + 80;
+        let w = xc + 50;
+        const fl = (x) => PF.fleche(x, yh, x + 16, yh, ROUGE) + TX(x + 8, yh - 6, o.i || 'i', { c: ROUGE });
+        if (o.charge === 'RL') {
+            s += PF.L(x0, yh, xc, yh) + PF.L(x0, yb, xc, yb) + PF.L(xc, yh, xc, 37) + PF.ind(xc, 57, 90) + PF.L(xc, 77, xc, 85) + PF.res(xc, 105, 90) + PF.L(xc, 125, xc, yb);
+            s += TX(xc - 14, 61, 'L', { a: 'end' }) + TX(xc - 14, 109, 'R', { a: 'end' }) + tension(xc + 22, 132, 33, o.uc || 'u') + fl(x0 + 14);
+        } else if (o.charge === 'LM') {
+            s += PF.L(x0, yh, x0 + 20, yh) + PF.ind(x0 + 40, yh, 0) + PF.L(x0 + 60, yh, xc, yh) + PF.L(x0, yb, xc, yb) + PF.L(xc, yh, xc, 70) + PF.moteur(xc, 82) + PF.L(xc, 94, xc, yb);
+            s += TX(x0 + 40, yh - 8, 'L') + TX(xc + 16, 86, o.m || 'E ; R', { a: 'start' }) + tension(x0 + 46, 132, 36, o.uc || 'u') + PF.fleche(xc - 10, 40, xc - 10, 56, ROUGE) + TX(xc - 16, 52, 'i', { a: 'end', c: ROUGE });
+            w += 20;
+        } else if (o.charge === 'RfilM') {
+            s += PF.L(x0, yh, x0 + 30, yh) + PF.res(x0 + 50, yh, 0) + PF.L(x0 + 70, yh, xc, yh) + PF.L(x0, yb, xc, yb) + PF.L(xc, yh, xc, 70) + PF.moteur(xc, 82) + PF.L(xc, 94, xc, yb);
+            s += TX(x0 + 50, yh - 9, 'R<tspan font-size="8" dy="3">fil</tspan>') + tension(x0 + 40, 132, 36, 'u3') + tension(xc + 22, 132, 33, 'uM') + PF.fleche(xc - 10, 40, xc - 10, 56, ROUGE) + TX(xc - 16, 52, 'I', { a: 'end', c: ROUGE });
+        } else if (o.charge === 'filtre') {
+            const bx = x0 + 90;
+            s += PF.L(x0, yh, x0 + 18, yh) + PF.ind(x0 + 38, yh, 0) + PF.L(x0 + 58, yh, bx, yh) + PF.L(x0, yb, bx, yb) + TX(x0 + 38, yh - 8, 'L') + tension(x0 + 70, 132, 33, 'u3');
+            s += `<rect x="${bx}" y="${yh}" width="50" height="${yb - yh}" rx="3"/>` + TX(bx + 25, 86, 'Filtre');
+            s += PF.L(bx + 50, yh, bx + 80, yh) + PF.L(bx + 50, yb, bx + 80, yb) + tension(bx + 62, 132, 33, 'u4');
+            s += `<rect x="${bx + 80}" y="${yh}" width="62" height="${yb - yh}" rx="3"/>` + TX(bx + 111, 80, 'Régulateur', { s: 9 }) + TX(bx + 111, 92, 'de tension', { s: 9 });
+            s += PF.L(bx + 142, yh, bx + 170, yh) + PF.L(bx + 142, yb, bx + 170, yb) + tension(bx + 158, 132, 33, 'u5');
+            w = bx + 190;
+        } else if (o.charge === 'CRIT') {
+            const xr = x0 + 85;
+            s += PF.L(x0, yh, xr, yh) + PF.L(x0, yb, x0 + 210, yb) + PF.L(x0 + 40, yh, x0 + 40, 62) + PF.cap(x0 + 40, 82, 90) + PF.L(x0 + 40, 102, x0 + 40, yb) + point(x0 + 40, yh) + point(x0 + 40, yb) + TX(x0 + 26, 86, 'C', { a: 'end' }) + tension(x0 + 56, 120, 50, 'uC');
+            s += `<rect x="${xr}" y="${yh - 12}" width="50" height="26" rx="3"/>` + TX(xr + 25, yh + 4, 'R.I.T.', { s: 9 }) + PF.L(xr + 25, yh + 14, xr + 25, yb) + point(xr + 25, yb);
+            s += PF.L(xr + 50, yh, x0 + 210, yh) + PF.L(x0 + 180, yh, x0 + 180, 62) + PF.res(x0 + 180, 82, 90) + PF.L(x0 + 180, 102, x0 + 180, yb) + TX(x0 + 166, 86, 'R', { a: 'end' }) + tension(x0 + 198, 120, 50, 'ualim');
+            w = x0 + 240;
+        } else {
+            s += PF.L(x0, yh, xc, yh) + PF.L(x0, yb, xc, yb) + PF.L(xc, yh, xc, 62) + PF.res(xc, 82, 90) + PF.L(xc, 102, xc, yb) + TX(xc - 14, 86, 'R', { a: 'end' }) + tension(xc + 22, 132, 33, o.uc || 'u') + fl(x0 + 14);
+        }
+        return PF.svg(w, 150, s, o.nom || 'Pont redresseur', Math.min(w, 460));
+    }
+
+    // Pont en H (hacheur 4 quadrants) : noms par bras, comme dans l'énoncé.
+    function pontH(o = {}) {
+        const n = Object.assign({ hg: ['T1', 'D1'], bg: ['T2', 'D2'], hd: ['T3', 'D3'], bd: ['T4', 'D4'] }, o.noms || {});
+        const bras = (x, y, [nt, nd]) => PF.L(x, y - 26, x, y - 20) + PF.inter(x - 14, y, 90, false) + PF.diode(x + 14, y, -90) + PF.L(x - 14, y - 20, x + 14, y - 20) + PF.L(x - 14, y + 20, x + 14, y + 20)
+            + TX(x - 30, y + 4, nt, { a: 'end', c: SVG_ACCENT }) + TX(x + 30, y + 4, nd, { a: 'start', c: SVG_ACCENT });
+        let s = PF.src(30, 95, '', false) + TX(30, 125, o.U || 'U', { c: BLEU }) + PF.L(30, 83, 30, 22) + PF.L(30, 22, 260, 22) + PF.L(30, 107, 30, 168) + PF.L(30, 168, 260, 168);
+        s += PF.L(110, 22, 110, 29) + bras(110, 55, n.hg) + PF.L(110, 75, 110, 115) + bras(110, 135, n.bg) + PF.L(110, 155, 110, 168);
+        s += PF.L(260, 22, 260, 29) + bras(260, 55, n.hd) + PF.L(260, 75, 260, 115) + bras(260, 135, n.bd) + PF.L(260, 155, 260, 168);
+        s += point(110, 95) + point(260, 95) + PF.L(110, 95, 173, 95) + PF.moteur(185, 95) + PF.L(197, 95, 260, 95);
+        s += PF.fleche(130, 87, 148, 87, ROUGE) + TX(139, 81, 'i', { c: ROUGE }) + PF.fleche(225, 108, 145, 108, BLEU) + TX(185, 122, 'u', { c: BLEU });
+        return PF.svg(320, 178, s, o.nom || 'Hacheur 4 quadrants (pont en H)', 320);
+    }
+
+    // Transistor NPN en commutation qui commande un relais (avec diode de roue libre) ou une DEL.
+    function etageTransistor(o = {}) {
+        let s = PF.L(150, 14, 150, 30) + TX(150, 10, o.alim || '+12 V');
+        if (o.charge === 'del') {
+            s += PF.res(150, 50, 90) + TX(136, 54, 'R<tspan font-size="8" dy="3">C</tspan>', { a: 'end' }) + PF.diode(150, 92, 90) + TX(136, 96, 'DEL', { a: 'end', s: 9 }) + PF.fleche(162, 88, 178, 80, SVG_ACCENT) + PF.fleche(162, 98, 178, 90, SVG_ACCENT) + PF.L(150, 112, 150, 118);
+        } else {
+            s += `<rect x="140" y="30" width="20" height="36" rx="2"/>` + PF.L(140, 60, 160, 36) + TX(166, 52, 'relais', { a: 'start', s: 9 });
+            s += PF.L(150, 30, 108, 30) + PF.L(150, 66, 108, 66) + PF.diode(108, 48, -90) + TX(94, 52, 'D', { a: 'end', c: SVG_ACCENT }) + PF.L(150, 66, 150, 118) + point(150, 30) + point(150, 66);
+        }
+        s += PF.transistor(132, 152, 'npn') + PF.L(150, 186, 150, 200) + masse(150, 200);
+        s += PF.L(106, 152, 92, 152) + PF.res(72, 152, 0) + TX(72, 142, 'R<tspan font-size="8" dy="3">B</tspan>') + PF.L(52, 152, 30, 152) + `<circle cx="30" cy="152" r="2.6"/>` + TX(26, 140, o.cde || 'U<tspan font-size="8" dy="3">cde</tspan>', { a: 'end' });
+        s += PF.fleche(92, 162, 104, 162, ROUGE) + TX(98, 176, 'i<tspan font-size="8" dy="3">B</tspan>', { c: ROUGE }) + PF.fleche(158, 104, 158, 116, ROUGE) + TX(164, 112, 'i<tspan font-size="8" dy="3">C</tspan>', { a: 'start', c: ROUGE });
+        s += tension(180, 184, 122, 'V<tspan font-size="8" dy="3">CE</tspan>');
+        return PF.svg(230, 210, s, o.nom || 'Transistor en commutation', 250);
+    }
+
+    // Détection d'obstacle de la porte de garage (sciences, janvier 2026, figure 4)
+    function garageDetection() {
+        let s = PF.L(60, 18, 150, 18) + PF.L(105, 18, 105, 12) + TX(105, 9, '+Vcc', { s: 9 });
+        s += PF.L(60, 18, 60, 30) + PF.res(60, 50, 90) + TX(46, 54, 'R3', { a: 'end' }) + PF.L(60, 70, 60, 94) + point(60, 84);
+        s += PF.L(150, 18, 150, 30) + PF.res(150, 50, 90) + TX(136, 54, 'R2', { a: 'end' }) + PF.L(150, 70, 150, 79) + `<path d="M150 79A5 5 0 0 1 150 89"/>` + PF.L(150, 89, 150, 112) + point(150, 104) + PF.res(150, 132, 90) + TX(136, 136, 'R1', { a: 'end' }) + PF.L(150, 152, 150, 172);
+        s += PF.L(60, 94, 60, 102) + photo(60, 118) + PF.L(60, 134, 60, 172) + TX(14, 150, 'PT', { a: 'start' });
+        s += tension(92, 166, 92, 'V⁺') + tension(172, 166, 112, 'V⁻');
+        s += PF.L(60, 84, 205, 84) + PF.L(150, 104, 190, 104) + PF.L(190, 104, 190, 116) + PF.L(190, 116, 205, 116);
+        s += `<rect x="205" y="72" width="60" height="56" rx="3"/>` + TX(213, 88, '+', { s: 12 }) + TX(213, 120, '−', { s: 12 }) + TX(240, 104, 'A.D.I.', { s: 9 }) + TX(235, 66, '+Vcc', { s: 8, c: SVG_DISCRET }) + TX(235, 140, '−Vcc', { s: 8, c: SVG_DISCRET });
+        s += PF.fleche(199, 112, 199, 90, SVG_ACCENT) + TX(195, 100, 'vd', { a: 'end', s: 9, c: SVG_ACCENT });
+        s += PF.L(265, 100, 285, 100) + PF.res(305, 100, 0) + TX(305, 90, 'R<tspan font-size="8" dy="3">B</tspan>') + PF.L(325, 100, 360, 100) + point(340, 100) + tension(276, 166, 106, 'Us');
+        s += PF.L(340, 100, 340, 116) + PF.diode(340, 136, -90) + TX(326, 140, 'D5', { a: 'end', c: SVG_ACCENT }) + PF.L(340, 156, 340, 172);
+        s += PF.transistor(386, 100, 'npn') + TX(374, 82, 'T', { b: 1 }) + PF.L(404, 134, 404, 172) + PF.L(404, 66, 404, 52);
+        s += `<rect x="394" y="26" width="20" height="26" rx="2"/>` + PF.L(394, 46, 414, 30) + PF.L(404, 26, 404, 14) + TX(404, 10, 'Ualim', { s: 9 }) + PF.L(404, 18, 372, 18) + PF.L(404, 58, 372, 58) + PF.diode(372, 38, -90) + TX(360, 42, 'D6', { a: 'end', c: SVG_ACCENT });
+        s += PF.L(414, 39, 436, 39, SVG_DISCRET, '3 3') + PF.inter(452, 39, 90, false) + TX(466, 43, 'K', { a: 'start', b: 1 });
+        s += PF.fleche(412, 70, 412, 82, ROUGE) + TX(418, 80, 'iC', { a: 'start', c: ROUGE }) + tension(432, 166, 108, 'VCE');
+        s += PF.L(60, 172, 404, 172) + masse(222, 172);
+        return PF.svg(480, 185, s, 'Détection d\'obstacle : comparateur, transistor et relais', 470);
+    }
+
+    // Carte capteur du robot RICA IV (étage 1) : DEL, phototransistor TS et suiveur ALI1
+    function capteurRica() {
+        let s = PF.L(30, 18, 150, 18) + PF.L(30, 18, 30, 172) + `<circle cx="30" cy="18" r="2.6"/>` + TX(36, 100, 'Ualim', { a: 'start', s: 9, c: BLEU }) + TX(36, 112, '24 V', { a: 'start', s: 9, c: BLEU });
+        s += PF.L(80, 18, 80, 30) + PF.res(80, 50, 90) + TX(94, 54, 'R2', { a: 'start' }) + PF.L(80, 70, 80, 108) + PF.diode(80, 128, 90) + TX(66, 132, 'DEL', { a: 'end', s: 9 }) + PF.L(80, 148, 80, 172);
+        s += PF.L(150, 18, 150, 30) + PF.res(150, 50, 90) + TX(136, 54, 'R1', { a: 'end' }) + PF.L(150, 70, 150, 106) + point(150, 88);
+        s += photo(150, 122) + PF.L(150, 138, 150, 172) + TX(160, 162, 'TS', { a: 'start', b: 1 });
+        s += PF.fleche(158, 72, 158, 84, ROUGE) + TX(164, 82, 'i<tspan font-size="8" dy="3">c</tspan>', { a: 'start', c: ROUGE });
+        s += tension(180, 164, 96, 'V<tspan font-size="8" dy="3">ce</tspan>');
+        s += PF.L(150, 88, 215, 88) + `<rect x="215" y="74" width="56" height="50" rx="3"/>` + TX(223, 92, '+', { s: 12 }) + TX(223, 118, '−', { s: 12 }) + TX(246, 104, 'ALI1', { s: 9 });
+        s += PF.L(271, 99, 300, 99) + point(290, 99) + PF.L(290, 99, 290, 140) + PF.L(290, 140, 205, 140) + PF.L(205, 140, 205, 114) + PF.L(205, 114, 215, 114) + tension(312, 166, 105, 'V<tspan font-size="8" dy="3">s1</tspan>');
+        s += PF.L(30, 172, 312, 172) + masse(160, 172);
+        return PF.svg(350, 185, s, 'Capteur infrarouge du robot RICA IV, étage 1', 340);
+    }
+
+    // Comparateur du DS de 2022 : v1 triangle sur l'entrée −, V3 continue sur l'entrée +
+    function comparateur2022() {
+        const tri = (t) => { const m = ((t % 1) + 1) % 1; return m < 0.5 ? 15 * m : 15 * (1 - m); };
+        return PF.osc([
+            { lab: 'v1', lo: -1, hi: 9, courbes: [{ f: tri }], niveaux: [{ v: 2.5, txt: 'V3 = 2,5 V' }, { v: 7.5, txt: '7,5 V' }] },
+            { lab: 'v4', lo: -18, hi: 18, courbes: [{ f: (t) => (tri(t) < 2.5 ? 15 : -15), col: BLEU }], niveaux: [{ v: 15, txt: '+15 V' }, { v: -15, txt: '−15 V' }] }
+        ], { tmax: 2, guides: [{ t: 1 / 6, txt: 'T/6' }, { t: 5 / 6, txt: '5T/6' }, { t: 1, txt: 'T' }], titre: 'Comparateur : v4 = +15 V tant que v1 < V3' });
+    }
+    // DEL alimentée sous 5 V par R1 (DS de 2022)
+    function del2022() {
+        let s = PF.src(30, 70, '', false) + TX(30, 100, '5 V', { c: BLEU }) + PF.L(30, 58, 30, 25) + PF.L(30, 25, 70, 25) + PF.res(90, 25, 0) + TX(90, 15, 'R1') + PF.L(110, 25, 140, 25) + PF.L(140, 25, 140, 50) + PF.diode(140, 70, 90) + TX(126, 74, 'LD1', { a: 'end' }) + PF.L(140, 90, 140, 115) + PF.L(140, 115, 30, 115) + PF.L(30, 82, 30, 115);
+        s += PF.fleche(150, 62, 168, 54, SVG_ACCENT) + PF.fleche(150, 72, 168, 64, SVG_ACCENT) + tension(182, 90, 52, 'Uf = 3,6 V') + PF.fleche(116, 33, 132, 33, ROUGE) + TX(124, 46, 'Id', { c: ROUGE });
+        return PF.svg(260, 125, s, 'DEL et sa résistance de protection', 260);
+    }
+    // Pont en H : commandes et tension u (bandes : composants passants pour i > 0)
+    function oscPontH(a, U, n1, n2) {
+        const h = (t) => ((((t % 1) + 1) % 1) < a ? 1 : 0);
+        const ta = String(Math.round(a * 100) / 100).replace('.', ',');
+        return PF.osc([
+            { lab: n1.cmd, lo: -0.3, hi: 1.3, courbes: [{ f: h }] },
+            { lab: n2.cmd, lo: -0.3, hi: 1.3, courbes: [{ f: (t) => 1 - h(t), col: BLEU }] },
+            { lab: 'u', lo: -1.3, hi: 1.3, courbes: [{ f: (t) => (h(t) ? 1 : -1), col: ROUGE }], niveaux: [{ v: 1, txt: '+' + U }, { v: -1, txt: '−' + U }] }
+        ], { tmax: 2, guides: [{ t: a, txt: 'αT' }, { t: 1, txt: 'T' }], bande: [{ t0: 0, t1: a, txt: n1.pass }, { t0: a, t1: 1, txt: n2.pass }, { t0: 1, t1: 1 + a, txt: n1.pass }, { t0: 1 + a, t1: 2, txt: n2.pass }], titre: `Pont en H, α = ${ta}` });
+    }
+    // Pont mixte du DS de 2025, θ = π/4 : v, u, i1, iD1 et éléments conducteurs
+    function oscVariateur() {
+        const a = 1 / 8, m = (t) => ((t % 1) + 1) % 1;
+        const u = (t) => { const x = m(t); return (x >= a && x < 0.5) || (x >= 0.5 + a) ? Math.abs(Math.sin(2 * Math.PI * x)) : 0; };
+        return PF.osc([
+            { lab: 'v', courbes: [{ f: (t) => Math.sin(2 * Math.PI * t) }] },
+            { lab: 'u', lo: -0.2, hi: 1.2, courbes: [{ f: (t) => Math.abs(Math.sin(2 * Math.PI * t)), col: SVG_DISCRET, d: '3 3', w: 1 }, { f: u }] },
+            { lab: 'i1', lo: -0.3, hi: 1.3, courbes: [{ f: (t) => (m(t) >= a && m(t) < 0.5 + a ? 1 : 0), col: ROUGE }], niveaux: [{ v: 1, txt: '10 A' }] },
+            { lab: 'iD1', lo: -0.3, hi: 1.3, courbes: [{ f: (t) => (m(t) >= 0.5 ? 1 : 0), col: BLEU }], niveaux: [{ v: 1, txt: '10 A' }] }
+        ], { tmax: 1, w: 380, guides: [{ t: a, txt: 'π/4' }, { t: 0.5, txt: 'π' }, { t: 0.5 + a, txt: '5π/4' }, { t: 1, txt: '2π' }], bande: [{ t0: 0, t1: a, txt: 'RL' }, { t0: a, t1: 0.5, txt: 'T1 D2' }, { t0: 0.5, t1: 0.5 + a, txt: 'T1 D1' }, { t0: 0.5 + a, t1: 1, txt: 'T3 D1' }], titre: 'Pont mixte, θ = π/4' });
+    }
+
+    const pontMixte = (charge, nom) => pont4({ types: { hg: 't', hd: 't' }, noms: { hg: 'T1', hd: 'T2', bg: 'D1', bd: 'D2' }, charge, nom });
+    const FIG = {
+        diode: sur(() => dessin('figDiode', 'seuil')),
+        thyristor: sur(() => dessin('figThyristorMono')), oscThyristor: sur(() => dessin('oscThyristor')),
+        transistors: sur(() => dessin('figTransistorSymboles')), commutation: sur(() => dessin('figCommutation')),
+        relais: sur(() => etageTransistor({ nom: 'Relais commandé par un transistor, avec diode de roue libre' })),
+        del: sur(() => etageTransistor({ charge: 'del', alim: '+5 V', cde: 'e', nom: 'DEL commandée par un transistor' })),
+        graetz: sur(() => pont4({ nom: 'Pont de Graetz sur charge résistive' })),
+        graetzTransfo: sur(() => pont4({ src: 'transfo', transfo: '230 V / 18 V', nom: 'Transformateur et pont de Graetz' })),
+        oscPont: sur(() => dessin('oscPont')),
+        lissageC: sur(() => dessin('figPont', { charge: 'cap' })), oscLissageC: sur(() => dessin('oscLissageC')),
+        lissageL: sur(() => dessin('figPont', { charge: 'rl' })),
+        cmdR: sur(() => dessin('figCommande', false)), oscCmdR: sur(() => dessin('oscCommandeR')),
+        mixte: sur(() => pontMixte('RL', 'Pont mixte')), oscMixte: sur(() => dessin('oscPontMixte')),
+        mixteMoteur: sur(() => pontMixte('LM', 'Pont mixte alimentant un moteur à courant continu')),
+        toutTh: sur(() => pont4({ types: { hg: 't', hd: 't', bg: 't', bd: 't' }, noms: { hg: 'Th1', hd: 'Th2', bg: 'Th4', bd: 'Th3' }, charge: 'RL', nom: 'Pont tout thyristors' })),
+        oscCmdL: sur(() => dessin('oscCommandeL')),
+        hacheurR: sur(() => dessin('figHacheur', 'serie')), oscHacheurR: sur(() => dessin('oscHacheurSerie')),
+        hacheurL: sur(() => dessin('figHacheur', 'ind')), oscHacheurL: sur(() => dessin('oscHacheurInd')),
+        hacheurMcc: sur(() => dessin('figHacheurMoteur')),
+        pontHCours: sur(() => pontH({ noms: { hg: ['H1', 'D1'], bg: ['H2', 'D2'], hd: ['H4', 'D4'], bd: ['H3', 'D3'] }, nom: 'Hacheur 4 quadrants du cours' })),
+        oscPontHCours: sur(() => oscPontH(0.75, 'U', { cmd: 'H1, H3', pass: 'H1 H3' }, { cmd: 'H2, H4', pass: 'D2 D4' })),
+        ondPont: sur(() => dessin('svgOndPont')), ondDecale: sur(() => dessin('svgOndDecale')), ondInductif: sur(() => dessin('svgOndInductif')),
+        // anciens DS
+        store: sur(() => pont4({ src: 'transfo', transfo: 'réseau 230 V', charge: 'RfilM', nom: 'Store motorisé' })),
+        portes: sur(() => pont4({ src: 'transfo', transfo: '230 V / 24 V', charge: 'filtre', nom: 'Contrôle d\'ouverture de portes' })),
+        garageAlim: sur(() => pont4({ src: 'transfo', transfo: '230 V / 24 V', charge: 'CRIT', nom: 'Alimentation de la porte de garage' })),
+        garageDetection: sur(garageDetection),
+        variateur: sur(() => pont4({ types: { hg: 't', hd: 't' }, noms: { hg: 'T1', hd: 'T3', bg: 'D1', bd: 'D2' }, charge: 'LM', nom: 'Variateur du DS de 2025' })),
+        oscVariateur: sur(oscVariateur),
+        rica: sur(() => pontH({ U: '24 V', nom: 'Hacheur 4 quadrants du robot RICA IV' })),
+        oscRica: sur(() => oscPontH(2 / 3, '24 V', { cmd: 'C1, C4', pass: 'T1 T4' }, { cmd: 'C2, C3', pass: 'D2 D3' })),
+        capteur: sur(capteurRica),
+        comparateur: sur(comparateur2022), del2022: sur(del2022)
+    };
+
+    // ==========================================
     // Cours : chapitres 10 à 13
     // ==========================================
     const COURS = [
@@ -33,10 +246,13 @@
                         ['<b>Transistor</b> en commutation', 'i<sub>B</sub> ≥ i<sub>Bsat</sub> : saturé, interrupteur fermé', 'i<sub>B</sub> = 0 : bloqué, interrupteur ouvert', 'À la fermeture et à l\'ouverture']
                     ]),
                     P(`<b>Angle de retard à l'amorçage</b> : θ = ω·t<sub>0</sub> = 2π·t<sub>0</sub> / T, où t<sub>0</sub> est le retard de l'impulsion de gâchette après le début de chaque période. Une impulsion envoyée pendant que V<sub>AK</sub> &lt; 0 ne fait rien : le thyristor reste bloqué.`),
+                    FIGURE(FIG.thyristor, `Thyristor sur charge résistive : il conduit de θ = α (impulsion de gâchette) à θ = π.`),
+                    FIGURE(FIG.oscThyristor, `Oscillogrammes du poly : u = v pendant la conduction, v<sub>AK</sub> = 0 ; l'alternance négative est éliminée.`),
                     P(`<b>Diode Zener</b> : en direct, une diode normale. En inverse, elle conduit à une tension bien précise (tension Zener) sans être détruite : elle sert à fixer une tension.`),
                     NOTE('Piège', `Pour <b>bloquer</b> un thyristor, couper la gâchette ne suffit pas : il faut que son courant s'annule. Sur charge résistive, cela arrive tout seul à θ = π, quand la tension s'annule.`)),
                 S('Transistor bipolaire', 'cpu',
                     F(R`i_E = i_B + i_C \qquad i_C = \beta\, i_B \ \text{(régime linéaire)} \qquad i_{B\,sat} = \dfrac{i_{C\,sat}}{\beta}`, `i<sub>B</sub> courant de base · i<sub>C</sub> courant de collecteur · i<sub>E</sub> courant d'émetteur (A) · β coefficient d'amplification en courant (sans unité, de quelques dizaines à quelques centaines)`),
+                    FIGURE(FIG.transistors, `Symboles NPN et PNP : la flèche de l'émetteur donne le sens du courant.`),
                     UL([
                         `<b>NPN</b> : la flèche de l'émetteur sort (le courant de base <i>entre</i>). <b>PNP</b> : la flèche entre. La flèche indique le sens du courant dans la jonction base-émetteur.`,
                         `<b>Bloqué</b> : i<sub>B</sub> = 0, tous les courants sont nuls, V<sub>CE</sub> = tension d'alimentation de la charge.`,
@@ -44,33 +260,35 @@
                         `<b>Coefficient de sursaturation</b> k : on prend i<sub>B</sub> = k·i<sub>Bsat</sub> (souvent k = 2) pour être sûr de saturer malgré la dispersion de β.`
                     ]),
                     F(R`R_B = \dfrac{U_{cde} - V_{BE\,sat}}{i_B}`, `Maille de la base · R<sub>B</sub> résistance de base (Ω) · U<sub>cde</sub> tension de commande (V) · V<sub>BEsat</sub> ≈ 0,7 V · i<sub>B</sub> courant de base voulu (A)`),
+                    FIGURE(FIG.commutation, `En commutation : bloqué = interrupteur ouvert, saturé = interrupteur fermé.`),
+                    FIGURE(FIG.relais, `Montage type des DS : la commande sature le transistor par R<sub>B</sub> ; la diode D protège le transistor à l'ouverture.`),
                     NOTE('Méthode du DS', `Calcule R<sub>B</sub>, puis choisis dans la liste la valeur normalisée <b>juste en dessous</b> : une résistance plus petite donne un courant de base plus grand, donc la saturation est garantie. R<sub>B</sub> calculée est un <b>maximum</b>.`))
             ],
             qcm: [
-                { q: "Un thyristor est soumis à V_AK < 0. On envoie une impulsion sur sa gâchette. Que se passe-t-il ?",
+                { fig: FIG.thyristor, q: "Un thyristor est soumis à V_AK < 0. On envoie une impulsion sur sa gâchette. Que se passe-t-il ?",
                     opts: ["Il s'amorce", "Il reste bloqué", "Il se détruit", "Il conduit en sens inverse"], ok: [1],
                     expl: "Pour amorcer un thyristor, il faut à la fois V_AK > 0 et un courant de gâchette. C'est la question de cours du TD 11 (réponse b : u_AK > 0 et une impulsion i_g)." },
                 { q: "Comment bloque-t-on un thyristor qui conduit ?",
                     opts: ["En supprimant le courant de gâchette", "En envoyant une impulsion négative sur la gâchette", "En annulant le courant i_AK qui le traverse", "En inversant la tension de gâchette"], ok: [2],
                     expl: "Le thyristor n'est commandable qu'à la fermeture. Il se bloque quand son courant s'annule, imposé par le reste du circuit." },
-                { q: "Quel composant est un interrupteur commandable à la fermeture ET à l'ouverture ?",
+                { fig: FIG.commutation, q: "Quel composant est un interrupteur commandable à la fermeture ET à l'ouverture ?",
                     opts: ["La diode", "Le thyristor", "Le transistor en commutation", "La diode Zener"], ok: [2],
                     expl: "Le transistor se ferme (saturé) avec i_B ≥ i_Bsat et s'ouvre (bloqué) avec i_B = 0. C'est pour ça qu'on l'utilise dans les hacheurs et les onduleurs." },
                 { q: "Transistor NPN saturé : β = 50, i_Csat = 0,6 A. Quel est le courant de base minimal pour le saturer ?",
                     opts: ["30 A", "12 mA", "1,2 mA", "0,6 mA"], ok: [1],
                     expl: "i_Bsat = i_Csat / β = 0,6 / 50 = 0,012 A = 12 mA. Ce sont les valeurs de l'épreuve de sciences de janvier 2026 (porte de garage)." },
-                { q: "On calcule R_B = 1 720 Ω pour saturer un transistor. Valeurs disponibles : 1,5 kΩ, 1,8 kΩ, 2,2 kΩ. Laquelle choisir ?",
+                { fig: FIG.relais, q: "On calcule R_B = 1 720 Ω pour saturer un transistor. Valeurs disponibles : 1,5 kΩ, 1,8 kΩ, 2,2 kΩ. Laquelle choisir ?",
                     opts: ["1,5 kΩ", "1,8 kΩ", "2,2 kΩ", "N'importe laquelle"], ok: [0],
                     expl: "R_B calculée est un maximum : une résistance plus grande donnerait un courant de base trop faible. On prend la valeur juste en dessous, 1,5 kΩ." },
                 { q: "Un triac est équivalent à…",
                     opts: ["Deux diodes en série", "Deux thyristors montés tête-bêche (en antiparallèle)", "Un transistor et une diode de roue libre", "Une diode Zener et un thyristor"], ok: [1],
                     expl: "Le triac conduit dans les deux sens et s'amorce quel que soit le signe de la tension : il commande les deux alternances d'un courant alternatif." },
-                { q: "Thyristor sur le réseau 50 Hz, amorcé 2,5 ms après le début de chaque période. Angle de retard θ ?",
+                { fig: FIG.oscThyristor, q: "Thyristor sur le réseau 50 Hz, amorcé 2,5 ms après le début de chaque période. Angle de retard θ ?",
                     opts: ["π/8", "π/4", "π/2", "45 rad"], ok: [1],
                     expl: "θ = 2π·t0 / T = 2π × 2,5 / 20 = π/4 (45°). C'est l'angle des CB et DS n°2 de 2025." },
-                { calc: true, q: "Un relais de 12 V (bobine de 120 Ω) est commandé par un transistor NPN : β = 80, V_BEsat = 0,7 V, V_CEsat ≈ 0. La commande vaut 0 V ou 5 V. On veut un coefficient de sursaturation de 2. Calculer i_Csat, i_Bsat, le courant de base, puis R_B, et choisir parmi 1,5 kΩ, 1,8 kΩ et 2,2 kΩ.",
+                { calc: true, fig: FIG.relais, q: "Un relais de 12 V (bobine de 120 Ω) est commandé par un transistor NPN : β = 80, V_BEsat = 0,7 V, V_CEsat ≈ 0. La commande vaut 0 V ou 5 V. On veut un coefficient de sursaturation de 2. Calculer i_Csat, i_Bsat, le courant de base, puis R_B, et choisir parmi 1,5 kΩ, 1,8 kΩ et 2,2 kΩ.",
                     steps: ["Saturé : V_CE ≈ 0, toute la tension est sur la bobine : i_Csat = 12 / 120 = 0,100 A = 100 mA.", "i_Bsat = i_Csat / β = 0,100 / 80 = 1,25 mA.", "Sursaturation 2 : i_B = 2 × 1,25 = 2,5 mA.", "Maille de la base : R_B = (5 − 0,7) / 2,5·10⁻³ = 1 720 Ω. C'est un maximum.", "On choisit 1,5 kΩ (juste en dessous) : i_B = 4,3 / 1 500 ≈ 2,87 mA ≥ 2,5 mA, la saturation est assurée.", "Une diode de roue libre en parallèle sur la bobine protège le transistor à l'ouverture (même rôle que D6 dans la porte de garage)."] },
-                { calc: true, q: "Une DEL (V_F = 2 V) est allumée par un transistor saturé (V_CEsat = 0,2 V) sous 5 V, avec une résistance R_C en série. On veut environ 15 mA. Calculer R_C et choisir entre 150 Ω, 180 Ω et 220 Ω.",
+                { calc: true, fig: FIG.del, q: "Une DEL (V_F = 2 V) est allumée par un transistor saturé (V_CEsat = 0,2 V) sous 5 V, avec une résistance R_C en série. On veut environ 15 mA. Calculer R_C et choisir entre 150 Ω, 180 Ω et 220 Ω.",
                     steps: ["Maille de sortie : 5 = R_C·I + V_F + V_CEsat.", "R_C = (5 − 2 − 0,2) / 0,015 ≈ 187 Ω.", "Avec 180 Ω : I = 2,8 / 180 ≈ 15,6 mA, le plus proche de 15 mA. Avec 220 Ω, I ≈ 12,7 mA, DEL moins lumineuse mais plus protégée : les deux se justifient si on l'écrit."] }
             ]
         },
@@ -79,6 +297,8 @@
             sections: [
                 S('Le pont de diodes', 'git-merge',
                     P(`Le pont de Graetz (4 diodes) transforme une tension alternative v en une tension u toujours positive (double alternance). <b>Alternance positive</b> : D1 et D3 passantes, u = v. <b>Alternance négative</b> : D2 et D4 passantes, u = −v. À chaque instant, deux diodes conduisent et deux sont bloquées.`),
+                    FIGURE(FIG.graetz, `Pont de Graetz du poly : D1, D3 passantes sur l'alternance positive, D2, D4 sur la négative.`),
+                    FIGURE(FIG.oscPont, `u = |v| : deux arches par période du réseau, donc f<sub>u</sub> = 100 Hz.`),
                     F(R`T_u = \dfrac{T}{2} \qquad f_u = 2f = 100\ \text{Hz}`, `T<sub>u</sub>, f<sub>u</sub> période et fréquence de la tension redressée · T, f celles du réseau (20 ms, 50 Hz)`),
                     F(R`\langle u \rangle = \dfrac{2\hat{V}}{\pi} \qquad U_{eff} = V = \dfrac{\hat{V}}{\sqrt{2}}`, `⟨u⟩ valeur moyenne de la tension redressée (V) · V̂ valeur maximale de v (V) · U<sub>eff</sub> valeur efficace de u, égale à celle de v car u² = v² (V)`),
                     F(R`\langle i \rangle = \dfrac{\langle u \rangle}{R} \qquad \langle i_D \rangle = \dfrac{\langle i \rangle}{2} \qquad P = \dfrac{U_{eff}^2}{R}`, `Charge résistive R (Ω) · chaque diode conduit une demi-période · P puissance reçue par R (W)`),
@@ -97,16 +317,19 @@
                         `<b>Bobine en série</b> : lisse le <b>courant</b>, qui ne s'annule plus (conduction ininterrompue). Comme ⟨u<sub>L</sub>⟩ = 0, ⟨u⟩ = R·⟨i⟩. Pour les forts courants (moteurs).`,
                         `<b>Régulateur intégré de tension (RIT)</b> après le condensateur : il supprime l'ondulation restante et délivre une tension parfaitement continue (ex. 15 V ou 24 V).`
                     ]),
+                    FIGURE(FIG.lissageC, `Condensateur en parallèle sur la charge : il lisse la tension.`),
+                    FIGURE(FIG.oscLissageC, `Plus C est grand, plus l'ondulation Δu est faible.`),
+                    FIGURE(FIG.lissageL, `Bobine en série : elle lisse le courant.`),
                     P(`Chaîne d'un « bloc secteur » : transformateur (abaisse la tension) → pont de diodes (redresse) → condensateur (lisse) → RIT (régule).`))
             ],
             qcm: [
-                { q: "Pont de Graetz alimenté par v de valeur efficace 24 V. Valeur moyenne de la tension redressée ?",
+                { fig: FIG.graetz, q: "Pont de Graetz alimenté par v de valeur efficace 24 V. Valeur moyenne de la tension redressée ?",
                     opts: ["24 V", "33,9 V", "21,6 V", "15,3 V"], ok: [2],
                     expl: "V̂ = 24√2 ≈ 33,9 V, puis ⟨u⟩ = 2V̂/π ≈ 21,6 V. C'est l'exercice 2 des DS n°2 de 2024 et 2025. 15,3 V serait V̂/π (simple alternance)." },
-                { q: "Pendant l'alternance positive d'un pont de Graetz, quelles diodes conduisent ?",
+                { fig: FIG.graetz, q: "Pendant l'alternance positive d'un pont de Graetz, quelles diodes conduisent ?",
                     opts: ["D1 et D2", "D1 et D3", "D2 et D4", "Les quatre"], ok: [1],
                     expl: "Convention du cours : D1 et D3 passantes, u = v. Pendant l'alternance négative, D2 et D4, u = −v. Vérifie toujours la numérotation du schéma de l'énoncé." },
-                { q: "Le réseau est à 50 Hz. Fréquence de la tension en sortie d'un pont de Graetz ?",
+                { fig: FIG.oscPont, q: "Le réseau est à 50 Hz. Fréquence de la tension en sortie d'un pont de Graetz ?",
                     opts: ["25 Hz", "50 Hz", "100 Hz", "0 Hz, elle est continue"], ok: [2],
                     expl: "La tension redressée reproduit chaque alternance : sa période est T/2 = 10 ms, donc 100 Hz (question 5 du DS « store »)." },
                 { q: "Tension v sinusoïdale de valeur efficace 26,9 V, redressée par un pont de diodes. Valeur efficace de u ?",
@@ -115,13 +338,13 @@
                 { q: "Avec quel appareil et quel mode mesure-t-on la valeur moyenne ⟨u⟩ d'une tension redressée ?",
                     opts: ["Voltmètre en mode AC", "Voltmètre en mode DC", "Ampèremètre en mode AC+DC", "Oscilloscope en mode XY"], ok: [1],
                     expl: "Le mode DC donne la valeur moyenne. Le mode AC+DC d'un voltmètre TRMS donnerait la valeur efficace vraie." },
-                { q: "Quel composant ajoute-t-on en série avec un moteur pour lisser son courant ?",
+                { fig: FIG.lissageL, q: "Quel composant ajoute-t-on en série avec un moteur pour lisser son courant ?",
                     opts: ["Un condensateur", "Une bobine (inductance)", "Une diode Zener", "Une résistance"], ok: [1],
                     expl: "La bobine s'oppose aux variations de courant. Le condensateur, lui, se place en parallèle et lisse la tension. Question 7 du DS « store »." },
-                { q: "Quel est le rôle du régulateur intégré de tension placé après le condensateur ?",
+                { fig: FIG.garageAlim, q: "Quel est le rôle du régulateur intégré de tension placé après le condensateur ?",
                     opts: ["Redresser la tension", "Abaisser la tension du réseau", "Supprimer l'ondulation résiduelle pour obtenir une tension parfaitement continue", "Protéger les diodes des surtensions"], ok: [2],
                     expl: "Le condensateur laisse une ondulation ; le RIT délivre une tension constante (question 7 de la porte de garage, janvier 2026)." },
-                { calc: true, q: "Un transformateur parfait 230 V / 18 V alimente un pont de Graetz débitant sur R = 47 Ω. Calculer m, V̂, ⟨u⟩, ⟨i⟩, ⟨i_D⟩ et la puissance reçue par R.",
+                { calc: true, fig: FIG.graetzTransfo, q: "Un transformateur parfait 230 V / 18 V alimente un pont de Graetz débitant sur R = 47 Ω. Calculer m, V̂, ⟨u⟩, ⟨i⟩, ⟨i_D⟩ et la puissance reçue par R.",
                     steps: ["m = U2 / U1 = 18 / 230 ≈ 0,078.", "V̂ = 18√2 ≈ 25,5 V.", "⟨u⟩ = 2V̂/π = 2 × 25,46 / π ≈ 16,2 V.", "⟨i⟩ = ⟨u⟩ / R = 16,2 / 47 ≈ 0,345 A ; chaque diode conduit une alternance sur deux : ⟨i_D⟩ ≈ 0,172 A.", "La valeur efficace de u vaut 18 V (u² = v²), donc P = U² / R = 18² / 47 ≈ 6,89 W. Piège : ⟨u⟩²/R ≈ 5,6 W est faux."] },
                 { calc: true, q: "Oscillogramme de u2 : 4,2 divisions crête, calibre 5 V/div ; une période dure 4 divisions à 5 ms/div. Calculer U2max, U2, f, puis la valeur moyenne après un pont de diodes parfait.",
                     steps: ["U2max = 4,2 × 5 = 21 V.", "U2 = 21 / √2 ≈ 14,8 V.", "T = 4 × 5 = 20 ms, donc f = 1 / 0,020 = 50 Hz.", "⟨u⟩ = 2 × 21 / π ≈ 13,4 V, à 100 Hz."] }
@@ -137,32 +360,38 @@
                         ['Pont tout thyristors, charge inductive (i constant)', R`$\langle u \rangle = \dfrac{2\hat{V}}{\pi}\cos\theta$`, 'Négative si θ &gt; 90° : fonctionnement en onduleur assisté'],
                         ['Pont mixte (2 thyristors, 2 diodes)', R`$\langle u \rangle = \dfrac{\hat{V}}{\pi}(1 + \cos\theta)$`, 'Phases de roue libre : u = 0, le courant continue grâce à la bobine']
                     ]),
+                    FIGURE(FIG.mixte, `Pont mixte du poly : thyristors T1, T2 en haut, diodes D1, D2 en bas, charge L et R.`),
+                    FIGURE(FIG.oscMixte, `Pont mixte : u = 0 pendant les phases de roue libre (RL), le courant continue grâce à la bobine.`),
+                    FIGURE(FIG.toutTh, `Pont tout thyristors : Th1 et Th3 amorcés ensemble, puis Th2 et Th4 une demi-période plus tard.`),
+                    FIGURE(FIG.cmdR, `Montage du poly avec transformateur à point milieu : deux thyristors, charge R (ou R et L).`),
+                    FIGURE(FIG.oscCmdR, `Charge résistive : u suit v<sub>1</sub> puis v<sub>2</sub> à partir de l'amorçage, nulle avant.`),
                     P(`L'intérêt : régler la tension moyenne, donc la vitesse d'un moteur à courant continu. θ (parfois noté α) est l'angle de retard à l'amorçage : θ = ω·t<sub>0</sub>.`),
                     NOTE('Repère', `Sur le document réponse, on écrit pour chaque intervalle les composants passants et le signe de la puissance. Pont mixte du DS n°2 de 2025 (thyristors en haut, diodes en bas, θ = π/4) : de π/4 à π, T1 et D2 conduisent (u = v, alimentation) ; de π à 5π/4, T1 et D1, du même bras (roue libre, u = 0) ; de 5π/4 à 2π, T3 et D1 (u = −v). Dans ton poly (T1, T2 en haut, D1, D2 en bas), même logique : le thyristor reste passant jusqu'à l'amorçage de l'autre, les diodes basculent à chaque demi-période. Vérifie toujours la disposition des composants du schéma.`)),
                 S('Avec un moteur à courant continu', 'cog',
                     F(R`\langle u \rangle = E + R\,I \qquad E = k\,n`, `⟨u⟩ tension moyenne aux bornes de l'induit (V) · E f.é.m. du moteur (V) · R résistance de l'induit, plus celle de la bobine s'il y en a une (Ω) · I courant constant (A) · n vitesse (tr/min) · k constante (V par tr/min)`),
+                    FIGURE(FIG.mixteMoteur, `Pont mixte alimentant l'induit d'un moteur : la bobine L lisse le courant, ⟨u⟩ = E + R·I.`),
                     P(`On passe la loi des mailles aux valeurs moyennes : la bobine de lissage disparaît car ⟨u<sub>L</sub>⟩ = 0. Puis E = ⟨u⟩ − R·I et n = E / k.`),
                     P(`<b>Puissances</b> : P<sub>em</sub> = E·I (puissance électromagnétique) ; P<sub>a</sub> = ⟨u⟩·I absorbée par l'induit si I est constant ; pertes Joule R·I². À couple constant, I est constant : le couple électromagnétique vaut C<sub>em</sub> = k<sub>Φ</sub>·I, donc doubler le couple double I.`))
             ],
             qcm: [
-                { q: "Pont mixte alimenté par v de valeur efficace 230 V, θ = 60°. Valeur moyenne de u ?",
+                { fig: FIG.mixte, q: "Pont mixte alimenté par v de valeur efficace 230 V, θ = 60°. Valeur moyenne de u ?",
                     opts: ["103,5 V", "155,3 V", "179,3 V", "207,1 V"], ok: [1],
                     expl: "V̂ = 230√2 ≈ 325,3 V ; ⟨u⟩ = V̂/π × (1 + cos 60°) = 103,5 × 1,5 ≈ 155,3 V. 207,1 V est 2V̂/π, le pont de diodes." },
-                { q: "Pont tout thyristors sur charge très inductive : quand la tension moyenne devient-elle négative ?",
+                { fig: FIG.toutTh, q: "Pont tout thyristors sur charge très inductive : quand la tension moyenne devient-elle négative ?",
                     opts: ["Jamais", "Dès que θ > 0", "Quand θ > 90°", "Quand θ > 180°"], ok: [2],
                     expl: "⟨u⟩ = (2V̂/π)·cos θ, négative pour θ > 90° : l'énergie revient vers le réseau. Un pont mixte, lui, ne donne jamais une tension moyenne négative." },
-                { q: "Pourquoi la tension u d'un pont mixte s'annule-t-elle pendant certaines phases ?",
+                { fig: FIG.oscMixte, q: "Pourquoi la tension u d'un pont mixte s'annule-t-elle pendant certaines phases ?",
                     opts: ["Les thyristors sont détruits", "Les diodes assurent une roue libre : la charge n'est plus reliée au réseau, la bobine maintient le courant", "Le transformateur est saturé", "La gâchette est coupée"], ok: [1],
                     expl: "Phase de roue libre : le thyristor encore passant et la diode de son bras court-circuitent la charge, u = 0, l'énergie stockée dans la bobine entretient le courant." },
-                { q: "Moteur CC derrière un redresseur : ⟨u⟩ = 160 V, R = 0,5 Ω, I = 20 A. Quelle est la f.é.m. E ?",
+                { fig: FIG.mixteMoteur, q: "Moteur CC derrière un redresseur : ⟨u⟩ = 160 V, R = 0,5 Ω, I = 20 A. Quelle est la f.é.m. E ?",
                     opts: ["170 V", "160 V", "150 V", "140 V"], ok: [2],
                     expl: "⟨u⟩ = E + R·I, donc E = 160 − 0,5 × 20 = 150 V." },
                 { q: "Dans la loi des mailles d'un moteur avec bobine de lissage, pourquoi la tension de la bobine disparaît-elle en valeur moyenne ?",
                     opts: ["Car L est négligeable", "Car en régime périodique ⟨u_L⟩ = L·⟨di/dt⟩ = 0", "Car le courant est nul", "Car la bobine est en parallèle"], ok: [1],
                     expl: "Le courant revient à la même valeur à chaque période : la moyenne de sa dérivée est nulle, donc ⟨u_L⟩ = 0." },
-                { calc: true, q: "Un pont mixte est alimenté par v de valeur efficace 230 V, 50 Hz, avec θ = 60°. Il alimente un moteur CC : R = 0,5 Ω, I = 20 A constant grâce à la bobine, E = 0,1·n (n en tr/min). Calculer t0, ⟨u⟩, E, n et la puissance électromagnétique.",
+                { calc: true, fig: FIG.mixteMoteur, q: "Un pont mixte est alimenté par v de valeur efficace 230 V, 50 Hz, avec θ = 60°. Il alimente un moteur CC : R = 0,5 Ω, I = 20 A constant grâce à la bobine, E = 0,1·n (n en tr/min). Calculer t0, ⟨u⟩, E, n et la puissance électromagnétique.",
                     steps: ["θ = 60° = π/3, donc t0 = θ / ω = (π/3) / (100π) ≈ 3,33 ms (T/6).", "V̂ = 230√2 ≈ 325,3 V ; ⟨u⟩ = V̂/π × (1 + cos 60°) ≈ 155,3 V.", "E = ⟨u⟩ − R·I = 155,3 − 0,5 × 20 = 145,3 V.", "n = E / 0,1 ≈ 1 453 tr/min.", "Pem = E·I = 145,3 × 20 ≈ 2 906 W."] },
-                { calc: true, q: "Pont tout thyristors, v de valeur efficace 230 V, courant constant. Calculer ⟨u⟩ pour θ = 30° puis θ = 120°, et commenter.",
+                { calc: true, fig: FIG.toutTh, q: "Pont tout thyristors, v de valeur efficace 230 V, courant constant. Calculer ⟨u⟩ pour θ = 30° puis θ = 120°, et commenter.",
                     steps: ["2V̂/π = 2 × 325,3 / π ≈ 207,1 V.", "θ = 30° : ⟨u⟩ = 207,1 × cos 30° ≈ 179,3 V, fonctionnement en redresseur.", "θ = 120° : ⟨u⟩ = 207,1 × cos 120° ≈ −103,5 V : tension moyenne négative avec un courant toujours positif, la puissance revient vers le réseau (onduleur assisté). Il faut une source capable de fournir cette énergie, par exemple une machine qui freine."] }
             ]
         },
@@ -171,6 +400,8 @@
             sections: [
                 S('Hacheur série (dévolteur)', 'zap',
                     P(`Convertisseur <b>continu → continu</b>. L'interrupteur K (transistor) est fermé de 0 à αT, ouvert de αT à T. α est le <b>rapport cyclique</b> (0 ≤ α ≤ 1). f = 1/T est la fréquence de hachage.`),
+                    FIGURE(FIG.hacheurL, `Hacheur série sur charge inductive : la diode D assure la roue libre quand K s'ouvre.`),
+                    FIGURE(FIG.oscHacheurL, `v = U pendant αT, 0 ensuite ; le courant croît puis décroît autour de sa moyenne.`),
                     F(R`\langle v \rangle = \alpha\, U`, `⟨v⟩ tension moyenne aux bornes de la charge (V) · α rapport cyclique · U tension de la source continue (V)`),
                     UL([
                         `Charge inductive : une <b>diode de roue libre</b> en parallèle sur la charge laisse passer le courant de la bobine quand K s'ouvre. Sans elle, une surtension détruirait le transistor.`,
@@ -178,6 +409,7 @@
                         `Ondulation Δi = I<sub>max</sub> − I<sub>min</sub> : pour la diminuer, augmenter <b>L</b> et/ou la <b>fréquence</b> f. Courant moyen I = (I<sub>max</sub> + I<sub>min</sub>) / 2.`
                     ]),
                     F(R`\langle i_K \rangle = \alpha\, I \qquad \langle i_D \rangle = (1 - \alpha)\, I`, `⟨i<sub>K</sub>⟩ courant moyen dans le transistor (A) · ⟨i<sub>D</sub>⟩ courant moyen dans la diode (A) · I courant moyen dans la charge (A)`),
+                    FIGURE(FIG.hacheurMcc, `Commande d'un moteur à courant continu : bobine de lissage L, f.é.m. E.`),
                     F(R`\alpha U = E + R\,I \qquad n = \alpha\, n_M`, `Moteur CC · E f.é.m. (V) · R résistance de l'induit (Ω) · I courant (A) · si R est négligée, E = αU et la vitesse n est proportionnelle à α (n<sub>M</sub> vitesse pour α = 1)`)),
                 S('Hacheurs réversibles et pont en H', 'arrow-left-right',
                     T(['Hacheur', 'Composants', 'Tension moyenne', 'Ce qu\'il permet'], [
@@ -185,34 +417,36 @@
                         ['Réversible en tension', 'T1 et T2 commandés ensemble, D1 et D2', '(2α − 1)U', 'Inverser la tension, i reste positif'],
                         ['<b>4 quadrants (pont en H)</b>', 'T1 à T4, D1 à D4', '(2α − 1)U en commande simultanée', 'Les deux sens de rotation, en moteur ou en génératrice']
                     ]),
+                    FIGURE(FIG.pontHCours, `Hacheur 4 quadrants du poly : H1 et H3 forment une diagonale, H2 et H4 l'autre.`),
+                    FIGURE(FIG.oscPontHCours, `Pendant αT la diagonale H1, H3 conduit (u = +U) ; ensuite, avec i &gt; 0, ce sont les diodes D2, D4 (u = −U).`),
                     F(R`\langle u \rangle = (2\alpha - 1)\,U`, `Pont en H : u = +U pendant αT (une diagonale commandée, T1 et T4 sur le schéma du robot RICA IV), u = −U pendant (1 − α)T ·⟨u⟩ &gt; 0 si α &gt; 0,5 (marche avant), ⟨u⟩ &lt; 0 si α &lt; 0,5 (marche arrière), ⟨u⟩ = 0 pour α = 0,5 (arrêt)`),
                     NOTE('Méthode du DS (RICA IV)', `Pour remplir le tableau des composants passants avec i &gt; 0 : quand les transistors d'une diagonale sont commandés, ce sont eux qui conduisent (u = +U). Quand ils sont bloqués, le courant, qui ne peut pas s'arrêter dans la bobine du moteur, passe par les <b>diodes de l'autre diagonale</b> (u = −U), même si ces transistors-là sont commandés.`))
             ],
             qcm: [
-                { q: "Hacheur série : U = 48 V, α = 0,75. Tension moyenne aux bornes de la charge ?",
+                { fig: FIG.hacheurR, q: "Hacheur série : U = 48 V, α = 0,75. Tension moyenne aux bornes de la charge ?",
                     opts: ["12 V", "36 V", "48 V", "64 V"], ok: [1],
                     expl: "⟨v⟩ = α·U = 0,75 × 48 = 36 V. Le hacheur série est abaisseur : ⟨v⟩ ≤ U." },
-                { q: "Quel est le rôle de la diode de roue libre d'un hacheur série sur charge inductive ?",
+                { fig: FIG.hacheurL, q: "Quel est le rôle de la diode de roue libre d'un hacheur série sur charge inductive ?",
                     opts: ["Redresser la tension", "Laisser passer le courant de la bobine quand le transistor s'ouvre, pour éviter une surtension", "Augmenter la tension de sortie", "Limiter le courant de démarrage"], ok: [1],
                     expl: "Le courant d'une bobine ne peut pas s'interrompre : sans chemin, une surtension (un arc) apparaîtrait aux bornes du transistor et le détruirait." },
-                { q: "Comment réduire l'ondulation du courant dans un moteur alimenté par un hacheur ?",
+                { fig: FIG.oscHacheurL, q: "Comment réduire l'ondulation du courant dans un moteur alimenté par un hacheur ?",
                     opts: ["Diminuer L", "Augmenter L ou la fréquence de hachage", "Diminuer la fréquence de hachage", "Augmenter la tension U"], ok: [1],
                     expl: "Le cours le dit : pour diminuer Δi, augmenter l'inductance et/ou la fréquence." },
-                { q: "Pont en H (hacheur 4 quadrants) : U = 24 V, α = 0,3. Valeur moyenne de u et sens de marche ?",
+                { fig: FIG.pontHCours, q: "Pont en H (hacheur 4 quadrants) : U = 24 V, α = 0,3. Valeur moyenne de u et sens de marche ?",
                     opts: ["7,2 V, marche avant", "−9,6 V, marche arrière", "9,6 V, marche avant", "−7,2 V, marche arrière"], ok: [1],
                     expl: "⟨u⟩ = (2α − 1)U = (0,6 − 1) × 24 = −9,6 V : négative, donc le moteur tourne dans l'autre sens (marche arrière du robot RICA IV)." },
-                { q: "Pont en H : pour quelles valeurs de α le robot fait-il marche arrière ?",
+                { fig: FIG.oscPontHCours, q: "Pont en H : pour quelles valeurs de α le robot fait-il marche arrière ?",
                     opts: ["0,5 < α ≤ 1", "0 ≤ α < 0,5", "α = 0,5", "α > 1"], ok: [1],
                     expl: "⟨u⟩ = (2α − 1)U < 0 ⇔ α < 0,5. Question 5 des DS n°2 de 2024 et 2025." },
-                { q: "Hacheur série, I = 10 A dans le moteur, α = 0,75. Courant moyen dans la diode de roue libre ?",
+                { fig: FIG.hacheurMcc, q: "Hacheur série, I = 10 A dans le moteur, α = 0,75. Courant moyen dans la diode de roue libre ?",
                     opts: ["7,5 A", "2,5 A", "10 A", "0 A"], ok: [1],
                     expl: "La diode conduit pendant (1 − α)T : ⟨i_D⟩ = (1 − α)·I = 0,25 × 10 = 2,5 A. Le transistor porte ⟨i_K⟩ = 7,5 A." },
                 { q: "Pourquoi fait-on varier le rapport cyclique α d'un hacheur qui alimente un moteur ?",
                     opts: ["Pour changer la fréquence du réseau", "Pour régler la tension moyenne, donc la vitesse (et, avec un pont en H, le sens)", "Pour protéger le transistor", "Pour charger la batterie"], ok: [1],
                     expl: "La f.é.m., donc la vitesse, suit la tension moyenne : E ≈ αU (hacheur série) ou (2α − 1)U (pont en H)." },
-                { calc: true, q: "Hacheur série : U = 48 V, f = 2 kHz, α = 0,75, moteur CC avec R = 0,8 Ω, courant constant I = 10 A, E = 0,02·n (n en tr/min). Calculer T, la durée de fermeture, ⟨v⟩, E, n, ⟨i_K⟩ et ⟨i_D⟩.",
+                { calc: true, fig: FIG.hacheurMcc, q: "Hacheur série : U = 48 V, f = 2 kHz, α = 0,75, moteur CC avec R = 0,8 Ω, courant constant I = 10 A, E = 0,02·n (n en tr/min). Calculer T, la durée de fermeture, ⟨v⟩, E, n, ⟨i_K⟩ et ⟨i_D⟩.",
                     steps: ["T = 1 / f = 1 / 2 000 = 0,5 ms ; K est fermé pendant αT = 0,375 ms.", "⟨v⟩ = αU = 0,75 × 48 = 36 V.", "⟨v⟩ = E + R·I, donc E = 36 − 0,8 × 10 = 28 V.", "n = E / 0,02 = 1 400 tr/min.", "⟨i_K⟩ = αI = 7,5 A et ⟨i_D⟩ = (1 − α)I = 2,5 A ; leur somme redonne I = 10 A."] },
-                { calc: true, q: "Pont en H alimenté par une batterie de 36 V. Le moteur doit recevoir ⟨u⟩ = 9 V. Calculer α. Que vaut α pour ⟨u⟩ = −9 V ? Pour l'arrêt ?",
+                { calc: true, fig: FIG.pontHCours, q: "Pont en H alimenté par une batterie de 36 V. Le moteur doit recevoir ⟨u⟩ = 9 V. Calculer α. Que vaut α pour ⟨u⟩ = −9 V ? Pour l'arrêt ?",
                     steps: ["⟨u⟩ = (2α − 1)U, donc α = (⟨u⟩/U + 1) / 2.", "⟨u⟩ = 9 V : α = (0,25 + 1) / 2 = 0,625.", "⟨u⟩ = −9 V : α = (−0,25 + 1) / 2 = 0,375 (marche arrière).", "Arrêt : ⟨u⟩ = 0, donc α = 0,5. Ce n'est pas α = 0, qui donnerait ⟨u⟩ = −36 V, pleine vitesse en arrière."] }
             ]
         },
@@ -225,6 +459,8 @@
                         ['<b>Symétrique</b> : K1 et K3 fermés pendant T/2, puis K2 et K4', '+E pendant T/2, −E pendant T/2 (créneau)', 'U<sub>eff</sub> = E'],
                         ['<b>Décalée</b> : commande de K1, K4 décalée de τ par rapport à K3, K2', '0 pendant les phases où K3 et K4 (ou K1 et K2) conduisent', R`$U_{eff} = E\sqrt{1 - \dfrac{2\tau}{T}}$, réglable de 0 à E`]
                     ]),
+                    FIGURE(FIG.ondPont, `Onduleur en pont : une seule source E, quatre interrupteurs commandés deux à deux.`),
+                    FIGURE(FIG.ondDecale, `Commande décalée : u passe par 0 pendant τ, ce qui règle sa valeur efficace.`),
                     P(`La valeur moyenne de u est nulle. Sur charge résistive, i = u / R, P = U<sub>eff</sub>² / R. Si les interrupteurs sont parfaits, la puissance fournie par la source E égale celle reçue par la charge : rendement de 100 %.`),
                     P(`<b>MLI</b> (modulation de largeur d'impulsion) : des impulsions de largeurs calculées, suivies d'un filtre passe-bas, recréent une sinusoïde presque parfaite.`)),
                 S('Charge inductive et applications', 'battery-charging',
@@ -234,27 +470,28 @@
                         `Courant du même signe que u : c'est le <b>transistor</b> qui conduit, p &gt; 0.`,
                         `Applications : alimentation de secours (onduleur informatique sur batterie), onduleur solaire, <b>variation de vitesse</b> d'un moteur synchrone ou asynchrone (redresseur puis onduleur à fréquence réglable).`
                     ]),
+                    FIGURE(FIG.ondInductif, `Charge inductive : quand u et i sont de signes opposés, ce sont les diodes qui conduisent (récupération).`),
                     NOTE('Piège', `Les sources de tension doivent accepter un courant en sens inverse pendant les phases de récupération.`))
             ],
             qcm: [
                 { q: "Quelle conversion réalise un onduleur autonome ?",
                     opts: ["Alternatif → continu", "Continu → continu", "Continu → alternatif", "Alternatif → alternatif"], ok: [2],
                     expl: "Redresseur : alternatif → continu. Hacheur : continu → continu. Onduleur : continu → alternatif." },
-                { q: "Onduleur en pont, commande symétrique, E = 48 V, charge R = 24 Ω. Valeur efficace de u et puissance reçue par R ?",
+                { fig: FIG.ondPont, q: "Onduleur en pont, commande symétrique, E = 48 V, charge R = 24 Ω. Valeur efficace de u et puissance reçue par R ?",
                     opts: ["48 V et 96 W", "34 V et 48 W", "24 V et 24 W", "0 V et 0 W"], ok: [0],
                     expl: "En commande symétrique u vaut ±E : U_eff = E = 48 V, P = 48² / 24 = 96 W. La valeur moyenne, elle, est nulle." },
-                { q: "Commande décalée : quel est l'intérêt par rapport à la commande symétrique ?",
+                { fig: FIG.ondDecale, q: "Commande décalée : quel est l'intérêt par rapport à la commande symétrique ?",
                     opts: ["Supprimer les diodes", "Régler la valeur efficace entre 0 et E et se rapprocher d'une sinusoïde", "Augmenter la tension au-delà de E", "Rendre la tension continue"], ok: [1],
                     expl: "U_eff = E√(1 − 2τ/T) : le décalage τ règle la valeur efficace, et les paliers à 0 rapprochent la forme d'une sinusoïde." },
-                { q: "Onduleur sur charge inductive : u = +E et i < 0. Quel composant conduit ?",
+                { fig: FIG.ondInductif, q: "Onduleur sur charge inductive : u = +E et i < 0. Quel composant conduit ?",
                     opts: ["Le transistor H1", "La diode D1 en antiparallèle de H1", "La diode D2", "Aucun"], ok: [1],
                     expl: "K1 est commandé (u = +E), mais le courant est négatif : il passe par la diode D1. p = u·i < 0, la charge rend de l'énergie." },
                 { q: "Citer une application des onduleurs :",
                     opts: ["Le chargeur de téléphone", "L'alimentation de secours d'un serveur informatique", "Le pont de Graetz", "La diode de roue libre"], ok: [1],
                     expl: "En cas de coupure, l'onduleur fabrique une tension alternative à partir des batteries. Autres : onduleur solaire, variateur de vitesse." },
-                { calc: true, q: "Onduleur en pont, E = 200 V, R = 100 Ω, commande décalée avec τ = T/6. Calculer la valeur efficace de u, celle de i et la puissance reçue par la charge. Comparer avec la commande symétrique.",
+                { calc: true, fig: FIG.ondDecale, q: "Onduleur en pont, E = 200 V, R = 100 Ω, commande décalée avec τ = T/6. Calculer la valeur efficace de u, celle de i et la puissance reçue par la charge. Comparer avec la commande symétrique.",
                     steps: ["2τ/T = 1/3, donc U_eff = 200 × √(1 − 1/3) = 200 × √(2/3) ≈ 163,3 V.", "I_eff = U_eff / R ≈ 1,63 A.", "P = U_eff² / R = 200² × (2/3) / 100 ≈ 266,7 W.", "En commande symétrique : U_eff = 200 V et P = 400 W. Le décalage permet donc de régler la puissance."] },
-                { calc: true, q: "Onduleur en pont, commande symétrique, E = 24 V, R = 100 Ω, interrupteurs parfaits, période 20 ms. Calculer f, U_eff, I_eff, P, le courant moyen débité par le générateur et le rendement.",
+                { calc: true, fig: FIG.ondPont, q: "Onduleur en pont, commande symétrique, E = 24 V, R = 100 Ω, interrupteurs parfaits, période 20 ms. Calculer f, U_eff, I_eff, P, le courant moyen débité par le générateur et le rendement.",
                     steps: ["f = 1 / 0,020 = 50 Hz.", "U_eff = E = 24 V ; I_eff = 24 / 100 = 0,24 A ; P = 24² / 100 = 5,76 W.", "Le générateur débite toujours dans le même sens un courant de 0,24 A (i_G = |i|) : ⟨i_G⟩ = 0,24 A et P_G = E·⟨i_G⟩ = 5,76 W.", "Rendement η = 5,76 / 5,76 = 100 % : normal avec des interrupteurs parfaits. En réalité, les pertes en commutation le diminuent."] }
             ]
         }
@@ -269,6 +506,8 @@
             sections: [
                 S('Le sujet', 'file-text',
                     P(`Un transformateur parfait (réseau 230 V / 50 Hz) alimente un pont de 4 diodes, qui alimente un moteur CC à aimants permanents à travers la résistance des fils R<sub>fil</sub>. Oscillogramme : CH1 = u<sub>1</sub> à 100 V/div, CH2 = u<sub>2</sub> à 10 V/div, couplage DC, base de temps 2 ms/div. Diodes parfaites, courant I constant.`),
+                    FIGURE(FIG.store, `Schéma du sujet : transformateur, pont de 4 diodes, résistance des fils et moteur.`),
+                    FIGURE(FIG.oscPont, `Après le pont, u<sub>3</sub> = |u<sub>2</sub>| : période 10 ms, 100 Hz.`),
                     UL([
                         `1-2. Amplitude U<sub>2max</sub> et valeur efficace U<sub>2</sub>.`,
                         `3. Pour u<sub>2</sub> &gt; 0 puis u<sub>2</sub> &lt; 0, remplacer chaque diode par un interrupteur ouvert ou fermé et flécher le chemin de I.`,
@@ -286,13 +525,13 @@
                     NOTE('Barème', `Lecture de l'oscillogramme 0,5 + 0,5 ; schémas des diodes 1,5 ; tracé 0,5 ; fréquence 0,75 ; valeur efficace 1 ; bobine 0,25. Le schéma des diodes pèse lourd : entraîne-toi à le refaire sans regarder.`))
             ],
             qcm: [
-                { q: "Store : CH2 réglé à 10 V/div, la crête de u2 est à 3,8 divisions. Valeur efficace U2 ?",
+                { fig: FIG.store, q: "Store : CH2 réglé à 10 V/div, la crête de u2 est à 3,8 divisions. Valeur efficace U2 ?",
                     opts: ["38 V", "26,9 V", "24,2 V", "53,7 V"], ok: [1],
                     expl: "U2max = 38 V, U2 = 38 / √2 ≈ 26,9 V. 24,2 V est la valeur moyenne après redressement (2 × 38 / π).", src: 'DS n°2, 2024' },
                 { q: "Store : quelle est la valeur efficace U3 de la tension redressée, si U2 = 26,9 V ?",
                     opts: ["13,5 V", "19,0 V", "24,2 V", "26,9 V"], ok: [3],
                     expl: "u3 = |u2|, donc u3² = u2² : les valeurs efficaces sont égales.", src: 'DS n°2, 2024' },
-                { calc: true, q: "Variante : même montage, mais la crête de u2 est à 3,4 divisions (10 V/div) et la base de temps vaut 5 ms/div, une période de u2 occupant 4 divisions. Calculer U2max, U2, la fréquence du réseau, celle de u3, puis ⟨u3⟩ et U3.",
+                { calc: true, fig: FIG.store, q: "Variante : même montage, mais la crête de u2 est à 3,4 divisions (10 V/div) et la base de temps vaut 5 ms/div, une période de u2 occupant 4 divisions. Calculer U2max, U2, la fréquence du réseau, celle de u3, puis ⟨u3⟩ et U3.",
                     steps: ["U2max = 3,4 × 10 = 34 V ; U2 = 34 / √2 ≈ 24,0 V.", "T = 4 × 5 = 20 ms, f = 50 Hz ; u3 a pour période 10 ms, donc 100 Hz.", "⟨u3⟩ = 2 × 34 / π ≈ 21,6 V (voltmètre en DC).", "U3 = U2 ≈ 24,0 V (voltmètre TRMS en AC+DC)."] }
             ]
         },
@@ -301,6 +540,7 @@
             sections: [
                 S('Le sujet', 'file-text',
                     P(`Un dispositif relié au réseau 230 V / 50 Hz alimente un motoréducteur commandé par un relais. Conversion alternatif-continu : transformateur, pont de 4 diodes, puis filtrage. On donne les oscillogrammes de u<sub>2</sub>, u<sub>3</sub>, u<sub>4</sub>, u<sub>5</sub>.`),
+                    FIGURE(FIG.portes, `Figure 2 du sujet : transformateur 230 V / 24 V, pont D1 à D4, bobine L, filtre et régulateur.`),
                     UL([
                         `1. Cocher les réglages de l'oscilloscope.`,
                         `2. Tableau : diode passante (P) ou bloquée (B) pour chaque alternance, et relation entre u<sub>2</sub> et u<sub>3</sub>.`,
@@ -318,16 +558,16 @@
                     NOTE('Indice', `Cet exercice est tombé à l'identique en 2024 et en 2025. La même méthode sert dans la porte de garage de janvier 2026.`))
             ],
             qcm: [
-                { q: "Porte : U2 = 24 V efficace, pont de diodes parfait. ⟨u3⟩ ?",
+                { fig: FIG.portes, q: "Porte : U2 = 24 V efficace, pont de diodes parfait. ⟨u3⟩ ?",
                     opts: ["24 V", "33,9 V", "21,6 V", "10,8 V"], ok: [2],
                     expl: "⟨u3⟩ = 2 × 24√2 / π ≈ 21,6 V. 10,8 V serait la simple alternance.", src: 'DS n°2, 2025' },
-                { q: "Pendant l'alternance négative, quelle relation lie u3 et u2 ?",
+                { fig: FIG.portes, q: "Pendant l'alternance négative, quelle relation lie u3 et u2 ?",
                     opts: ["u3 = u2", "u3 = −u2", "u3 = 0", "u3 = 2u2"], ok: [1],
                     expl: "D2 et D4 conduisent et retournent la tension : u3 = −u2, qui est positive puisque u2 < 0.", src: 'DS n°2, 2025' },
                 { q: "Pour mesurer ⟨u3⟩, on règle le voltmètre en…",
                     opts: ["AC", "DC", "AC+DC", "Ohmmètre"], ok: [1],
                     expl: "DC donne la valeur moyenne. AC+DC (TRMS) donnerait la valeur efficace.", src: 'DS n°2, 2025' },
-                { calc: true, q: "Variante : transformateur 230 V / 15 V parfait, pont de diodes parfait, charge de 30 Ω. Calculer le rapport de transformation, U3max, ⟨u3⟩, le courant moyen et le courant moyen dans une diode.",
+                { calc: true, fig: FIG.portes, q: "Variante : transformateur 230 V / 15 V parfait, pont de diodes parfait, charge de 30 Ω. Calculer le rapport de transformation, U3max, ⟨u3⟩, le courant moyen et le courant moyen dans une diode.",
                     steps: ["m = 15 / 230 ≈ 0,065.", "U3max = 15√2 ≈ 21,2 V.", "⟨u3⟩ = 2 × 21,2 / π ≈ 13,5 V.", "⟨i⟩ = 13,5 / 30 = 0,45 A ; chaque diode conduit une alternance sur deux : 0,225 A."] }
             ]
         },
@@ -336,6 +576,7 @@
             sections: [
                 S('Partie A : l\'alimentation', 'file-text',
                     P(`Secteur U<sub>1</sub> = 230 V, 50 Hz ; transformateur parfait 230 V / 24 V ; pont de Graetz (diodes idéales), puis condensateur et régulateur intégré de tension (RIT) qui délivre u<sub>alim</sub>.`),
+                    FIGURE(FIG.garageAlim, `Figure 2 du sujet : pont de Graetz, condensateur C et régulateur intégré (R.I.T.).`),
                     UL([
                         `<b>Q1</b> : m = 24 / 230 ≈ <b>0,104</b>.`,
                         `<b>Q2-Q3</b> : D1/D3 passantes et u<sub>R</sub> = u<sub>2</sub> sur l'alternance positive ; D2/D4 et u<sub>R</sub> = −u<sub>2</sub> sur la négative.`,
@@ -346,6 +587,7 @@
                     ])),
                 S('Partie B : la détection d\'obstacle', 'scan-line',
                     P(`Un phototransistor PT reçoit un faisceau infrarouge. L'A.D.I. (±15 V) compare V<sup>+</sup> (fixé par PT) et V<sup>−</sup> (pont R1 = 20 kΩ, R2 = 10 kΩ, R3 = 10 kΩ). Sa sortie U<sub>s</sub> commande, par R<sub>B</sub>, un transistor T (β = 50, V<sub>BEsat</sub> = 0,7 V) qui alimente un relais (U<sub>alim</sub> = 24 V, i<sub>Csat</sub> = 0,6 A). Le relais relève la porte si un obstacle coupe le faisceau.`),
+                    FIGURE(FIG.garageDetection, `Figure 4 du sujet : PT fixe V⁺, le pont R2, R1 fixe V⁻ = 10 V ; l'A.D.I. compare et commande T, qui alimente le relais.`),
                     T(['Question', 'Réponse du professeur'], [
                         ['Q8 Régime de l\'A.D.I.', 'Aucune liaison entre la sortie et une entrée : <b>régime de saturation</b> (comparateur), U<sub>s</sub> = ±15 V'],
                         ['Q9 V<sup>−</sup>', 'Pont diviseur : V<sup>−</sup> = 15 × 20 / (20 + 10) = <b>10 V</b>'],
@@ -359,19 +601,19 @@
                     ]))
             ],
             qcm: [
-                { q: "Porte de garage : l'A.D.I. n'a aucune liaison entre sa sortie et ses entrées. Son régime ?",
+                { fig: FIG.garageDetection, q: "Porte de garage : l'A.D.I. n'a aucune liaison entre sa sortie et ses entrées. Son régime ?",
                     opts: ["Linéaire", "Saturation (comparateur)", "Bloqué", "Impossible à dire"], ok: [1],
                     expl: "Sans contre-réaction, l'amplificateur fonctionne en comparateur : sa sortie vaut +Vsat ou −Vsat selon le signe de v_d = V+ − V−.", src: 'Sciences, janvier 2026' },
-                { q: "Le calcul donne R_B = 1 192 Ω. Valeurs disponibles : 1,0 ; 2,2 ; 4,7 kΩ. Choix ?",
+                { fig: FIG.garageDetection, q: "Le calcul donne R_B = 1 192 Ω. Valeurs disponibles : 1,0 ; 2,2 ; 4,7 kΩ. Choix ?",
                     opts: ["1,0 kΩ", "2,2 kΩ", "4,7 kΩ", "Aucune ne convient"], ok: [0],
                     expl: "Avec 1,0 kΩ, i_B = 14,3 mA ≥ 12 mA : saturation garantie. Avec 2,2 kΩ, i_B = 6,5 mA, le transistor ne sature pas.", src: 'Sciences, janvier 2026' },
-                { q: "Quel est le rôle de la diode placée en parallèle sur la bobine du relais ?",
+                { fig: FIG.garageDetection, q: "Quel est le rôle de la diode placée en parallèle sur la bobine du relais ?",
                     opts: ["Redresser la tension", "Allumer un voyant", "Laisser passer le courant de la bobine à l'ouverture pour éviter une surtension", "Augmenter le courant du relais"], ok: [2],
                     expl: "C'est une diode de roue libre, comme dans le hacheur : le courant d'une bobine ne peut pas s'interrompre brutalement.", src: 'Sciences, janvier 2026' },
-                { q: "Le transistor T est bloqué, alimenté sous 24 V. Que vaut V_CE ?",
+                { fig: FIG.garageDetection, q: "Le transistor T est bloqué, alimenté sous 24 V. Que vaut V_CE ?",
                     opts: ["0 V", "0,7 V", "15 V", "24 V"], ok: [3],
                     expl: "Bloqué, aucun courant ne circule : pas de tension aux bornes de la bobine, toute la tension d'alimentation est sur le transistor.", src: 'Sciences, janvier 2026' },
-                { calc: true, q: "Variante : même montage, mais le relais demande i_Csat = 0,24 A et le transistor a β = 40. U_s = +15 V, V_BEsat = 0,7 V. Calculer i_Bsat, R_B, puis choisir entre 1,0 kΩ, 2,2 kΩ et 4,7 kΩ.",
+                { calc: true, fig: FIG.garageDetection, q: "Variante : même montage, mais le relais demande i_Csat = 0,24 A et le transistor a β = 40. U_s = +15 V, V_BEsat = 0,7 V. Calculer i_Bsat, R_B, puis choisir entre 1,0 kΩ, 2,2 kΩ et 4,7 kΩ.",
                     steps: ["i_Bsat = 0,24 / 40 = 6 mA.", "R_B = (15 − 0,7) / 0,006 ≈ 2 383 Ω : c'est un maximum.", "On prend 2,2 kΩ : i_B = 14,3 / 2 200 = 6,5 mA ≥ 6 mA. 1,0 kΩ marche aussi (14,3 mA) mais consomme plus ; 4,7 kΩ ne sature pas (3 mA)."] }
             ]
         },
@@ -386,13 +628,15 @@
                         `<b>Amplificateur non inverseur</b> : A<sub>V</sub> = 1 + (R<sub>5</sub> + R<sub>6</sub>) / R<sub>4</sub>, avec R<sub>4</sub> = 4,7 kΩ, R<sub>5</sub> = 33 kΩ, R<sub>6</sub> de 0 à 470 kΩ : A<sub>V</sub> de 8,0 à 108 ; A<sub>V</sub> = 10 pour R<sub>6</sub> = 9,3 kΩ.`,
                         `<b>Transistor saturé</b> (V<sub>BEsat</sub> = 0,6 V, β = 100, i<sub>Csat</sub> = 400 µA) commandé par 6 V à travers 4,7 kΩ : i<sub>B</sub> = 5,4 / 4 700 ≈ 1,15 mA, bien plus que les 4 µA nécessaires : il est saturé.`
                     ]),
+                    FIGURE(FIG.comparateur, `Comparateur avec V3 = 2,5 V : sortie haute tant que le triangle est sous V3, soit α = 1/3.`),
+                    FIGURE(FIG.del2022, `DEL du capteur cardiaque : R1 = (5 − 3,6) / 0,020 = 70 Ω.`),
                     NOTE('Source', `Pas de corrigé du professeur pour ce DS : ces réponses sont les nôtres, recalculées.`))
             ],
             qcm: [
-                { q: "Comparateur alimenté en ±15 V : v1 sur l'entrée −, V3 sur l'entrée +. Si v1 > V3, que vaut la sortie ?",
+                { fig: FIG.comparateur, q: "Comparateur alimenté en ±15 V : v1 sur l'entrée −, V3 sur l'entrée +. Si v1 > V3, que vaut la sortie ?",
                     opts: ["+15 V", "−15 V", "0 V", "v1 − V3"], ok: [1],
                     expl: "v_d = V+ − V− = V3 − v1 < 0, donc la sortie sature à −15 V.", src: 'DS n°2, 2022' },
-                { q: "DEL : seuil 3,6 V, courant maximal 20 mA, alimentation 5 V. Résistance série ?",
+                { fig: FIG.del2022, q: "DEL : seuil 3,6 V, courant maximal 20 mA, alimentation 5 V. Résistance série ?",
                     opts: ["70 Ω", "180 Ω", "250 Ω", "430 Ω"], ok: [0],
                     expl: "R1 = (5 − 3,6) / 0,020 = 70 Ω. 250 Ω serait 5 / 0,020, en oubliant le seuil de la DEL.", src: 'DS n°2, 2022' }
             ]
@@ -402,6 +646,7 @@
             sections: [
                 S('Le sujet', 'file-text',
                     P(`Un pont mixte (thyristors T1 et T3 en haut, diodes D1 et D2 en bas) alimente l'induit d'un moteur CC à excitation indépendante et constante : R = 0,5 Ω, E = 180 V à 1 250 tr/min. Le courant est parfaitement lissé par une bobine : I = 10 A. Entrée : v sinusoïdale, 220 V efficace, 50 Hz. Impulsions de gâchette aux instants t<sub>0</sub> + kT/2, θ = ω·t<sub>0</sub> = π/4.`),
+                    FIGURE(FIG.variateur, `Schéma du sujet : thyristors T1, T3 en haut, diodes D1, D2 en bas, bobine L et moteur (E ; R).`),
                     UL([
                         `1. Tracer v(t), u(t), i<sub>L</sub>, i<sub>1</sub> et i<sub>D</sub> en concordance de temps pour θ = π/4.`,
                         `2-3. Calculer ⟨u⟩, puis l'exprimer en fonction de E, I et R.`,
@@ -415,19 +660,20 @@
                         `E = 169 − 0,5 × 10 = <b>164 V</b>.`,
                         `À excitation constante, E est proportionnelle à n : 180 / 1 250 = 164 / n, soit <b>n ≈ 1 139 tr/min</b>.`
                     ]),
+                    FIGURE(FIG.oscVariateur, `Corrigé : i1 = 10 A de π/4 à 5π/4 (T1 reste passant pendant la roue libre), iD1 = 10 A de π à 2π.`),
                     NOTE('Lien', `Même montage que le CB n°1 de novembre (θ = π/4) et que l'exercice 2 du TD 11 (θ = 45°, ⟨u⟩ = 169 V) : c'est un grand classique.`))
             ],
             qcm: [
-                { q: "Pont mixte, v = 220 V efficace, θ = π/4. Valeur moyenne de u ?",
+                { fig: FIG.variateur, q: "Pont mixte, v = 220 V efficace, θ = π/4. Valeur moyenne de u ?",
                     opts: ["99 V", "140 V", "169 V", "198 V"], ok: [2],
                     expl: "⟨u⟩ = (220√2/π)(1 + cos π/4) = 99,0 × 1,707 ≈ 169 V. 198 V serait le pont de diodes (2V̂/π).", src: 'DS n°2, 2025' },
                 { q: "E = 180 V à 1 250 tr/min, excitation constante. Vitesse quand E = 164 V ?",
                     opts: ["1 139 tr/min", "1 372 tr/min", "1 250 tr/min", "911 tr/min"], ok: [0],
                     expl: "E est proportionnelle à n : n = 1 250 × 164 / 180 ≈ 1 139 tr/min.", src: 'DS n°2, 2025' },
-                { q: "Pont mixte, θ = π/4 : quels composants conduisent pendant la phase de roue libre qui suit θ = π ?",
+                { fig: FIG.oscVariateur, q: "Pont mixte, θ = π/4 : quels composants conduisent pendant la phase de roue libre qui suit θ = π ?",
                     opts: ["Aucun, le courant s'annule", "T1 et D1, du même bras", "Les deux diodes D1 et D2", "Les quatre"], ok: [1],
                     expl: "À θ = π, v devient négative : D1 devient passante et D2 se bloque, mais le courant de T1 ne s'annule pas, donc T1 reste passant. T1 et D1 court-circuitent la charge (u = 0) jusqu'à l'amorçage de T3 à 5π/4. D'où i1 = 10 A de π/4 à 5π/4 et iD1 = 10 A de π à 2π (corrigé du professeur). Les deux diodes seules ne peuvent pas ramener le courant vers le haut du pont.", src: 'DS n°2, 2025' },
-                { calc: true, q: "Variante : même moteur (R = 0,5 Ω, E = 180 V à 1 250 tr/min), même pont et même réseau 220 V, mais θ = π/3 et I = 12 A. Calculer t0, ⟨u⟩, E et n.",
+                { calc: true, fig: FIG.variateur, q: "Variante : même moteur (R = 0,5 Ω, E = 180 V à 1 250 tr/min), même pont et même réseau 220 V, mais θ = π/3 et I = 12 A. Calculer t0, ⟨u⟩, E et n.",
                     steps: ["t0 = θ / ω = (π/3) / (100π) ≈ 3,33 ms.", "⟨u⟩ = (220√2/π)(1 + cos π/3) = 99,0 × 1,5 ≈ 148,6 V.", "E = ⟨u⟩ − R·I = 148,6 − 0,5 × 12 ≈ 142,6 V.", "n = 1 250 × 142,6 / 180 ≈ 990 tr/min : en retardant l'amorçage, on ralentit le moteur."] }
             ]
         },
@@ -436,6 +682,8 @@
             sections: [
                 S('Partie 1 : la commande du moteur', 'bot',
                     P(`Le robot du CEA est entraîné par un moteur CC alimenté par un hacheur 4 quadrants sous U<sub>alim</sub> = 24 V : T1, D1 et T2, D2 à gauche, T3, D3 et T4, D4 à droite. Transistors parfaits en commutation, diodes parfaites, i(t) &gt; 0. Les commandes : C1 et C4 à 5 V pendant 6 carreaux, puis C2 et C3 à 5 V pendant 3 carreaux.`),
+                    FIGURE(FIG.rica, `Schéma du sujet : T1, T2 à gauche, T3, T4 à droite, chacun avec sa diode, sous U<sub>alim</sub> = 24 V.`),
+                    FIGURE(FIG.oscRica, `Document réponse corrigé : T1 et T4 conduisent pendant 6 carreaux (u = +24 V), puis D2 et D3 (u = −24 V).`),
                     T(['Question', 'Réponse du professeur', 'Points'], [
                         ['Q8 Composants passants', 'C1, C4 à 5 V : <b>T1 et T4</b> ; C2, C3 à 5 V : <b>D2 et D3</b> (i &gt; 0 ne peut pas passer dans T2 et T3)', '1'],
                         ['Q9 Tracé de u', '+24 V quand T1 et T4 conduisent, −24 V quand D2 et D3 conduisent', '1'],
@@ -447,6 +695,7 @@
                     P(`Avec la formule du cours : ⟨u⟩ = (2α − 1)U = (2 × 0,67 − 1) × 24 ≈ +8 V.`)),
                 S('Partie 2 : la carte du capteur', 'scan-line',
                     P(`Une DEL infrarouge éclaire la courroie dentée ; un phototransistor TS (V<sub>CEsat</sub> = 0,3 V) reçoit le reflet, plus fort quand une dent passe. ALI1 (alimenté en 24 V / 0 V, parfait) recopie V<sub>CE</sub>. Résistance R1 entre 24 V et le collecteur.`),
+                    FIGURE(FIG.capteur, `Étage 1 : la DEL éclaire la courroie, le phototransistor TS est relié au 24 V par R1, ALI1 recopie V<sub>ce</sub>.`),
                     T(['Question', 'Réponse du professeur', 'Points'], [
                         ['Q14 Type de TS', 'Bipolaire <b>NPN</b>', '0,5'],
                         ['Q15 Distance optimale', 'Lue sur i<sub>C</sub> = f(d) au maximum : <b>d ≈ 7 mm</b> (légèrement plus)', '0,5'],
@@ -458,19 +707,19 @@
                     NOTE('Indice', `Exercice tombé à l'identique en 2024 et 2025, et le TD 12 (exercice 5, portail en pont en H) suit la même démarche. Sache remplir le tableau des composants sans hésiter : c'est 2 points sur 11.`))
             ],
             qcm: [
-                { q: "RICA IV : C1 et C4 sont à 0 V, C2 et C3 à 5 V, et i > 0. Quels composants conduisent ?",
+                { fig: FIG.rica, q: "RICA IV : C1 et C4 sont à 0 V, C2 et C3 à 5 V, et i > 0. Quels composants conduisent ?",
                     opts: ["T2 et T3", "D2 et D3", "T1 et T4", "D1 et D4"], ok: [1],
                     expl: "T2 et T3 sont commandés, mais un transistor ne conduit que dans un sens : avec i > 0, le courant passe par les diodes D2 et D3, et u = −24 V.", src: 'DS n°2, 2025' },
-                { q: "Commandes : C1 et C4 hautes pendant 6 carreaux, C2 et C3 pendant 3 carreaux. Rapport cyclique et sens ?",
+                { fig: FIG.oscRica, q: "Commandes : C1 et C4 hautes pendant 6 carreaux, C2 et C3 pendant 3 carreaux. Rapport cyclique et sens ?",
                     opts: ["α = 0,33, marche arrière", "α = 0,5, arrêt", "α = 0,67, marche avant", "α = 2, marche avant"], ok: [2],
                     expl: "α = 6 / 9 ≈ 0,67 > 0,5 : ⟨u⟩ = (2α − 1) × 24 ≈ +8 V, le robot avance.", src: 'DS n°2, 2025' },
-                { q: "ALI1 monté en suiveur, entrée sur V_CE. Que vaut V_s1 ?",
+                { fig: FIG.capteur, q: "ALI1 monté en suiveur, entrée sur V_CE. Que vaut V_s1 ?",
                     opts: ["0 V", "24 V", "V_CE", "−V_CE"], ok: [2],
                     expl: "Un suiveur recopie sa tension d'entrée : V_s1 = V_CE. Il ne prélève aucun courant, d'où i1 = iC.", src: 'DS n°2, 2025' },
-                { q: "Le phototransistor (V_CEsat = 0,3 V) est relié au 24 V par R. i_C doit rester entre 0,21 mA et 3 mA. Quelle résistance ?",
+                { fig: FIG.capteur, q: "Le phototransistor (V_CEsat = 0,3 V) est relié au 24 V par R. i_C doit rester entre 0,21 mA et 3 mA. Quelle résistance ?",
                     opts: ["4,7 kΩ", "10 kΩ", "150 kΩ", "1 kΩ"], ok: [1],
                     expl: "i_C = (24 − 0,3) / R : 3 mA impose R > 7,9 kΩ, 0,21 mA impose R < 113 kΩ. 10 kΩ convient.", src: 'DS n°2, 2025' },
-                { calc: true, q: "Variante : pont en H sous U = 36 V. C1 et C4 sont hautes pendant 2 carreaux, puis C2 et C3 pendant 6 carreaux, i > 0. Composants passants, niveaux de u, α, ⟨u⟩ et sens de marche ?",
+                { calc: true, fig: FIG.rica, q: "Variante : pont en H sous U = 36 V. C1 et C4 sont hautes pendant 2 carreaux, puis C2 et C3 pendant 6 carreaux, i > 0. Composants passants, niveaux de u, α, ⟨u⟩ et sens de marche ?",
                     steps: ["C1 et C4 hautes : T1 et T4 conduisent, u = +36 V.", "C2 et C3 hautes : avec i > 0, ce sont D2 et D3 qui conduisent, u = −36 V.", "α = 2 / (2 + 6) = 0,25.", "⟨u⟩ = (2 × 0,25 − 1) × 36 = −18 V.", "⟨u⟩ < 0 : le robot recule. α < 0,5 est bien la condition de marche arrière."] }
             ]
         }

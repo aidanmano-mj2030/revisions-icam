@@ -89,7 +89,7 @@
     }
     function questionParId(id) {
         const q = trouver(id);
-        return q ? { q: q.q, opts: q.opts.slice(), ok: q.ok.slice(), expl: q.expl || '', chapitre: q.chapitre || '' } : null;
+        return q ? { q: q.q, fig: q.fig || '', opts: q.opts.slice(), ok: q.ok.slice(), expl: q.expl || '', chapitre: q.chapitre || '' } : null;
     }
 
     // ==========================================
@@ -315,6 +315,7 @@
             const choisis = repDe(q), fini = valide(q), ds = etat.mode === 'ds';
             box.appendChild(texte('p', 'text-[11px] font-bold uppercase tracking-wider text-slate-400', `Question ${n} / ${questions.length}` + (config.montrerChapitre && q.chapitre ? ' · ' + q.chapitre : '') + (q.multi ? ' · plusieurs bonnes réponses' : '')));
             box.appendChild(el('p', 'text-sm font-semibold text-white leading-relaxed', q.q));
+            if (q.fig) box.appendChild(el('div', 'my-2 flex justify-center bg-slate-950 border border-slate-800 rounded-xl p-3 overflow-x-auto', q.fig));   // schéma de l'énoncé (SVG)
             const liste = el('div', 'grid gap-2');
             const cases = [];
             const redessiner = (focus) => {
@@ -552,6 +553,7 @@
                     const box = el('div', 'bg-slate-950/40 border border-slate-800 border-l-4 border-l-red-500/70 rounded-xl p-4 space-y-2 text-sm leading-relaxed scroll-mt-32 transition-shadow');
                     box.appendChild(texte('p', 'text-[11px] font-bold uppercase tracking-wider text-slate-400', `Question ${n}` + (q.chapitre ? ' · ' + q.chapitre : '')));
                     box.appendChild(el('p', 'font-semibold text-white', q.q));
+                    if (q.fig) box.appendChild(el('div', 'my-2 flex justify-center bg-slate-950 border border-slate-800 rounded-xl p-3 overflow-x-auto', q.fig));
                     const ta = el('p', 'text-red-300');
                     ta.innerHTML = choisis.length ? '<span class="font-bold">Ta réponse :</span> ' + lettresDe(q, choisis) : '<span class="font-bold">Sans réponse</span>';
                     box.appendChild(ta);
