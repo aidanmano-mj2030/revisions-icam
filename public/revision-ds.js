@@ -92,7 +92,7 @@
     const QSERIE = new Map();
     function enSerieDe(def, q, s, part) {
         if (!QSERIE.has(q)) QSERIE.set(q, {
-            id: window.studicamIdQuestion(`${def.prefixeId}/${part}/${s.id}`, q.q), q: q.q, opts: q.opts, ok: q.ok, multi: !!q.multi,
+            id: window.studicamIdQuestion(`${def.prefixeId}/${part}/${s.id}`, q.q), q: q.q, fig: q.fig || '', opts: q.opts, ok: q.ok, multi: !!q.multi,
             expl: q.expl, src: q.src || '', chapitre: `${def.parties[part].court} · ${s.titre}`, matiere: def.matiere(part), annee: def.annee,
             ouvrir: () => { def.etat.chap[part] = s.id; ouvrirRevisionDS(part, null, def.id); return $('ds-contenu'); }
         });
@@ -126,6 +126,7 @@
         const box = el('div', 'bg-slate-950/40 border border-slate-800 border-l-4 border-l-blue-500/70 rounded-xl p-4 space-y-3');
         box.appendChild(el('p', 'text-[11px] font-bold uppercase tracking-wider text-blue-300', 'Exercice ' + n));
         box.appendChild(el('p', 'text-sm text-slate-200 leading-relaxed', q.q));
+        if (q.fig) box.appendChild(el('div', 'my-2 flex justify-center bg-slate-950 border border-slate-800 rounded-xl p-3 overflow-x-auto', q.fig));   // schéma de l'exercice (SVG)
         const sol = el('div', 'rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3 text-sm text-violet-100 leading-relaxed');
         sol.hidden = true;
         sol.innerHTML = `<p class="font-bold text-violet-200 mb-1.5">Correction</p>` + `<ol class="list-decimal pl-5 space-y-1.5">${q.steps.map(t => `<li>${t}</li>`).join('')}</ol>`;

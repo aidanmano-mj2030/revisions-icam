@@ -142,3 +142,10 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 
 - Nouvelle Révision DS pour le DS de physique du samedi 21/11 (chapitres 10 à 13) : `revision-ds-2026-11-phys.js`. Onglet « Cours » : composants à semi-conducteurs, pont de Graetz, redressement commandé et pont mixte, hacheur série et 4 quadrants, onduleur, avec 31 QCM et 10 exercices corrigés à d'autres valeurs. Onglet « Anciens DS » : les exercices des DS n°2 de 2022, 2024 et 2025 et de l'épreuve de sciences de janvier 2026 (store, contrôle de portes, porte de garage, capteur cardiaque, pont mixte, robot RICA IV), avec la correction du professeur quand elle existe, 18 QCM sourcés et des variantes chiffrées. Onglet « Formules ». Examen blanc de 49 questions.
 - Moteur commun : l'examen blanc nommait toujours les onglets « CE et OI » ; il cite maintenant les onglets du DS affiché.
+
+## 15 novembre 2026 – Schémas de la Révision DS de physique (Aidan, avec Claude)
+
+- Les schémas des polys de physique (chapitres 10 à 13) et des anciens DS sont dans la Révision DS du 21/11 : 36 figures dans le cours et les anciens DS (ponts de Graetz, mixte et tout thyristors, hacheurs, pont en H, onduleur, détection d'obstacle, capteur du robot RICA IV, comparateur), avec leurs oscillogrammes. Les dessins des leçons sont réutilisés ; les montages propres aux sujets sont dessinés avec les mêmes outils.
+- Un QCM ou un exercice peut afficher un schéma (champ `fig`, lu par `serie.js` et `revision-ds.js`) : 37 QCM et 14 exercices en ont un. L'identifiant d'une question ne change pas.
+- Roue libre du pont mixte rétablie (T1 et D1 du même bras, i1 = 10 A de π/4 à 5π/4), comme dans le poly et le corrigé du DS de 2025.
+- Leçon « Redressement » : les diodes du pont mixte s'appellent D1 et D2, comme dans le poly. Mode clair : les composants des schémas, restés gris pâle, sont foncés sur tout le site.

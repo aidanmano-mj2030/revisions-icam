@@ -58,7 +58,7 @@
     html.clair .bg-gradient-to-tr.text-white, html.clair .bg-gradient-to-tr .text-white { color: #ffffff; }
     /* schémas SVG : traits et textes clairs → foncés, fonds sombres → clairs */
     html.clair svg [fill="#e2e8f0"], html.clair svg [fill="#cbd5e1"] { fill: #1e293b; }
-    html.clair svg [stroke="#e2e8f0"], html.clair svg [stroke="#cbd5e1"] { stroke: #334155; }
+    html.clair svg [stroke="#e2e8f0"], html.clair svg [stroke="#cbd5e1"], html.clair svg[stroke="#cbd5e1"] { stroke: #334155; }
     html.clair svg [fill="#94a3b8"] { fill: #475569; }
     html.clair svg [stroke="#94a3b8"], html.clair svg [stroke="#64748b"], html.clair svg [stroke="#475569"] { stroke: #64748b; }
     html.clair svg [fill="#1e293b"], html.clair svg [fill="#0f172a"], html.clair svg [fill="#161e2e"], html.clair svg [fill="#0a0f1d"], html.clair svg [fill="#131c2e"] { fill: #f8fafc; }
@@ -11535,7 +11535,7 @@
                         H.figure(figCommande(true), 'Même montage avec une charge inductive (R et L en série).'),
                         H.figure(oscCommandeL(), 'Charge inductive : u prend des valeurs négatives quand α > 0, le courant i est (presque) constant.'),
                         H.p(R`<strong>Pont mixte</strong> : deux thyristors et deux diodes. Malgré une conduction ininterrompue, la tension $u$ s'annule lorsque $v$ devient négatif, à cause des diodes. Pendant ces instants la charge fonctionne en <strong>roue libre</strong> : elle n'est plus reliée à l'alimentation, la bobine libère son énergie et assure la continuité du courant.`),
-                        H.figure(figPont({hg:'t',hd:'t',nhg:'T1',nhd:'T2'}), 'Pont mixte : thyristors T1 et T2 en haut, diodes D3 et D4 en bas.'),
+                        H.figure(figPont({hg:'t',hd:'t',nhg:'T1',nhd:'T2',nbg:'D1',nbd:'D2'}), 'Pont mixte : thyristors T1 et T2 en haut, diodes D3 et D4 en bas.'),
                         H.figure(oscPontMixte(), 'Pont mixte : u est nulle pendant les phases de roue libre (RL).'),
                         H.note(R`Plus $\alpha$ augmente, plus la tension moyenne diminue. Pour $\alpha = 0$ on retrouve le pont de diodes.`)
                     ].join('') }
