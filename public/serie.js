@@ -89,7 +89,10 @@
     }
     function questionParId(id) {
         const q = trouver(id);
-        return q ? { q: q.q, fig: q.fig || '', opts: q.opts.slice(), ok: q.ok.slice(), expl: q.expl || '', chapitre: q.chapitre || '' } : null;
+        if (!q) return null;
+        const copie = { q: q.q, opts: q.opts.slice(), ok: q.ok.slice(), expl: q.expl || '', chapitre: q.chapitre || '' };
+        if (q.fig) copie.fig = q.fig;   // schéma de l'énoncé, s'il y en a un
+        return copie;
     }
 
     // ==========================================

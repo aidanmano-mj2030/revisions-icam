@@ -105,6 +105,11 @@ test("questions retrouvées par identifiant", () => {
   ]]);
   assert.deepEqual(JSON.parse(JSON.stringify(window.studicamQuestionParId("test#1"))), { q: "Énoncé", opts: ["A", "B"], ok: [1], expl: "Parce que.", chapitre: "Test · Un" });
   assert.equal(window.studicamQuestionParId("test#2"), null);
+  // une question avec un schéma le garde
+  window.studicamSourcesQcm.push(["test-fig", () => [
+    { id: "test#fig", q: "Avec schéma", fig: "<svg></svg>", opts: ["A", "B"], ok: [0], expl: "", chapitre: "Test · Deux" },
+  ]]);
+  assert.equal(window.studicamQuestionParId("test#fig").fig, "<svg></svg>");
   // une copie : modifier le résultat ne change pas la question
   window.studicamQuestionParId("test#1").ok.push(0);
   assert.deepEqual([...window.studicamQuestionParId("test#1").ok], [1]);
