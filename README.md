@@ -25,6 +25,7 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 | `public/ma-progression.js` | Page « Ma progression » : notes des séries terminées, carnet d'erreurs, résumé en tête de chaque matière |
 | `public/revision-ds.js` | Moteur de l'onglet « Révision DS » de l'A2 : cartes de l'accueil, rubrique « DS passés », examen blanc, QCM, exercices corrigés, formules |
 | `public/revision-ds-2026-11.js` | Contenu de la Révision DS du 14/11/2026 (CE puis OI), rangée dans « DS passés » (voir « Ajouter une Révision DS ») |
+| `public/revision-ds-2026-11-phys.js` | Contenu de la Révision DS du 21/11/2026 (physique, chapitres 10 à 13) : cours, exercices des anciens DS 2022 à 2026 avec leur correction, variantes, formules |
 | `public/revision-ds-blancs.js` | Les deux DS blancs du 14/11/2026 (sujets et corrigés, fichier généré) |
 | `public/prof.js` | Bouton « Vue prof » / « Vue élève » de l'en-tête et Espace prof, pour les comptes qui ont un rôle |
 | `public/connexion.html` | Page de connexion |

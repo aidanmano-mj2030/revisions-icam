@@ -81,6 +81,11 @@
     const qcmDe = (s) => s.qcm.filter(q => !q.calc);
     const SERIE = window.StudicamSerie || null;   // serie.js, chargé avant ce fichier
     const matiereDe = (part) => D.matiere(part);
+    // « CE, OI : exposés et OI : cours » : onglets des parties du DS affiché
+    function listeOnglets() {
+        const noms = D.ordre.map(p => (D.onglets && D.onglets[p]) || D.parties[p].court);
+        return noms.length > 1 ? noms.slice(0, -1).join(', ') + ' et ' + noms[noms.length - 1] : noms.join('');
+    }
     const libelleChapitre = (part, s) => `${PARTIES[part].court} · ${s.titre}`;
     // QCM au format de serie.js, calculés une fois (même objet pour l'examen et les chapitres).
     // Une question garde son DS : elle peut être rouverte depuis « Refaire » quel que soit le DS affiché.
@@ -263,7 +268,7 @@
     // y compris depuis un lien « Chapitre : … », retrouve l'ordre, les réponses et le bilan.
     let EXAMEN = null;
     function rendreExamen(zone) {
-        zone.appendChild(el('p', 'text-sm text-slate-300 leading-relaxed', "Toutes les questions de QCM, mélangées. Le chapitre n'est révélé qu'après la correction. En Entraînement, chaque réponse est corrigée tout de suite ; en Mode DS, tout est corrigé à Terminer. Ton examen en cours est gardé sur cet appareil jusqu'à Terminer. Les exercices de calcul sont dans les onglets CE et OI."));
+        zone.appendChild(el('p', 'text-sm text-slate-300 leading-relaxed', "Toutes les questions de QCM, mélangées. Le chapitre n'est révélé qu'après la correction. En Entraînement, chaque réponse est corrigée tout de suite ; en Mode DS, tout est corrigé à Terminer. Ton examen en cours est gardé sur cet appareil jusqu'à Terminer. Les exercices de calcul sont dans les onglets " + listeOnglets() + "."));
         if (!EXAMEN) EXAMEN = SERIE.monter({
             slot: 'rds/examen', choixModeAvant: true, melanger: true, enregistrer: true, libelleRetour: "à l'examen",
             avantDepart: (z, redessiner) => {

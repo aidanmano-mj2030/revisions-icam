@@ -79,6 +79,16 @@ const DS_CHAPITRES = {
       "msp", "henry", "cartes", "capa", "mrp", "kanban", "phase", "annales",
     ],
   },
+  "ds-2026-11-phys": {
+    annee: "a2",
+    filtres: { cours: "phys", annales: "phys" },
+    phys: [
+      // cours des chapitres 10 à 13
+      "semi", "graetz", "commande", "hacheur", "onduleur",
+      // anciens DS
+      "store", "portes", "garage", "cardio", "rica", "variateur",
+    ],
+  },
 };
 
 // Clés exactes de la Révision DS rangées dans annee/matiere : chapitres et examen blanc filtré

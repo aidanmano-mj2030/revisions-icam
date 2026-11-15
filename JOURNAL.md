@@ -137,3 +137,8 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - Le site accepte plusieurs Révisions DS : `revision-ds.js` devient un moteur commun, le contenu du 14/11 passe dans `revision-ds-2026-11.js`. Un DS à venir a sa carte sur l'accueil, un DS passé (ou marqué `archive: true`) va dans « DS passés ».
 - Adresses : `#/a2/revision-ds/<id du DS>/<onglet>/<chapitre>` ; les anciennes adresses sans id ouvrent le DS du 14/11.
 - Côté serveur, chaque DS déclare ses filtres d'examen dans `DS_CHAPITRES` ; un test vérifie que chaque fichier de Révision DS y figure. Marche à suivre dans le README, « Ajouter une Révision DS ».
+
+## 15 novembre 2026 – Révision DS de physique du 21/11 (Aidan, avec Claude)
+
+- Nouvelle Révision DS pour le DS de physique du samedi 21/11 (chapitres 10 à 13) : `revision-ds-2026-11-phys.js`. Onglet « Cours » : composants à semi-conducteurs, pont de Graetz, redressement commandé et pont mixte, hacheur série et 4 quadrants, onduleur, avec 31 QCM et 10 exercices corrigés à d'autres valeurs. Onglet « Anciens DS » : les exercices des DS n°2 de 2022, 2024 et 2025 et de l'épreuve de sciences de janvier 2026 (store, contrôle de portes, porte de garage, capteur cardiaque, pont mixte, robot RICA IV), avec la correction du professeur quand elle existe, 18 QCM sourcés et des variantes chiffrées. Onglet « Formules ». Examen blanc de 49 questions.
+- Moteur commun : l'examen blanc nommait toujours les onglets « CE et OI » ; il cite maintenant les onglets du DS affiché.
