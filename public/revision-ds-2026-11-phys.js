@@ -138,7 +138,7 @@
                         ['Pont mixte (2 thyristors, 2 diodes)', R`$\langle u \rangle = \dfrac{\hat{V}}{\pi}(1 + \cos\theta)$`, 'Phases de roue libre : u = 0, le courant continue grâce à la bobine']
                     ]),
                     P(`L'intérêt : régler la tension moyenne, donc la vitesse d'un moteur à courant continu. θ (parfois noté α) est l'angle de retard à l'amorçage : θ = ω·t<sub>0</sub>.`),
-                    NOTE('Repère', `Sur le document réponse, on écrit pour chaque intervalle les composants passants et le signe de la puissance. Pont mixte du DS n°2 de 2025 (thyristors en haut, diodes en bas, θ = π/4) : de π/4 à π, T1 et D2 conduisent (u = v, alimentation) ; de π à 5π/4, D1 et D2 (roue libre, u = 0) ; de 5π/4 à 2π, T3 et D1 (u = −v). Vérifie toujours la disposition des composants du schéma.`)),
+                    NOTE('Repère', `Sur le document réponse, on écrit pour chaque intervalle les composants passants et le signe de la puissance. Pont mixte du DS n°2 de 2025 (thyristors en haut, diodes en bas, θ = π/4) : de π/4 à π, T1 et D2 conduisent (u = v, alimentation) ; de π à 5π/4, T1 et D1, du même bras (roue libre, u = 0) ; de 5π/4 à 2π, T3 et D1 (u = −v). Dans ton poly (T1, T2 en haut, D1, D2 en bas), même logique : le thyristor reste passant jusqu'à l'amorçage de l'autre, les diodes basculent à chaque demi-période. Vérifie toujours la disposition des composants du schéma.`)),
                 S('Avec un moteur à courant continu', 'cog',
                     F(R`\langle u \rangle = E + R\,I \qquad E = k\,n`, `⟨u⟩ tension moyenne aux bornes de l'induit (V) · E f.é.m. du moteur (V) · R résistance de l'induit, plus celle de la bobine s'il y en a une (Ω) · I courant constant (A) · n vitesse (tr/min) · k constante (V par tr/min)`),
                     P(`On passe la loi des mailles aux valeurs moyennes : la bobine de lissage disparaît car ⟨u<sub>L</sub>⟩ = 0. Puis E = ⟨u⟩ − R·I et n = E / k.`),
@@ -153,7 +153,7 @@
                     expl: "⟨u⟩ = (2V̂/π)·cos θ, négative pour θ > 90° : l'énergie revient vers le réseau. Un pont mixte, lui, ne donne jamais une tension moyenne négative." },
                 { q: "Pourquoi la tension u d'un pont mixte s'annule-t-elle pendant certaines phases ?",
                     opts: ["Les thyristors sont détruits", "Les diodes assurent une roue libre : la charge n'est plus reliée au réseau, la bobine maintient le courant", "Le transformateur est saturé", "La gâchette est coupée"], ok: [1],
-                    expl: "Phase de roue libre : deux composants en série court-circuitent la charge (les deux diodes dans le pont mixte du DS de 2025), u = 0, l'énergie stockée dans la bobine entretient le courant." },
+                    expl: "Phase de roue libre : le thyristor encore passant et la diode de son bras court-circuitent la charge, u = 0, l'énergie stockée dans la bobine entretient le courant." },
                 { q: "Moteur CC derrière un redresseur : ⟨u⟩ = 160 V, R = 0,5 Ω, I = 20 A. Quelle est la f.é.m. E ?",
                     opts: ["170 V", "160 V", "150 V", "140 V"], ok: [2],
                     expl: "⟨u⟩ = E + R·I, donc E = 160 − 0,5 × 20 = 150 V." },
@@ -409,7 +409,7 @@
                     ])),
                 S('Correction du professeur', 'check-check',
                     UL([
-                        `<b>Chronogrammes</b> : de 0 à π/4, roue libre (u = 0) ; de π/4 à π, T1 et D2 conduisent, u = v ; de π à 5π/4, roue libre par D1 et D2 (u = 0) ; de 5π/4 à 2π, T3 et D1, u = −v. i<sub>1</sub> = 10 A de π/4 à π ; i<sub>D1</sub> = 10 A de π à 2π ; i<sub>L</sub> (courant de ligne) vaut +10 A, 0 en roue libre, puis −10 A. Puissance p = 0 en roue libre, positive en alimentation.`,
+                        `<b>Chronogrammes</b> : de 0 à π/4, roue libre (u = 0) ; de π/4 à π, T1 et D2 conduisent, u = v ; de π à 5π/4, roue libre par T1 et D1 (u = 0) ; de 5π/4 à 2π, T3 et D1, u = −v. i<sub>1</sub> = 10 A de π/4 à 5π/4 (T1 reste passant pendant la roue libre) ; i<sub>D1</sub> = 10 A de π à 2π ; i<sub>L</sub> (courant de ligne) vaut +10 A de π/4 à π, 0 en roue libre, puis −10 A de 5π/4 à 2π. Puissance p = 0 en roue libre, positive en alimentation.`,
                         `⟨u⟩ = (220√2 / π)(1 + cos π/4) ≈ <b>169 V</b>.`,
                         `u = L·di/dt + R·i + E ; i constant, donc ⟨u⟩ = <b>E + R·I</b>.`,
                         `E = 169 − 0,5 × 10 = <b>164 V</b>.`,
@@ -425,8 +425,8 @@
                     opts: ["1 139 tr/min", "1 372 tr/min", "1 250 tr/min", "911 tr/min"], ok: [0],
                     expl: "E est proportionnelle à n : n = 1 250 × 164 / 180 ≈ 1 139 tr/min.", src: 'DS n°2, 2025' },
                 { q: "Pont mixte, θ = π/4 : quels composants conduisent pendant la phase de roue libre qui suit θ = π ?",
-                    opts: ["Aucun, le courant s'annule", "Les deux diodes D1 et D2", "T1 et D2", "Les quatre"], ok: [1],
-                    expl: "Quand v devient négative, D1 devient passante et prend le courant : T1, dont le courant s'annule, se bloque. D1 et D2 court-circuitent la charge, u = 0, et la bobine entretient le courant. D'où i1 = 10 A seulement de π/4 à π, et iD1 = 10 A de π à 2π (corrigé du professeur)", src: 'DS n°2, 2025' },
+                    opts: ["Aucun, le courant s'annule", "T1 et D1, du même bras", "Les deux diodes D1 et D2", "Les quatre"], ok: [1],
+                    expl: "À θ = π, v devient négative : D1 devient passante et D2 se bloque, mais le courant de T1 ne s'annule pas, donc T1 reste passant. T1 et D1 court-circuitent la charge (u = 0) jusqu'à l'amorçage de T3 à 5π/4. D'où i1 = 10 A de π/4 à 5π/4 et iD1 = 10 A de π à 2π (corrigé du professeur). Les deux diodes seules ne peuvent pas ramener le courant vers le haut du pont.", src: 'DS n°2, 2025' },
                 { calc: true, q: "Variante : même moteur (R = 0,5 Ω, E = 180 V à 1 250 tr/min), même pont et même réseau 220 V, mais θ = π/3 et I = 12 A. Calculer t0, ⟨u⟩, E et n.",
                     steps: ["t0 = θ / ω = (π/3) / (100π) ≈ 3,33 ms.", "⟨u⟩ = (220√2/π)(1 + cos π/3) = 99,0 × 1,5 ≈ 148,6 V.", "E = ⟨u⟩ − R·I = 148,6 − 0,5 × 12 ≈ 142,6 V.", "n = 1 250 × 142,6 / 180 ≈ 990 tr/min : en retardant l'amorçage, on ralentit le moteur."] }
             ]
