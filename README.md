@@ -21,6 +21,7 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 |---|---|
 | `public/index.html` | Le site : cours et exercices |
 | `public/progression.js` | Enregistre les exercices réussis, affiche les pastilles |
+| `public/acces-promo.js` | Réserve la 2ème année : les promos de `PROMOS_A1` (adresses `@2031.icam.fr`) ne voient que la 1ère année ; à mettre à jour à chaque rentrée |
 | `public/navigation.js` | Une adresse `#/...` par écran, bouton retour du navigateur, routes ajoutées par d'autres scripts (voir « Adresses des écrans ») |
 | `public/ma-progression.js` | Page « Ma progression » : notes des séries terminées, carnet d'erreurs, résumé en tête de chaque matière |
 | `public/revision-ds.js` | Moteur de l'onglet « Révision DS » de l'A2 : cartes de l'accueil, rubrique « DS passés », examen blanc, QCM, exercices corrigés, formules |
