@@ -731,9 +731,10 @@
         "CM": [
             { num: "Chapitre n°1", titre: "Liaisons & Torseurs associés", desc: "Modélisation des liaisons cinématiques, représentations 2D/3D, torseurs cinématiques et statiques.", interactifA1: true },
             { num: "Chapitre n°2", titre: "Les torseurs : notions de base", desc: "Résultante et moment, produit vectoriel, changement de point (BABAR), automoment, couple et glisseur, torseurs statique et cinématique.", lecon: "cm1-torseurs", exo: "cm1-torseurs" },
-            { num: "Chapitre n°3", titre: "La cotation tolérancée", desc: "Cote nominale, écarts et IT, mesure et contrôle, jeu et serrage, ajustements ISO.", lecon: "cm1-cotation", exo: "cm1-cotation" },
-            { num: "Chapitre n°4", titre: "Cinématique du solide indéformable", desc: "Trajectoires, translation, rotation, composition des vitesses, équiprojectivité et CIR.", lecon: "cm1-cinematique", exo: "cm1-cinematique" },
-            { num: "Chapitre n°5", titre: "Statique du solide", desc: "Actions mécaniques, isolement, principe fondamental de la statique, méthodes analytique et graphique.", lecon: "cm1-statique", exo: "cm1-statique" }
+            { num: "Chapitre n°3", titre: "Calcul vectoriel : produits scalaire et vectoriel", desc: "Scalaire et vecteur, composantes et norme, base orthonormée directe, somme et Chasles, produit scalaire, produit vectoriel, aire et angle.", lecon: "cm1-vecteurs", exo: "cm1-vecteurs" },
+            { num: "Chapitre n°4", titre: "La cotation tolérancée", desc: "Cote nominale, écarts et IT, mesure et contrôle, jeu et serrage, ajustements ISO.", lecon: "cm1-cotation", exo: "cm1-cotation" },
+            { num: "Chapitre n°5", titre: "Cinématique du solide indéformable", desc: "Trajectoires, translation, rotation, composition des vitesses, équiprojectivité et CIR.", lecon: "cm1-cinematique", exo: "cm1-cinematique" },
+            { num: "Chapitre n°6", titre: "Statique du solide", desc: "Actions mécaniques, isolement, principe fondamental de la statique, méthodes analytique et graphique.", lecon: "cm1-statique", exo: "cm1-statique" }
         ],
         "AII": [
             { num: "Chapitre n°1", titre: "Les GRAFCET", desc: "Étapes, transitions, réceptivités, actions, règles d'évolution et structures.", lecon: "aii-grafcet", exo: "aii-grafcet" },
@@ -16797,6 +16798,171 @@
         }
         EXB('cm1-torseurs', 'cm1-torseurs', 'CM • 1ère Année', 'Torseurs', 'Les torseurs : calculs de base', { id: 'trs', types: { transport: () => trsTransport(false), cin: () => trsTransport(true), nature: trsNature, auto: trsAuto, q: trsQ }, libelles: { tout: 'Tout', transport: 'Changer de point', cin: 'Champ des vitesses', nature: 'Nature du torseur', auto: 'Automoment', q: 'Cours' } }, 'move-3d');
         Object.assign(RENVOIS, { 'cm1-torseurs': { transport: [2, 3], cin: [3, 7], nature: [4, 5], auto: [4], q: [1, 3, 5, 6, 7] } });
+
+        // ---------- CM A1 : calcul vectoriel (produit scalaire et produit vectoriel) ----------
+        // base orthonormée directe : x, y, z et la règle de la main droite
+        function svgBaseDirecte() {
+            const T = SVG_TRAIT, A = SVG_ACCENT, X = SVG_TEXTE, D = SVG_DISCRET;
+            const fl = (x1, y1, x2, y2, c, lab, lx, ly) => {
+                const a = Math.atan2(y2 - y1, x2 - x1), p = (da) => [x2 - 9 * Math.cos(a + da), y2 - 9 * Math.sin(a + da)];
+                const [ax, ay] = p(0.4), [bx, by] = p(-0.4);
+                return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="2.2"/><path d="M${ax} ${ay}L${x2} ${y2}L${bx} ${by}" fill="none" stroke="${c}" stroke-width="2.2"/><text x="${lx}" y="${ly}" fill="${c}" font-size="14" font-weight="bold" font-style="italic">${lab}</text>` + (lab.length === 1 ? `<path d="M${lx} ${ly - 13}h8m-3 -2.5l3 2.5l-3 2.5" fill="none" stroke="${c}" stroke-width="1.3"/>` : "");
+            };
+            let s = `<svg viewBox="0 0 380 170" width="380" style="max-width:100%;height:auto" role="img" aria-label="Base orthonormée directe x, y, z et produit vectoriel u vectoriel v">`;
+            s += fl(90, 120, 90, 25, A, 'z', 98, 32) + fl(90, 120, 175, 120, X, 'y', 170, 140) + fl(90, 120, 40, 155, X, 'x', 24, 160);
+            s += `<text x="70" y="128" fill="${D}" font-size="12">O</text>`;
+            s += fl(250, 125, 330, 125, T, 'u', 326, 145) + fl(250, 125, 285, 90, T, 'v', 290, 88) + fl(250, 125, 250, 35, A, 'u ∧ v', 258, 42);
+            s += `<path d="M 290 125 A 40 40 0 0 0 278 97" fill="none" stroke="${D}" stroke-width="1.4"/><text x="296" y="108" fill="${D}" font-size="11">θ</text>`;
+            return s + '</svg>';
+        }
+        Object.assign(LECONS, {
+            "cm1-vecteurs": {
+                badge: "CM • 1ère Année", titre: "Calcul vectoriel : produit scalaire et produit vectoriel",
+                sections: () => [
+                    { titre: "1. Scalaire ou vecteur ?", icone: "move-up-right", contenu: [
+                        H.p(R`Un <strong>scalaire</strong> est une grandeur qui se résume à un nombre : une masse, une durée, une intensité, la norme d'une force.`),
+                        H.p(R`Un <strong>vecteur</strong> est une grandeur géométrique. Il a trois caractéristiques : une <strong>direction</strong>, un <strong>sens</strong> et une <strong>norme</strong> (sa longueur, un scalaire, notée $\|\vec{V}\|$ ou $V$). Forces, vitesses et moments sont des vecteurs.`),
+                        H.p(R`Dans une base $(\vec{x}, \vec{y}, \vec{z})$, un vecteur s'écrit avec ses trois <strong>composantes</strong> :`),
+                        H.formule(R`\vec{V} = \begin{pmatrix} V_x \\ V_y \\ V_z \end{pmatrix} = V_x\,\vec{x} + V_y\,\vec{y} + V_z\,\vec{z} \qquad \|\vec{V}\| = \sqrt{V_x^2 + V_y^2 + V_z^2}`),
+                        H.p(R`Entre deux points : $\overrightarrow{AB} = (x_B - x_A\,;\, y_B - y_A\,;\, z_B - z_A)$ (« arrivée moins départ »), et la distance $AB$ est la norme de ce vecteur.`)
+                    ].join('') },
+                    { titre: "2. Base et repère orthonormés", icone: "axis-3d", contenu: [
+                        H.liste([
+                            R`Une <strong>base orthonormée</strong> est formée de trois vecteurs $\vec{x}$, $\vec{y}$, $\vec{z}$ <strong>perpendiculaires deux à deux</strong> et de <strong>norme 1</strong>.`,
+                            R`Elle est <strong>directe</strong> si elle respecte la règle de la main droite : pouce selon $\vec{x}$, index selon $\vec{y}$, le majeur donne $\vec{z}$.`,
+                            R`Un <strong>repère orthonormé</strong>, c'est une base orthonormée plus une origine $O$ : $(O\,;\,\vec{x}, \vec{y}, \vec{z})$.`
+                        ]),
+                        H.figure(svgBaseDirecte(), "À gauche, une base orthonormée directe. À droite, le produit vectoriel de u et v est perpendiculaire aux deux, dans le sens donné par la main droite."),
+                        H.note(R`En mécanique, on travaille presque toujours dans une base orthonormée directe : toutes les formules de cette leçon le supposent.`)
+                    ].join('') },
+                    { titre: "3. Somme, Chasles et colinéarité", icone: "plus", contenu: [
+                        H.p(R`On additionne deux vecteurs <strong>composante par composante</strong>, et on multiplie un vecteur par un réel $k$ en multipliant chaque composante :`),
+                        H.formule(R`\vec{U} + \vec{V} = (U_x + V_x)\,\vec{x} + (U_y + V_y)\,\vec{y} + (U_z + V_z)\,\vec{z} \qquad k\,\vec{U} = (kU_x\,;\,kU_y\,;\,kU_z)`),
+                        H.liste([
+                            R`<strong>Relation de Chasles</strong> : $\overrightarrow{AB} + \overrightarrow{BC} = \overrightarrow{AC}$. Pour simplifier une somme, on enchaîne les vecteurs dont l'arrivée de l'un est le départ du suivant (et $\overrightarrow{BA} = -\overrightarrow{AB}$).`,
+                            R`<strong>Colinéaires</strong> : $\vec{U} = k\,\vec{V}$ (même direction). Trois points $A$, $B$, $C$ sont alignés si $\overrightarrow{AB}$ et $\overrightarrow{AC}$ sont colinéaires ; deux droites sont parallèles si leurs vecteurs directeurs le sont.`
+                        ]),
+                        H.p(R`<strong>Exemple</strong> : $\overrightarrow{AC} + \overrightarrow{BA} + \overrightarrow{CB} = \overrightarrow{BA} + \overrightarrow{AC} + \overrightarrow{CB} = \overrightarrow{BB} = \vec{0}$.`)
+                    ].join('') },
+                    { titre: "4. Le produit scalaire", icone: "circle-dot", contenu: [
+                        H.p(R`Le produit scalaire de deux vecteurs est un <strong>nombre</strong>. Deux façons de le calculer (les vecteurs doivent être écrits dans la même base) :`),
+                        H.formule(R`\vec{U} \cdot \vec{V} = \|\vec{U}\|\,\|\vec{V}\|\cos(\vec{U}, \vec{V}) \qquad \vec{U} \cdot \vec{V} = U_x V_x + U_y V_y + U_z V_z`),
+                        H.liste([
+                            R`Il est <strong>commutatif</strong> ($\vec{U} \cdot \vec{V} = \vec{V} \cdot \vec{U}$) et <strong>distributif</strong> ($\vec{U} \cdot (\vec{V} + \vec{W}) = \vec{U} \cdot \vec{V} + \vec{U} \cdot \vec{W}$).`,
+                            R`$\vec{U} \cdot \vec{U} = \|\vec{U}\|^2$.`,
+                            R`$\vec{U} \cdot \vec{V} = 0$ : un des vecteurs est nul, ou bien ils sont <strong>orthogonaux</strong> (angle de $90°$, $\cos = 0$).`,
+                            R`Angle entre deux vecteurs : $\cos(\vec{U}, \vec{V}) = \dfrac{\vec{U} \cdot \vec{V}}{\|\vec{U}\|\,\|\vec{V}\|}$, entre $0°$ et $180°$.`
+                        ]),
+                        H.p(R`<strong>Exemple</strong> : $\vec{U}(2\,;\,-1\,;\,3)$ et $\vec{V}(1\,;\,5\,;\,1)$. $\vec{U} \cdot \vec{V} = 2 - 5 + 3 = 0$ : les vecteurs sont orthogonaux.`),
+                        H.note(R`En mécanique : le travail d'une force est $W = \vec{F} \cdot \vec{\ell}$ et la puissance $P = \vec{F} \cdot \vec{V}$. Seule la partie de la force dans le sens du déplacement travaille.`)
+                    ].join('') },
+                    { titre: "5. Le produit vectoriel", icone: "x", contenu: [
+                        H.p(R`Le produit vectoriel de deux vecteurs est un <strong>vecteur</strong> $\vec{W} = \vec{U} \wedge \vec{V}$ :`),
+                        H.liste([
+                            R`<strong>perpendiculaire</strong> à $\vec{U}$ et à $\vec{V}$ ;`,
+                            R`de <strong>sens</strong> tel que $(\vec{U}, \vec{V}, \vec{W})$ soit direct (main droite) ;`,
+                            R`de <strong>norme</strong> $\|\vec{W}\| = \|\vec{U}\|\,\|\vec{V}\|\,|\sin(\vec{U}, \vec{V})|$.`
+                        ]),
+                        H.formule(R`\begin{pmatrix} U_x \\ U_y \\ U_z \end{pmatrix} \wedge \begin{pmatrix} V_x \\ V_y \\ V_z \end{pmatrix} = \begin{pmatrix} U_y V_z - U_z V_y \\ U_z V_x - U_x V_z \\ U_x V_y - U_y V_x \end{pmatrix}`),
+                        H.note(R`<strong>Astuce</strong> : pour la 1re ligne, on cache la 1re ligne des deux vecteurs et on fait le « produit en croix » des deux restantes ($U_y V_z - U_z V_y$). Même chose pour la 3e ligne. Pour la 2e ligne, attention à l'ordre : $U_z V_x - U_x V_z$.`),
+                        H.liste([
+                            R`<strong>Antisymétrique</strong> : $\vec{V} \wedge \vec{U} = -\,\vec{U} \wedge \vec{V}$. <strong>Distributif</strong> : $\vec{U} \wedge (\vec{V} + \vec{W}) = \vec{U} \wedge \vec{V} + \vec{U} \wedge \vec{W}$. Il n'est <strong>pas associatif</strong>.`,
+                            R`$\vec{U} \wedge \vec{V} = \vec{0}$ : un des vecteurs est nul, ou ils sont <strong>colinéaires</strong> ($\sin = 0$).`,
+                            R`Base directe : $\vec{x} \wedge \vec{y} = \vec{z}$, $\vec{y} \wedge \vec{z} = \vec{x}$, $\vec{z} \wedge \vec{x} = \vec{y}$ (ordre circulaire).`
+                        ]),
+                        H.p(R`<strong>Exemple</strong> : $\vec{U}(1\,;\,0\,;\,2) \wedge \vec{V}(0\,;\,3\,;\,1) = (0 \times 1 - 2 \times 3\,;\,2 \times 0 - 1 \times 1\,;\,1 \times 3 - 0 \times 0) = (-6\,;\,-1\,;\,3)$.`)
+                    ].join('') },
+                    { titre: "6. Applications", icone: "target", contenu: [
+                        H.tableau(["On cherche…", "On calcule"], [
+                            [R`un angle`, R`$\cos\theta = \dfrac{\vec{U} \cdot \vec{V}}{\|\vec{U}\|\,\|\vec{V}\|}$`],
+                            [R`si deux vecteurs sont orthogonaux`, R`$\vec{U} \cdot \vec{V} = 0$`],
+                            [R`si deux vecteurs sont colinéaires`, R`$\vec{U} \wedge \vec{V} = \vec{0}$`],
+                            [R`l'aire du triangle $ABC$`, R`$\mathcal{A} = \dfrac12\,\|\overrightarrow{AB} \wedge \overrightarrow{AC}\|$ (le double pour un parallélogramme)`],
+                            [R`un vecteur unitaire orthogonal à $\vec{U}$ et $\vec{V}$`, R`$\vec{n} = \dfrac{\vec{U} \wedge \vec{V}}{\|\vec{U} \wedge \vec{V}\|}$`],
+                            [R`le moment d'une force $\vec{F}$ appliquée en $P$`, R`$\vec{M}_O = \overrightarrow{OP} \wedge \vec{F}$`]
+                        ], { nowrap: false }),
+                        H.p(R`<strong>Double produit vectoriel</strong> (pour aller plus loin) : $\vec{U} \wedge (\vec{V} \wedge \vec{W}) = (\vec{U} \cdot \vec{W})\,\vec{V} - (\vec{U} \cdot \vec{V})\,\vec{W}$. On le vérifie sur un exemple : c'est un bon entraînement aux deux produits.`)
+                    ].join('') }
+                ]
+            }
+        });
+        // Exercices
+        const cvcPt = (n, P) => `${n}(${P.join('\\,;\\,')})`;
+        const cvcN = (v) => Math.round(Math.sqrt(dot(v, v)) * 100) / 100;
+        function cvcComposantes() {
+            const A = vRand(-5, 5); let B; do { B = vRand(-5, 5); } while (B.every((x, i) => x === A[i]));
+            const AB = B.map((x, i) => x - A[i]), n = cvcN(AB);
+            return {
+                enonce: `<p>Dans un repère orthonormé, on donne $${cvcPt('A', A)}$ et $${cvcPt('B', B)}$. Calcule les composantes de $\\overrightarrow{AB}$ et la distance $AB$ (au centième).</p>`,
+                champs: [gNum('x', 'x =', AB[0], { groupe: 'Vecteur AB' }), gNum('y', 'y =', AB[1], { groupe: 'Vecteur AB' }), gNum('z', 'z =', AB[2], { groupe: 'Vecteur AB' }), gNum('n', 'AB =', n, { groupe: 'Distance' })],
+                correction: `<p>Arrivée moins départ : $\\overrightarrow{AB} = (${B[0]} - ${gTexNb(A[0])}\\,;\\,${B[1]} - ${gTexNb(A[1])}\\,;\\,${B[2]} - ${gTexNb(A[2])}) = (${AB.join('\\,;\\,')})$.</p><p>$AB = \\sqrt{${AB.map(gTexNb).map(x => x + '^2').join(' + ')}} = \\sqrt{${dot(AB, AB)}} \\approx ${centiemeTeX(n)}$.</p>`
+            };
+        }
+        function cvcSomme() {
+            const U = vRand(-5, 5), V = vRand(-5, 5), k = choisir([2, 3, -1, -2]);
+            const S = U.map((x, i) => k * x + V[i]);
+            return {
+                enonce: `<p>On donne $\\vec{U} = ${trsVec(U)}$ et $\\vec{V} = ${trsVec(V)}$. Calcule les composantes de $\\vec{S} = ${k === -1 ? '-' : k}\\,\\vec{U} + \\vec{V}$, puis sa norme (au centième).</p>`,
+                champs: [gNum('x', 'Sx =', S[0], { groupe: 'Composantes' }), gNum('y', 'Sy =', S[1], { groupe: 'Composantes' }), gNum('z', 'Sz =', S[2], { groupe: 'Composantes' }), gNum('n', '‖S‖ =', cvcN(S), { groupe: 'Norme' })],
+                correction: `<p>Composante par composante : $\\vec{S} = (${U.map((x, i) => `${k} \\times ${gTexNb(x)} + ${gTexNb(V[i])}`).join('\\,;\\,')}) = (${S.join('\\,;\\,')})$.</p><p>$\\|\\vec{S}\\| = \\sqrt{${dot(S, S)}} \\approx ${centiemeTeX(cvcN(S))}$.</p>`
+            };
+        }
+        function cvcScalaire() {
+            let U, V;
+            if (Math.random() < 0.45) { do { U = vRand(-4, 4); V = vRand(-4, 4); } while (dot(U, V) !== 0 || U.every(x => x === 0) || V.every(x => x === 0)); }
+            else { do { U = vRand(-4, 4); V = vRand(-4, 4); } while (dot(U, V) === 0); }
+            const p = dot(U, V);
+            return {
+                enonce: `<p>On donne $\\vec{U} = ${trsVec(U)}$ et $\\vec{V} = ${trsVec(V)}$ dans une base orthonormée. Calcule $\\vec{U} \\cdot \\vec{V}$. Les deux vecteurs sont-ils orthogonaux ?</p>`,
+                champs: [gNum('p', 'U · V =', p, { groupe: 'Produit scalaire' }), gChoix('o', p === 0 ? 'oui' : 'non', OUINON, { groupe: 'Orthogonaux ?' })],
+                correction: `<p>$\\vec{U} \\cdot \\vec{V} = ${U.map((x, i) => `${gTexNb(x)} \\times ${gTexNb(V[i])}`).join(' + ')} = ${p}$.</p><p>${p === 0 ? 'Le produit scalaire est nul et aucun vecteur n\'est nul : ils sont <strong class="text-white">orthogonaux</strong>.' : 'Le produit scalaire n\'est pas nul : ils ne sont <strong class="text-white">pas orthogonaux</strong>.'}</p>`
+            };
+        }
+        function cvcAngle() {
+            let U, V; do { U = vRand(-3, 3); V = vRand(-3, 3); } while (U.every(x => x === 0) || V.every(x => x === 0) || cross(U, V).every(x => x === 0));
+            const p = dot(U, V), nu = Math.sqrt(dot(U, U)), nv = Math.sqrt(dot(V, V)), th = Math.round(Math.acos(p / (nu * nv)) * 180 / Math.PI * 100) / 100;
+            return {
+                enonce: `<p>On donne $\\vec{U} = ${trsVec(U)}$ et $\\vec{V} = ${trsVec(V)}$. Calcule le produit scalaire, puis l'angle $(\\vec{U}, \\vec{V})$ en degrés (au centième).</p>`,
+                champs: [gNum('p', 'U · V =', p, { groupe: 'Produit scalaire' }), gNum('t', 'Angle =', th, { unite: '°', groupe: 'Angle' })],
+                correction: `<p>$\\vec{U} \\cdot \\vec{V} = ${p}$ ; $\\|\\vec{U}\\| = \\sqrt{${dot(U, U)}}$, $\\|\\vec{V}\\| = \\sqrt{${dot(V, V)}}$.</p><p>$\\cos\\theta = \\dfrac{${p}}{\\sqrt{${dot(U, U)}} \\times \\sqrt{${dot(V, V)}}} \\approx ${centiemeTeX(Math.round(p / (nu * nv) * 1000) / 1000)}$, donc $\\theta \\approx ${centiemeTeX(th)}°$.</p>`
+            };
+        }
+        function cvcVectoriel() {
+            let U, V; do { U = vRand(-4, 4); V = vRand(-4, 4); } while (cross(U, V).every(x => x === 0));
+            const W = cross(U, V);
+            return {
+                enonce: `<p>On donne $\\vec{U} = ${trsVec(U)}$ et $\\vec{V} = ${trsVec(V)}$ dans une base orthonormée directe. Calcule les composantes de $\\vec{W} = \\vec{U} \\wedge \\vec{V}$.</p>`,
+                champs: [gNum('x', 'Wx =', W[0], { groupe: 'U ∧ V' }), gNum('y', 'Wy =', W[1], { groupe: 'U ∧ V' }), gNum('z', 'Wz =', W[2], { groupe: 'U ∧ V' })],
+                correction: `<p>$W_x = U_y V_z - U_z V_y = ${gTexNb(U[1])} \\times ${gTexNb(V[2])} - ${gTexNb(U[2])} \\times ${gTexNb(V[1])} = ${W[0]}$</p><p>$W_y = U_z V_x - U_x V_z = ${gTexNb(U[2])} \\times ${gTexNb(V[0])} - ${gTexNb(U[0])} \\times ${gTexNb(V[2])} = ${W[1]}$</p><p>$W_z = U_x V_y - U_y V_x = ${gTexNb(U[0])} \\times ${gTexNb(V[1])} - ${gTexNb(U[1])} \\times ${gTexNb(V[0])} = ${W[2]}$</p><p>Vérification : $\\vec{W} \\cdot \\vec{U} = ${dot(W, U)}$ et $\\vec{W} \\cdot \\vec{V} = ${dot(W, V)}$ : $\\vec{W}$ est bien perpendiculaire aux deux.</p>`
+            };
+        }
+        function cvcAire() {
+            let A, B, C, n;
+            do { A = vRand(-3, 3); B = vRand(-3, 3); C = vRand(-3, 3); n = cross(B.map((x, i) => x - A[i]), C.map((x, i) => x - A[i])); } while (n.every(x => x === 0));
+            const AB = B.map((x, i) => x - A[i]), AC = C.map((x, i) => x - A[i]), aire = Math.round(Math.sqrt(dot(n, n)) / 2 * 100) / 100;
+            return {
+                enonce: `<p>On donne $${cvcPt('A', A)}$, $${cvcPt('B', B)}$ et $${cvcPt('C', C)}$. Calcule $\\overrightarrow{AB} \\wedge \\overrightarrow{AC}$, puis l'aire du triangle $ABC$ (au centième).</p>`,
+                champs: [gNum('x', 'x =', n[0], { groupe: 'AB ∧ AC' }), gNum('y', 'y =', n[1], { groupe: 'AB ∧ AC' }), gNum('z', 'z =', n[2], { groupe: 'AB ∧ AC' }), gNum('a', 'Aire =', aire, { groupe: 'Aire' })],
+                correction: `<p>$\\overrightarrow{AB} = (${AB.join('\\,;\\,')})$ et $\\overrightarrow{AC} = (${AC.join('\\,;\\,')})$, donc $\\overrightarrow{AB} \\wedge \\overrightarrow{AC} = (${n.join('\\,;\\,')})$.</p><p>Aire $= \\dfrac12\\,\\|\\overrightarrow{AB} \\wedge \\overrightarrow{AC}\\| = \\dfrac12\\sqrt{${dot(n, n)}} \\approx ${centiemeTeX(aire)}$.</p>`
+            };
+        }
+        function cvcQ() {
+            return qcm(...choisir([
+                ['Un scalaire, c\'est…', 'n', [['n', 'un nombre (une norme, une masse, une intensité…)'], ['v', 'une grandeur avec direction et sens'], ['b', 'une base']], 'Un vecteur a en plus une direction et un sens.'],
+                ['Quelles sont les trois caractéristiques d\'un vecteur ?', 'd', [['d', 'direction, sens, norme'], ['o', 'origine, longueur, angle'], ['c', 'composantes, unité, repère']], 'La norme est un scalaire.'],
+                ['Une base orthonormée, c\'est trois vecteurs…', 'p', [['p', 'perpendiculaires deux à deux et de norme 1'], ['c', 'colinéaires'], ['q', 'quelconques non nuls']], 'Directe si elle suit la main droite.'],
+                ['Que vaut le produit scalaire de deux vecteurs orthogonaux ?', '0', [['0', '0'], ['1', '1'], ['p', 'le produit des normes']], '$\\cos 90° = 0$.'],
+                ['Le produit scalaire de deux vecteurs est…', 'n', [['n', 'un nombre'], ['v', 'un vecteur'], ['m', 'une matrice']], 'Le produit vectoriel, lui, est un vecteur.'],
+                ['Si $\\vec{U} \\wedge \\vec{V} = \\vec{0}$ (vecteurs non nuls), alors…', 'c', [['c', 'ils sont colinéaires'], ['o', 'ils sont orthogonaux'], ['e', 'ils sont égaux']], '$\\sin(\\vec{U}, \\vec{V}) = 0$.'],
+                ['Que vaut $\\vec{V} \\wedge \\vec{U}$ ?', 'm', [['m', '$-\\,\\vec{U} \\wedge \\vec{V}$'], ['p', '$\\vec{U} \\wedge \\vec{V}$'], ['s', '$\\vec{U} \\cdot \\vec{V}$']], 'Le produit vectoriel est antisymétrique.'],
+                ['Dans une base directe, que vaut $\\vec{y} \\wedge \\vec{z}$ ?', 'x', [['x', '$\\vec{x}$'], ['m', '$-\\vec{x}$'], ['0', '$\\vec{0}$']], 'Ordre circulaire x, y, z.'],
+                ['La norme de $\\vec{U} \\wedge \\vec{V}$ vaut…', 's', [['s', '$\\|\\vec{U}\\|\\,\\|\\vec{V}\\|\\,|\\sin\\theta|$'], ['c', '$\\|\\vec{U}\\|\\,\\|\\vec{V}\\|\\cos\\theta$'], ['a', '$\\|\\vec{U}\\| + \\|\\vec{V}\\|$']], 'Le cosinus est pour le produit scalaire.'],
+                ['L\'aire du triangle $ABC$ vaut…', 'd', [['d', '$\\frac12\\|\\overrightarrow{AB} \\wedge \\overrightarrow{AC}\\|$'], ['s', '$\\overrightarrow{AB} \\cdot \\overrightarrow{AC}$'], ['n', '$\\|\\overrightarrow{AB} \\wedge \\overrightarrow{AC}\\|$']], 'Sans le ½, c\'est l\'aire du parallélogramme.'],
+                ['$\\overrightarrow{AC} + \\overrightarrow{CB} = $', 'ab', [['ab', '$\\overrightarrow{AB}$'], ['ba', '$\\overrightarrow{BA}$'], ['0', '$\\vec{0}$']], 'Relation de Chasles.']
+            ]));
+        }
+        EXB('cm1-vecteurs', 'cm1-vecteurs', 'CM • 1ère Année', 'Calcul vectoriel', 'Calcul vectoriel : produits scalaire et vectoriel', { id: 'cvc', types: { comp: cvcComposantes, somme: cvcSomme, scal: cvcScalaire, angle: cvcAngle, vect: cvcVectoriel, aire: cvcAire, q: cvcQ }, libelles: { tout: 'Tout', comp: 'Composantes et norme', somme: 'Somme de vecteurs', scal: 'Produit scalaire', angle: 'Angle', vect: 'Produit vectoriel', aire: 'Aire d\'un triangle', q: 'Cours' } }, 'move-up-right');
+        Object.assign(RENVOIS, { 'cm1-vecteurs': { comp: [1], somme: [3], scal: [4], angle: [4, 6], vect: [5], aire: [5, 6], q: [1, 2, 3, 4, 5] } });
 
         // ==========================================
         // Maths 2ème année • Chapitre 5 : fonctions vectorielles et courbes paramétrées
