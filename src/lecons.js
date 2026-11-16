@@ -1,6 +1,7 @@
 // Généré par scripts/maj-lecons.mjs depuis CHAPITRES (public/index.html) : ne pas modifier à la main.
 // Leçon → paires « annee/matiere » où elle apparaît.
 export const LIEUX_LECONS = {
+  "cm1-torseurs": ["a1/cm"],
   "cm1-cinematique": ["a1/cm"],
   "cm1-statique": ["a1/cm"],
   "aii-grafcet": ["a1/aii"],
@@ -77,6 +78,7 @@ export const LIEUX_LECONS = {
   "maths-matrices": ["a2/maths"],
   "maths-vecto": ["a2/maths"],
   "maths-geo": ["a2/maths"],
+  "m2-fvect": ["a2/maths"],
   "eco2-analyse": ["a2/eco"],
   "eco2-financement": ["a2/eco"],
   "eco2-travail": ["a2/eco"],

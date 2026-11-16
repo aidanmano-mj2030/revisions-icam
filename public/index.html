@@ -538,9 +538,20 @@
                                             </div>
                                         </td>
                                         <td class="p-4">
-                                            <select id="select-a1-nom" class="w-full max-w-xs bg-slate-900 border border-slate-700 text-slate-200 rounded-lg p-2 font-semibold focus:border-blue-500 focus:outline-none">
-                                                <!-- Options JS -->
-                                            </select>
+                                            <div class="flex flex-wrap items-center gap-3">
+                                                <select id="select-a1-nom" aria-label="Nom de la liaison" class="w-full max-w-xs bg-slate-900 border border-slate-700 text-slate-200 rounded-lg p-2 font-semibold focus:border-blue-500 focus:outline-none">
+                                                    <!-- Options JS -->
+                                                </select>
+                                                <label class="flex items-center gap-2 text-sm text-slate-300">Axe ou normale :
+                                                    <select id="select-a1-axe" class="bg-slate-900 border border-slate-700 text-slate-200 rounded-lg p-2 font-semibold focus:border-blue-500 focus:outline-none">
+                                                        <option value="">?</option>
+                                                        <option value="x">x</option>
+                                                        <option value="y">y</option>
+                                                        <option value="z">z</option>
+                                                        <option value="aucun">sans objet</option>
+                                                    </select>
+                                                </label>
+                                            </div>
                                         </td>
                                     </tr>
 
@@ -719,8 +730,9 @@
     "1ère Année": {
         "CM": [
             { num: "Chapitre n°1", titre: "Liaisons & Torseurs associés", desc: "Modélisation des liaisons cinématiques, représentations 2D/3D, torseurs cinématiques et statiques.", interactifA1: true },
-            { num: "Chapitre n°2", titre: "Cinématique du solide indéformable", desc: "Trajectoires, translation, rotation, composition des vitesses, équiprojectivité et CIR.", lecon: "cm1-cinematique", exo: "cm1-cinematique" },
-            { num: "Chapitre n°3", titre: "Statique du solide", desc: "Actions mécaniques, isolement, principe fondamental de la statique, méthodes analytique et graphique.", lecon: "cm1-statique", exo: "cm1-statique" }
+            { num: "Chapitre n°2", titre: "Les torseurs : notions de base", desc: "Résultante et moment, produit vectoriel, changement de point (BABAR), automoment, couple et glisseur, torseurs statique et cinématique.", lecon: "cm1-torseurs", exo: "cm1-torseurs" },
+            { num: "Chapitre n°3", titre: "Cinématique du solide indéformable", desc: "Trajectoires, translation, rotation, composition des vitesses, équiprojectivité et CIR.", lecon: "cm1-cinematique", exo: "cm1-cinematique" },
+            { num: "Chapitre n°4", titre: "Statique du solide", desc: "Actions mécaniques, isolement, principe fondamental de la statique, méthodes analytique et graphique.", lecon: "cm1-statique", exo: "cm1-statique" }
         ],
         "AII": [
             { num: "Chapitre n°1", titre: "Les GRAFCET", desc: "Étapes, transitions, réceptivités, actions, règles d'évolution et structures.", lecon: "aii-grafcet", exo: "aii-grafcet" },
@@ -820,7 +832,8 @@
             { num: "Fonction", titre: "Développement Limité", desc: "Étude de x -> 0, ordre 1, 2, 3...", lecon: "maths-dl", exo: "maths-dl-usuels" },
             { num: "Matrice", titre: "Les Matrices", desc: "Tableaux, somme et produit.", lecon: "maths-matrices", exo: "maths-matrices" },
             { num: "Géométrie", titre: "Calcul vectoriel - Droites - Plans", desc: "Reprise des cours, étude de 2 vecteurs, 3 vecteurs.", lecon: "maths-vecto", exo: "maths-vecto-coord" },
-            { num: "Géométrie", titre: "Barycentres, produit scalaire et vectoriel", desc: "Barycentres, produit scalaire, Al-Kashi, plans, produit vectoriel et produit mixte.", lecon: "maths-geo", exo: "maths-geo-bary" }
+            { num: "Géométrie", titre: "Barycentres, produit scalaire et vectoriel", desc: "Barycentres, produit scalaire, Al-Kashi, plans, produit vectoriel et produit mixte.", lecon: "maths-geo", exo: "maths-geo-bary" },
+            { num: "Chapitre 5", titre: "Fonctions vectorielles et courbes paramétrées", desc: "Limite et dérivée d'une fonction à valeurs dans R², arcs paramétrés, points stationnaires, tangentes, asymptotes, symétries et plan d'étude.", lecon: "m2-fvect", exo: "m2-fvect" }
         ]
     }
 };
@@ -1942,20 +1955,120 @@
                     D.cer(66, 58, 12, LR)
                     + D.ln(30, 70, 102, 70, LB, 1.8)
                     + D.ln(66, 70, 66, 84) + D.poly([[60, 84], [72, 84], [66, 94]], LB, LB, 1)
-                    + D.fly(30, 70, 36)
-                    + D.txt(130, 74, 'ou')
-                    + D.poly([[150, 52], [172, 52], [161, 70]], LR, LR, 1)
-                    + D.ln(138, 70, 192, 70, LB, 1.8)
-                    + D.ln(161, 70, 161, 84) + D.poly([[155, 84], [167, 84], [161, 94]], LB, LB, 1),
+                    + D.fly(30, 70, 36),
                     'Ponctuelle')
             }
         };
 
 
-        // Schémas dans le style du cours : perspective (3D) et représentation plane (2D)
+        // ---------- perspectives dans le style du cours (schémas fournis par Baptiste) ----------
+        // Perspective isométrique : z vers le haut, x vers le bas à gauche, y vers le bas à droite.
+        // Solide 1 en bleu (rempli clair, contour bleu), solide 2 en rouge (rempli rose, contour rouge),
+        // une tige de chaque couleur relie chaque élément à son solide. Repère x, y, z dessiné sur chaque schéma.
+        const PERSP_COURS = (() => {
+            const BF = '#c9ddf6', BS = '#3f74b5', RF = '#ffc7c7', RS = '#ef2b2b', AX = '#5b9bd5', TX = '#e2e8f0';
+            const O = [70, 60];
+            const P = (x, y, z) => [O[0] + (y - x) * 0.866, O[1] + (x + y) * 0.5 - z];
+            const pts = (l) => l.map(p => P(...p).map(v => v.toFixed(1)).join(',')).join(' ');
+            const poly = (l, f, s, w = 1.6) => `<polygon points="${pts(l)}" fill="${f}" stroke="${s}" stroke-width="${w}" stroke-linejoin="round"/>`;
+            const ligne = (a, b, c, w = 2.2) => { const [x1, y1] = P(...a), [x2, y2] = P(...b); return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`; };
+            const boule = (c, r, f = RF, s = RS) => { const [x, y] = P(...c); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${f}" stroke="${s}" stroke-width="1.8"/>`; };
+            const fleche = (b, lab) => {
+                const [x1, y1] = P(0, 0, 0), [x2, y2] = P(...b), a = Math.atan2(y2 - y1, x2 - x1);
+                const p1 = [x2 - 5 * Math.cos(a) + 2.4 * Math.sin(a), y2 - 5 * Math.sin(a) - 2.4 * Math.cos(a)], p2 = [x2 - 5 * Math.cos(a) - 2.4 * Math.sin(a), y2 - 5 * Math.sin(a) + 2.4 * Math.cos(a)];
+                const lx = x2 + 7 * Math.cos(a), ly = y2 + 7 * Math.sin(a) + 3;
+                return `<line x1="${x1}" y1="${y1}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${AX}" stroke-width="0.8"/><polygon points="${x2.toFixed(1)},${y2.toFixed(1)} ${p1[0].toFixed(1)},${p1[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}" fill="${AX}"/><text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="${TX}" font-size="9" text-anchor="middle">${lab}</text>`;
+            };
+            const repere = () => fleche([46, 0, 0], 'x') + fleche([0, 46, 0], 'y') + fleche([0, 0, 44], 'z');
+            const svg = (c, label) => `<svg viewBox="0 0 140 110" class="w-full h-full" role="img" aria-label="${label} en perspective">${c}</svg>`;
+            // cylindre d'axe x, centré en (0, 0, zc), de demi-longueur h et rayon r (en pixels écran)
+            const cylX = (h, r, f, s, zc = 0) => {
+                const a = P(-h, 0, zc), b = P(h, 0, zc), ang = Math.atan2(b[1] - a[1], b[0] - a[0]), deg = ang * 180 / Math.PI;
+                const nx = -Math.sin(ang) * r, ny = Math.cos(ang) * r, rx = r * 0.42;
+                const corps = `<polygon points="${(a[0] + nx).toFixed(1)},${(a[1] + ny).toFixed(1)} ${(b[0] + nx).toFixed(1)},${(b[1] + ny).toFixed(1)} ${(b[0] - nx).toFixed(1)},${(b[1] - ny).toFixed(1)} ${(a[0] - nx).toFixed(1)},${(a[1] - ny).toFixed(1)}" fill="${f}" stroke="none"/>`
+                    + `<line x1="${(a[0] + nx).toFixed(1)}" y1="${(a[1] + ny).toFixed(1)}" x2="${(b[0] + nx).toFixed(1)}" y2="${(b[1] + ny).toFixed(1)}" stroke="${s}" stroke-width="1.8"/><line x1="${(a[0] - nx).toFixed(1)}" y1="${(a[1] - ny).toFixed(1)}" x2="${(b[0] - nx).toFixed(1)}" y2="${(b[1] - ny).toFixed(1)}" stroke="${s}" stroke-width="1.8"/>`;
+                const fond = `<ellipse cx="${a[0].toFixed(1)}" cy="${a[1].toFixed(1)}" rx="${rx.toFixed(1)}" ry="${r}" transform="rotate(${deg.toFixed(1)} ${a[0].toFixed(1)} ${a[1].toFixed(1)})" fill="${f}" stroke="${s}" stroke-width="1.8"/>`;
+                const face = `<ellipse cx="${b[0].toFixed(1)}" cy="${b[1].toFixed(1)}" rx="${rx.toFixed(1)}" ry="${r}" transform="rotate(${deg.toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)})" fill="${f}" stroke="${s}" stroke-width="1.8"/>`;
+                return { svg: fond + corps + face, a, b, ang, deg, r, rx };
+            };
+            // l'axe x « vers le spectateur » est la direction qui descend à gauche : on dessine le cylindre de -h (fond) à +h (face visible)
+            const cylVers = (h, r, f, s, zc = 0) => cylX(h, r, f, s, zc);
+            const planZ = (d, z = 0, f = BF, s = BS) => poly([[-d, -d, z], [d, -d, z], [d, d, z], [-d, d, z]], f, s, 1.8);
+            const tigeRouge = (a, b) => ligne(a, b, RS, 2.4), tigeBleue = (a, b) => ligne(a, b, AX, 2.4);
+            const axeBleu = (h) => ligne([-h, 0, 0], [h, 0, 0], AX, 2);
+            const croixAxe = (x) => { const c = P(x, 0, 0); return `<line x1="${(c[0] - 4).toFixed(1)}" y1="${(c[1] - 5).toFixed(1)}" x2="${(c[0] + 4).toFixed(1)}" y2="${(c[1] + 5).toFixed(1)}" stroke="${AX}" stroke-width="2"/>`; };
+            return {
+                ponctuelle: () => svg(repere() + tigeBleue([4, 4, 0], [10, 10, -30]) + planZ(20) + boule([0, 0, 8], 8) + tigeRouge([0, 0, 16], [0, 0, 36]), 'Liaison ponctuelle'),
+                appui_plan: () => svg(repere() + tigeBleue([4, 4, 0], [10, 10, -30]) + planZ(20) + planZ(15, 6, RF, RS) + tigeRouge([0, 0, 6], [-4, 4, 34]), 'Liaison appui plan'),
+                lineaire_rectiligne: () => {
+                    const e = 13, l = 9, h = 12;   // arête de contact selon y, de -e à +e ; prisme de demi-largeur l selon x, hauteur h
+                    return svg(repere() + tigeBleue([4, 4, 0], [10, 10, -30]) + planZ(20)
+                        + poly([[-l, -e, h], [l, -e, h], [l, e, h], [-l, e, h]], RF, RS) + poly([[0, -e, 0], [l, -e, h], [l, e, h], [0, e, 0]], RF, RS) + poly([[0, e, 0], [l, e, h], [-l, e, h]], RF, RS)
+                        + tigeRouge([0, 0, h], [-4, 4, 38]), 'Liaison linéaire rectiligne');
+                },
+                appui: null,
+                pivot: () => { const c = cylVers(17, 9, RF, RS); return svg(repere() + axeBleu(34) + c.svg + ligne([17, 0, 0], [34, 0, 0], AX, 2) + croixAxe(-26) + croixAxe(26), 'Liaison pivot'); },
+                pivot_glissant: () => { const c = cylVers(17, 9, RF, RS); return svg(repere() + axeBleu(34) + c.svg + ligne([17, 0, 0], [34, 0, 0], AX, 2), 'Liaison pivot glissant'); },
+                helicoide: () => {
+                    const c = cylVers(17, 10, RF, RS);
+                    let helice = '';
+                    for (let k = -1; k <= 2; k++) { const m = P(17 - k * 9 - 6, 0, 0); helice += `<path d="M${(m[0] + Math.sin(c.ang) * 10).toFixed(1)} ${(m[1] - Math.cos(c.ang) * 10).toFixed(1)} A ${c.rx.toFixed(1)} 10 ${c.deg.toFixed(1)} 0 0 ${(m[0] - Math.sin(c.ang) * 10).toFixed(1)} ${(m[1] + Math.cos(c.ang) * 10).toFixed(1)}" fill="none" stroke="${RS}" stroke-width="1.8"/>`; }
+                    return svg(repere() + axeBleu(34) + c.svg + helice + ligne([17, 0, 0], [34, 0, 0], AX, 2), 'Liaison hélicoïdale');
+                },
+                glissiere: () => {
+                    const a = 11, b = 7, c = 6;   // boîte rouge : demi-longueur a selon x, demi-largeur b selon y, demi-hauteur c selon z
+                    const X = (x, y, z) => [x, y, z];
+                    const boite = poly([X(-a, -b, c), X(a, -b, c), X(a, b, c), X(-a, b, c)], RF, RS) + poly([X(-a, b, -c), X(a, b, -c), X(a, b, c), X(-a, b, c)], RF, RS) + poly([X(a, -b, -c), X(a, b, -c), X(a, b, c), X(a, -b, c)], RF, RS);
+                    const croix = ligne([a, -3, -3], [a, 3, 3], AX, 1.6) + ligne([a, -3, 3], [a, 3, -3], AX, 1.6);
+                    return svg(repere() + ligne([-34, 0, 0], [-a, 0, 0], AX, 2.2) + boite + croix + ligne([a, 0, 0], [34, 0, 0], AX, 2.2) + tigeRouge([0, 0, c], [-4, 4, 36]), 'Liaison glissière');
+                },
+                rotule: () => {
+                    const c = P(0, 0, 0);
+                    const coupe = `<path d="M${(c[0] - 15).toFixed(1)} ${(c[1] - 2).toFixed(1)} A 14 14 0 0 0 ${(c[0] + 12).toFixed(1)} ${(c[1] + 8).toFixed(1)}" fill="none" stroke="${AX}" stroke-width="2.4"/>`;
+                    return svg(repere() + tigeBleue([6, 6, -10], [16, 16, -34]) + coupe + boule([0, 0, 0], 10) + tigeRouge([0, 0, 10], [0, 0, 36]), 'Liaison rotule');
+                },
+                spherique_doigt: () => {
+                    const c = P(0, 0, 0);
+                    const coupe = `<path d="M${(c[0] - 15).toFixed(1)} ${(c[1] - 2).toFixed(1)} A 14 14 0 0 0 ${(c[0] + 12).toFixed(1)} ${(c[1] + 8).toFixed(1)}" fill="none" stroke="${AX}" stroke-width="2.4"/>`;
+                    const doigt = ligne([0, -18, 2], [0, -6, 2], AX, 2.6);
+                    return svg(repere() + tigeBleue([6, 6, -10], [16, 16, -34]) + coupe + doigt + boule([0, 0, 0], 10) + `<line x1="${(c[0] - 6).toFixed(1)}" y1="${(c[1] - 5).toFixed(1)}" x2="${(c[0] - 1).toFixed(1)}" y2="${(c[1] - 2).toFixed(1)}" stroke="${RS}" stroke-width="2"/>` + tigeRouge([0, 0, 10], [0, 0, 36]), 'Liaison sphérique à doigt');
+                },
+                lineaire_annulaire: () => {
+                    // gouttière bleue d'axe x (demi-cylindre ouvert vers le haut), sphère rouge posée dedans
+                    const h = 28, R = 15, n = 16;
+                    const arc = (x) => Array.from({ length: n + 1 }, (_, k) => { const t = Math.PI * k / n; return [x, -R * Math.cos(t), -R * Math.sin(t)]; });
+                    const fond = arc(-h), face = arc(h);
+                    const P2 = (p) => P(...p).map(v => v.toFixed(1)).join(',');
+                    // paroi intérieure (vue par-dessus) : du bord y = -R au bord y = +R en passant par le fond
+                    const interieur = `<polygon points="${[...fond, ...face.slice().reverse()].map(P2).join(' ')}" fill="${BF}" stroke="none"/>`;
+                    // bords supérieurs de la gouttière
+                    const bords = ligne([-h, -R, 0], [h, -R, 0], BS, 1.8) + ligne([-h, R, 0], [h, R, 0], BS, 1.8);
+                    // dessous extérieur (côté y > 0 visible) : bande entre le fond de l'arc et le bord y = +R
+                    const exterieur = `<polygon points="${[...face.slice(n / 2), ...fond.slice(n / 2).reverse()].map(P2).join(' ')}" fill="#a9c6ec" stroke="${BS}" stroke-width="1.6" stroke-linejoin="round"/>`;
+                    // tranche visible de la gouttière (côté x = +h) : demi-couronne
+                    const tranche = `<polyline points="${face.map(P2).join(' ')}" fill="none" stroke="${BS}" stroke-width="2"/>`;
+                    const arriere = `<polyline points="${fond.map(P2).join(' ')}" fill="none" stroke="${BS}" stroke-width="1.4"/>`;
+                    return svg(repere() + tigeBleue([6, 6, -11], [12, 12, -36]) + interieur + arriere + exterieur + bords + tranche + boule([0, 0, -4], 10) + tigeRouge([0, 0, 6], [0, 0, 38]), 'Liaison linéaire annulaire');
+                },
+                encastrement: () => {
+                    // paroi bleue verticale (plan x = 0) et bloc rouge encastré dedans
+                    const paroi = poly([[0, -22, -14], [0, 22, -14], [0, 22, 26], [0, -22, 26]], BF, BS, 1.8);
+                    const bloc = poly([[0, -6, 14], [16, -6, 14], [16, 14, 14], [0, 14, 14]], RF, RS) + poly([[16, -6, 0], [16, 14, 0], [16, 14, 14], [16, -6, 14]], RF, RS) + poly([[0, 14, 0], [16, 14, 0], [16, 14, 14], [0, 14, 14]], RF, RS);
+                    return svg(repere() + paroi + bloc + tigeRouge([8, 4, 14], [8, 4, 38]), 'Encastrement');
+                }
+            };
+        })();
+        // convention du cours : liaisons planes de normale z (le site les avait de normale y)
+        Object.assign(LIAISONS_DATABASE.find(l => l.id === 'appui_plan'), { nom: 'Appui plan de normale z', cin: { wx: '0', wy: '0', wz: '\\omega_z', vx: 'V_x', vy: 'V_y', vz: '0' }, stat: { x: '0', y: '0', z: 'Z', l: 'L', m: 'M', n: '0' } });
+        Object.assign(LIAISONS_DATABASE.find(l => l.id === 'lineaire_rectiligne'), { nom: 'Linéaire rectiligne de normale z', cin: { wx: '0', wy: '\\omega_y', wz: '\\omega_z', vx: 'V_x', vy: 'V_y', vz: '0' }, stat: { x: '0', y: '0', z: 'Z', l: 'L', m: '0', n: '0' } });
+        Object.assign(LIAISONS_DATABASE.find(l => l.id === 'ponctuelle'), { nom: 'Ponctuelle de normale z', cin: { wx: '\\omega_x', wy: '\\omega_y', wz: '\\omega_z', vx: 'V_x', vy: 'V_y', vz: '0' }, stat: { x: '0', y: '0', z: 'Z', l: '0', m: '0', n: '0' } });
+        const NORMALE_Z = { x: 'y', y: 'z', z: 'x' };   // renomme les axes des vues planes dessinées avec la normale selon y
+
+        // Schémas : perspective (style du cours) et représentation plane (2D)
         LIAISONS_DATABASE.forEach(l => {
-            l.svg3d = DESSINS_LIAISONS[l.id].persp();
+            l.svg3d = PERSP_COURS[l.id] ? PERSP_COURS[l.id]() : DESSINS_LIAISONS[l.id].persp();
             l.svg2d = DESSINS_LIAISONS[l.id].plan();
+            if (['appui_plan', 'lineaire_rectiligne', 'ponctuelle'].includes(l.id)) l.svg2d = l.svg2d.replace(/>([xyz])<\/text>/g, (m, c) => '>' + NORMALE_Z[c] + '</text>');
         });
 
 
@@ -1999,19 +2112,49 @@
             return opt.replace('\\omega_', 'ω').replace('V_', 'V');
         }
 
+        // ---------- liaison orientée au hasard ----------
+        // Les dessins sont faits avec l'axe (ou la normale) de la liaison sur x (ou y). On renomme les axes par une
+        // permutation circulaire (le repère reste direct) pour que l'axe de la liaison soit x, y ou z.
+        const NOM_COURT_A1 = { encastrement: 'Encastrement', pivot: 'Pivot', glissiere: 'Glissière', appui_plan: 'Appui plan', rotule: 'Rotule',
+            pivot_glissant: 'Pivot glissant', helicoide: 'Hélicoïdale', spherique_doigt: 'Sphérique à doigt', lineaire_annulaire: 'Linéaire annulaire',
+            lineaire_rectiligne: 'Linéaire rectiligne', ponctuelle: 'Ponctuelle' };
+        const DIR_A1 = { pivot: ['x', 'axe'], glissiere: ['x', 'direction'], pivot_glissant: ['x', 'axe'], helicoide: ['x', 'axe'], lineaire_annulaire: ['x', 'axe'],
+            appui_plan: ['z', 'normale'], lineaire_rectiligne: ['z', 'normale'], ponctuelle: ['z', 'normale'] };
+        const PERMS_A1 = [{ x: 'x', y: 'y', z: 'z' }, { x: 'y', y: 'z', z: 'x' }, { x: 'z', y: 'x', z: 'y' }];
+        function orienterLiaisonA1(l) {
+            const d = DIR_A1[l.id];
+            const cible = d ? choisir(['x', 'y', 'z']) : null;
+            const s = d ? PERMS_A1.find(p => p[d[0]] === cible) : PERMS_A1[0];
+            // l.stat a pour clés x, y, z (résultante, valeurs X, Y, Z) et l, m, n (moment, valeurs L, M, N)
+            const maj = { x: 'X', y: 'Y', z: 'Z' }, mom = { x: 'L', y: 'M', z: 'N' }, cleMom = { x: 'l', y: 'm', z: 'n' };
+            const cin = {}, statCles = {};
+            ['x', 'y', 'z'].forEach(a => {
+                const b = s[a];
+                cin['w' + b] = l.cin['w' + a].replace(/_([xyz])/, (m, c) => '_' + s[c]);
+                cin['v' + b] = l.cin['v' + a].replace(/_([xyz])/, (m, c) => '_' + s[c]);
+                statCles[b] = l.stat[a] === '0' ? '0' : maj[b];
+                statCles[cleMom[b]] = l.stat[cleMom[a]] === '0' ? '0' : mom[b];
+            });
+            const svg = l.svg3d.replace(/>([xyz])<\/text>/g, (m, c) => '>' + s[c] + '</text>');
+            return { id: l.id, nomCourt: NOM_COURT_A1[l.id], axe: cible || 'aucun', motAxe: d ? d[1] : null,
+                nom: d ? `${NOM_COURT_A1[l.id]} ${d[1] === 'normale' ? 'de normale' : d[1] === 'direction' ? 'de direction' : "d'axe"} ${cible}` : NOM_COURT_A1[l.id],
+                cin: { wx: cin.wx, wy: cin.wy, wz: cin.wz, vx: cin.vx, vy: cin.vy, vz: cin.vz },
+                stat: { x: statCles.x, y: statCles.y, z: statCles.z, l: statCles.l, m: statCles.m, n: statCles.n }, svg3d: svg };
+        }
+
         function genererExoA1() {
-            // Sélection aléatoire d'une liaison
-            liaisonActiveExoA1 = LIAISONS_DATABASE[Math.floor(Math.random() * LIAISONS_DATABASE.length)];
+            // Sélection aléatoire d'une liaison, orientée au hasard
+            liaisonActiveExoA1 = orienterLiaisonA1(LIAISONS_DATABASE[Math.floor(Math.random() * LIAISONS_DATABASE.length)]);
 
             // Ligne 1 : Image 3D
             document.getElementById('a1-exo-svg3d').innerHTML = liaisonActiveExoA1.svg3d;
 
-            // Ligne 2 : Menu déroulant des noms
+            // Ligne 2 : Menu déroulant des noms (sans l'axe : il se choisit à côté)
             const selectNom = document.getElementById('select-a1-nom');
             selectNom.innerHTML = `<option value="">-- Choisir la liaison --</option>`;
-            
+
             // Mélange des noms pour la liste déroulante
-            const listeNoms = LIAISONS_DATABASE.map(l => l.nom).sort(() => Math.random() - 0.5);
+            const listeNoms = Object.values(NOM_COURT_A1).sort(() => Math.random() - 0.5);
             listeNoms.forEach(nom => {
                 selectNom.innerHTML += `<option value="${nom}">${nom}</option>`;
             });
@@ -2047,6 +2190,7 @@
 
         function verifierExoA1() {
             const nomSaisi = document.getElementById('select-a1-nom').value;
+            const axeSaisi = document.getElementById('select-a1-axe').value;
 
             const cinSaisi = {
                 wx: document.getElementById('sel-cin-wx').value,
@@ -2069,25 +2213,27 @@
             const feedback = document.getElementById('a1-exo-feedback');
 
             // Vérifications
-            if (!nomSaisi || Object.values(cinSaisi).includes("") || Object.values(statSaisi).includes("")) {
+            if (!nomSaisi || !axeSaisi || Object.values(cinSaisi).includes("") || Object.values(statSaisi).includes("")) {
                 feedback.className = "text-sm min-h-[1.25rem] text-amber-300";
-                feedback.textContent = "Remplis toutes les cases du tableau avant de vérifier.";
+                feedback.textContent = "Remplis toutes les cases du tableau (nom, axe ou normale, torseurs) avant de vérifier.";
                 return;
             }
 
-            const nomCorrect = nomSaisi === liaisonActiveExoA1.nom;
+            const axeCorrect = axeSaisi === liaisonActiveExoA1.axe;
+            const nomCorrect = nomSaisi === liaisonActiveExoA1.nomCourt && axeCorrect;
             const cinCorrect = JSON.stringify(cinSaisi) === JSON.stringify(liaisonActiveExoA1.cin);
             const statCorrect = JSON.stringify(statSaisi) === JSON.stringify(liaisonActiveExoA1.stat);
 
             // chaque case passe au vert ou au rouge, comme dans les autres exercices
             const marquer = (id, ok) => { const s = document.getElementById(id); s.classList.remove('border-slate-700', 'border-emerald-500', 'border-red-500'); s.classList.add(ok ? 'border-emerald-500' : 'border-red-500'); };
-            marquer('select-a1-nom', nomCorrect);
+            marquer('select-a1-nom', nomSaisi === liaisonActiveExoA1.nomCourt);
+            marquer('select-a1-axe', axeCorrect);
             CHAMPS_A1.cin.forEach(k => marquer('sel-cin-' + k, cinSaisi[k] === liaisonActiveExoA1.cin[k]));
             CHAMPS_A1.stat.forEach(k => marquer('sel-stat-' + k, statSaisi[k] === liaisonActiveExoA1.stat[k]));
 
             if (nomCorrect && cinCorrect && statCorrect) {
                 feedback.className = "text-sm min-h-[1.25rem] text-emerald-300";
-                feedback.textContent = "Bravo ! Le nom de la liaison et les deux torseurs sont justes.";
+                feedback.textContent = "Bravo ! Le nom de la liaison, son axe et les deux torseurs sont justes.";
             } else {
                 feedback.className = "text-sm min-h-[1.25rem] text-red-300";
                 feedback.textContent = "Il y a des erreurs dans le tableau (cases en rouge). Vérifie les mobilités autorisées et les efforts bloqués.";
@@ -2095,7 +2241,7 @@
         }
 
         const CHAMPS_A1 = { cin: ['wx', 'wy', 'wz', 'vx', 'vy', 'vz'], stat: ['x', 'y', 'z', 'l', 'm', 'n'] };
-        const idsChampsA1 = () => ['select-a1-nom'].concat(CHAMPS_A1.cin.map(k => 'sel-cin-' + k), CHAMPS_A1.stat.map(k => 'sel-stat-' + k));
+        const idsChampsA1 = () => ['select-a1-nom', 'select-a1-axe'].concat(CHAMPS_A1.cin.map(k => 'sel-cin-' + k), CHAMPS_A1.stat.map(k => 'sel-stat-' + k));
 
         function reinitialiserExoA1() {
             idsChampsA1().forEach(id => { const s = document.getElementById(id); s.value = ''; s.classList.remove('border-emerald-500', 'border-red-500'); s.classList.add('border-slate-700'); });
@@ -2106,12 +2252,16 @@
         function corrigerExoA1() {
             reinitialiserExoA1();
             const l = liaisonActiveExoA1;
-            document.getElementById('select-a1-nom').value = l.nom;
+            document.getElementById('select-a1-nom').value = l.nomCourt;
+            document.getElementById('select-a1-axe').value = l.axe;
             CHAMPS_A1.cin.forEach(k => { document.getElementById('sel-cin-' + k).value = l.cin[k]; });
             CHAMPS_A1.stat.forEach(k => { document.getElementById('sel-stat-' + k).value = l.stat[k]; });
             const mob = CHAMPS_A1.cin.filter(k => l.cin[k] !== '0').length;
             const z = document.getElementById('a1-exo-solution');
-            z.innerHTML = `<p class="font-bold text-violet-200">Correction</p><p>C'est une liaison <strong class="text-white">${l.nom}</strong> : ${mob} degré${mob > 1 ? 's' : ''} de liberté. Le tableau est rempli avec les bonnes valeurs.</p>${l.id === 'helicoide' ? '<p>Pour l\'hélicoïdale, la rotation et la translation sont liées par le pas : ω<sub>x</sub> et V<sub>x</sub> ne sont pas indépendants.</p>' : '<p>Chaque mobilité autorisée (composante non nulle du torseur cinématique) correspond à une composante nulle du torseur statique, et inversement.</p>'}`;
+            const phraseAxe = !l.motAxe ? `<p>Cette liaison n'a pas d'axe ni de normale à choisir : sans objet.</p>`
+                : l.motAxe === 'normale' ? `<p>Sur le dessin, la <strong class="text-white">normale au contact est ${l.axe}</strong> : la translation selon ${l.axe} est bloquée (V<sub>${l.axe}</sub> = 0) et c'est l'effort selon ${l.axe} qui est transmis.</p>`
+                : `<p>Sur le dessin, l'${l.motAxe === 'direction' ? 'axe de translation' : 'axe de la liaison'} est <strong class="text-white">${l.axe}</strong> : les mouvements autorisés s'écrivent selon ${l.axe} dans le torseur cinématique, et les composantes correspondantes du torseur statique sont nulles.</p>`;
+            z.innerHTML = `<p class="font-bold text-violet-200">Correction</p><p>C'est une liaison <strong class="text-white">${l.nom}</strong> : ${mob} degré${mob > 1 ? 's' : ''} de liberté. Le tableau est rempli avec les bonnes valeurs.</p>${phraseAxe}${l.id === 'helicoide' ? `<p>Pour l'hélicoïdale, la rotation et la translation sont liées par le pas : ω<sub>${l.axe}</sub> et V<sub>${l.axe}</sub> ne sont pas indépendants.</p>` : '<p>Chaque mobilité autorisée (composante non nulle du torseur cinématique) correspond à une composante nulle du torseur statique, et inversement.</p>'}`;
             z.hidden = false;
         }
     
@@ -2887,7 +3037,7 @@
             'eco1-typo': { taille: [1], secteur: [2], conc: [4] }, 'eco1-stocks': { moyen: [2], cump: [3] }, 'eco1-seuil': { _: [2, 3] }, 'eco1-amort': { lin: [2], deg: [3] },
             'eco1-bilan': { classe: [2, 3], vnc: [2, 4], equil: [1, 3], amdep: [2] }, 'eco1-resultat': { nature: [2], calc: [3] }, 'eco1-sig': { _: [2, 3] },
             'eco2-analyse': { caf: [1], fonc: [2, 3], ratio: [4] }, 'eco2-financement': { annu: [3], amc: [3], infine: [3], famille: [2], reserve: [1] }, 'eco2-travail': { qcm: [1, 2, 3, 4, 5], modif: [4], source: [1, 2], rupture: [5] },
-            'ce1-production': { energie: [2], solaire: [2], eol: [2], danger: [4], cours: [1, 2, 3, 4] }, 'ce1-schemas': { sym: [1, 4], q: [1, 2, 3, 4, 5] }, 'ce1-mcc': { mot: [3], gen: [4], fem: [2] },
+            'ce1-production': { energie: [2], solaire: [2], eol: [2], danger: [4], cours: [1, 2, 3, 4] }, 'ce1-schemas': { sym: [1, 4], role: [4], q: [1, 2, 3, 4, 5] }, 'ce1-mcc': { mot: [3], gen: [4], fem: [2] },
             'phys-sli': { rc: [3], dech: [4], rl: [5], ener: [2, 5], assoc: [2], rlc: [6] },
             'cm1-statique': { poids: [2], pression: [2], moment: [5], forces: [4, 5], levier: [4, 5], cours: [1, 2, 3] }, 'cm1-cinematique': { omega: [4], rot: [4], trans: [3] },
             'cm2-inertie': { masse: [1, 2], usuel: [9], huy: [8] }, 'est1-af': { fct: [4], outils: [3, 4] }, 'est1-dessin': { ech: [3], fmt: [2], trait: [4] },
@@ -8170,7 +8320,57 @@
                 if (marque === 'contacteur') s += `<path d="M ${x - 5} ${y + 25} A 5 5 0 0 0 ${x + 5} ${y + 25}" fill="none" stroke="${SVG_TRAIT}" stroke-width="1.8"/>`;
                 if (marque === 'sectionneur') s += this.l(x - 6, y + 25, x + 6, y + 25);
                 if (marque === 'disjoncteur') s += this.l(x - 5, y + 20, x + 5, y + 30) + this.l(x - 5, y + 30, x + 5, y + 20);
+                const rond = `<circle cx="${x}" cy="${y + 25}" r="3.2" fill="${SVG_FOND}" stroke="${SVG_TRAIT}" stroke-width="1.8"/>`;
+                if (marque === 'interrupteur') s += rond;
+                if (marque === 'intsect' || marque === 'intsectauto') s += this.l(x - 6, y + 18, x + 6, y + 18) + rond;
+                if (marque === 'intsectauto') s += `<rect x="${x - 15}" y="${y + 37}" width="6" height="6" fill="${SVG_TRAIT}" stroke="none"/>`;
                 return s;
+            },
+            // interrupteur de position : contact NO ou NC avec un petit triangle (came) sur la lame
+            position(x, y, type) {
+                const c = type === 'nc' ? this.nc(x, y) : this.no(x, y);
+                const m = type === 'nc' ? [x + 8, y + 39] : [x - 7, y + 41], d = type === 'nc' ? 1 : -1;
+                return c + `<polygon points="${m[0]},${m[1]} ${m[0] + d * 7},${m[1] - 5} ${m[0] + d * 7},${m[1] + 5}" fill="none" stroke="${SVG_TRAIT}" stroke-width="1.6"/>`;
+            },
+            // contact à deux directions avec position médiane d'ouverture
+            inverseurMedian(x, y) { return this.l(x - 14, y, x - 14, y + 25) + this.l(x + 14, y, x + 14, y + 25) + this.l(x, y + 55, x, y + 30) + `<circle cx="${x}" cy="${y + 55}" r="3" fill="${SVG_FOND}" stroke="${SVG_TRAIT}" stroke-width="1.8"/>` + this.l(x, y + 58, x, y + 80); },
+            parafoudre(x, y) { return this.l(x, y, x, y + 22) + this.l(x, y + 58, x, y + 80) + `<rect x="${x - 8}" y="${y + 22}" width="16" height="36" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>` + this.l(x, y + 26, x, y + 50, { w: 1.8 }) + `<polygon points="${x},${y + 54} ${x - 4},${y + 46} ${x + 4},${y + 46}" fill="${SVG_TRAIT}"/>`; },
+            // bobine de relais temporisé : 'travail' (carré barré d'une croix) ou 'repos' (carré plein), à gauche de la bobine
+            // disjoncteur (croix sur le contact fixe) et ses déclencheurs dessinés sur le conducteur du bas, comme dans le cours :
+            // 'thermique' = créneau rectangulaire, 'magnetique' = arrondi, 'mt' = les deux ; variante 'I' : l'arrondi est remplacé par une case I>
+            disjDecl(x, y, type, variante) {
+                const W = SVG_TRAIT;
+                let s = this.l(x, y, x, y + 25) + this.l(x, y + 55, x - 15, y + 27) + this.l(x - 5, y + 20, x + 5, y + 30) + this.l(x - 5, y + 30, x + 5, y + 20);
+                const creneau = (y0) => `<path d="M ${x} ${y0} H ${x + 8} V ${y0 + 8} H ${x}" fill="none" stroke="${W}" stroke-width="2"/>`;
+                const arrondi = (y0) => `<path d="M ${x} ${y0} A 5 5 0 0 1 ${x} ${y0 + 10}" fill="none" stroke="${W}" stroke-width="2"/>`;
+                const caseI = (y0) => `<rect x="${x - 10}" y="${y0 - 1}" width="20" height="13" fill="${SVG_FOND}" stroke="${W}" stroke-width="1.8"/>` + this.t(x, y0 + 9, 'I&gt;', { s: 9 });
+                const magn = (y0) => (variante === 'I' ? caseI(y0) : arrondi(y0));
+                if (type === 'thermique') s += this.l(x, y + 55, x, y + 62) + creneau(y + 62) + this.l(x, y + 70, x, y + 80);
+                if (type === 'magnetique') s += this.l(x, y + 55, x, y + 80) + (variante === 'I' ? '' : `<rect x="${x - 1}" y="${y + 62}" width="2" height="10" fill="${SVG_FOND}"/>`) + magn(y + 62);
+                if (type === 'mt') s += this.l(x, y + 55, x, y + 57) + creneau(y + 57) + this.l(x, y + 65, x, y + 98) + (variante === 'I' ? '' : `<rect x="${x - 1}" y="${y + 80}" width="2" height="10" fill="${SVG_FOND}"/>`) + magn(y + 80);
+                return s;
+            },
+            // bobine en rectangle horizontal, avec à gauche une case : croix = mise au travail retardée, case pleine = mise au repos retardée
+            bobTempo(x, y, mode) {
+                const g = x - 22, d = x + 22, h1 = y + 30, h2 = y + 50, c = g + 12;
+                let s = this.l(x + 6, y, x + 6, h1) + this.l(x + 6, h2, x + 6, y + 80)
+                    + `<rect x="${g}" y="${h1}" width="${d - g}" height="${h2 - h1}" fill="none" stroke="${SVG_TRAIT}" stroke-width="2"/>`
+                    + this.l(c, h1, c, h2, { w: 1.8 });
+                if (mode === 'repos') s += `<rect x="${g}" y="${h1}" width="${c - g}" height="${h2 - h1}" fill="${SVG_TRAIT}" stroke="none"/>`;
+                else s += this.l(g, h1, c, h2, { w: 1.6 }) + this.l(g, h2, c, h1, { w: 1.6 });
+                return s;
+            },
+            // contact à fermeture et son organe de commande à gauche, relié par un trait mixte
+            cmd(x, y, organe) {
+                const g = x - 32, m = y + 40;
+                let o = this.no(x, y) + this.l(x - 8, m, g, m, { d: true });
+                if (organe === 'tirette') o += this.l(g, m - 8, g, m + 8) + this.l(g, m - 8, g - 5, m - 8) + this.l(g, m + 8, g - 5, m + 8);
+                if (organe === 'rotative') o += this.l(g, m - 8, g, m + 8) + this.l(g, m - 8, g - 5, m - 8) + this.l(g, m + 8, g + 5, m + 8);
+                if (organe === 'proximite') o += `<polygon points="${g - 2},${m} ${g - 10},${m - 8} ${g - 18},${m} ${g - 10},${m + 8}" fill="none" stroke="${SVG_TRAIT}" stroke-width="1.8"/>` + this.l(g - 10, m - 6, g - 10, m + 6, { w: 1.6 });
+                if (organe === 'volant') o += `<circle cx="${g - 8}" cy="${m}" r="8" fill="none" stroke="${SVG_TRAIT}" stroke-width="1.8"/>` + this.l(g - 8, m, g - 8, m - 8, { w: 1.4 }) + this.l(g - 8, m, g - 15, m + 4, { w: 1.4 }) + this.l(g - 8, m, g - 1, m + 4, { w: 1.4 });
+                if (organe === 'pedale') o += this.l(g, m, g - 8, m + 10) + this.l(g - 8, m + 10, g - 15, m + 10);
+                if (organe === 'levier') o += this.l(g, m, g - 8, m + 10) + `<circle cx="${g - 9.5}" cy="${m + 12}" r="2.5" fill="none" stroke="${SVG_TRAIT}" stroke-width="1.6"/>`;
+                return o;
             },
             // contact à ouverture (NC)
             nc(x, y) { return this.l(x, y, x, y + 25) + this.l(x, y + 25, x + 13, y + 25) + this.l(x, y + 55, x, y + 80) + this.l(x, y + 55, x + 17, y + 21); },
@@ -8204,7 +8404,18 @@
             ['bp', 'Bouton poussoir à fermeture', ['no']], ['bp', 'Bouton poussoir à ouverture', ['nc']],
             ['moteur', 'Moteur triphasé', ['3~']], ['lampe', 'Lampe', []],
             ['prise', 'Prise de courant', []], ['terre', 'Terre', []],
-            ['transfo', 'Transformateur', []], ['inverseur', 'Interrupteur va-et-vient (inverseur)', []]
+            ['transfo', 'Transformateur', []], ['inverseur', 'Interrupteur va-et-vient (inverseur)', []],
+            ['no', 'Interrupteur', ['interrupteur']], ['no', 'Interrupteur-sectionneur', ['intsect']],
+            ['no', 'Interrupteur-sectionneur à ouverture automatique', ['intsectauto']], ['inverseurMedian', 'Contact à deux directions avec position médiane d\'ouverture', []],
+            ['position', 'Interrupteur de position (NO)', ['no']], ['position', 'Interrupteur de position (NC)', ['nc']],
+            ['parafoudre', 'Parafoudre', []],
+            ['disjDecl', 'Disjoncteur thermique', ['thermique']], ['disjDecl', 'Disjoncteur magnétique', ['magnetique']],
+            ['disjDecl', 'Disjoncteur magnétothermique', ['mt']],
+            ['disjDecl', 'Disjoncteur magnétique', ['magnetique', 'I']], ['disjDecl', 'Disjoncteur magnétothermique', ['mt', 'I']],
+            ['bobTempo', 'Bobine de relais temporisé, mise au travail retardée', ['travail']], ['bobTempo', 'Bobine de relais temporisé, mise au repos retardée', ['repos']],
+            ['cmd', 'Commande par tirette', ['tirette']], ['cmd', 'Commande rotative', ['rotative']],
+            ['cmd', 'Commande par effet de proximité', ['proximite']], ['cmd', 'Commande par volant', ['volant']],
+            ['cmd', 'Commande par pédale', ['pedale']], ['cmd', 'Commande par levier', ['levier']]
         ];
         const planceSymboles = () => `<div class="grid grid-cols-3 sm:grid-cols-6 gap-3">${CE_SYMBOLES.map(([f, nom, a]) => `<figure class="bg-slate-950 border border-slate-800 rounded-xl p-2 flex flex-col items-center gap-1">${SE.case(SE[f], nom, ...a)}<figcaption class="text-[11px] text-slate-300 text-center leading-tight">${nom}</figcaption></figure>`).join('')}</div>`;
 
@@ -8254,9 +8465,57 @@
         };
 
         // ---------- composants et schémas ----------
+        // rôle de chaque élément (exercice « À quoi sert-il ? » et tableau de la leçon) ; deux rôles identiques ne sont jamais proposés ensemble
+        const CE_ROLES = {
+            'Contact à fermeture (NO)': 'laisser passer le courant quand il est actionné (ouvert au repos)',
+            'Contact à ouverture (NC)': 'couper le courant quand il est actionné (fermé au repos)',
+            'Contact de puissance d\'un contacteur': 'établir et couper le courant du récepteur de puissance (moteur) quand la bobine du contacteur est alimentée',
+            'Bobine (contacteur, relais)': 'électroaimant : alimentée, elle fait basculer tous les contacts du contacteur ou du relais',
+            'Sectionneur': 'isoler un circuit du réseau pour intervenir en sécurité ; il n\'a pas de pouvoir de coupure, on le manœuvre à vide',
+            'Interrupteur': 'établir et couper un circuit en charge, et rester dans la position choisie',
+            'Interrupteur-sectionneur': 'couper un circuit en charge et assurer aussi le sectionnement (isolement)',
+            'Interrupteur-sectionneur à ouverture automatique': 'couper en charge et isoler, et s\'ouvrir tout seul sur ordre d\'un déclencheur (par exemple à la fusion d\'un fusible)',
+            'Fusible': 'protéger contre les courts-circuits (et les surcharges selon le type) en fondant ; il se remplace après fonctionnement',
+            'Sectionneur porte-fusible': 'isoler un circuit et le protéger contre les courts-circuits grâce aux fusibles qu\'il porte',
+            'Disjoncteur': 'protéger contre les surcharges et les courts-circuits en coupant le circuit, puis se réarmer',
+            'Disjoncteur thermique': 'protéger contre les surcharges (courant un peu trop fort trop longtemps) grâce à un bilame',
+            'Disjoncteur magnétique': 'protéger contre les courts-circuits (courant très fort) en coupant très vite grâce à un électroaimant',
+            'Disjoncteur magnétothermique': 'protéger contre les surcharges et les courts-circuits en coupant le circuit, puis se réarmer',
+            'Disjoncteur différentiel': 'protéger les personnes : couper dès qu\'un courant de fuite vers la terre est détecté (30 mA)',
+            'Relais thermique': 'protéger un moteur contre les surcharges : son contact 95-96 coupe la bobine du contacteur',
+            'Bobine de relais temporisé, mise au travail retardée': 'faire basculer les contacts avec un retard après la mise sous tension de la bobine',
+            'Bobine de relais temporisé, mise au repos retardée': 'faire revenir les contacts avec un retard après la coupure de la bobine',
+            'Bouton poussoir à fermeture': 'donner un ordre manuel bref (par exemple Marche) : le circuit est fermé seulement tant qu\'on appuie',
+            'Bouton poussoir à ouverture': 'donner un ordre d\'arrêt manuel : le circuit est ouvert seulement tant qu\'on appuie',
+            'Interrupteur de position (NO)': 'détecter mécaniquement la position d\'une pièce mobile (fin de course) en fermant son contact',
+            'Interrupteur de position (NC)': 'détecter mécaniquement la position d\'une pièce mobile (fin de course) en ouvrant son contact',
+            'Contact à deux directions avec position médiane d\'ouverture': 'aiguiller le courant vers l\'une ou l\'autre de deux sorties, avec une position centrale où tout est coupé (par exemple sens de marche)',
+            'Interrupteur va-et-vient (inverseur)': 'commander un même éclairage depuis deux endroits différents',
+            'Parafoudre': 'protéger l\'installation contre les surtensions (foudre) en les écoulant vers la terre',
+            'Transformateur': 'changer la valeur d\'une tension alternative (par exemple 400 V en 24 V pour la commande) et isoler les deux circuits',
+            'Moteur triphasé': 'transformer l\'énergie électrique en énergie mécanique de rotation',
+            'Lampe': 'transformer l\'énergie électrique en lumière (éclairage ou voyant de signalisation)',
+            'Prise de courant': 'brancher un appareil sur le réseau',
+            'Terre': 'relier les masses métalliques à la terre pour écouler les courants de défaut et protéger les personnes',
+            'Commande par tirette': 'actionner un contact en tirant sur une tirette',
+            'Commande rotative': 'actionner un contact en tournant une manette (commutateur)',
+            'Commande par effet de proximité': 'actionner un contact sans contact physique, à l\'approche d\'un objet (détecteur de proximité)',
+            'Commande par volant': 'actionner un contact en tournant un volant',
+            'Commande par pédale': 'actionner un contact avec le pied',
+            'Commande par levier': 'actionner un contact en basculant un levier'
+        };
+        function ceRole() {
+            const noms = Object.keys(CE_ROLES), nom = choisir(noms), bon = CE_ROLES[nom];
+            const sym = CE_SYMBOLES.filter(s => s[1] === nom), [f, , a] = choisir(sym);
+            const autres = [...new Set(noms.map(n => CE_ROLES[n]))].filter(r => r !== bon).sort(() => Math.random() - 0.5).slice(0, 3);
+            const opts = [bon, ...autres].sort(() => Math.random() - 0.5).map((r, k) => [String(k), r.charAt(0).toUpperCase() + r.slice(1)]);
+            const solCle = opts.find(o => o[1].toLowerCase() === (bon.charAt(0).toUpperCase() + bon.slice(1)).toLowerCase())[0];
+            return { enonce: `<p>Voici le symbole de l'élément <strong class="text-white">${nom}</strong>. À quoi sert-il ?</p><div class="flex justify-center"><div class="w-28 bg-slate-900 rounded-xl border border-slate-800 p-2">${SE.case(SE[f], nom, ...a)}</div></div>`,
+                champs: [gChoix('r', solCle, opts, { groupe: 'Rôle' })], correction: `<p><strong class="text-white">${nom}</strong> : il sert à ${bon}.</p>` };
+        }
         function ceSymbole() {
             const i = gInt(0, CE_SYMBOLES.length - 1), [f, nom, a] = CE_SYMBOLES[i];
-            const autres = CE_SYMBOLES.map(x => x[1]).filter(n => n !== nom).sort(() => Math.random() - 0.5).slice(0, 3);
+            const autres = [...new Set(CE_SYMBOLES.map(x => x[1]))].filter(n => n !== nom).sort(() => Math.random() - 0.5).slice(0, 3);
             const opts = [nom, ...autres].sort(() => Math.random() - 0.5).map((n, k) => [String(k), n]);
             const sol = opts.find(o => o[1] === nom)[0];
             return { enonce: `<p>Quel composant représente ce symbole ?</p><div class="flex justify-center"><div class="w-28 bg-slate-900 rounded-xl border border-slate-800 p-2">${SE.case(SE[f], 'symbole à reconnaître', ...a)}</div></div>`,
@@ -8340,7 +8599,7 @@
                 ['Les prises de courant d\'un logement doivent…', 't', [['t', 'toujours avoir une borne de terre'], ['s', 'être sans terre si elles sont dans une chambre'], ['n', 'être raccordées sur le neutre seulement']]]]);
             return qcm(...q);
         }
-        ceX('ce1-schemas', 'Composants et schémas', 'Composants et schémas électriques', 'cable', { sym: ceSymbole, q: ceSchemaQ }, { tout: 'Tout', sym: 'Reconnaître un symbole', q: 'Appareillage et normes' }, 'ces');
+        ceX('ce1-schemas', 'Composants et schémas', 'Composants et schémas électriques', 'cable', { sym: ceSymbole, role: ceRole, q: ceSchemaQ }, { tout: 'Tout', sym: 'Reconnaître un symbole', role: 'À quoi sert-il ?', q: 'Appareillage et normes' }, 'ces');
         // ---------- machines à courant continu ----------
         function mccMoteur() {
             const U = choisir([110, 220, 230, 240, 440]), R = choisir([0.2, 0.4, 0.5, 0.8, 1, 1.5]), I = choisir([5, 8, 10, 15, 20, 25, 40]), n = choisir([1000, 1200, 1450, 1500, 2000, 3000]), pc = choisir([80, 100, 150, 200, 250]);
@@ -8450,15 +8709,9 @@
                 ecoSec("4. L'appareillage", "toggle-right",
                     H.p("Voici les symboles normalisés à connaître. Sur un schéma, chaque contact est dessiné <strong>au repos</strong> (bobine non alimentée, bouton non appuyé)."),
                     planceSymboles(),
-                    H.tableau(["Appareil", "Rôle"], [
-                        ["Sectionneur", "isoler un circuit ; <strong>aucun pouvoir de coupure</strong>, manœuvre à vide, souvent avec fusibles"],
-                        ["Interrupteur-sectionneur", "isoler et couper en charge (mise en service, arrêt)"],
-                        ["Fusible", "fusion d'un fil en cas de surintensité ; toujours sur la phase, jamais sur la terre. <strong>gF</strong> domestique, <strong>gG</strong> industriel (surcharges + courts-circuits), <strong>aM</strong> accompagnement moteur (courts-circuits seulement, tolère le démarrage)"],
-                        ["Disjoncteur magnéto-thermique", "<strong>thermique</strong> (bilame) contre les surcharges, <strong>magnétique</strong> (bobine) contre les courts-circuits en 10 à 20 ms ; réarmable"],
-                        ["Disjoncteur différentiel", "compare le courant aller et retour : s'il y a une fuite (vers la terre, ou une personne), il coupe. Protège les <strong>personnes</strong> (30 mA)"],
-                        ["Contacteur", "commander à distance un récepteur de puissance par sa bobine ; contacts auxiliaires pour l'auto-maintien"],
-                        ["Relais temporisé", "contacts qui basculent après un retard, au travail ou au repos"]
-                    ], { nowrap: false })),
+                    H.p("<strong>À quoi sert chaque élément ?</strong>"),
+                    H.tableau(["Élément", "À quoi il sert"], Object.keys(CE_ROLES).map(n => [n, CE_ROLES[n]]), { nowrap: false, gauche: true }),
+                    H.note("<strong>Fusibles</strong> : toujours sur la phase, jamais sur la terre. <strong>gF</strong> domestique, <strong>gG</strong> industriel (surcharges et courts-circuits), <strong>aM</strong> accompagnement moteur (courts-circuits seulement, il tolère la pointe de démarrage). <strong>Disjoncteur</strong> : le déclencheur thermique (bilame) agit sur les surcharges, le magnétique (bobine) sur les courts-circuits en 10 à 20 ms ; il se réarme. <strong>Différentiel</strong> : il compare le courant aller et le courant retour et coupe s'il manque du courant (fuite vers la terre ou à travers une personne) ; 30 mA pour protéger les personnes.")),
                 ecoSec("5. Installations domestiques (NF C 15-100)", "home",
                     H.figure(svgEclairage(), "Schémas développés. Simple allumage : un interrupteur coupe la phase. Va-et-vient : deux inverseurs reliés par deux fils (les navettes) ; chaque interrupteur peut allumer ou éteindre."),
                     H.liste([
@@ -15831,6 +16084,323 @@
         EXOS['oi2-veille'] = { chapitre: 'oi2-veille', libelle: 'QCM des oraux', badge: 'OI • 2ème Année', titre: 'Veille technologique : QCM des oraux',
             demarrer: () => { exgLancer('vt', 'Veille technologique : QCM des oraux', 'presentation', VEILLE_TYPES, { all: 'Tous les oraux', vsm: 'VSM', maint: 'Maintenance', smed: 'SMED', equi: 'Équilibrage', shop: 'Job / Flow Shop', cnd: 'CND', metro: 'Métrologie', sst: 'SST' }); EXG.vt.filtre = 'all'; exgNouvelle('vt'); exgDessiner('vt'); } };
         Object.assign(RENVOIS, { 'oi2-veille': { all: [1, 2, 3, 4, 5, 6, 7, 8], vsm: [1], maint: [2], smed: [3], equi: [4], shop: [5], cnd: [6], metro: [7], sst: [8] } });
+
+        // ==========================================
+        // CM 1ère année • Les torseurs : notions de base
+        // ==========================================
+        // Transport du moment : même résultante en A et en B, moments différents
+        function svgTransportMoment() {
+            const T = SVG_TRAIT, X = SVG_TEXTE, A = SVG_ACCENT, D = SVG_DISCRET, V = '#34d399', B = '#60a5fa';
+            const fl = (x1, y1, x2, y2, c) => { const a = Math.atan2(y2 - y1, x2 - x1), s = 8; return `<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${c}" stroke-width="2"/><path d="M${x2 - s * Math.cos(a - 0.4)} ${y2 - s * Math.sin(a - 0.4)}L${x2} ${y2}L${x2 - s * Math.cos(a + 0.4)} ${y2 - s * Math.sin(a + 0.4)}" stroke="${c}" stroke-width="2"/>`; };
+            let o = `<circle cx="90" cy="120" r="4" fill="${X}" stroke="none"/><text x="78" y="140" fill="${X}" font-size="13">A</text>`;
+            o += `<circle cx="300" cy="80" r="4" fill="${X}" stroke="none"/><text x="306" y="100" fill="${X}" font-size="13">B</text>`;
+            o += fl(90, 120, 170, 60, A) + `<text x="172" y="56" fill="${A}" font-size="13">R</text>`;
+            o += fl(300, 80, 380, 20, A) + `<text x="382" y="18" fill="${A}" font-size="13">R</text>`;
+            o += fl(90, 120, 40, 60, B) + `<text x="18" y="56" fill="${B}" font-size="13">M<tspan baseline-shift="sub" font-size="9">A</tspan></text>`;
+            o += fl(300, 80, 250, 30, V) + `<text x="212" y="26" fill="${V}" font-size="13">M<tspan baseline-shift="sub" font-size="9">B</tspan></text>`;
+            o += `<path d="M90 120L300 80" stroke="${D}" stroke-dasharray="4 3"/><text x="180" y="116" fill="${D}" font-size="11">BA (de B vers A)</text>`;
+            o += `<text x="20" y="176" fill="${X}" font-size="12">même résultante R en A et en B ; le moment, lui, change de A à B</text>`;
+            return `<svg viewBox="0 0 480 190" width="480" role="img" aria-label="Transport du moment d'un torseur" fill="none" stroke-width="1.4" style="max-width:100%">${o}</svg>`;
+        }
+        Object.assign(LECONS, {
+            "cm1-torseurs": {
+                badge: "CM • 1ère Année", titre: "Les torseurs : notions de base",
+                sections: () => [
+                    { titre: "1. À quoi sert un torseur ?", icone: "box", contenu: [
+                        H.p(R`En mécanique, deux grandeurs reviennent sans cesse : l'<strong>action mécanique</strong> d'un solide sur un autre (une force qui peut aussi faire tourner) et le <strong>mouvement</strong> d'un solide (il se déplace et il tourne). Un seul vecteur ne suffit pas à les décrire : il faut <strong>deux vecteurs</strong>. Le torseur les regroupe.`),
+                        H.p(R`Un torseur $\{\mathcal{T}\}$ est défini en un point $A$ par ses deux <strong>éléments de réduction</strong> : sa <strong>résultante</strong> $\vec{R}$, qui est la même en tout point, et son <strong>moment</strong> $\vec{M}_A$, qui dépend du point choisi.`),
+                        H.formule(R`\{\mathcal{T}\} = \left\{ \begin{matrix} \vec{R} \\ \vec{M}_A \end{matrix} \right\}_A = \left\{ \begin{matrix} X & L_A \\ Y & M_A \\ Z & N_A \end{matrix} \right\}_{A,\,(\vec{x}, \vec{y}, \vec{z})}`),
+                        H.p(R`Dans l'écriture en colonnes, la colonne de gauche donne les composantes de la résultante et la colonne de droite celles du moment, dans la base $(\vec{x}, \vec{y}, \vec{z})$ précisée en indice avec le point. Un torseur, c'est donc <strong>6 nombres</strong> en un point.`)
+                    ].join('') },
+                    { titre: "2. Rappel : le produit vectoriel", icone: "x", contenu: [
+                        H.p(R`Le changement de point utilise le produit vectoriel. Pour $\vec{u}(u_x, u_y, u_z)$ et $\vec{v}(v_x, v_y, v_z)$ dans une base orthonormée directe :`),
+                        H.formule(R`\vec{u} \wedge \vec{v} = \begin{pmatrix} u_y v_z - u_z v_y \\ u_z v_x - u_x v_z \\ u_x v_y - u_y v_x \end{pmatrix}`),
+                        H.liste([
+                            R`$\vec{u} \wedge \vec{v}$ est perpendiculaire à $\vec{u}$ et à $\vec{v}$, et $\vec{v} \wedge \vec{u} = -\vec{u} \wedge \vec{v}$.`,
+                            R`$\vec{x} \wedge \vec{y} = \vec{z}$, $\vec{y} \wedge \vec{z} = \vec{x}$, $\vec{z} \wedge \vec{x} = \vec{y}$ (ordre circulaire).`,
+                            R`$\vec{u} \wedge \vec{v} = \vec{0}$ si les deux vecteurs sont colinéaires (en particulier $\vec{u} \wedge \vec{u} = \vec{0}$).`
+                        ])
+                    ].join('') },
+                    { titre: "3. Changer de point", icone: "move", contenu: [
+                        H.p(R`Pour connaître le moment en un autre point $B$, on utilise la <strong>relation de transport des moments</strong> (dite aussi formule de Varignon, ou « BABAR ») :`),
+                        H.formule(R`\vec{M}_B = \vec{M}_A + \overrightarrow{BA} \wedge \vec{R}`),
+                        H.figure(svgTransportMoment(), "La résultante ne change pas d'un point à l'autre, le moment si."),
+                        H.note(R`<strong>Moyen mnémotechnique BABAR</strong> : $\vec{M}_B = \vec{M}_A + \overrightarrow{BA} \wedge \vec{R}$. Attention au sens : c'est $\overrightarrow{BA}$ (de B vers A), pas $\overrightarrow{AB}$. Si on préfère $\overrightarrow{AB}$, on écrit $\vec{M}_B = \vec{M}_A + \vec{R} \wedge \overrightarrow{AB}$.`),
+                        H.p(R`<strong>Exemple</strong> : $\vec{R} = (0, -100, 0)$ N et $\vec{M}_A = \vec{0}$ (force appliquée en $A$), avec $A(0{,}2\,;\,0\,;\,0)$ et $B(0\,;\,0\,;\,0)$ en m. Alors $\overrightarrow{BA} = (0{,}2\,;\,0\,;\,0)$ et $\vec{M}_B = \overrightarrow{BA} \wedge \vec{R} = (0\,;\,0\,;\,0{,}2 \times (-100)) = (0\,;\,0\,;\,-20)$ N·m : la force fait tourner autour de $\vec{z}$ dans le sens négatif.`)
+                    ].join('') },
+                    { titre: "4. Ce qui ne change pas : les invariants", icone: "lock", contenu: [
+                        H.liste([
+                            R`La <strong>résultante</strong> $\vec{R}$ est la même en tout point : c'est le premier invariant.`,
+                            R`L'<strong>automoment</strong> $\vec{R} \cdot \vec{M}_A$ est le même en tout point : c'est le second invariant. En effet $\vec{R} \cdot (\overrightarrow{BA} \wedge \vec{R}) = 0$.`,
+                            R`<strong>Équiprojectivité</strong> : pour deux points $A$ et $B$, $\vec{M}_A \cdot \overrightarrow{AB} = \vec{M}_B \cdot \overrightarrow{AB}$. Le champ des moments d'un torseur est équiprojectif (c'est ce qu'on utilise en cinématique avec les vitesses).`
+                        ]),
+                        H.formule(R`\mathcal{A} = \vec{R} \cdot \vec{M}_A = X L_A + Y M_A + Z N_A`)
+                    ].join('') },
+                    { titre: "5. Les torseurs particuliers", icone: "shapes", contenu: [
+                        H.tableau(["Torseur", "Condition", "Propriété", "Exemple"], [
+                            ["<strong>Nul</strong>", "$\\vec{R} = \\vec{0}$ et $\\vec{M}_A = \\vec{0}$", "nul en tout point", "solide en équilibre : somme des actions extérieures"],
+                            ["<strong>Couple</strong>", "$\\vec{R} = \\vec{0}$, $\\vec{M} \\neq \\vec{0}$", "même moment en tout point", "couple moteur sur un arbre"],
+                            ["<strong>Glisseur</strong>", "$\\vec{R} \\neq \\vec{0}$ et automoment nul", "il existe des points où le moment est nul : une droite (son axe)", "force ponctuelle, poids"],
+                            ["<strong>Quelconque</strong>", "$\\vec{R} \\neq \\vec{0}$ et automoment non nul", "somme d'un glisseur et d'un couple", "vis qui pousse et tourne"]
+                        ], { nowrap: false }),
+                        H.note(R`<strong>Méthode pour reconnaître un torseur</strong> : si $\vec{R} = \vec{0}$, c'est un couple (ou le torseur nul si le moment est nul aussi). Sinon, on calcule l'automoment $\vec{R} \cdot \vec{M}_A$ : nul → glisseur ; non nul → torseur quelconque.`),
+                        H.p(R`Pour un glisseur, le moment est nul en tout point de son <strong>axe</strong> (pour une force ponctuelle, la droite d'action de la force). Pour un torseur quelconque, l'ensemble des points où le moment est colinéaire à $\vec{R}$ s'appelle l'<strong>axe central</strong>.`)
+                    ].join('') },
+                    { titre: "6. Opérations sur les torseurs", icone: "plus", contenu: [
+                        H.p(R`<strong>Somme</strong> : on additionne les résultantes et les moments, <strong>à condition d'écrire les deux torseurs au même point</strong>. Si ce n'est pas le cas, on transporte d'abord l'un des moments.`),
+                        H.formule(R`\{\mathcal{T}_1\} + \{\mathcal{T}_2\} = \left\{ \begin{matrix} \vec{R}_1 + \vec{R}_2 \\ \vec{M}_{1,A} + \vec{M}_{2,A} \end{matrix} \right\}_A`),
+                        H.p(R`<strong>Comoment</strong> de deux torseurs (même point) : $\vec{R}_1 \cdot \vec{M}_{2,A} + \vec{R}_2 \cdot \vec{M}_{1,A}$. Il ne dépend pas du point. Le comoment d'un torseur statique et d'un torseur cinématique donne la <strong>puissance</strong> de l'action mécanique.`)
+                    ].join('') },
+                    { titre: "7. Les deux torseurs de la mécanique", icone: "settings-2", contenu: [
+                        H.tableau(["", "Torseur des actions mécaniques (statique)", "Torseur cinématique"], [
+                            ["Notation", "$\\{\\mathcal{T}_{2 \\to 1}\\}$", "$\\{\\mathcal{V}_{2/1}\\}$"],
+                            ["Résultante", "force $\\vec{R}_{2 \\to 1}$ (N)", "vitesse de rotation $\\vec{\\Omega}_{2/1}$ (rad/s)"],
+                            ["Moment", "moment $\\vec{M}_{A, 2 \\to 1}$ (N·m)", "vitesse du point $\\vec{V}_{A \\in 2/1}$ (m/s)"],
+                            ["Changement de point", "$\\vec{M}_B = \\vec{M}_A + \\overrightarrow{BA} \\wedge \\vec{R}$", "$\\vec{V}_B = \\vec{V}_A + \\overrightarrow{BA} \\wedge \\vec{\\Omega}$"]
+                        ], { nowrap: false }),
+                        H.liste([
+                            R`Une <strong>force ponctuelle</strong> appliquée en $A$ est un glisseur de moment nul en $A$ : $\{\vec{F}\,;\,\vec{0}\}_A$.`,
+                            R`Une <strong>translation</strong> est un couple cinématique : $\vec{\Omega} = \vec{0}$ et tous les points ont la même vitesse.`,
+                            R`Une <strong>rotation</strong> autour d'un axe fixe est un glisseur cinématique : la vitesse est nulle sur l'axe.`,
+                            R`Les torseurs des <strong>liaisons</strong> (chapitre « Liaisons et torseurs associés ») sont des cas particuliers : chaque degré de liberté donne une composante non nulle dans le torseur cinématique et une composante nulle dans le torseur statique.`
+                        ])
+                    ].join('') }
+                ]
+            }
+        });
+        // ---------- exercices ----------
+        const trsVec = (v) => gTexV(v.map(x => String(x)));
+        const trsPt = (n, P) => `${n}(${P.join('\\,;\\,')})`;
+        function trsTransport(cin) {
+            let R, MA, A, B;
+            do { R = vRand(-4, 4); } while (R.every(x => x === 0));
+            MA = vRand(-6, 6); A = vRand(-3, 3); do { B = vRand(-3, 3); } while (B.every((x, i) => x === A[i]));
+            const BA = A.map((x, i) => x - B[i]), w = cross(BA, R), MB = MA.map((x, i) => x + w[i]);
+            const nomR = cin ? '\\vec{\\Omega}' : '\\vec{R}', nomM = cin ? '\\vec{V}' : '\\vec{M}';
+            const unite = cin ? '' : '';
+            const comp = ['x', 'y', 'z'];
+            return {
+                enonce: `<p>${cin ? 'Un solide a pour torseur cinématique' : 'Une action mécanique a pour torseur'}, au point $${trsPt('A', A)}$ :</p><div class="text-center">$$${nomR} = ${trsVec(R)} \\qquad ${nomM}_A = ${trsVec(MA)}$$</div><p>Calcule ${cin ? 'la vitesse du point' : 'le moment au point'} $${trsPt('B', B)}$ (coordonnées en m${cin ? ', $\\Omega$ en rad/s, vitesses en m/s' : ', forces en N, moments en N·m'}).</p>`,
+                champs: comp.map((c, i) => gNum('m' + c, `${cin ? 'V' : 'M'}<sub>B${c}</sub> =`, MB[i], { groupe: `$${nomM}_B$` })),
+                correction: `<p>$${nomM}_B = ${nomM}_A + \\overrightarrow{BA} \\wedge ${nomR}$ avec $\\overrightarrow{BA} = A - B = ${trsVec(BA)}$.</p><div class="text-center">$$\\overrightarrow{BA} \\wedge ${nomR} = \\begin{pmatrix} ${BA[1]} \\times ${gTexNb(R[2])} - ${gTexNb(BA[2])} \\times ${gTexNb(R[1])} \\\\ ${BA[2]} \\times ${gTexNb(R[0])} - ${gTexNb(BA[0])} \\times ${gTexNb(R[2])} \\\\ ${BA[0]} \\times ${gTexNb(R[1])} - ${gTexNb(BA[1])} \\times ${gTexNb(R[0])} \\end{pmatrix} = ${trsVec(w)}$$</div><p>$${nomM}_B = ${trsVec(MA)} + ${trsVec(w)} = ${trsVec(MB)}$</p>`
+            };
+        }
+        function trsNature() {
+            const cas = choisir(['nul', 'couple', 'glisseur', 'glisseur', 'quelconque', 'quelconque']);
+            let R, M;
+            if (cas === 'nul') { R = [0, 0, 0]; M = [0, 0, 0]; }
+            else if (cas === 'couple') { R = [0, 0, 0]; do { M = vRand(-5, 5); } while (M.every(x => x === 0)); }
+            else {
+                do { R = vRand(-3, 3); } while (R.every(x => x === 0));
+                if (cas === 'glisseur') { do { M = Math.random() < 0.3 ? [0, 0, 0] : cross(vRand(-2, 2), R); } while (false); }
+                else { do { M = vRand(-5, 5); } while (dot(R, M) === 0); }
+            }
+            const auto = dot(R, M);
+            const opts = [['nul', 'Torseur nul'], ['couple', 'Couple'], ['glisseur', 'Glisseur'], ['quelconque', 'Torseur quelconque']];
+            const expl = cas === 'nul' ? 'Résultante et moment sont nuls : torseur nul.'
+                : cas === 'couple' ? 'La résultante est nulle et le moment ne l\'est pas : c\'est un couple (même moment en tout point).'
+                : `La résultante n'est pas nulle. Automoment : $\\vec{R} \\cdot \\vec{M}_A = ${R[0]} \\times ${gTexNb(M[0])} + ${gTexNb(R[1])} \\times ${gTexNb(M[1])} + ${gTexNb(R[2])} \\times ${gTexNb(M[2])} = ${auto}$ : ${auto === 0 ? 'nul, donc glisseur.' : 'non nul, donc torseur quelconque.'}`;
+            return {
+                enonce: `<p>Quelle est la nature du torseur défini en $A$ par :</p><div class="text-center">$$\\vec{R} = ${trsVec(R)} \\qquad \\vec{M}_A = ${trsVec(M)}$$</div>`,
+                champs: [gChoix('r', cas, opts, { groupe: 'Nature' })],
+                correction: `<p>${expl}</p>`
+            };
+        }
+        function trsAuto() {
+            let R; do { R = vRand(-4, 4); } while (R.every(x => x === 0));
+            const M = vRand(-6, 6), A = vRand(-3, 3); let B; do { B = vRand(-3, 3); } while (B.every((x, i) => x === A[i]));
+            const auto = dot(R, M);
+            return {
+                enonce: `<p>Un torseur a pour éléments de réduction en $${trsPt('A', A)}$ :</p><div class="text-center">$$\\vec{R} = ${trsVec(R)} \\qquad \\vec{M}_A = ${trsVec(M)}$$</div><p>Calcule son automoment au point $${trsPt('B', B)}$.</p>`,
+                champs: [gNum('a', 'Automoment =', auto, { groupe: 'Automoment' })],
+                correction: `<p>L'automoment est un invariant : inutile de transporter le moment en $B$, on le calcule en $A$.</p><p>$\\vec{R} \\cdot \\vec{M}_A = ${R[0]} \\times ${gTexNb(M[0])} + ${gTexNb(R[1])} \\times ${gTexNb(M[1])} + ${gTexNb(R[2])} \\times ${gTexNb(M[2])} = ${auto}$</p>`
+            };
+        }
+        function trsQ() {
+            return qcm(...choisir([
+                ['Combien de composantes faut-il pour écrire un torseur en un point ?', '6', [['6', '6 (3 pour la résultante, 3 pour le moment)'], ['3', '3'], ['9', '9']], 'Deux vecteurs de trois composantes.'],
+                ['Quel élément d\'un torseur est le même en tout point ?', 'r', [['r', 'la résultante'], ['m', 'le moment'], ['a', 'aucun']], 'Le moment dépend du point, pas la résultante.'],
+                ['Quelle relation permet de changer de point ?', 'b', [['b', '$\\vec{M}_B = \\vec{M}_A + \\overrightarrow{BA} \\wedge \\vec{R}$'], ['a', '$\\vec{M}_B = \\vec{M}_A + \\overrightarrow{AB} \\wedge \\vec{R}$'], ['r', '$\\vec{M}_B = \\vec{M}_A + \\vec{R}$']], 'BABAR : B A ∧ R.'],
+                ['Un torseur de résultante nulle et de moment non nul est…', 'c', [['c', 'un couple'], ['g', 'un glisseur'], ['n', 'un torseur nul']], 'Son moment est le même en tout point.'],
+                ['Un torseur de résultante non nulle et d\'automoment nul est…', 'g', [['g', 'un glisseur'], ['c', 'un couple'], ['q', 'un torseur quelconque']], 'Il existe une droite où son moment est nul.'],
+                ['Quel torseur modélise une force ponctuelle appliquée en A ?', 'g', [['g', 'un glisseur de moment nul en A'], ['c', 'un couple'], ['q', 'un torseur quelconque']], '$\\{\\vec{F}\\,;\\,\\vec{0}\\}_A$.'],
+                ['Quel torseur modélise un couple moteur sur un arbre ?', 'c', [['c', 'un couple'], ['g', 'un glisseur'], ['n', 'le torseur nul']], 'Pas de résultante, seulement un moment.'],
+                ['Que faut-il faire avant d\'additionner deux torseurs ?', 'p', [['p', 'les écrire au même point'], ['n', 'les normer'], ['r', 'rien']], 'On transporte un des moments si besoin.'],
+                ['Que vaut $\\vec{x} \\wedge \\vec{y}$ dans une base orthonormée directe ?', 'z', [['z', '$\\vec{z}$'], ['m', '$-\\vec{z}$'], ['0', '$\\vec{0}$']], 'Ordre circulaire x, y, z.'],
+                ['Que vaut $\\vec{u} \\wedge \\vec{u}$ ?', '0', [['0', '$\\vec{0}$'], ['u', '$\\vec{u}$'], ['1', '1']], 'Deux vecteurs colinéaires : produit vectoriel nul.'],
+                ['Dans le torseur cinématique, la résultante est…', 'o', [['o', 'la vitesse de rotation $\\vec{\\Omega}$'], ['v', 'la vitesse d\'un point'], ['f', 'une force']], 'Le « moment » est la vitesse d\'un point.'],
+                ['Quel est le torseur cinématique d\'une translation ?', 'c', [['c', 'un couple : $\\vec{\\Omega} = \\vec{0}$, même vitesse en tout point'], ['g', 'un glisseur'], ['n', 'le torseur nul']], 'Tous les points ont la même vitesse.'],
+                ['Que donne le comoment d\'un torseur statique et d\'un torseur cinématique ?', 'p', [['p', 'une puissance'], ['f', 'une force'], ['v', 'une vitesse']], '$\\vec{R} \\cdot \\vec{V}_A + \\vec{\\Omega} \\cdot \\vec{M}_A$, en W.'],
+                ['Quelle quantité ne dépend pas du point où on la calcule ?', 'a', [['a', 'l\'automoment $\\vec{R} \\cdot \\vec{M}_A$'], ['m', 'le moment $\\vec{M}_A$'], ['n', 'la norme du moment']], 'C\'est le second invariant.']
+            ]));
+        }
+        EXB('cm1-torseurs', 'cm1-torseurs', 'CM • 1ère Année', 'Torseurs', 'Les torseurs : calculs de base', { id: 'trs', types: { transport: () => trsTransport(false), cin: () => trsTransport(true), nature: trsNature, auto: trsAuto, q: trsQ }, libelles: { tout: 'Tout', transport: 'Changer de point', cin: 'Champ des vitesses', nature: 'Nature du torseur', auto: 'Automoment', q: 'Cours' } }, 'move-3d');
+        Object.assign(RENVOIS, { 'cm1-torseurs': { transport: [2, 3], cin: [3, 7], nature: [4, 5], auto: [4], q: [1, 3, 5, 6, 7] } });
+
+        // ==========================================
+        // Maths 2ème année • Chapitre 5 : fonctions vectorielles et courbes paramétrées
+        // ==========================================
+        // tracé d'une courbe paramétrée (échantillonnage) dans un cadre, avec axes et éléments en plus
+        function svgCourbeParam({ x, y, tMin, tMax, morceaux = [[tMin, tMax]], cadre, extra = '', label, N = 400 }) {
+            const [x0, x1, y0, y1] = cadre, W = 300, H = 220, m = 18;
+            const X = (v) => m + (v - x0) / (x1 - x0) * (W - 2 * m), Y = (v) => H - m - (v - y0) / (y1 - y0) * (H - 2 * m);
+            let o = `<path d="M${X(x0)} ${Y(0)}H${X(x1)}M${X(0)} ${Y(y0)}V${Y(y1)}" stroke="${SVG_DISCRET}" stroke-width="1"/>`;
+            o += `<text x="${X(x1) - 4}" y="${Y(0) - 5}" fill="${SVG_DISCRET}" font-size="10" text-anchor="end">x</text><text x="${X(0) + 5}" y="${Y(y1) + 10}" fill="${SVG_DISCRET}" font-size="10">y</text>`;
+            o += extra.replace(/\{X:([-\d.]+)\}/g, (s, v) => X(+v).toFixed(1)).replace(/\{Y:([-\d.]+)\}/g, (s, v) => Y(+v).toFixed(1));
+            morceaux.forEach(([a, b]) => {
+                let d = '', lev = true;
+                for (let i = 0; i <= N; i++) {
+                    const t = a + (b - a) * i / N, px = x(t), py = y(t);
+                    if (!isFinite(px) || !isFinite(py) || px < x0 - 1 || px > x1 + 1 || py < y0 - 1 || py > y1 + 1) { lev = true; continue; }
+                    d += (lev ? 'M' : 'L') + X(px).toFixed(1) + ' ' + Y(py).toFixed(1); lev = false;
+                }
+                o += `<path d="${d}" fill="none" stroke="${SVG_ACCENT}" stroke-width="2"/>`;
+            });
+            return `<svg viewBox="0 0 ${W} ${H}" width="${W}" role="img" aria-label="${label}" style="max-width:100%"><clipPath id="cp-${label.length}"><rect x="0" y="0" width="${W}" height="${H}"/></clipPath><g clip-path="url(#cp-${label.length})">${o}</g></svg>`;
+        }
+        Object.assign(LECONS, {
+            "m2-fvect": {
+                badge: "Maths • 2ème Année", titre: "Chapitre 5 : fonctions vectorielles et courbes paramétrées",
+                sections: () => [
+                    { titre: "1. Fonctions à valeurs dans R²", icone: "move-diagonal", contenu: [
+                        H.p(R`Une <strong>fonction vectorielle</strong> $\vec{F}$ définie sur un intervalle $I$ associe à chaque réel $t$ un vecteur du plan : $\vec{F}(t) = (x(t), y(t))$. Les fonctions réelles $x$ et $y$ sont ses <strong>composantes</strong> (ou fonctions coordonnées).`),
+                        H.p(R`On peut voir $t$ comme le temps et $M(t)$, de coordonnées $(x(t), y(t))$, comme la position d'un mobile : la courbe dessinée est sa <strong>trajectoire</strong>. Ce n'est en général <strong>pas</strong> le graphe d'une fonction (une même abscisse peut correspondre à plusieurs points), et $t$ n'apparaît pas sur le dessin.`),
+                        H.p(R`<strong>Limite</strong> : $\vec{F}(t)$ tend vers $\vec{l} = (l_1, l_2)$ quand $t \to t_0$ si $\|\vec{F}(t) - \vec{l}\| \to 0$. C'est équivalent à : $x(t) \to l_1$ <strong>et</strong> $y(t) \to l_2$. On travaille donc composante par composante.`)
+                    ].join('') },
+                    { titre: "2. Dérivée d'une fonction vectorielle", icone: "trending-up", contenu: [
+                        H.p(R`$\vec{F}$ est <strong>dérivable</strong> en $t_0$ si le taux d'accroissement $\dfrac{\vec{F}(t) - \vec{F}(t_0)}{t - t_0}$ a une limite quand $t \to t_0$ ; on la note $\vec{F}'(t_0)$. C'est le cas si et seulement si $x$ et $y$ sont dérivables en $t_0$, et alors :`),
+                        H.formule(R`\vec{F}'(t_0) = \big(x'(t_0),\ y'(t_0)\big)`),
+                        H.liste([
+                            R`$\vec{F}$ est $k$ fois dérivable si ses deux composantes le sont.`,
+                            R`$\vec{F}$ est de <strong>classe $C^k$</strong> si ses composantes sont $k$ fois dérivables et que la dérivée $k$-ième est continue.`,
+                            R`En cinématique : $\vec{F}'(t)$ est le <strong>vecteur vitesse</strong> et $\vec{F}''(t)$ le <strong>vecteur accélération</strong> du point $M$ à l'instant $t$.`
+                        ])
+                    ].join('') },
+                    { titre: "3. Arcs paramétrés", icone: "spline", contenu: [
+                        H.p(R`Un <strong>arc paramétré</strong> (ou courbe paramétrée) est un couple $(I, \vec{F})$ où $\vec{F}$ est de classe $C^k$ sur $I$. Son <strong>support</strong> est l'ensemble des points $M$ tels que $\overrightarrow{OM} = \vec{F}(t)$, $t \in I$.`),
+                        H.note(R`Le graphe d'une fonction $f$ est un cas particulier : c'est l'arc $\vec{F}(t) = (t, f(t))$.`),
+                        H.figure(svgCourbeParam({ x: (t) => Math.cos(t), y: (t) => Math.sin(2 * t), tMin: 0, tMax: 2 * Math.PI, cadre: [-1.4, 1.4, -1.3, 1.3], label: 'Courbe de Lissajous' }), "La courbe x = cos t, y = sin 2t : une même abscisse donne deux points, ce n'est pas le graphe d'une fonction.")
+                    ].join('') },
+                    { titre: "4. Points réguliers, points stationnaires, tangente", icone: "milestone", contenu: [
+                        H.p(R`Le point $M(t_0)$ est <strong>régulier</strong> si $\vec{F}'(t_0) \neq \vec{0}$ ; sinon il est <strong>stationnaire</strong> (la vitesse du mobile s'annule).`),
+                        H.p(R`La <strong>tangente</strong> en $M(t_0)$ est la limite des sécantes $(M(t_0)M(t))$ quand $t \to t_0$. En un point régulier, c'est la droite passant par $M(t_0)$ et dirigée par $\vec{F}'(t_0)$.`),
+                        H.p(R`<strong>En un point stationnaire</strong>, on cherche la limite de la pente des sécantes :`),
+                        H.liste([
+                            R`si $\dfrac{y(t) - y(t_0)}{x(t) - x(t_0)} \to m$ (réel), la tangente a pour pente $m$ ;`,
+                            R`si $\left|\dfrac{y(t) - y(t_0)}{x(t) - x(t_0)}\right| \to +\infty$, la tangente est verticale.`
+                        ]),
+                        H.figure(svgCourbeParam({ x: (t) => t * t, y: (t) => t * t * t, tMin: -1.3, tMax: 1.3, cadre: [-0.4, 1.8, -1.6, 1.6], label: 'Point de rebroussement' }), "x = t², y = t³ : en t = 0, F'(0) = (0, 0), point stationnaire. Pente des sécantes t³/t² = t → 0 : tangente horizontale (un point de rebroussement)."),
+                        H.p(R`Les DL permettent aussi d'étudier un point stationnaire quand le quotient est difficile à calculer.`)
+                    ].join('') },
+                    { titre: "5. Branches infinies et asymptotes", icone: "infinity", contenu: [
+                        H.p(R`L'arc a une <strong>branche infinie</strong> en $t_0$ si $\|\vec{F}(t)\| \to +\infty$. La droite $D : ax + by + c = 0$ est <strong>asymptote</strong> si la distance $d(M(t), D) = \dfrac{|a\,x(t) + b\,y(t) + c|}{\sqrt{a^2 + b^2}}$ tend vers 0, c'est-à-dire si $a\,x(t) + b\,y(t) + c \to 0$.`),
+                        H.tableau(["Situation quand t → t₀", "Conclusion"], [
+                            ["$x(t) \\to l$ et $|y(t)| \\to +\\infty$", "asymptote verticale $x = l$ (position : signe de $x(t) - l$)"],
+                            ["$|x(t)| \\to +\\infty$ et $y(t) \\to l$", "asymptote horizontale $y = l$ (position : signe de $y(t) - l$)"],
+                            ["les deux tendent vers l'infini et $\\dfrac{y(t)}{x(t)} \\to a$, puis $y(t) - a\\,x(t) \\to b$", "asymptote oblique $y = ax + b$ (position : signe de $y(t) - ax(t) - b$)"],
+                            ["$\\left|\\dfrac{y(t)}{x(t)}\\right| \\to +\\infty$", "branche parabolique de direction $(Oy)$"],
+                            ["$\\dfrac{y(t)}{x(t)} \\to 0$", "branche parabolique de direction $(Ox)$"]
+                        ], { nowrap: false }),
+                        H.p(R`<strong>Exemple</strong> : $x(t) = \dfrac{1}{t - 1}$, $y(t) = \dfrac{t^2 + 1}{t - 1}$. Quand $t \to \pm\infty$, $x \to 0$ et $|y| \to +\infty$ : asymptote $x = 0$. Quand $t \to 1$, les deux tendent vers l'infini ; $\dfrac{y}{x} = t^2 + 1 \to 2$ et $y - 2x = \dfrac{t^2 - 1}{t - 1} = t + 1 \to 2$ : asymptote $y = 2x + 2$. Comme $y - 2x - 2 = t - 1$, la courbe est au-dessus pour $t \to 1^+$ et en dessous pour $t \to 1^-$.`),
+                        H.figure(svgCourbeParam({ x: (t) => 1 / (t - 1), y: (t) => (t * t + 1) / (t - 1), tMin: -30, tMax: 30, morceaux: [[-30, 0.97], [1.03, 30]], cadre: [-6, 6, -9, 12], N: 1500, label: 'Courbe et asymptotes',
+                            extra: `<path d="M{X:0} {Y:-9}V{Y:12}" stroke="#34d399" stroke-width="1.2" stroke-dasharray="5 3"/><path d="M{X:-5.5} {Y:-9}L{X:5} {Y:12}" stroke="#34d399" stroke-width="1.2" stroke-dasharray="5 3"/>` }), "La courbe de l'exemple et ses deux asymptotes (en vert) : x = 0 et y = 2x + 2.")
+                    ].join('') },
+                    { titre: "6. Symétries et plan d'étude", icone: "list-ordered", contenu: [
+                        H.tableau(["Propriété", "Conséquence"], [
+                            ["$x(t + T) = x(t)$ et $y(t + T) = y(t)$", "courbe périodique : étudier sur un intervalle de longueur $T$"],
+                            ["$x(-t) = x(t)$ et $y(-t) = -y(t)$", "$M(-t)$ symétrique de $M(t)$ par rapport à $(Ox)$ : étudier sur $[0, +\\infty[$"],
+                            ["$x(-t) = -x(t)$ et $y(-t) = y(t)$", "symétrie par rapport à $(Oy)$ : étudier sur $[0, +\\infty[$"],
+                            ["$x(-t) = -x(t)$ et $y(-t) = -y(t)$", "symétrie par rapport à l'origine $O$ : étudier sur $[0, +\\infty[$"],
+                            ["$x(1/t) = -x(t)$ et $y(1/t) = y(t)$", "symétrie par rapport à $(Oy)$ : étudier sur $]0, 1]$"]
+                        ], { nowrap: false }),
+                        H.listeNum([
+                            R`Domaine de définition de $x$ et de $y$.`,
+                            R`Symétries éventuelles (pour réduire l'intervalle d'étude).`,
+                            R`Tableau de variations de $x$ et de $y$ côte à côte : on y repère les points stationnaires ($x' = y' = 0$), les tangentes horizontales ($y' = 0$, $x' \neq 0$) et verticales ($x' = 0$, $y' \neq 0$), et les branches infinies.`,
+                            R`Étude des points stationnaires.`,
+                            R`Étude des branches infinies.`,
+                            R`Tracé sommaire : asymptotes, points remarquables et allure générale, sans calculatrice.`
+                        ])
+                    ].join('') }
+                ]
+            }
+        });
+        // ---------- exercices ----------
+        const fvSigne = (c, terme, premier) => c === 0 ? '' : (premier ? (c === 1 ? '' : c === -1 ? '-' : c) : (c > 0 ? ' + ' : ' - ') + (Math.abs(c) === 1 ? '' : Math.abs(c))) + terme;
+        const fvPoly = (cs) => { let s = '', p = true; cs.forEach(([c, terme]) => { if (c === 0) return; if (terme === '') s += p ? String(c) : (c > 0 ? ' + ' : ' - ') + Math.abs(c); else s += fvSigne(c, terme, p); p = false; }); return s || '0'; };
+        function fvDerivee() {
+            // x(t) = a t² + b t + c ; y(t) = d t³ + e t
+            const a = gNonNul(-3, 3, 1)[0], b = gInt(-4, 4), c = gInt(-3, 3), d = gNonNul(-2, 2, 1)[0], e = gInt(-5, 5), t0 = gInt(-2, 2);
+            const xp = 2 * a * t0 + b, yp = 3 * d * t0 * t0 + e;
+            const reg = xp !== 0 || yp !== 0;
+            return {
+                enonce: `<p>Soit $\\vec{F}(t) = \\big(x(t), y(t)\\big)$ avec $x(t) = ${fvPoly([[a, 't^2'], [b, 't'], [c, '']])}$ et $y(t) = ${fvPoly([[d, 't^3'], [e, 't']])}$.</p><p>Calcule le vecteur vitesse $\\vec{F}'(t_0)$ en $t_0 = ${t0}$, puis dis si le point $M(t_0)$ est régulier ou stationnaire.</p>`,
+                champs: [gNum('xp', "x'(t₀) =", xp, { groupe: "Vecteur vitesse $\\vec{F}'(t_0)$" }), gNum('yp', "y'(t₀) =", yp, { groupe: "Vecteur vitesse $\\vec{F}'(t_0)$" }), gChoix('n', reg ? 'r' : 's', [['r', 'régulier'], ['s', 'stationnaire']], { groupe: 'Nature du point' })],
+                correction: `<p>On dérive chaque composante : $x'(t) = ${fvPoly([[2 * a, 't'], [b, '']])}$ et $y'(t) = ${fvPoly([[3 * d, 't^2'], [e, '']])}$.</p><p>En $t_0 = ${t0}$ : $\\vec{F}'(${t0}) = (${xp}\\,;\\,${yp})$, ${reg ? 'non nul : le point est <strong>régulier</strong> et la tangente est dirigée par ce vecteur.' : 'nul : le point est <strong>stationnaire</strong>.'}</p>`
+            };
+        }
+        function fvPente() {
+            // point stationnaire en t = 0 : x = a t², y = b t² + c t³ → pente b / a ; ou x = a t³, y = b t² → tangente verticale
+            if (Math.random() < 0.25) {
+                const a = gNonNul(-3, 3, 1)[0], b = gNonNul(-3, 3, 1)[0];
+                return {
+                    enonce: `<p>On considère l'arc $x(t) = ${fvPoly([[a, 't^3']])}$, $y(t) = ${fvPoly([[b, 't^2']])}$. Le point $M(0)$ est stationnaire. Quelle est la tangente en ce point ?</p>`,
+                    champs: [gChoix('r', 'v', [['v', 'une tangente verticale'], ['h', 'une tangente horizontale'], ['o', 'une tangente oblique de pente non nulle']], { groupe: 'Tangente' })],
+                    correction: `<p>$\\dfrac{y(t) - y(0)}{x(t) - x(0)} = \\dfrac{${b} t^2}{${a} t^3} = \\dfrac{${b}}{${a}\\,t}$, dont la valeur absolue tend vers $+\\infty$ quand $t \\to 0$ : la tangente est <strong>verticale</strong>.</p>`
+                };
+            }
+            const a = choisir([1, 2, -1, -2, 4]), b = gInt(-4, 4), c = gNonNul(-3, 3, 1)[0], m = b / a;
+            const opts = m === 0 ? 'h' : 'o';
+            return {
+                enonce: `<p>On considère l'arc $x(t) = ${fvPoly([[a, 't^2']])}$, $y(t) = ${fvPoly([[b, 't^2'], [c, 't^3']])}$.</p><p>Vérifie que $M(0)$ est stationnaire, puis calcule la pente $m$ de la tangente en ce point.</p>`,
+                champs: [gNum('m', 'm =', m, { groupe: 'Pente de la tangente en M(0)' })],
+                correction: `<p>$x'(t) = ${2 * a}t$ et $y'(t) = ${fvPoly([[2 * b, 't'], [3 * c, 't^2']])}$ s'annulent en $t = 0$ : point stationnaire.</p><p>$\\dfrac{y(t) - y(0)}{x(t) - x(0)} = \\dfrac{${fvPoly([[b, 't^2'], [c, 't^3']])}}{${fvPoly([[a, 't^2']])}} = \\dfrac{${fvPoly([[b, ''], [c, 't']])}}{${a}} \\xrightarrow[t \\to 0]{} \\dfrac{${b}}{${a}} = ${centiemeTeX(m)}$${m === 0 ? ' : tangente horizontale.' : '.'}</p>`
+            };
+        }
+        function fvAsymptote() {
+            // x = a/(t - t0), y = (t² + p)/(t - t0) : quand t → t0, y/x → (t0² + p)/a et y - m x → 2 t0 si a divise t0² + p
+            let a, t0, p, m;
+            do { a = choisir([1, 2, -1, 3]); t0 = choisir([1, 2, -1, 3, -2]); p = gInt(0, 4); m = (t0 * t0 + p) / a; } while (!Number.isInteger(m));
+            const b = (t0 * t0 + p - m * a === 0) ? 2 * t0 : null;   // y - m x = (t² + p - m a)/(t - t0) = (t² - t0²)/(t - t0) = t + t0
+            const den = t0 < 0 ? `t + ${-t0}` : `t - ${t0}`;
+            return {
+                enonce: `<p>On considère l'arc défini par $x(t) = \\dfrac{${a}}{${den}}$ et $y(t) = \\dfrac{${fvPoly([[1, 't^2'], [p, '']])}}{${den}}$.</p><p>Quand $t \\to ${t0}$, les deux coordonnées tendent vers l'infini. Détermine l'asymptote $y = ax + b$ de la courbe.</p>`,
+                champs: [gNum('a', 'a =', m, { groupe: 'Asymptote y = ax + b' }), gNum('b', 'b =', b, { groupe: 'Asymptote y = ax + b' })],
+                correction: `<p>$\\dfrac{y(t)}{x(t)} = \\dfrac{${fvPoly([[1, 't^2'], [p, '']])}}{${a}} \\xrightarrow[t \\to ${t0}]{} \\dfrac{${t0 * t0 + p}}{${a}} = ${m}$ : la pente est $a = ${m}$.</p><p>$y(t) - ${m}\\,x(t) = \\dfrac{${fvPoly([[1, 't^2'], [p, '']])} - ${m * a}}{${den}} = \\dfrac{t^2 - ${t0 * t0}}{${den}} = t ${t0 < 0 ? '- ' + (-t0) : '+ ' + t0} \\xrightarrow[t \\to ${t0}]{} ${b}$.</p><p>Asymptote : $y = ${m}x ${b < 0 ? '- ' + (-b) : '+ ' + b}$.</p>`
+            };
+        }
+        const FV_SYM = [
+            ['x(t) = t^2', 'y(t) = t^3', 'ox'], ['x(t) = \\cos t', 'y(t) = \\sin t', 'ox'], ['x(t) = t^2 + 1', 'y(t) = t^3 - t', 'ox'], ['x(t) = \\cos t', 'y(t) = \\sin 2t', 'ox'],
+            ['x(t) = t^3', 'y(t) = t^2', 'oy'], ['x(t) = \\sin t', 'y(t) = \\cos t', 'oy'], ['x(t) = t^3 - t', 'y(t) = t^2 + 2', 'oy'],
+            ['x(t) = t^3', 'y(t) = t', 'o'], ['x(t) = \\sin t', 'y(t) = \\sin 2t', 'o'], ['x(t) = t^3 + t', 'y(t) = t^5', 'o'],
+            ['x(t) = \\cos t', 'y(t) = \\sin t\\,(\\text{étude sur un tour})', 'per']
+        ];
+        function fvSym() {
+            const [xs, ys, sol] = choisir(FV_SYM.slice(0, 10));
+            const opts = [['ox', 'symétrie par rapport à (Ox)'], ['oy', 'symétrie par rapport à (Oy)'], ['o', 'symétrie par rapport à l\'origine O'], ['n', 'aucune de ces symétries']];
+            const expl = { ox: 'x est paire et y impaire : $x(-t) = x(t)$, $y(-t) = -y(t)$. $M(-t)$ est le symétrique de $M(t)$ par rapport à $(Ox)$.', oy: 'x est impaire et y paire : $x(-t) = -x(t)$, $y(-t) = y(t)$. $M(-t)$ est le symétrique de $M(t)$ par rapport à $(Oy)$.', o: 'x et y sont impaires : $M(-t)$ est le symétrique de $M(t)$ par rapport à l\'origine.' }[sol];
+            return {
+                enonce: `<p>On considère l'arc $${xs}$, $${ys}$, $t \\in \\mathbb{R}$. En comparant $M(-t)$ et $M(t)$, quelle symétrie permet de n'étudier la courbe que pour $t \\geq 0$ ?</p>`,
+                champs: [gChoix('r', sol, opts, { groupe: 'Symétrie' })],
+                correction: `<p>${expl} On étudie sur $[0, +\\infty[$ puis on complète par cette symétrie.</p>`
+            };
+        }
+        function fvQ() {
+            return qcm(...choisir([
+                ['Le point M(t₀) d\'un arc paramétré est stationnaire si…', 's', [['s', "$\\vec{F}'(t_0) = \\vec{0}$"], ['r', "$\\vec{F}'(t_0) \\neq \\vec{0}$"], ['n', "$\\vec{F}(t_0) = \\vec{0}$"]], 'La vitesse du mobile s\'annule.'],
+                ['En un point régulier, la tangente est dirigée par…', 'v', [['v', "le vecteur vitesse $\\vec{F}'(t_0)$"], ['a', "le vecteur accélération $\\vec{F}''(t_0)$"], ['o', "le vecteur $\\overrightarrow{OM}$"]], 'C\'est la limite des sécantes.'],
+                ['Comment dérive-t-on une fonction vectorielle ?', 'c', [['c', 'composante par composante'], ['n', 'en dérivant sa norme'], ['p', 'on ne peut pas la dériver']], "$\\vec{F}'(t) = (x'(t), y'(t))$."],
+                ['Que représente F″(t) pour un mobile ?', 'a', [['a', 'son vecteur accélération'], ['v', 'son vecteur vitesse'], ['p', 'sa position']], 'F′ est la vitesse, F″ l\'accélération.'],
+                ['Si x(t) → 3 et |y(t)| → +∞ quand t → t₀, la courbe a…', 'v', [['v', 'une asymptote verticale x = 3'], ['h', 'une asymptote horizontale y = 3'], ['p', 'une branche parabolique']], 'Le mobile monte ou descend le long de la droite x = 3.'],
+                ['Si x(t) et y(t) tendent vers l\'infini et y/x → +∞, la courbe a…', 'p', [['p', 'une branche parabolique de direction (Oy)'], ['o', 'une asymptote oblique'], ['h', 'une asymptote horizontale']], 'La direction tend vers la verticale sans approcher de droite.'],
+                ['Si x(−t) = x(t) et y(−t) = −y(t), la courbe est symétrique par rapport à…', 'ox', [['ox', 'l\'axe (Ox)'], ['oy', 'l\'axe (Oy)'], ['o', 'l\'origine']], 'M(−t) et M(t) ont la même abscisse et des ordonnées opposées.'],
+                ['Dans le tableau de variations, une tangente horizontale apparaît quand…', 'h', [['h', "$y' = 0$ et $x' \\neq 0$"], ['v', "$x' = 0$ et $y' \\neq 0$"], ['s', "$x' = y' = 0$"]], 'La vitesse est alors horizontale.'],
+                ['La courbe x = t², y = t³ en t = 0 présente…', 'r', [['r', 'un point stationnaire à tangente horizontale (rebroussement)'], ['g', 'un point régulier'], ['a', 'une asymptote']], 'Pente des sécantes : t³/t² = t → 0.'],
+                ['Le graphe d\'une fonction f est l\'arc paramétré…', 'g', [['g', '$\\vec{F}(t) = (t, f(t))$'], ['i', '$\\vec{F}(t) = (f(t), t)$'], ['c', '$\\vec{F}(t) = (f(t), f(t))$']], 'L\'abscisse est le paramètre lui-même.']
+            ]));
+        }
+        EXB('m2-fvect', 'm2-fvect', 'Maths • 2ème Année', 'Courbes paramétrées', 'Fonctions vectorielles et courbes paramétrées', { id: 'fve', types: { der: fvDerivee, pente: fvPente, asym: fvAsymptote, sym: fvSym, q: fvQ }, libelles: { tout: 'Tout', der: 'Vitesse et nature du point', pente: 'Tangente en un point stationnaire', asym: 'Asymptote oblique', sym: 'Symétries', q: 'Cours' } }, 'spline');
+        Object.assign(RENVOIS, { 'm2-fvect': { der: [2, 4], pente: [4], asym: [5], sym: [6], q: [2, 3, 4, 5, 6] } });
     </script>
 <script src="revision-ds-blancs.js" defer></script>
 <script src="serie.js" defer></script>
