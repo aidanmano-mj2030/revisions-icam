@@ -156,3 +156,8 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - Liaisons : perspectives redessinées dans le style du cours (repère x, y, z avec z vers le haut, solide 1 bleu, solide 2 rouge, gouttière pour la linéaire annulaire), liaisons planes de normale z ; dans l'exercice, l'axe ou la normale est tiré au hasard (x, y ou z) et il faut le choisir avec le nom.
 - CE 1ère année, composants et schémas : 38 symboles à reconnaître (interrupteurs, interrupteurs de position, parafoudre, bobines temporisées, commandes, disjoncteurs thermique, magnétique et magnétothermique avec la variante I>) et nouvel exercice « À quoi sert-il ? » avec le tableau du rôle de chaque élément dans la leçon.
 - Maths 2ème année : chapitre 5 « Fonctions vectorielles et courbes paramétrées » (dérivée, points stationnaires, tangentes, asymptotes, symétries, plan d'étude), avec courbes tracées et 5 types d'exercices.
+
+## 16 novembre 2026 – Cotation tolérancée et relais temporisés (Baptiste)
+
+- CM 1ère année : nouveau chapitre 3 « La cotation tolérancée » (cote nominale, écarts, IT, mesure et contrôle, jeu et serrage, ajustements ISO en alésage normal) avec trois exercices : lire une cote, ajustement ISO, jeux. La cinématique et la statique deviennent les chapitres 4 et 5.
+- CE 1ère année, composants et schémas : nouvel exercice « Chronogrammes de relais ». Un schéma de commande (S1, deux ou trois relais instantanés, à travail retardé ou à repos retardé, lampe H1) est tiré au hasard et l'élève remplit les chronogrammes seconde par seconde. La leçon a un tableau des règles des relais temporisés et un chronogramme d'exemple.

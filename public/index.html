@@ -731,8 +731,9 @@
         "CM": [
             { num: "Chapitre n°1", titre: "Liaisons & Torseurs associés", desc: "Modélisation des liaisons cinématiques, représentations 2D/3D, torseurs cinématiques et statiques.", interactifA1: true },
             { num: "Chapitre n°2", titre: "Les torseurs : notions de base", desc: "Résultante et moment, produit vectoriel, changement de point (BABAR), automoment, couple et glisseur, torseurs statique et cinématique.", lecon: "cm1-torseurs", exo: "cm1-torseurs" },
-            { num: "Chapitre n°3", titre: "Cinématique du solide indéformable", desc: "Trajectoires, translation, rotation, composition des vitesses, équiprojectivité et CIR.", lecon: "cm1-cinematique", exo: "cm1-cinematique" },
-            { num: "Chapitre n°4", titre: "Statique du solide", desc: "Actions mécaniques, isolement, principe fondamental de la statique, méthodes analytique et graphique.", lecon: "cm1-statique", exo: "cm1-statique" }
+            { num: "Chapitre n°3", titre: "La cotation tolérancée", desc: "Cote nominale, écarts et IT, mesure et contrôle, jeu et serrage, ajustements ISO.", lecon: "cm1-cotation", exo: "cm1-cotation" },
+            { num: "Chapitre n°4", titre: "Cinématique du solide indéformable", desc: "Trajectoires, translation, rotation, composition des vitesses, équiprojectivité et CIR.", lecon: "cm1-cinematique", exo: "cm1-cinematique" },
+            { num: "Chapitre n°5", titre: "Statique du solide", desc: "Actions mécaniques, isolement, principe fondamental de la statique, méthodes analytique et graphique.", lecon: "cm1-statique", exo: "cm1-statique" }
         ],
         "AII": [
             { num: "Chapitre n°1", titre: "Les GRAFCET", desc: "Étapes, transitions, réceptivités, actions, règles d'évolution et structures.", lecon: "aii-grafcet", exo: "aii-grafcet" },
@@ -8067,6 +8068,104 @@
             return qcm(...q);
         }
         ceX('ce1-schemas', 'Composants et schémas', 'Composants et schémas électriques', 'cable', { sym: ceSymbole, role: ceRole, q: ceSchemaQ }, { tout: 'Tout', sym: 'Reconnaître un symbole', role: 'À quoi sert-il ?', q: 'Appareillage et normes' }, 'ces');
+
+        // ---------- CE A1 : chronogrammes de relais temporisés ----------
+        // état des contacts d'un relais (1 = contacts actionnés) à partir de l'état de sa bobine, case par case (1 case = 1 s)
+        // 'travail' : les contacts basculent T s après la mise sous tension (si la bobine est restée alimentée), reviennent dès la coupure
+        // 'repos'   : les contacts basculent dès la mise sous tension, reviennent T s après la coupure
+        // avant t = 0, l'installation est supposée dans l'état de la case 0 depuis longtemps
+        function sortieRelais(bob, type, T) {
+            const c = (j) => bob[Math.max(0, j)];
+            return bob.map((_, k) => {
+                if (type === 'inst') return bob[k];
+                const fen = Array.from({ length: T + 1 }, (_, d) => c(k - d));
+                return type === 'travail' ? (fen.every(v => v) ? 1 : 0) : (fen.some(v => v) ? 1 : 0);
+            });
+        }
+        const N_RELAIS = 15;
+        function svgSchemaRelais(elems, lampe) {
+            const pas = 130, cols = elems.length + 1, L = 60 + cols * pas, yh = 30, yc = 50, yb = 150, yo = 250;
+            const x = (i) => 75 + i * pas;
+            let s = `<svg viewBox="0 0 ${L} 300" width="${L}" style="max-width:100%;height:auto" role="img" aria-label="Schéma de commande avec le bouton S1, ${elems.length} relais et la lampe H1">`;
+            s += SE.l(20, yh, L - 15, yh) + SE.l(20, yo, L - 15, yo) + SE.t(22, yh - 8, '+24 V', { a: 'start', s: 11 }) + SE.t(22, yo + 16, '0 V', { a: 'start', s: 11 });
+            const contact = (i, src, nf) => {
+                const xi = x(i);
+                let c = SE.l(xi, yh, xi, yc);
+                if (src === 'S1') c += SE.bp(xi, yc, 'no') + SE.t(xi - 44, yc + 44, 'S1', { a: 'end', s: 12, b: true });
+                else c += (nf === 'nc' ? SE.nc(xi, yc) : SE.no(xi, yc)) + SE.t(xi + (nf === 'nc' ? 24 : 12), yc + 44, src, { a: 'start', s: 12, b: true });
+                return c + SE.l(xi, yc + 80, xi, yb);
+            };
+            elems.forEach((e, i) => {
+                const xi = x(i);
+                s += contact(i, e.src, e.nf);
+                s += e.type === 'inst' ? SE.bobine(xi, yb) : SE.bobTempo(xi - 6, yb, e.type);
+                s += SE.l(xi, yb + 80, xi, yo) + SE.t(xi, yo + 18, e.nom, { s: 12, b: true });
+                if (e.type !== 'inst') s += SE.t(xi, yo + 34, `t = ${e.T} s`, { s: 11, c: SVG_ACCENT });
+            });
+            const xl = x(elems.length);
+            s += contact(elems.length, lampe.src, lampe.nf) + SE.lampe(xl, yb) + SE.l(xl, yb + 80, xl, yo) + SE.t(xl, yo + 18, 'H1', { s: 12, b: true });
+            return s + '</svg>';
+        }
+        function genererRelais(b) {
+            const N = N_RELAIS;
+            let elems, lampe, s1, a, d, sorties, h1;
+            for (let essai = 0; essai < 5000; essai++) {
+                const nR = choisir([2, 3, 3]);
+                a = 1 + aleaEntier(3); d = 3 + aleaEntier(4);
+                s1 = Array.from({ length: N }, (_, k) => (k >= a && k < a + d ? 1 : 0));
+                elems = []; sorties = {};
+                sorties.S1 = s1;
+                for (let i = 1; i <= nR; i++) {
+                    const type = choisir(['inst', 'travail', 'travail', 'repos', 'repos']);
+                    const src = i === 1 ? 'S1' : (Math.random() < 0.7 ? 'KA' + (i - 1) : 'KA' + (1 + aleaEntier(i - 1)));
+                    const nf = i === 1 ? 'no' : (Math.random() < 0.25 ? 'nc' : 'no');
+                    const T = type === 'inst' ? 0 : 1 + aleaEntier(4);
+                    const ent = sorties[src].map(v => (nf === 'nc' ? 1 - v : v));
+                    const e = { nom: 'KA' + i, type, T, src, nf, bob: ent };
+                    e.sol = sortieRelais(ent, type, T);
+                    sorties[e.nom] = e.sol;
+                    elems.push(e);
+                }
+                lampe = { src: Math.random() < 0.7 ? 'KA' + nR : 'KA' + (1 + aleaEntier(nR)), nf: Math.random() < 0.35 ? 'nc' : 'no' };
+                h1 = sorties[lampe.src].map(v => (lampe.nf === 'nc' ? 1 - v : v));
+                const lignes = elems.map(e => e.sol).concat([h1]);
+                const changements = (v) => v.reduce((n, x, k) => n + (k && x !== v[k - 1] ? 1 : 0), 0);
+                const dernier = (v) => v.reduce((m, x, k) => (k && x !== v[k - 1] ? k : m), 0);
+                if (elems.filter(e => e.type !== 'inst').length < (nR === 3 ? 2 : 1)) continue;
+                if (lignes.some(v => changements(v) < 1 || changements(v) > 4 || dernier(v) > N - 2)) continue;
+                if (elems.some(e => e.type !== 'inst' && JSON.stringify(e.sol) === JSON.stringify(e.bob))) continue; // la temporisation doit se voir
+                if (b.cle && b.cle === JSON.stringify(lignes)) continue;
+                b.cle = JSON.stringify(lignes);
+                break;
+            }
+            const w = 40, xo = 80;
+            const rows = [{ nom: 'S1', segs: segmentsDepuisValeurs(s1, xo, w) }];
+            elems.forEach(e => rows.push({ nom: e.nom, saisie: true, cells: casesDepuis(N, xo, w), sol: e.sol, rep: e.sol.map(() => null), etat: null }));
+            rows.push({ nom: 'H1', saisie: true, cells: casesDepuis(N, xo, w), sol: h1, rep: h1.map(() => null), etat: null });
+            b.rows = rows; b.xo = xo; b.largeur = xo + N * w + 18; b.marques = [];
+            b.traits = Array.from({ length: N + 1 }, (_, k) => xo + k * w);
+            b.etiquettes = Array.from({ length: N + 1 }, (_, k) => ({ x: xo + k * w, t: String(k) }));
+            b.titre = '';
+            b.figure = svgSchemaRelais(elems, lampe);
+            b.consigne = `S1 est appuyé de t = ${a} s à t = ${a + d} s (pendant ${d} s). Remplis le chronogramme (1 case = 1 seconde) : pour chaque relais, écris 1 quand <strong>ses contacts sont actionnés</strong> ; pour H1, 1 quand la lampe est allumée. Le trait se dessine au fur et à mesure.`;
+            b.regle = "Case pleine à gauche de la bobine : <strong>repos retardé</strong> (les contacts basculent tout de suite, et reviennent t secondes après la coupure). Case avec une croix : <strong>travail retardé</strong> (les contacts basculent t secondes après la mise sous tension, et reviennent dès la coupure). Bobine simple : relais instantané. Avant t = 0, rien n'a bougé depuis longtemps.";
+        }
+        EXOS["ce1-relais"] = { chapitre: "ce1-schemas", libelle: "Chronogrammes de relais", badge: "CE • 1ère Année", titre: "Relais temporisés : chronogrammes",
+            demarrer: () => creerBlocsChrono([{ id: 'rt', titre: 'Chronogramme de relais temporisés', icone: 'timer', base: {}, gen: (b) => genererRelais(b) }]) };
+        // figure de cours : bobine, relais à travail retardé et à repos retardé
+        function svgChronoTempo() {
+            const xo = 120, w = 30, N = 12, bob = Array.from({ length: N }, (_, k) => (k >= 2 && k < 7 ? 1 : 0));
+            const lignes = [['Bobine', bob, SVG_TRAIT], ['Travail retardé (t = 2 s)', sortieRelais(bob, 'travail', 2), SVG_ACCENT], ['Repos retardé (t = 2 s)', sortieRelais(bob, 'repos', 2), SVG_ACCENT]];
+            let s = `<svg viewBox="0 0 ${xo + N * w + 20} 190" width="${xo + N * w + 20}" style="max-width:100%;height:auto" role="img" aria-label="Chronogrammes d'une bobine et des contacts d'un relais à travail retardé et à repos retardé">`;
+            for (let k = 0; k <= N; k++) s += `<line x1="${xo + k * w}" y1="18" x2="${xo + k * w}" y2="182" stroke="#334155" stroke-dasharray="3 4"/>` + SE.t(xo + k * w, 12, k, { s: 9, c: SVG_DISCRET });
+            lignes.forEach(([nom, v, c], i) => {
+                const y1 = 30 + i * 55, y0 = y1 + 26;
+                let d = '';
+                v.forEach((x, k) => { const y = x ? y1 : y0; d += (k ? ` V${y}` : `M${xo},${y}`) + ` H${xo + (k + 1) * w}`; });
+                s += SE.t(xo - 10, y0 - 8, nom, { a: 'end', s: 10.5 }) + `<path d="${d}" fill="none" stroke="${c}" stroke-width="2.2"/>`;
+            });
+            return s + '</svg>';
+        }
         // ---------- machines à courant continu ----------
         function mccMoteur() {
             const U = choisir([110, 220, 230, 240, 440]), R = choisir([0.2, 0.4, 0.5, 0.8, 1, 1.5]), I = choisir([5, 8, 10, 15, 20, 25, 40]), n = choisir([1000, 1200, 1450, 1500, 2000, 3000]), pc = choisir([80, 100, 150, 200, 250]);
@@ -8178,6 +8277,13 @@
                     planceSymboles(),
                     H.p("<strong>À quoi sert chaque élément ?</strong>"),
                     H.tableau(["Élément", "À quoi il sert"], Object.keys(CE_ROLES).map(n => [n, CE_ROLES[n]]), { nowrap: false, gauche: true }),
+                    H.p("<strong>Relais temporisés et chronogrammes</strong> : le retard réglé (t) ne joue que sur un des deux changements d'état des contacts."),
+                    H.tableau(["Relais", "Bobine mise sous tension", "Bobine coupée"], [
+                        ["Instantané (bobine simple)", "les contacts basculent aussitôt", "ils reviennent aussitôt"],
+                        ["Travail retardé (case avec une croix)", "les contacts basculent <strong>t secondes après</strong>, si la bobine est restée alimentée", "ils reviennent aussitôt"],
+                        ["Repos retardé (case pleine)", "les contacts basculent aussitôt", "ils reviennent <strong>t secondes après</strong>"]
+                    ], { nowrap: false }),
+                    H.figure(svgChronoTempo(), "Bobine alimentée de 2 à 7 s. Travail retardé : contacts actionnés de 4 à 7 s. Repos retardé : de 2 à 9 s. Un contact NC (ouverture) donne le chronogramme inverse."),
                     H.note("<strong>Fusibles</strong> : toujours sur la phase, jamais sur la terre. <strong>gF</strong> domestique, <strong>gG</strong> industriel (surcharges et courts-circuits), <strong>aM</strong> accompagnement moteur (courts-circuits seulement, il tolère la pointe de démarrage). <strong>Disjoncteur</strong> : le déclencheur thermique (bilame) agit sur les surcharges, le magnétique (bobine) sur les courts-circuits en 10 à 20 ms ; il se réarme. <strong>Différentiel</strong> : il compare le courant aller et le courant retour et coupe s'il manque du courant (fuite vers la terre ou à travers une personne) ; 30 mA pour protéger les personnes.")),
                 ecoSec("5. Installations domestiques (NF C 15-100)", "home",
                     H.figure(svgEclairage(), "Schémas développés. Simple allumage : un interrupteur coupe la phase. Va-et-vient : deux inverseurs reliés par deux fils (les navettes) ; chaque interrupteur peut allumer ou éteindre."),
@@ -8547,6 +8653,128 @@
                 correction: `<p>Alésage ${al} : ${D} + ${(AS / 1000).toFixed(3).replace('.', ',')} = <strong class="text-white">${(D + AS / 1000).toFixed(3).replace('.', ',')}</strong> et ${(D + AI / 1000).toFixed(3).replace('.', ',')} mm ; arbre ${ar} : <strong class="text-white">${(D + as / 1000).toFixed(3).replace('.', ',')}</strong> et ${(D + ai / 1000).toFixed(3).replace('.', ',')} mm.</p><p>Jeu maxi = alésage maxi − arbre mini = ${AS} − (${ai}) = <strong class="text-white">${jM} µm</strong> ; jeu mini = alésage mini − arbre maxi = ${AI} − (${as}) = <strong class="text-white">${jm} µm</strong> ; IT du jeu = ${jM - jm} µm (= IT alésage + IT arbre).</p><p>${type === 'jeu' ? 'Les IT ne se chevauchent pas, l\'arbre est toujours plus petit : ajustement <strong class="text-white">avec jeu</strong>.' : type === 'serre' ? 'L\'arbre est toujours plus gros : ajustement <strong class="text-white">serré</strong> (montage à la presse).' : 'Les IT se chevauchent : ajustement <strong class="text-white">incertain</strong>.'}</p>` };
         }
         EXB('oi2-gps', 'oi2-gps', 'OI • 2ème Année', 'Cotation GPS', 'Cotation GPS : tolérances et ajustements', { id: 'gps', types: { cote: gpsCote, iso: gpsIso, aj: gpsAjustement, mm: gpsMaxMatiere, fam: gpsFamille }, libelles: { tout: 'Tout', cote: 'Lire une cote', iso: 'Ajustement ISO', aj: 'Jeux', mm: 'Maximum de matière', fam: 'Familles de tolérances' } }, 'ruler');
+
+        // ---------- CM A1 : cotation tolérancée (mesures, tolérances, jeux et serrages) ----------
+        // une cote tolérancée sur une droite graduée : ligne zéro (cote nominale), zone de tolérance, mini, maxi et IT
+        function svgCoteTol() {
+            const T = SVG_TRAIT, A = SVG_ACCENT, X = SVG_TEXTE, D = SVG_DISCRET;
+            const t = (x, y, s, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.a || 'middle'}" fill="${o.c || X}" font-size="${o.s || 11}"${o.b ? ' font-weight="bold"' : ''}>${s}</text>`;
+            const l = (x1, y1, x2, y2, c = T, w = 1.6, d = '') => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}"${d ? ` stroke-dasharray="${d}"` : ''}/>`;
+            // 25 +0,2 / −0,1 : 1 dixième = 60 px
+            const y0 = 120, k = 300, ys = y0 - 0.2 * k, yi = y0 + 0.1 * k;
+            let s = `<svg viewBox="0 0 440 190" width="440" style="max-width:100%;height:auto" role="img" aria-label="Cote 25 plus 0,2 moins 0,1 : zone de tolérance entre 24,9 et 25,2 autour de la ligne zéro">`;
+            s += l(40, y0, 410, y0, D, 1.4, '6 4') + t(410, y0 + 15, 'ligne zéro = nominale 25', { a: 'end', c: D, s: 10 });
+            s += `<rect x="150" y="${ys}" width="90" height="${yi - ys}" fill="${A}" fill-opacity="0.18" stroke="${A}" stroke-width="1.8"/>`;
+            s += t(195, ys + 20, 'zone de', { c: A, s: 10 }) + t(195, ys + 33, 'tolérance', { c: A, s: 10 });
+            // écarts
+            s += l(120, y0, 120, ys, X, 1.4) + l(115, ys, 150, ys, X, 1) + t(112, (y0 + ys) / 2 + 4, 'es = +0,2', { a: 'end', s: 10 });
+            s += l(120, y0, 120, yi, X, 1.4) + l(115, yi, 150, yi, X, 1) + t(112, (y0 + yi) / 2 + 8, 'ei = −0,1', { a: 'end', s: 10 });
+            // IT et limites
+            s += l(255, ys, 255, yi, A, 1.6) + l(249, ys, 261, ys, A) + l(249, yi, 261, yi, A) + t(265, (ys + yi) / 2 - 8, 'IT = 0,3', { a: 'start', c: A, b: 1 });
+            s += l(240, ys, 340, ys, D, 1, '3 3') + t(345, ys + 4, 'maxi 25,2', { a: 'start', s: 10 });
+            s += l(240, yi, 340, yi, D, 1, '3 3') + t(345, yi + 4, 'mini 24,9', { a: 'start', s: 10 });
+            s += t(220, 24, '25 <tspan dy="-6" font-size="9">+0,2</tspan><tspan dx="-18" dy="12" font-size="9">−0,1</tspan>', { s: 15, b: 1 });
+            return s + '</svg>';
+        }
+        // les trois familles d'ajustements : position de la zone de l'alésage (orange) et de l'arbre (gris) par rapport à la ligne zéro
+        function svgTroisAjustements() {
+            const T = SVG_TRAIT, A = SVG_ACCENT, X = SVG_TEXTE, D = SVG_DISCRET;
+            const t = (x, y, s, o = {}) => `<text x="${x}" y="${y}" text-anchor="middle" fill="${o.c || X}" font-size="${o.s || 11}"${o.b ? ' font-weight="bold"' : ''}>${s}</text>`;
+            const y0 = 110;
+            const zone = (x, h1, h2, c) => `<rect x="${x}" y="${y0 - h2}" width="34" height="${h2 - h1}" fill="${c}" fill-opacity="0.22" stroke="${c}" stroke-width="1.8"/>`;
+            const cas = [
+                ['Avec jeu', 'l\'arbre est toujours plus petit', [0, 40], [-50, -10]],
+                ['Incertain', 'les zones se chevauchent', [0, 40], [-10, 30]],
+                ['Serré', 'l\'arbre est toujours plus gros', [0, 30], [45, 80]]
+            ];
+            let s = `<svg viewBox="0 0 480 200" width="480" style="max-width:100%;height:auto" role="img" aria-label="Ajustement avec jeu, incertain et serré : positions des zones de tolérance de l'alésage et de l'arbre">`;
+            cas.forEach(([nom, sous, al, ar], i) => {
+                const x = 20 + i * 155;
+                s += `<line x1="${x}" y1="${y0}" x2="${x + 135}" y2="${y0}" stroke="${D}" stroke-width="1.3" stroke-dasharray="5 4"/>`;
+                s += zone(x + 22, al[0], al[1], A) + zone(x + 78, ar[0], ar[1], T);
+                s += t(x + 39, y0 - al[1] - 6, 'alésage', { c: A, s: 10 }) + t(x + 95, ar[1] < 0 ? y0 - ar[0] + 14 : y0 - ar[1] - 6, 'arbre', { s: 10 });
+                s += t(x + 67, 176, nom, { b: 1, s: 12 }) + t(x + 67, 192, sous, { c: D, s: 9.5 });
+            });
+            s += `<text x="460" y="${y0 - 4}" text-anchor="end" fill="${D}" font-size="9">0</text>`;
+            return s + '</svg>';
+        }
+        Object.assign(LECONS, {
+            "cm1-cotation": {
+                badge: "CM • 1ère Année", titre: "La cotation tolérancée",
+                sections: () => [
+                    ecoSec("1. Pourquoi tolérancer une cote ?", "target",
+                        H.p("Aucune machine ne fabrique une pièce exactement à la cote dessinée : l'usure de l'outil, les déformations ou la température font toujours varier un peu la dimension obtenue. Plutôt que d'exiger l'impossible, le dessinateur indique <strong>entre quelles limites</strong> la dimension réelle est acceptée."),
+                        H.p("Ces limites sont choisies selon la <strong>fonction</strong> : un arbre qui doit tourner dans une bague n'a pas les mêmes exigences qu'une pièce de carrosserie. Elles garantissent aussi l'<strong>interchangeabilité</strong> : n'importe quel arbre conforme se monte dans n'importe quel alésage conforme, sans retouche."),
+                        H.note("Plus la tolérance est petite, plus la pièce coûte cher (machines plus précises, contrôles plus longs, plus de rebuts). On tolère donc <strong>aussi large que la fonction le permet</strong>.")),
+                    ecoSec("2. Lire une cote tolérancée", "ruler",
+                        H.liste([
+                            "<strong>Cote nominale</strong> : la valeur de référence écrite sur le dessin (par exemple 25). Elle sert de <strong>ligne zéro</strong>.",
+                            "<strong>Écart supérieur</strong> (es pour un arbre, ES pour un alésage) et <strong>écart inférieur</strong> (ei, EI) : ce qu'on ajoute à la nominale pour obtenir les limites. Ils peuvent être positifs, négatifs ou nuls.",
+                            "<strong>Cote maxi</strong> = nominale + écart supérieur ; <strong>cote mini</strong> = nominale + écart inférieur.",
+                            "<strong>Intervalle de tolérance</strong> : IT = cote maxi − cote mini = écart supérieur − écart inférieur. Il est toujours positif.",
+                            "<strong>Cote moyenne</strong> = (maxi + mini) / 2 : c'est souvent la valeur visée par le régleur de la machine."
+                        ]),
+                        H.figure(svgCoteTol(), "La cote 25 +0,2 / −0,1 : toute dimension réelle comprise entre 24,9 et 25,2 mm est bonne."),
+                        H.tableau(["Écriture", "Maxi", "Mini", "IT"], [
+                            ["40 ± 0,1", "40,1", "39,9", "0,2"],
+                            ["12 +0,2 / 0", "12,2", "12", "0,2"],
+                            ["30 0 / −0,05", "30", "29,95", "0,05"],
+                            ["18 +0,1 / −0,2", "18,1", "17,8", "0,3"]
+                        ]),
+                        H.p("Quand aucune tolérance n'est écrite à côté de la cote, ce sont les <strong>tolérances générales</strong> indiquées dans le cartouche qui s'appliquent.")),
+                    ecoSec("3. Mesurer et contrôler", "gauge",
+                        H.p("Une pièce est <strong>conforme</strong> si sa dimension mesurée est comprise entre la cote mini et la cote maxi. L'instrument doit être nettement plus précis que l'IT à vérifier."),
+                        H.tableau(["Instrument", "Ce qu'il donne", "Précision courante"], [
+                            ["Réglet", "une longueur lue sur une graduation", "0,5 mm"],
+                            ["Pied à coulisse", "dimensions extérieures, intérieures et profondeurs, lues sur le vernier", "0,02 à 0,05 mm"],
+                            ["Micromètre (palmer)", "une dimension extérieure par vis micrométrique", "0,01 mm"],
+                            ["Comparateur", "un écart par rapport à une pièce étalon (mesure relative)", "0,01 mm"],
+                            ["Calibre tampon ou à mâchoires", "pas de valeur : le côté « entre » doit passer, le côté « n'entre pas » ne doit pas passer", "contrôle bon / mauvais"]
+                        ], { nowrap: false, gauche: true }),
+                        H.note("Le calibre est le plus rapide en atelier : il ne mesure pas, il dit seulement si la pièce est entre les deux limites.")),
+                    ecoSec("4. Jeu et serrage", "move-horizontal",
+                        H.p("Un <strong>ajustement</strong>, c'est l'assemblage d'un <strong>arbre</strong> (pièce contenue) dans un <strong>alésage</strong> (pièce contenante) de même cote nominale. On compare leurs dimensions réelles :"),
+                        H.formule(R`\text{Jeu} = \text{diamètre de l'alésage} - \text{diamètre de l'arbre}`),
+                        H.liste([
+                            "Jeu <strong>positif</strong> : l'arbre est plus petit, il peut glisser ou tourner. C'est un <strong>jeu</strong>.",
+                            "Jeu <strong>négatif</strong> : l'arbre est plus gros, il faut forcer pour le monter. C'est un <strong>serrage</strong> : les pièces restent solidaires sans autre fixation."
+                        ]),
+                        H.p("Comme les deux pièces ont chacune une tolérance, le jeu varie entre deux valeurs extrêmes :"),
+                        H.formule(R`J_{max} = \text{Alésage}_{maxi} - \text{Arbre}_{mini} \qquad J_{min} = \text{Alésage}_{mini} - \text{Arbre}_{maxi}`),
+                        H.formule(R`IT_{jeu} = J_{max} - J_{min} = IT_{alésage} + IT_{arbre}`),
+                        H.figure(svgTroisAjustements(), "Les trois familles d'ajustements, selon la position des deux zones de tolérance."),
+                        H.tableau(["Ajustement", "Condition", "Exemple d'usage"], [
+                            ["Avec jeu", "J<sub>min</sub> ≥ 0", "arbre qui tourne dans un palier, pièce qui coulisse"],
+                            ["Incertain", "J<sub>min</sub> < 0 < J<sub>max</sub>", "centrage précis, montage au maillet"],
+                            ["Serré", "J<sub>max</sub> ≤ 0", "roulement ou bague emmanchés à la presse"]
+                        ], { nowrap: false }),
+                        H.p(R`<strong>Exemple</strong> : alésage $\varnothing 20$ entre 20,000 et 20,021 ; arbre entre 19,980 et 19,993. $J_{max} = 20{,}021 - 19{,}980 = 0{,}041$ mm et $J_{min} = 20{,}000 - 19{,}993 = 0{,}007$ mm. Les deux sont positifs : ajustement avec jeu.`)),
+                    ecoSec("5. Les ajustements normalisés ISO", "table",
+                        H.p("Pour ne pas inventer des écarts à chaque fois, la norme ISO code la tolérance par <strong>une lettre et un chiffre</strong> après le diamètre : ⌀ 25 H7, ⌀ 25 g6."),
+                        H.liste([
+                            "<strong>Majuscule</strong> pour un alésage (H7), <strong>minuscule</strong> pour un arbre (g6). L'ajustement complet s'écrit ⌀ 25 H7/g6, l'alésage en premier.",
+                            "La <strong>lettre</strong> donne la <strong>position</strong> de la zone par rapport à la ligne zéro. Pour <strong>H</strong>, l'écart inférieur est nul (l'alésage n'est jamais plus petit que la nominale) ; pour <strong>h</strong>, l'écart supérieur est nul.",
+                            "Le <strong>chiffre</strong> est la <strong>qualité</strong> : plus il est petit, plus l'IT est serré (IT6 et IT7 en mécanique de précision, IT11 et plus pour des pièces brutes).",
+                            "Les écarts se lisent dans des <strong>tableaux</strong> en fonction du diamètre, en micromètres (1 µm = 0,001 mm)."
+                        ]),
+                        H.p("On travaille surtout en <strong>alésage normal</strong> : l'alésage est en H et on choisit la lettre de l'arbre selon le jeu voulu (un alésage est plus difficile à usiner qu'un arbre)."),
+                        H.tableau(["Ajustement", "Type", "Montage, usage"], [
+                            ["H8/e8, H7/f7", "avec jeu", "pièces qui tournent librement"],
+                            ["H7/g6", "avec jeu faible", "glissement précis (guidage)"],
+                            ["H7/h6", "jeu nul au mini", "centrage, montage à la main"],
+                            ["H7/k6", "incertain", "montage au maillet"],
+                            ["H7/p6, H6/p5", "serré", "montage à la presse, sans clavette"]
+                        ], { nowrap: false }),
+                        H.tableau(["Diamètre de 10 à 18 mm", "H6", "H7", "H8", "g6", "e8", "k6", "p5"], [
+                            ["Écart sup. (µm)", "+11", "+18", "+27", "−6", "−32", "+12", "+26"],
+                            ["Écart inf. (µm)", "0", "0", "0", "−17", "−59", "+1", "+18"]
+                        ]),
+                        H.p(R`<strong>Exemple</strong> : ⌀ 16 H7/g6. Alésage entre $16{,}000$ et $16{,}018$ ; arbre entre $15{,}983$ et $15{,}994$. $J_{max} = 18 - (-17) = 35$ µm et $J_{min} = 0 - (-6) = 6$ µm : ajustement avec jeu.`))
+                ]
+            }
+        });
+        EXB('cm1-cotation', 'cm1-cotation', 'CM • 1ère Année', 'Cotation tolérancée', 'Cotation tolérancée : cotes, ajustements et jeux', { id: 'cot', types: { cote: gpsCote, iso: gpsIso, aj: gpsAjustement }, libelles: { tout: 'Tout', cote: 'Lire une cote', iso: 'Ajustement ISO', aj: 'Jeux' } }, 'ruler');
+        Object.assign(RENVOIS, { 'cm1-cotation': { cote: [2], iso: [5], aj: [4] } });
 
         // ---------- OI A2 : MRP et Kanban ----------
         const S6 = [1, 2, 3, 4, 5, 6];
