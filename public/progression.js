@@ -67,7 +67,7 @@
         'm1-fonctions': ['m1x-m1-fonctions'], 'm1-complexes': ['m1x-m1-complexes'], 'm1-suites': ['m1x-m1-suites'],
         'm1-integrale': ['m1x-m1-integrale'], 'm1-edo': ['m1x-m1-edo'], 'm1-fourier': ['m1x-m1-fourier'],
         'maths-geo-bary': ['gba'], 'maths-geo-scal': ['gsc'], 'maths-geo-vect': ['gve'], 'm2-fvect': ['fve'],
-        'eco1-typo': ['ety'], 'eco1-stocks': ['est'], 'eco1-seuil': ['esr'], 'eco1-amort': ['eam'],
+        'eco1-typo': ['ety'], 'eco1-stocks': ['est'], 'eco1-seuil': ['esr'], 'eco1-amort': ['eam'], 'eco1-bilan': ['ebi'], 'eco1-resultat': ['ecr'], 'eco1-sig': ['esg'], 'eco2-analyse': ['ean'], 'eco2-financement': ['efi'], 'eco2-travail': ['edw'],
         'cm1-statique': ['cst'], 'cm1-torseurs': ['trs'], 'cm1-cinematique': ['cci'], 'cm2-inertie': ['iner'], 'est1-af': ['eaf'],
         'est1-dessin': ['edt'], 'oi2-gps': ['gps'], 'phys-sli': ['sli'],
         'ce1-production': ['cep'], 'ce1-schemas': ['ces'], 'ce1-mcc': ['mcc'], 'oi2-mrp': ['mrp'], 'oi2-msp': ['msp'], 'oi2-veille': ['vt'], 'oi1-projet': ['proj'], 'oi1-coupe': ['coupe'], 'oi1-mipmap': ['mip'], 'oi1-contrat': ['contrat'], 'oi1-production': ['prod'], 'ce2-dimensions': ['dim'], 'ce2-triphase': ['tri'], 'ce2-magneto': ['mag'], 'ce2-choix': ['chx'], 'ce2-asynchrone': ['asy'], 'ce2-synchrone': ['syn'], 'ce2-variateurs': ['var'], 'ce2-polaires': ['pol'], 'phys-onduleur': ['ond'], 'ph1-grandeurs': ['pg'], 'ph1-dipoles': ['pdp'], 'ph1-theoremes': ['pth'], 'ph1-sinus': ['psi'], 'ph1-regime': ['prs'], 'ph1-spectre': ['psp'], 'ph1-transmittance': ['ptr'], 'ph1-ali': ['pal'], 'phys-semi': ['psc'], 'phys-redress': ['prd'], 'phys-hacheur': ['pha']
