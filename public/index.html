@@ -8991,6 +8991,9 @@
                 const changements = (v) => v.reduce((n, x, k) => n + (k && x !== v[k - 1] ? 1 : 0), 0);
                 const dernier = (v) => v.reduce((m, x, k) => (k && x !== v[k - 1] ? k : m), 0);
                 if (elems.filter(e => e.type !== 'inst').length < (nR === 3 ? 2 : 1)) continue;
+                // chaque relais doit servir : ses contacts commandent un relais suivant ou la lampe
+                const utilises = new Set(elems.map(e => e.src).concat([lampe.src]));
+                if (elems.some(e => !utilises.has(e.nom))) continue;
                 if (lignes.some(v => changements(v) < 1 || changements(v) > 4 || dernier(v) > N - 2)) continue;
                 if (elems.some(e => e.type !== 'inst' && JSON.stringify(e.sol) === JSON.stringify(e.bob))) continue; // la temporisation doit se voir
                 if (b.cle && b.cle === JSON.stringify(lignes)) continue;
