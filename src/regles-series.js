@@ -20,8 +20,10 @@ export const CONSERVATION_JOURS = 730;        // deux ans
 export const TAILLE_CORPS_MAX = 48 * 1024;    // octets acceptés par lireJson
 
 // Identifiant stable d'une question (contrat commun, point A) :
-//   rds/<ce|expo|cours>/<id du sujet>#<8 hex>  ou  exo/<clé EXOS>#<8 hex>
-const MOTIF_QUESTION = /^(?:rds\/(ce|expo|cours)\/[a-z0-9]+(?:-[a-z0-9]+)*|exo\/[a-z0-9]+(?:-[a-z0-9]+)*)#[0-9a-f]{8}$/;
+//   rds/<ce|expo|cours>/<id du sujet>#<8 hex>          DS du 14/11/2026 (préfixe historique)
+//   ds/<id du DS>/<partie>/<id du sujet>#<8 hex>       autres Révisions DS (préfixe par défaut de revision-ds.js)
+//   exo/<clé EXOS>#<8 hex>
+const MOTIF_QUESTION = /^(?:rds\/(ce|expo|cours)\/[a-z0-9]+(?:-[a-z0-9]+)*|ds\/(ds-[a-z0-9]+(?:-[a-z0-9]+)*)\/[a-z]{1,20}\/([a-z0-9]+(?:-[a-z0-9]+)*)|exo\/[a-z0-9]+(?:-[a-z0-9]+)*)#[0-9a-f]{8}$/;
 const PARTIES_RDS = { ce: { annee: "a2", matiere: "ce" }, expo: { annee: "a2", matiere: "oi" }, cours: { annee: "a2", matiere: "oi" } };
 
 // Même classe de caractères invisibles que les signalements et les annonces.
@@ -50,6 +52,13 @@ export function matiereDeQuestion(id, serie) {
   const m = MOTIF_QUESTION.exec(id);
   if (!m) return null;
   if (m[1]) return PARTIES_RDS[m[1]];
+  if (m[2]) {
+    // Révision DS : la matière du chapitre (table DS_CHAPITRES de regles.js), sinon celle de la série
+    for (const annee of ANNEES) {
+      const lieu = matiereDeCle(`${annee}/ds/${m[2]}/${m[3]}`);
+      if (lieu) return lieu;
+    }
+  }
   return serie && serie.annee && serie.matiere ? { annee: serie.annee, matiere: serie.matiere } : null;
 }
 

@@ -48,6 +48,28 @@ test("matière d'une question : partie de la Révision DS, sinon celle de la sé
   assert.equal(matiereDeQuestion("exo/oi2-veille#00000001", { annee: "a2", matiere: null }), null);
 });
 
+test("Révision DS de physique : identifiants ds/<id du DS>/<partie>/<sujet> acceptés et rangés en physique", () => {
+  for (const id of ["ds/ds-2026-11-phys/cours/semi#0a1b2c3d", "ds/ds-2026-11-phys/annales/rica#ffffffff"]) {
+    assert.ok(questionValide(id), id);
+    assert.deepEqual(matiereDeQuestion(id, null), { annee: "a2", matiere: "phys" });
+  }
+  for (const id of ["ds/ds-2026-11-phys/cours#0a1b2c3d", "ds/autre/cours/semi#0a1b2c3d", "ds/ds-2026-11-phys/Cours/semi#0a1b2c3d", "ds/ds-2026-11-phys/cours/semi/x#0a1b2c3d"]) {
+    assert.ok(!questionValide(id), id);
+  }
+  // chapitre inconnu de la table : matière de la série
+  assert.deepEqual(matiereDeQuestion("ds/ds-2026-11-phys/cours/autre#00000001", { annee: "a2", matiere: "phys" }), { annee: "a2", matiere: "phys" });
+  // une série de QCM de chapitre de la physique est enregistrée
+  const v = validerSerie(serie({
+    cle: "a2/ds/ds-2026-11-phys/semi", annee: "a2", matiere: "phys", titre: "QCM · Cours · Semi-conducteurs", total: 2, justes: 1, note20: 10, pourcent: 50,
+    questions: [
+      { id: "ds/ds-2026-11-phys/cours/semi#" + H(1), chapitre: "Cours · Semi-conducteurs", juste: true, repondue: true },
+      { id: "ds/ds-2026-11-phys/cours/semi#" + H(2), chapitre: "Cours · Semi-conducteurs", juste: false, repondue: true },
+    ],
+  }));
+  assert.ok(v);
+  assert.deepEqual(v.questions.map((q) => q.matiere), ["phys", "phys"]);
+});
+
 test("série valide : nettoyée, questions non répondues ignorées", () => {
   const r = validerSerie(serie({ titre: "  Examen\u202e blanc\n· CE  " }));
   assert.deepEqual(r.serie, {
