@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tuto assemblage CATIA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  /* Layout : une fenêtre de CAO (vue 3D + arbre des fonctions) et un panneau d'étape avec la narration, barre de lecture en bas. */
+  :root {
+    --bg: #eef1f4; --surface: #ffffff; --ink: #18212b; --muted: #5a6876; --line: #cfd6dd;
+    --view: #dfe6ee; --view2: #c7d3df; --grid: rgba(40, 70, 100, .09);
+    --tole: #b8c7d6; --tole-ombre: #93a6b9; --tole-bord: #3b5168; --trou: #dfe6ee;
+    --accent: #e0661c; --accent-doux: rgba(224, 102, 28, .14); --ok: #1f7a55;
+    --display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+    --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #11161c; --surface: #18202a; --ink: #e8eef4; --muted: #9aa8b6; --line: #2a3644;
+    --view: #1b2633; --view2: #0f1720; --grid: rgba(150, 190, 230, .07);
+    --tole: #8fa6bd; --tole-ombre: #667f98; --tole-bord: #d6e2ee; --trou: #142030;
+    --accent: #ff8a3d; --accent-doux: rgba(255, 138, 61, .16); --ok: #4fd1a0; color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #11161c; --surface: #18202a; --ink: #e8eef4; --muted: #9aa8b6; --line: #2a3644;
+    --view: #1b2633; --view2: #0f1720; --grid: rgba(150, 190, 230, .07);
+    --tole: #8fa6bd; --tole-ombre: #667f98; --tole-bord: #d6e2ee; --trou: #142030;
+    --accent: #ff8a3d; --accent-doux: rgba(255, 138, 61, .16); --ok: #4fd1a0; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+  .page { max-width: 1180px; margin: 0 auto; padding-block: 20px 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+  h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 4vw, 34px); letter-spacing: .01em; margin: 0; text-wrap: balance; }
+  h1 span { color: var(--accent); }
+  .sous { color: var(--muted); font-size: 14px; margin: 0; }
+  .atelier { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+  @media (max-width: 860px) { .atelier { grid-template-columns: minmax(0, 1fr); } }
+  .vue { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: radial-gradient(ellipse at 50% 35%, var(--view), var(--view2)); min-height: 340px; }
+  .vue svg.scene { display: block; width: 100%; height: 100%; min-height: 340px; }
+  .vue .barre-vue { position: absolute; left: 10px; top: 10px; display: flex; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .vue .barre-vue b { color: var(--ink); font-weight: 500; }
+  .arbre { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; background: var(--bg); }
+  .arbre p { margin: 0 0 4px; font-family: var(--display); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: 11px; color: var(--muted); }
+  .arbre ol { margin: 0; padding-left: 16px; display: grid; gap: 1px; }
+  .arbre li.actif { color: var(--accent); font-weight: 700; }
+  .param { position: absolute; right: 12px; top: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+  .param h3 { margin: 0 0 6px; font-family: var(--display); font-size: 14px; font-weight: 600; }
+  .param div { display: flex; justify-content: space-between; gap: 18px; font-family: var(--mono); font-size: 12px; }
+  .dialogue { position: absolute; right: 12px; top: 12px; width: min(250px, 60%); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.18); font-size: 12.5px; overflow: hidden; }
+  .dlg-titre { background: var(--accent-doux); padding: 6px 10px; font-family: var(--display); font-weight: 600; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+  .dlg-champs { padding: 8px 10px; display: grid; gap: 5px; }
+  .dlg-champs div { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .dlg-champs span { color: var(--muted); }
+  .dlg-champs b { font-family: var(--mono); font-weight: 500; font-size: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+  .dlg-boutons { display: flex; justify-content: flex-end; gap: 6px; padding: 0 10px 9px; }
+  .dlg-boutons span { border: 1px solid var(--line); border-radius: 5px; padding: 2px 12px; font-size: 12px; }
+  .dlg-ok { border-color: var(--ok) !important; color: var(--ok); font-weight: 700; transition: transform .15s, background .15s; }
+  .dlg-ok.appuye { background: var(--ok); color: var(--surface); transform: scale(.92); }
+  .panneau { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .num { font-family: var(--display); font-weight: 600; color: var(--accent); letter-spacing: .06em; text-transform: uppercase; font-size: 13px; }
+  .panneau h2 { font-family: var(--display); font-weight: 700; font-size: 24px; margin: 0; text-wrap: balance; }
+  .titre-ligne { display: flex; align-items: center; gap: 12px; }
+  #icone { width: 44px; height: 44px; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--line); flex-shrink: 0; }
+  .panneau .texte { margin: 0; font-size: 16px; }
+  .panneau .texte .dit { background: var(--accent-doux); border-radius: 3px; }
+  .valeurs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .valeurs span { font-family: var(--mono); font-size: 12px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); }
+  .astuce { font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; margin: 0; }
+  .astuce b { color: var(--ink); }
+  .lecteur { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 10px; }
+  .boutons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  button, select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.lire { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; min-width: 128px; }
+  .reglages { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+  .reglages label { display: flex; align-items: center; gap: 6px; }
+  .pistes { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 3px; }
+  .pistes button { height: 10px; padding: 0; border-radius: 3px; background: var(--line); border: 0; }
+  .pistes button.fait { background: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+  .pistes button.actif { background: var(--accent); }
+  .note-voix { font-size: 12.5px; color: var(--muted); margin: 0; }
+  .nouveau { animation: apparait .9s ease both; }
+  .contour-actif { stroke: var(--accent) !important; stroke-width: 2.2 !important; }
+  @keyframes apparait { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .scene g { transition: opacity .6s ease; }
+  @media (prefers-reduced-motion: reduce) { .nouveau { animation: none; } .scene g { transition: none; } }
+</style>
+
+<div class="page">
+  <header>
+    <h1>Tuto <span>assemblage paramétré</span> · CATIA V5</h1>
+    <p class="sous">Le croquis de voiture du TD : une roue paramétrée, un squelette, des contraintes et une direction qui tourne. Appuie sur Lecture et laisse-toi guider.</p>
+  </header>
+
+  <div class="atelier">
+    <div class="vue" id="vue">
+      <svg class="scene" id="scene" viewBox="-200 -150 400 300" role="img" aria-label="Assemblage en construction"></svg>
+      <div class="barre-vue"><span>Atelier</span><b>Assembly Design</b></div>
+      <div class="dialogue" id="dialogue" hidden>
+        <div class="dlg-titre" id="dlg-titre"></div>
+        <div class="dlg-champs" id="dlg-champs"></div>
+        <div class="dlg-boutons"><span class="dlg-ok" id="dlg-ok">OK</span><span class="dlg-annuler">Annuler</span></div>
+      </div>
+      <div class="param" id="param" hidden>
+        <h3>Paramètres de la pièce de tôlerie</h3>
+        <div><span>Épaisseur</span><b>2 mm</b></div>
+        <div><span>Rayon de pli standard</span><b>4 mm</b></div>
+        <div><span>Extrémités de pli</span><b>minimum sans grugeage</b></div>
+      </div>
+    </div>
+
+    <section class="panneau" aria-live="polite">
+      <div class="num" id="num">Étape 1 sur 18</div>
+      <div class="titre-ligne"><img id="icone" alt="" width="44" height="44" hidden><h2 id="titre">…</h2></div>
+      <p class="texte" id="texte">…</p>
+      <div class="valeurs" id="valeurs"></div>
+      <p class="astuce" id="astuce" hidden></p>
+      <div class="arbre"><p>Arbre</p><ol id="arbre"></ol></div>
+    </section>
+  </div>
+
+  <div class="lecteur">
+    <div class="pistes" id="pistes" role="group" aria-label="Aller à une étape"></div>
+    <div class="boutons">
+      <button type="button" id="prec" aria-label="Étape précédente">◀ Précédente</button>
+      <button type="button" id="lire" class="lire">▶ Lecture</button>
+      <button type="button" id="suiv" aria-label="Étape suivante">Suivante ▶</button>
+      <div class="reglages">
+        <label><input type="checkbox" id="voix" checked> Voix</label>
+        <label>Vitesse
+          <select id="vitesse"><option value="0.85">lente</option><option value="1" selected>normale</option><option value="1.2">rapide</option></select>
+        </label>
+      </div>
+    </div>
+    <p class="note-voix" id="note-voix">La voix utilise la synthèse vocale de ton navigateur (voix française si elle est installée).</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  // icônes de CATIA (captures de Baptiste), intégrées à la page
+  const ICONES = { 'parametres-tolerie': 'data:image/png;base64,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', 'esquisse': 'data:image/png;base64,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', 'extrusion': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAUgSURBVFhH7ZdrbFNlGMef4AXQwIjolEjEePniJ2NiovGWAB9MNF5INvkyRRNvCRLhi0Q0KCqMKEYNxiB2VyJuZGNjm2M3tm7d2bm972m3tmu7daNs3NSBg6kwAn/znrelPe1GGzP95Id/zulz+p7n/zzP723PIcs6ibnRCVje41IZ16S4NQ6TxaBqo/D0RtDlDoDSv/TP9b+B/9CA2qTDvac6U99Xwb1HqBrGEX/GujkxwJQoGl9/F67rCeVLnCq9mbCXpDp3lWSsnRMDdQWvoDRvCRqeJEwOOxV2/YsGTE8E9YXrUJa/DG0vEk64CUBSozUEZQMhtJdQeescG1AbNTS9sQkli/LQ+gJh7HBa8oME9hEh5CL89Qth/11zaEAA17xhC1w3EA49RjjVk0x8eZpwykPwvE0Il8jYnBpIBa7qPsLUmDP5uSjhwAOEWEMynjDQ/tlumN1hh4zuIHQlkruBVODOjRIuX0omOukmHHyIcFohXJrKNFC2NB8Vy+9O0wo0bfwgu4F04EQyx8xrCco7hKN1hEt/JOO/WYTOIkKklBCtSkqAWbFU7o5Dr62/tgEJ3EYbOJE8A7haCZzYcqnxU70E/gmBbyNcPJuMizGZHxLK83IwkA7cydmAS0s+4SPwjwn6ZmdcjM27neC6Ud6v8rYsBn5ev9l2KfbxRL+sJKGZgLtyhXBxktBRSLA+dSYXXBhbyC6m6l7C2SCh5dkcDfxwHWH/CrkwoZmAuzBBaHiCECmX56kGPG8RKm4hND5F+NUk1D8if6qzGqh90AmQkPG+bN/5WDJBKnBT48n49KQc0493EtrWEPxfE1qfI5TeRDj08pvoqWqFbgxD03zocvszDTQ/7axEaKzZaUB04prALSEbYLaV4H6V4Fq4EA1r10KpaYNpiuR+qNoAehVfpoG6hwnjbVJ/ns40YAO3bQbgRghWArjHCcFvCe51hNK8PBxYtRpWtwqvdxiGGYSq+qD0BaCqltPA4U1bUbI4DyWLFmPvvHn2H8xVA3EwO16S1acmnz7vBO6Mn9DyDME1f76d3DA4OD8GxgK2AV0PQ1UNuLv7nQZMdwhqQx88+5pRln+Hw0ACzKzAMUL9oxK4gwUFUFs6wXkMjPWD8SEwFoKuiw6II8/8IRISTzPly5Y7DCT+58V+FtsuVQ7gnpfA1RcVwVNdD8aGYJoBcB4FY4Mw7Q4E0ada8HjSGJjNwO9hgvbe7Kq+n9C0Mg7cggWoWbMmnjwMxiIwzZB9FNWb5iB0PYC+Ph96FW9uBrJJEC+6YwO3chV6Dx+xK5dJB8H5iD1/xiMwmTAwAKUvCFVLgzDdQKSCcOFMdl0FbvVqmKb3KnCyAyOZEBphaJoJtzsNwnQD+24n/HRPdgng6goLobZ2gltHbeDkzEUHxPxj0DQO0xSG4hAqg1AUfWYDTIuh65tKtG7/HG07vkRH8W60bi9Gx87v0F68C+3FX6Fj5260F++0Y207vkBPVR04TySM2rOWHRiCYfhhmkPQdb89f02PoFeJoLtnFgjFS8bAgNg6YRjGIAxDwJMAKWyfy89hO6k8D4HxMBgPwYhfF0qs7e8fldUbOT0RnUAgEIXXK+YnoPGDc3EDMVdRkWij355vIiarDYLxqN1iuf2EgSC83vj9fLHcnwk5Pw5d77cNiOQJuAxjIF7xCHSdpcQGwfhwHLhxcC7WDTnvmetDqUiuaZY9tyRIguJMuBIx2SkfuHVMvida4h3R+Z44k4G/AUPqIGamZ0HOAAAAAElFTkSuQmCC', 'pli': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAQySURBVFhH7ZV/TNRlHMcfZrlsM8VNZEzSytWazJWtrf5wpn8phFtmVg5Zgw11siE24PAOuVGaZjH8HiAGYuDPGkkFUsBMFI27+/4EPC4v8BQBmzXbaq31R3u17/eUH56AOOqPxh+v7bvP9/l+3q97nueeR+j6DSaHAXSjP0TYuxCa3oeiXsPtCXLhYoCWcz7E3YMenP+DQGnxLd5+/Y8RZG334nJVUFZWjdt9JazppApsS/+NyBhYlBRiTiwsWtbKKzsLWFWwm/LqWs6f94c1nlSB+SsgYSDEgnh4OMGHOHSCGQerSd6WSW3t2bDGUwJTAlMCUwL/icCjJYfJSHiV09VfhzX+1wVmFFfy7Lt2Ppo1m7MfV4Y1Hk3AMPotQs996Pp1VO0qXrlnYgJxmTbKhbCYiEBnZxCfrxvDGKCr6zLt7UE6Onpob/ffv8CKWcXsioqmKlLQWy9o3riAxtwP7kMggGF0o+tBVLUTw+hFVi4hy77RZ+CT9M/YHJOGPSnEltg08sSL1CwW+EoEF9MF7XsFF3Li+HJt0giqttuRXOUhpAokqRRJOoAkHWT/fglJKqeoyEVNTcPoe6Ah3cbxWEHrphAnnxCcel7gyRL4iocEVKfg2/jQkphsW7yENckpLM8vGJN1m7cguQ6NLfDNKgGEaF4rOJciCFQJ6pcL+poE51MFikPgcwnKpk3DOT+WZ7LyrH/KaERUHGNm4QFeeieFPXtdExMwf6FZ+/Om4MTjguApgf5+qF448zHm7HOFBd7N9NLDrFz3BgkJCRMXuNcMHIsR2J56mvnOPTx08EhY4HAiP5RYtiGJ1YmJExcwA631Xi2ofETw3QbByYWCTBHP0jk1TF/ePS4xK+us4DtMSMCkt2FoU1obc6EgJc7Ooo2My7znIHauMhiekZHF0aN1ows0OwtpfPNJftEFf/81UmRwWV4TZGXYB8+KsVicExJITFxDauomvjh1Zuyj2KSl5DhH5gp+vxoe/qAC69e/RUuLb/y7wERpDdBa8TlfrYii9gURRtVsQVKUnXlLGJfIaHh56U/U1Z1Glq+hKF14ZT8eb4A2t0rLuc5wARPVHeTM7lKa8vbR6HiPRns+TY69NNh20GjfRaWjnnx7P07Hr+Tbe3E6fmbnjhvk5fbizLuFwxYk337TqrmKelCUAF6vD1nx45V9uN0dfN/WSesF5d4Cd9A08xwPoKo/DDWRzefLgzVV9VtjzObmOa+ol61x5hhZNmtdg98Wl3xKbq6TnJwdZGcXkJ1tG01gAE3rvd3cDOvG6223hLxe80Lxoyg/4vHoaNpVFMVnCWlaN7JsoOvDaz3Wt6p6heTkNKKiohFCDBEebtKPopjNr9yegUtWTZY1q2bOgsdjBpn3facVqOvmtduFblzHMDqG1fxoWh9tbV5kJcDWrVlEREQMCvwDqwwpio1jM1oAAAAASUVORK5CYII=', 'plaque': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAR1SURBVFhH7Zbba1xVFMYXGLVNqg1FEEN9EEUffPBJKXhBxQcreCuIFSpiQ7SFCFoU+2BFEAX/hmQSo7S1SSMzSXOPNnOfc86+zEzmlpnJTNJcikKLrX3QgH6y95nMJSeTJk3e7MPHHtZZZ+9v7f1b+wxJeRk7o2XI6JItxzNbQi6C8XlEjCICwSymvEnQ2qRb120Dtw38nwwYwxZ8Hf216jxf0dpnJXk7+hAcCGzPAI8UMfTBCXTeQfh+z9bU2UAYONq+PQOet99Hd/M+DD5L+COzNQ2/tA0DLJCD53Areu5vwfjrhOWLBGBz+vsaIdhOOLOfMND6EQyziFA4D68vvTkDkSETQ8c/Q9c9ezH+GuHSsHORerpeIPCvCD3NhA5aNTCnDfj8mzCggBv5+BRcdxI8BwiXfc5F6unPOULsOyq/++N96gjsHQiGcpjypjY2UAaugfDTQ4QbC2sW+ZewcoOwcn19sVM2eOpdxcDYq1tkwHP4aBm4aznCPyu1Bv66QrjwPKH3sfWlKh58jvC7QRh42u6ETRnQwL2zMXBXooSJQ4TuRvtsx98g5E/XavItwumWSt7AkTb4z45ubKAM3L31gfstQvC1Ebp3E/xthHOPEKwvnHnia9uca9duuA8dQbBvcuObcDPAXZ0m+FoJP+wjjL5CmHMTBp8hXHzX3qlqqbzuvc3oe+EgrF+mb34VD7ef1I7V2V1NOqFSUiC57rJH1WKqt11370JX0x6HXI1N6HvxYGn+pSoDhZKBxPoG1DWryO191CkFUuAYIX+WcO5hgquBMHbyW4Q9AYQ9flvuAMLuIAL9IwhemIAQSzAMCcbzsKw0wmGJYGgGoZDlNND/BCF/pr7cTxLOP27Tr6oc+/wbGKOi9DWch5QZXS3nWTCWAWNZcJ4CYzkwnoJlpWCYKRhGDH5/1Glg5GXnuVdr4k0brJ6WBzH04QlEQ3FEo2rBIhhXi89AiBw4z4DzGW1E/V6NMZaGaaUQMeIIhmJOA+6nnDBVSwHX88B+DL53DEIUkUzOIhYr6mpNS4FWAOcJcJ4vGUjpPDuWBeNpmOY0QmFlQtYaGPnkSwdIZTUqqBrR1diEoeOfgvMCLEtAiEvgPAkuMhByFoxJHWMsoU1V8hZ0zDSTMM0ZGAaD1zdda8CaSml41pcP3t5+BH+ehPmrqRcVYh6cxyHELCwrA9OMQ8giDEPoM7e3v5LHRRamldQQhiMZTCcyzouoxpA1A8bypSptkDhPl7Y2B8bU5Hl9rkqWOgYzbgPH1ubNQkibgUgkoz9GkUjdj9GyplcRq9rG3kr1cmW0ldaVq1HKHGKxPCyWQjxehBBZRKN5xGIFnas6Q6oj4vn6F5GtJQ2NacZKlaiqElUxZUwtXImpDojH55FIFCCjiyUwF0qxYnnum96EqnI16SpIGi6u2qoSU1usDEg5ByFikHKx/O62/xXb1U1raExT6lZSO7AaW4VLCLXoMqRcKI07ZMCuWm3Zsm4f1TrVMcZmdWztxDtmYHu6NQP/AZj/nUD/Pc40AAAAAElFTkSuQmCC', 'decoupe': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMwSURBVFhH7ZddSJNRGMfPhYJC+TEDUfArAsFA8MILL/RCwQtBvAgUxBK/UvNCJRBNhUEZkRBdpAVBhEFgEIqCIuRm0yvzPdNNWzqn01A3dX4z8/Mf57xmTd32Tl+MoIsf78vZzvv89pz/njEya16FadIGg2EROp0FWu2CjMxDOzwncuo1EfJfwJWASmVFV9fiBbCiq9sicrSm0TjWcCmQkWFHQMCBrJSVbboXGBiwID3djqBnByDduDgfABIMEAIUFGy5FujoWETO3S1cVR6CGACCC2IESC1AHgLkphuBzs5lFBdvglwByEuAfJSBFwDJBYgVILfcCFRWbsLLaw/+/muy4OOzDZL6RzekCERGTqOq6qksJCV99lzg+nUTlEqlLKSkfPrHBQoLXyMrq9Up2dnvUVvbcKqwbAIxMWM8TBERZoSFzfKABgYeICRkHwrFAXx97Sgvf36qsKwCrMDS0jUYjTcQHj4DpXINarUVjY2rlyNQU/OYb7fZFIiKmuKF2cbmZtvfF/D23kV8/CASEzXHJCerUF39xKlAUdEadLoZ/kup15vPL9DauoSUlG0H4uJ2eFcqKsSunC2wAr3eBEqnMDo6eX6Bs/h1LK4E8vM3ePGhoRFQOnP5Anl5FgjCKLTa71zCY4Ho6D0kJPw4k5iYXbcC+flroHQSlI7xTkgWsNt90dR0Dw0ND5ySl/dGgoANlE6AUiO/ShaQQk9PqgSBJVD6jX96Sg3uBUpLmzE9HSmJlpbbEgTEEAqCTloI2QODgpYl4ee3LkHAws+fhZBJuBQoKXmFnJx3HpGb+xZ1dY8cBdYBcgcorJ1HWxubAQwJIbwoXCAK8Kk5RMH9FbS3m48CKCII46cFgoMtyMxslYXYWB0Uil2kp9vQ32/GyAgLHisuhlAQvjoK1NdvIDR0/wS7R7D7HYSG7nm0lpZmw5AgTj2WekrHnU/CwS9W9PU5olaboFIZoFYvoLdXD7XaDJVKytoMX9NoWOBmIXAJsQNOJ+HJf0a/z8vEN4ltM/CzY9PM7RprtZYNHOfvcyIwfzypHGGbPVljV/GeFRaECQwPT0KnY98CI7TaOfwE19uVDckHj/oAAAAASUVORK5CYII=', 'bord-tombe-ourlet': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAVJSURBVFhH3ZZrTBRXGIY/mthYL3ih2ouKVokYMRJTTBPbxLSJxhSkVbEmNSqrCDVRSWpUhGqxKniJuqJUK7iLShHB1AKGRV0Kuyt7mcvOrsuy3EFUalpj27Q/+qd9mznjsoUBFon2R388yXLmzHmfM+fjmyFJ+hHPh25IrocKqmsKTukBBPEe7I4O3KlrRq3JC+o7afj8HwQsBRUwbM/ol5u7DkC406xa9LkKVG5Nw6UwQuUShcLJhOK3CN8tIOjGhKL6UC64ao9q4ecqYFhGABRuryTYPyd0XidcHE/If4lQc1zH5vJ8F2prfQFMDWxBs7kBoti/xLAE5ODqTwg/84Rv3wwIXLhwHVOmTA8wVSYcc+dG49YtSRU+bAGZ+hzCzXiCflRAwGh04+jR84x58xaAiBgTJoTBYBBU4YrAQwhiFxxcB6y2VpjMvuACN94nOA8QrNsJBaEBARmbrR179mRj1qxIREfHYMnS5UMU6GQCZssQBOQitCQT2ksJlycHBGpqvDh2LA8TJ76K2bOjsH//SZzJLQwiIB+B8gTqrC2sboIK9FeEdnsHe/QhISEYOzYUOTmX2X/BuW+KER4+E1VVTlV4QOAZa6CnCIVAEaalZSEsbBLGjRsPvb4cVms7E7DZ21Bp4CAI91XhwxboW4SJ0TGIiJiDyMgoaLUFrA6U+19QH+hbhDs++BAazVZkZp7sE/CCBAYqQjUvSIDPINw3EPJI4dkEup+i/PYLOLj2/0bA7e6Ax9PKrtXXN8Hl7oDb3QbJ1Th0gdI5hIr3lPNvOEswbo5BdfbXQQVEUX5zyrSB4zxwuTogCF7wQgN4oXVggZLZBFeWwrUoZdfFMwl8OkE6RBD2Ekw73kXltvRelGblQF9QqqC/Bp3uEnS6Quh0V5CXlw+9vgT5+QUoLzeyGqira4bJJKoF+nsdy0XYWaY8EW8uwfmV8or2H8u+adOR+PFKLE9LH5S1W7bgTK5eEbA2wWx2qAX6HoG/E16NIDzxEKrXKHXRXkI4HxKCU6NGYX7qLtCFKwOTX4QR5y5i4aZkHD6SA7ujbeAj6Cvg74SPJULZO4SWS0pfKHydoB09BhF7MvHy2QJ16L+Qry9an4hl8R/h4MEsmC380AVYJzxNqFlLaL5IsKUqtbEvfAait+8MGh56PBcxSSlYFh+P2NhYZGefgNXmG5pAy2WC+CXBpCHoRxMcu5XwdFqExa+dwohV7qC8saKEBfs5fOT00BuRTGsRoXJpALkw14dnYOpiBCVsBjBtktATvikpBXn5VwcWqNqRiarlY/DnE8Lff/UW6TmWFYSdqRmI7UZQonYrAnFxcUhIWI3iYsPgrVgwN6Hm2Clcf5vwxwN1+HAFVq9eg7IyC2vBgwrIcMa7+CHrBIyfhsGYQCrkb4LEiAxMj0VQJkUCC+c/QGFhEThO7oSN4PgmOLgW2GwSak0etYCMaG2DIfUL3Ni4DRWaFFRoklCh2Yrv1yeiXPMZTmiKkaz5CSkbf0ey5hFSNL9ic+JjJG14hJSNvyFpQzeSNb+wsf1770EQfOD5RtaGOc4Lu8MDm80Ni8XZv4Afp7OL9XRR9EEU28FxbgiC/HcTRFH+/m+DKHohii3geR843gPR2dozj41x9WyePFZUVI7TZ/Kg1ebipFYHrTZnMIGHTxeXw+RwkQlx3F3wfAMEoQ12u8DGeN4DQZZk4co8NiY09ro3Li4BI0e+0vMJz1AH+8PvwumUdyjv2AunU36UbrYbZWfy9S64XF5IkvxZ1gLJ5YNT6uw9JjWye+12Ebdu27FuXXIvgX8A3rnCg9yCXSsAAAAASUVORK5CYII=', 'repetition': 'data:image/png;base64,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', 'plaque-sur-arete': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAASjSURBVFhH7ZZtUFRVHMb/mC0slAqK4whN1sf6FlOj2GBoOEw6BmNZfgAaNMfKppeZaqrRyWqawRmrD/XBhAhLXneEkCAped9l99577t1XFnZZEAiMATLEMXGKpzn3wsK64KKxfOrDM7t79sx5fv//ee65hxTlMpZGQ1Csg5qC/tMkK79BYn0wW3rRZvSgqdkFunXS3et/gGCA1qIa1L11bI6OoqnAsDwApopGVGbsx5k4QvVWwreRhNNEqM49EmYA3mZjN8pT0lTT+mcJ492E4oRlAhCbXShN2owCfQzaXiV0FxNKHyYUrFwGAGNZPSq2p6MgSg/z2wR2nFCzjVC0iuD6ilD1eBgBWs/UoDJzPwr1hNZDBOVTQl06ofQhAvuIMHmF8EtmmADmBu7nXYRLlYTzTxJKHiQI7xEATUsPIA8FBe6qj1CcSCiMJsifzJqHBUBscqM0acu8gXN9TbgxGm6ABieKNiSo6TY8ogXuu+nAXRsINA8rQH0GwfIO4de9hO/jCRN9weZLBmAoH0H+N2OaTnpwOi4Rvec0g/7aMALI8mUYjb8jLeUGolf+A73+JuKjhnAi4oHQAFOEmxOEC7v/A0Bz0zCSkyaxVj8F3VNeRHxWg1UfnkXemviQADyM51MIhffdJUBF2QjSU/9CXNQUdDvdWHG8DlRQgvu/PIW8uHW3BRhVSM0Ifyyrsw6htfTCnQH8UDSKFzKvI1r3N3TbvFjxca1qvhiAYROh5QCpR3PVc9kwVly8s/uAoWIE+zKuQx8zicjHBhDxRaXfPBTAmJ3QnEsoXB0Lw45n1Cdm0RcSNXBts4GLTOoPML4twDrCH04tcPm6SBie3j277jSAReiZBnDODxAQuFQvIk5WBZkvBJB/D6FkE6EwhvDjvpcg1FsDAOz2HtjsHhhNXTCZxGAAf+C4+c5Of+Dm03wA/FRU3/tZh2EqbwhYWxQ7IUluMNaF9nYFLa1KIIA/cARVuuRe3Pu8sqBi9zQgL3oDmnIIthNzArc3S31D2my84n71riBJHgiiS5PgQnu7DUaTNRDgzSNXsToWSNgaWusfBdbSFbxCL+Jd2o7PN6ag7IlkGHakQbxohyz3q+12On1gzAeLxQaJdUFibgiCA+3mDpgtt3SAAySmAruGQmvLWa1LXPx8eOO1cVhtvbDbXVCUAUiSE5LEW+6D2SyqQIy5IEodEETeDYbmFsfSABz7YByNjT4w2QXFegkWiwxJ8qp7Lgi8G31gzA4me8GYNmZq559yMMCa9cCmPaG1cTMQHzOFo++Po/Ynrz9cfHFuzpj2WxT5mAOMdUOSOiCKXG6IogNtRlsgQP6pMbycc20BTeBg9jAO5vyJA9ljyM0axuuHr6KxkVfKF+xQ2yuKLjDmUc35FvAuaKZ8O/gcLwTRB4vgXPgcmBHfN76fijIIxnrAmBOMzbSWf+/RwiV5VAhBdECWeehm5mlgsjyodYb5FncSahpSQ8Mr4UaCwFQg3jpeWfCYG0z2QRRlFZobcoCAghZ7FPOKrdYOKEoPFKUbitKpBslq5QnnY17/GA8Xr1qSeMsdagidzi5Yrb1q5aEA/gXiM1j5EPLx9QAAAABJRU5ErkJggg==', 'depliage-pliage': 'data:image/png;base64,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' };
+  const ICONE_ETAPE = [];
+
+  const ETAPES = [
+    { t: "Configurer CATIA", f: null,
+      d: "Avant de commencer, règle les options. Dans Outils, Options, Paramètres et mesure, coche Avec valeur et Avec formule. Dans Infrastructure Part, coche tout l'affichage dans l'arbre. Dans Product structure, personnalise l'arbre, et dans Assembly Design, active la mise à jour automatique.",
+      v: ["Avec valeur + Avec formule", "tout afficher dans l'arbre", "mise à jour automatique"],
+      a: "Sans ces réglages, les paramètres et les formules n'apparaissent pas dans l'arbre." },
+    { t: "Créer la roue et ses paramètres", f: "Roue · Diamètre roue · Largeur roue",
+      d: "Crée une nouvelle Part nommée Roue, avec un set géométrique. Clique sur l'outil f de x et crée deux paramètres de type longueur : le diamètre de la roue, puis sa largeur. Ils apparaissent dans l'arbre, et un double clic permet de changer leur valeur.",
+      v: ["Part : Roue", "f(x)", "2 paramètres de longueur"],
+      a: "Un <b>paramètre</b> est une valeur nommée : on la change à un seul endroit et tout ce qui en dépend suit." },
+    { t: "Lier l'esquisse aux paramètres", f: "Esquisse.1",
+      d: "Dans le plan XY, dessine le profil de la roue et un trait d'axe. Fais un clic droit sur la cote du rayon, puis Éditer formule, et clique sur le paramètre Diamètre roue en ajoutant divisé par 2. Fais de même pour la largeur. Les cotes affichent alors f de x.",
+      v: ["plan XY", "Éditer formule", "rayon = diamètre / 2"] },
+    { t: "Faire la révolution", f: "Révolution.1",
+      d: "Sors de l'esquisse et utilise Révolution autour du trait d'axe, sur 360 degrés. La roue est créée, et ses dimensions dépendent des deux paramètres.",
+      v: ["Révolution", "trait d'axe", "360°"] },
+    { t: "Créer l'arborescence de l'assemblage", f: "Croquis-voiture · Chassis · Squelette-chassis · SOL · Porte-fusee · Cremaillere",
+      d: "Fais Fichier, Nouveau, Product, et renomme-le Croquis-voiture dans ses propriétés. Ajoute un sous-assemblage Chassis qui contient la Part Squelette-chassis, puis les Parts SOL, Porte-fusee et Cremaillere. Donne le même nom à l'instance et à la référence.",
+      v: ["Product = assemblage", "Part = pièce", "instance = référence"],
+      a: "<b>Attention</b> : pas d'accents, de points, de barres ni d'espaces dans les noms ; préfère le tiret ou le tiret bas." },
+    { t: "Modéliser le sol", f: "SOL : Extrusion.1",
+      d: "Double clique sur le corps principal du SOL pour passer en Part Design. Dans le plan XY, dessine un rectangle de 4000 par 2000 millimètres centré sur le repère, puis extrude-le de 20 millimètres.",
+      v: ["rectangle 4000 × 2000", "centré", "extrusion 20 mm"] },
+    { t: "Enregistrer tout l'assemblage", f: null,
+      d: "Utilise la gestion des enregistrements. Toutes les Parts et tous les Products doivent être enregistrés dans le même répertoire, sur ton poste. Pense à refaire cet enregistrement régulièrement.",
+      v: ["gestion des enregistrements", "même répertoire"] },
+    { t: "Dessiner le squelette du châssis", f: "Squelette-chassis : Esquisse.1",
+      d: "Double clique sur le corps principal de Squelette-chassis. Dans le plan XY, dessine un rectangle de 3000 par 1500 millimètres centré sur le repère, et quatre traits de 200 millimètres aux quatre coins : ce sont les axes des roues.",
+      v: ["rectangle 3000 × 1500", "4 traits de 200 mm"],
+      a: "Le <b>squelette</b> ne contient que des traits : il sert de référence pour placer les autres pièces." },
+    { t: "Ajouter les axes de pivot", f: "Plan.1 · Esquisse.2",
+      d: "Crée un plan décalé de 1500 millimètres par rapport au plan YZ. Dans ce plan, dessine deux traits verticaux de 150 millimètres, centrés sur l'axe H et passant par les deux coins avant du rectangle. Ce seront les axes de pivot de la direction.",
+      v: ["plan décalé de 1500 mm", "2 traits de 150 mm"] },
+    { t: "Fixer le sol et déplacer le châssis", f: "Fixité.1",
+      d: "Revenu dans Croquis-voiture, clique sur l'outil Fixité puis sur le SOL : il ne bougera plus. Attrape ensuite la boussole par son carré rouge, colle-la sur le dessus du sol, et tire sur un de ses axes pour déplacer le châssis.",
+      v: ["Fixité : SOL", "boussole", "déplacement libre"],
+      a: "Pour remettre la boussole à sa place, fais glisser son carré rouge dans le fond de l'écran." },
+    { t: "Insérer et contraindre les roues arrière", f: "Roue.1 · Roue.2 · Coïncidence · Distance",
+      d: "Avec Composant existant, insère la Roue dans Croquis-voiture. Place-la à peu près à la boussole, puis ajoute une coïncidence entre l'axe de la roue et le trait du châssis, et une distance de 0 entre le plan de la roue et le bout du trait. Fais de même pour l'autre roue arrière.",
+      v: ["Composant existant", "coïncidence d'axes", "distance 0"] },
+    { t: "Créer le porte-fusée", f: "Porte-fusee : Pad.1 · Pad.2 · Déport de direction · Pad.3",
+      d: "Ouvre le Porte-fusee dans une nouvelle fenêtre. Extrude un cercle de 50 millimètres de diamètre sur 200 millimètres, puis un cercle de 20 millimètres sur 75 millimètres en symétrique, qui sera l'axe de pivot. Crée le paramètre Déport de direction de 130 millimètres et utilise-le pour la longueur du bras.",
+      v: ["Ø 50 × 200 mm", "Ø 20 × 75 mm", "Déport de direction = 130 mm"] },
+    { t: "Placer les deux porte-fusées", f: "Porte-fusee.1 · Porte-fusee.2 · Coïncidence · Distance",
+      d: "Dans l'assemblage, place le porte-fusée à la boussole, puis contrains-le : coïncidence entre l'axe de 20 millimètres et le trait de pivot, et distance de 0 entre son plan et le point du châssis. Insère un second porte-fusée de l'autre côté avec les mêmes contraintes.",
+      v: ["coïncidence : axe Ø 20 / pivot", "distance 0", "× 2"] },
+    { t: "Cacher les plans", f: null,
+      d: "Pour mieux voir, sélectionne les plans et les repères d'esquisse de chaque Part, puis clic droit, Cacher afficher. Ils sont grisés dans l'arbre et disparaissent de la vue.",
+      v: ["Cacher / afficher", "plans et repères"] },
+    { t: "Monter les roues avant", f: "Roue.3 · Roue.4 · Coïncidence · Distance",
+      d: "Insère deux nouvelles roues. Pour chacune, ajoute une coïncidence entre l'axe du cylindre de 50 millimètres du porte-fusée et l'axe de la roue, puis une distance de 0 entre les deux plans. Mets enfin une distance de 1500 millimètres entre les axes des deux pivots.",
+      v: ["coïncidence : axe Ø 50 / roue", "distance 0", "1500 mm entre pivots"] },
+    { t: "Poser la voiture sur le sol", f: "Contact × 4 · Angle",
+      d: "Ajoute une contrainte de contact entre chacune des quatre roues et le dessus du sol : la voiture descend et s'y pose. Ajoute ensuite une contrainte d'angle de 0 ou 180 degrés entre le plan d'une roue arrière et une arête du sol pour l'aligner.",
+      v: ["contact × 4", "angle 0° ou 180°"] },
+    { t: "Manipuler sous contraintes", f: null,
+      d: "Ouvre les paramètres de manipulation et choisis Sous contraintes, avec l'un des axes de 20 millimètres du porte-fusée. En faisant glisser une roue avant à la souris, les roues avant tournent : la direction fonctionne, sans casser les contraintes.",
+      v: ["Paramètres de manipulation", "sous contraintes", "les roues braquent"] },
+    { t: "Changer un paramètre", f: "Diamètre roue = 800 mm",
+      d: "Tout l'intérêt de l'assemblage paramétré : double clique sur le paramètre Diamètre roue et passe-le de 600 à 800 millimètres. Les quatre roues grandissent, et la voiture remonte pour rester posée sur le sol. On peut faire de même avec le déport de direction.",
+      v: ["Diamètre roue : 600 → 800 mm", "tout se met à jour"],
+      a: "Un seul chiffre change, et toutes les pièces et contraintes suivent : c'est le but de la conception paramétrée." }
+  ];
+
+  // ---------- petit moteur 3D isométrique ----------
+  // unités : 1 = 10 mm ; x : longueur (avant en x > 0), y : largeur, z : vers le haut
+  const S = 0.9;
+  const P = ([x, y, z]) => [((-y - x) * 0.866) * S, ((x - y) * 0.5 - z) * S];
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const face = (pts, coul, etape, extra = {}) => ({ pts, coul, etape, prof: pts.reduce((s, p) => s + p[0] - p[1] + p[2] * 0.6, 0) / pts.length + (extra.dp || 0), trou: !!extra.trou, cle: extra.cle, sur: extra.sur, op: extra.op });
+  const rect = (a, b, c, d, coul, e, extra) => face([a, b, c, d], coul, e, extra);
+  const add = (a, b, s = 1) => [a[0] + b[0] * s, a[1] + b[1] * s, a[2] + b[2] * s];
+  const FIN = 17, DERNIERE = -1;
+  const LX = 150, LY = 75, L200 = 20, W = 20;      // demi-longueur et demi-largeur du squelette, traits de 200 mm, largeur de roue
+  let cleN = 0;
+
+  // roue : centre cc, axe horizontal tourné de phi autour de z, rayon r ; balayage theta (< 2π pendant la révolution)
+  function roue(F, cc, r, phi, e, theta = 2 * Math.PI) {
+    const a = [-Math.sin(phi), Math.cos(phi), 0], u = [Math.cos(phi), Math.sin(phi), 0], v = [0, 0, 1], ri = r * 0.45, n = 24;
+    const pt = (ang, rr, off) => add(add(add(cc, u, rr * Math.cos(ang)), v, rr * Math.sin(ang)), a, off);
+    const m = Math.max(1, Math.round(n * theta / (2 * Math.PI)));
+    for (let i = 0; i < m; i++) { const a0 = theta * i / m, a1 = theta * (i + 1) / m; F.push(rect(pt(a0, r, -W / 2), pt(a1, r, -W / 2), pt(a1, r, W / 2), pt(a0, r, W / 2), 'ombre', e)); }
+    [-W / 2, W / 2].forEach(off => {
+      if (theta >= 2 * Math.PI - 1e-6) {
+        const k = 'r' + (cleN++);
+        F.push(face(Array.from({ length: n }, (_, i) => pt(2 * Math.PI * i / n, r, off)), 'tole', e, { cle: k }));
+        F.push(face(Array.from({ length: n }, (_, i) => pt(2 * Math.PI * i / n, ri, off)), 'trou', e, { trou: true, sur: k }));
+      } else {
+        const pts = []; for (let i = 0; i <= m; i++) pts.push(pt(theta * i / m, r, off)); for (let i = m; i >= 0; i--) pts.push(pt(theta * i / m, ri, off));
+        F.push(face(pts, 'tole', e));
+      }
+    });
+  }
+  // cylindre d'axe dir (unitaire), de rayon r, de c0 à c0 + dir × len
+  function cyl(F, c0, dir, len, r, e, n = 10) {
+    const u = Math.abs(dir[2]) > 0.9 ? [1, 0, 0] : [dir[1], -dir[0], 0].map(x => x / Math.hypot(dir[0], dir[1])), v = [dir[1] * u[2] - dir[2] * u[1], dir[2] * u[0] - dir[0] * u[2], dir[0] * u[1] - dir[1] * u[0]];
+    const pt = (i, l) => add(add(add(c0, dir, l), u, r * Math.cos(2 * Math.PI * i / n)), v, r * Math.sin(2 * Math.PI * i / n));
+    for (let i = 0; i < n; i++) F.push(rect(pt(i, 0), pt(i + 1, 0), pt(i + 1, len), pt(i, len), 'ombre', e));
+    [0, len].forEach(l => F.push(face(Array.from({ length: n }, (_, i) => pt(i, l)), 'tole', e)));
+  }
+  // porte-fusée au pivot p, côté s (−1 à gauche, +1 à droite), braqué de phi ; ech agrandit la pièce (vue seule)
+  function porteFusee(F, p, s, phi, e, ech = 1) {
+    const G = [];
+    cyl(G, add(p, [0, 0, -3.75 * ech]), [0, 0, 1], 7.5 * ech, 1 * ech, e);              // pivot Ø 20 × 75
+    cyl(G, p, [0, s, 0], L200 * ech, 2.5 * ech, e);                                       // fusée Ø 50 × 200
+    const b = 13 * ech, h = 0.5 * ech;                                                    // bras : déport de direction 130 mm
+    G.push(rect(add(p, [0, 0, -h]), add(p, [-b, 0, -h]), add(p, [-b, -s * 2 * ech, -h]), add(p, [0, -s * 2 * ech, -h]), 'tole', e));
+    const c = Math.cos(phi), sn = Math.sin(phi);
+    G.forEach(f => { f.pts = f.pts.map(([x, y, z]) => [p[0] + (x - p[0]) * c - (y - p[1]) * sn, p[1] + (x - p[0]) * sn + (y - p[1]) * c, z]); f.prof = f.pts.reduce((q, pp) => q + pp[0] - pp[1] + pp[2] * 0.6, 0) / f.pts.length; });
+    F.push(...G);
+  }
+
+  // la scène à l'étape n ; t (0 à 1) fait avancer l'opération de l'étape n
+  function modele(n, t = 1) {
+    const F = [], L = [], esq = [];
+    const k = (s) => (s < n ? 1 : s === n ? t : 0);
+    cleN = 0;
+    // pièce Roue seule (étapes 1 à 3)
+    if (n >= 1 && n <= 3) {
+      if (n === 2) {
+        const r = 30, ri = 13.5, pts = [[ri, -W / 2, 0], [r, -W / 2, 0], [r, W / 2, 0], [ri, W / 2, 0], [ri, -W / 2, 0]];
+        const seg = Math.min(4, t * 4); for (let i = 0; i < Math.ceil(seg); i++) { const f = Math.min(1, seg - i); esq.push([pts[i], pts[i].map((v, j) => v + (pts[i + 1][j] - v) * f)]); }
+        L.push({ a: [0, -25, 0], b: [0, 25, 0], c: 'accent', d: '8 3 2 3' });
+      }
+      if (n === 3) { roue(F, [0, 0, 0], 30, 0, 3, 2 * Math.PI * t); L.push({ a: [0, -25, 0], b: [0, 25, 0], c: 'accent', d: '8 3 2 3' }); }
+      return { F, L, esq, vue: 'roue' };
+    }
+    // porte-fusée seul (étape 11)
+    if (n === 11) {
+      const G = []; porteFusee(G, [0, 0, 0], -1, 0, 11, 2.2);
+      const c = t; G.forEach((f, i) => { if (i < G.length * Math.max(c, 0.02)) F.push(f); });
+      return { F, L, esq, vue: 'pf' };
+    }
+    if (n < 4 || n === 4) return { F, L, esq, vue: 'asm' };
+    // sol : rectangle 4000 × 2000, extrusion de 20 mm
+    if (n >= 5) {
+      const c = k(5), X = 200 * c, Y = 100 * c, Z = -2;
+      F.push(rect([-X, -Y, 0], [X, -Y, 0], [X, Y, 0], [-X, Y, 0], 'tole', 5, { dp: -400 }));
+      F.push(rect([-X, -Y, 0], [X, -Y, 0], [X, -Y, Z], [-X, -Y, Z], 'ombre', 5, { dp: -400 }));
+      F.push(rect([X, -Y, 0], [X, Y, 0], [X, Y, Z], [X, -Y, Z], 'ombre', 5, { dp: -400 }));
+    }
+    // hauteur du châssis : posé dans le plan XY, monté à la boussole, puis posé sur le sol par les contacts
+    const R = 30 + 10 * k(17);
+    const zc = n < 9 ? 0 : n < 15 ? 50 * k(9) : 50 - (50 - R) * k(15) + (n >= 17 ? 0 : 0);
+    const Z = n >= 17 ? R : zc;
+    // squelette : rectangle 3000 × 1500 et 4 traits de 200 mm (dessinés trait par trait)
+    if (n >= 7) {
+      const c = k(7), pts = [[-LX, -LY], [LX, -LY], [LX, LY], [-LX, LY], [-LX, -LY]], seg = [];
+      for (let i = 0; i < 4; i++) seg.push([[...pts[i], Z], [...pts[i + 1], Z]]);
+      [[-LX, -LY, -1], [LX, -LY, -1], [LX, LY, 1], [-LX, LY, 1]].forEach(([x, y, s]) => seg.push([[x, y, Z], [x, y + s * L200, Z]]));
+      const nb = seg.length * c;
+      seg.forEach((sg, i) => { if (i < nb) { const f = Math.min(1, nb - i); L.push({ a: sg[0], b: sg[0].map((v, j) => v + (sg[1][j] - v) * f), c: 'fil', e: 7 }); } });
+    }
+    // plan décalé de 1500 mm et traits de pivot (150 mm) aux coins avant
+    if (n >= 8) {
+      const op = n >= 13 ? 1 - k(13) : 1;
+      if (op > 0.02) F.push(face([[LX, -110, Z - 18], [LX, 110, Z - 18], [LX, 110, Z + 22], [LX, -110, Z + 22]], 'plan', 8, { dp: -300, op }));
+      const c = k(8); [-LY, LY].forEach(y => L.push({ a: [LX, y, Z - 7.5 * c], b: [LX, y, Z + 7.5 * c], c: 'fil', e: 8 }));
+    }
+    // fixité du sol et boussole pendant le déplacement
+    if (n === 9) {
+      const o = [-LX - 25, -LY - 10, Z]; L.push({ a: o, b: add(o, [14, 0, 0]), c: 'accent', e: 9 }, { a: o, b: add(o, [0, -14, 0]), c: 'accent', e: 9 }, { a: o, b: add(o, [0, 0, 14]), c: 'accent', e: 9 });
+    }
+    if (n >= 9) L.push({ a: [-185, -88, 0], b: [-185, -88, 6], c: 'accent' }, { a: [-188, -88, 6], b: [-182, -88, 6], c: 'accent' });   // symbole de fixité sur le sol
+    // roues arrière : insérées à peu près, puis amenées par les contraintes
+    const glisse = (de, vers, c) => de.map((v, j) => v + (vers[j] - v) * c);
+    if (n >= 10) [[-1, 0], [1, 0.5]].forEach(([s, d]) => {
+      const c = Math.min(1, Math.max(0, (k(10) - d) * 2)); if (n === 10 && k(10) < d) return;
+      const cible = [-LX, s * (LY + L200 + W / 2), Z], depart = [-80, s * 170, Z + 60];
+      roue(F, glisse(depart, cible, n === 10 ? c : 1), R, 0, 10);
+    });
+    // braquage des roues avant pendant la manipulation sous contraintes
+    const phi = n === 16 ? Math.sin(t * Math.PI * 2) * 0.45 : 0;
+    // porte-fusées
+    if (n >= 12) [[-1, 0], [1, 0.5]].forEach(([s, d]) => {
+      const c = Math.min(1, Math.max(0, (k(12) - d) * 2)); if (n === 12 && k(12) < d) return;
+      const cible = [LX, s * LY, Z], depart = [0, 0, Z + 20];
+      porteFusee(F, glisse(depart, cible, n === 12 ? c : 1), s, phi, 12);
+    });
+    // roues avant sur les fusées, et distance de 1500 mm entre les pivots
+    if (n >= 14) [[-1, 0], [1, 0.5]].forEach(([s, d]) => {
+      const c = Math.min(1, Math.max(0, (k(14) - d) * 2)); if (n === 14 && k(14) < d) return;
+      const p = [LX, s * LY, Z], rot = (q) => [p[0] + (q[0] - p[0]) * Math.cos(phi) - (q[1] - p[1]) * Math.sin(phi), p[1] + (q[0] - p[0]) * Math.sin(phi) + (q[1] - p[1]) * Math.cos(phi), q[2]];
+      const cible = rot([LX, s * (LY + L200 + W / 2), Z]), depart = [LX + 50, s * 170, Z + 60];
+      roue(F, glisse(depart, cible, n === 14 ? c : 1), R, phi, 14);
+    });
+    if (n === 14) L.push({ a: [LX, -LY, Z + 12], b: [LX, LY, Z + 12], c: 'accent', d: '6 4', e: 14 });
+    return { F, L, esq, vue: 'asm' };
+  }
+
+  // ---------- rendu ----------
+  const scene = document.getElementById('scene');
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  const cadre = (F, Ls = []) => { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; const vu = (p) => { const [a, b] = P(p); x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, b); y1 = Math.max(y1, b); }; F.forEach(f => f.pts.forEach(vu)); Ls.forEach(l => { vu(l.a); vu(l.b); }); const m = 26; return [x0 - m, y0 - m, x1 - x0 + 2 * m, y1 - y0 + 2 * m]; };
+  const CADRES = { asm: cadre(modele(FIN).F), roue: cadre(modele(3).F), pf: cadre(modele(11).F) };
+  const ATELIERS = { asm: 'Assembly Design', roue: 'Part Design (Roue)', pf: 'Part Design (Porte-fusee)' };
+  function repere(g, vb) {
+    const o = [vb[0] + vb[2] - 46 * vb[2] / 420, vb[1] + vb[3] - 30 * vb[2] / 420], l = 16 * vb[2] / 420;
+    [['X', [1, 0, 0]], ['Y', [0, 1, 0]], ['Z', [0, 0, 1]]].forEach(([lab, d]) => {
+      const q = P(d.map(v => v * l / S)), b = [o[0] + q[0], o[1] + q[1]];
+      g.appendChild(el('line', { x1: o[0], y1: o[1], x2: b[0], y2: b[1], stroke: css('--muted'), 'stroke-width': 1.3 * vb[2] / 420 }));
+      const t = el('text', { x: b[0] + (q[0] < -1 ? -9 : 4) * vb[2] / 420, y: b[1] + (lab === 'Z' ? -3 : 9) * vb[2] / 420, fill: css('--muted'), 'font-size': 10 * vb[2] / 420, 'font-family': 'JetBrains Mono, monospace' }); t.textContent = lab; g.appendChild(t);
+    });
+  }
+  // n : étape ; anim : fondu des éléments validés ; surligner : contour orange de l'opération ;
+  // t : avancement de l'opération (0 à 1) ; apercu : l'opération n'est pas encore validée, on la dessine en pointillés
+  function dessiner(n, anim, surligner = true, t = 1, apercu = false) {
+    scene.replaceChildren();
+    const g = el('g', {}); scene.appendChild(g);
+    const { F, L, esq, vue } = modele(n, t), vb = CADRES[vue], ep = vb[2] / 420;
+    const barre = document.querySelector('.barre-vue b'); if (barre) barre.textContent = ATELIERS[vue];
+    repere(g, vb);
+    const coul = { tole: css('--tole'), ombre: css('--tole-ombre'), trou: css('--trou'), plan: css('--accent-doux') };
+    const tracer = (f) => {
+      const d = 'M' + f.pts.map(p => P(p).map(v => v.toFixed(2)).join(' ')).join('L') + 'Z';
+      const enCours = apercu && f.etape === n && !f.trou;
+      const p = el('path', enCours
+        ? { d, fill: 'none', stroke: css('--accent'), 'stroke-width': 1.3 * ep, 'stroke-dasharray': `${4 * ep} ${3 * ep}`, 'stroke-linejoin': 'round' }
+        : { d, fill: coul[f.coul], stroke: f.coul === 'plan' ? css('--accent') : css('--tole-bord'), 'stroke-width': (f.trou ? 0.9 : 0.6) * ep, 'stroke-linejoin': 'round' });
+      if (f.op !== undefined) p.setAttribute('opacity', f.op.toFixed(2));
+      if (enCours && f.trou) return;
+      if (!enCours && surligner && f.etape === n && f.coul !== 'plan') p.setAttribute('class', (anim ? 'nouveau ' : '') + 'contour-actif');
+      g.appendChild(p);
+    };
+    const portes = F.filter(f => f.sur), faces = F.filter(f => !f.sur).sort((a, b) => a.prof - b.prof);
+    const avecEnfants = (f) => { tracer(f); if (f.cle) portes.filter(h => h.sur === f.cle).forEach(avecEnfants); };
+    faces.forEach(avecEnfants);
+    // traits du squelette, axes, boussole
+    L.forEach(l => {
+      const A = P(l.a), B = P(l.b), actif = l.e === n && surligner;
+      g.appendChild(el('line', { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: l.c === 'accent' || actif ? css('--accent') : css('--ink'), 'stroke-width': (actif ? 2 : 1.4) * ep, 'stroke-linecap': 'round', ...(l.d ? { 'stroke-dasharray': l.d.split(' ').map(v => v * ep).join(' ') } : {}) }));
+    });
+    esq.forEach(([a, b]) => { const A = P(a), B = P(b); g.appendChild(el('line', { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: css('--accent'), 'stroke-width': 2.4 * ep, 'stroke-linecap': 'round' })); });
+    scene.setAttribute('viewBox', vb.map(v => v.toFixed(1)).join(' '));
+  }
+
+
+  // ---------- lecteur ----------
+  const $ = (id) => document.getElementById(id);
+  const pistes = $('pistes'); pistes.style.setProperty('--n', ETAPES.length);
+  ETAPES.forEach((e, i) => { const b = document.createElement('button'); b.type = 'button'; b.title = `Étape ${i + 1} : ${e.t}`; b.setAttribute('aria-label', b.title); b.onclick = () => { aller(i, true); }; pistes.appendChild(b); });
+  let courant = 0, lecture = false, minuterie = null, jeton = 0;
+  const peutParler = 'speechSynthesis' in window;
+  let voixFr = null;
+  function chercherVoix() { if (!peutParler) return; const v = speechSynthesis.getVoices(); voixFr = v.find(x => /^fr(-|_)FR/i.test(x.lang)) || v.find(x => /^fr/i.test(x.lang)) || null; }
+  if (peutParler) { chercherVoix(); speechSynthesis.onvoiceschanged = chercherVoix; } else { $('voix').checked = false; $('voix').disabled = true; $('note-voix').textContent = 'Ton navigateur ne propose pas de synthèse vocale : le tuto avance seul avec le texte.'; }
+
+  let premiereVue = false; // aperçu de la pièce finie, avant la première étape
+  const redessiner = () => premiereVue ? dessiner(FIN, false, false) : dessiner(courant, false, true);
+  function afficher(i, anim) {
+    premiereVue = false;
+    const e = ETAPES[i];
+    $('num').textContent = `Étape ${i + 1} sur ${ETAPES.length}`;
+    $('titre').textContent = e.t;
+    const ic = ICONE_ETAPE[i]; $('icone').hidden = !ic; if (ic) { $('icone').src = ICONES[ic]; $('icone').alt = "Icône CATIA de l'outil"; }
+    $('texte').textContent = e.d;
+    $('valeurs').replaceChildren(...e.v.map(t => { const s = document.createElement('span'); s.textContent = t; return s; }));
+    const a = $('astuce'); a.hidden = !e.a; a.innerHTML = e.a || '';
+    $('param').hidden = true;
+    const fonctions = ETAPES.slice(0, i + 1).map(x => x.f).filter(Boolean);
+    $('arbre').replaceChildren(...(fonctions.length ? fonctions : ['(pièce vide)']).map((f, k, arr) => { const li = document.createElement('li'); li.textContent = f; if (k === arr.length - 1 && ETAPES[i].f) li.className = 'actif'; return li; }));
+    [...pistes.children].forEach((b, k) => { b.className = k < i ? 'fait' : k === i ? 'actif' : ''; });
+    animerEtape(i);
+  }
+
+  // ---------- animation d'une opération : aperçu en pointillés qui grandit, saisie des valeurs, OK, puis la tôle apparaît ----------
+  // valeurs affichées dans la fenêtre de l'outil ; un nombre défile de 0 à sa valeur pendant l'aperçu
+  const DIALOGUES = {
+    1: ['Paramètres (f(x))', [['Diamètre roue', 600, 'mm'], ['Largeur roue', 200, 'mm']]],
+    2: ['Éditer la formule', [['Cote', '300 f(x)'], ['Formule', 'Diamètre roue / 2']]],
+    3: ['Définition de la révolution', [['Profil', 'Esquisse.1'], ['Axe', "trait d'axe"], ['Angle', 360, '°']]],
+    4: ['Propriétés', [['Référence', 'Croquis-voiture'], ["Nom d'instance", '= référence']]],
+    5: ["Définition de l'extrusion", [['Profil', 'rectangle 4000 × 2000'], ['Longueur', 20, 'mm']]],
+    6: ['Gestion des enregistrements', [['Répertoire', 'le même pour tout'], ['Fichiers', '.CATPart + .CATProduct']]],
+    7: ['Esquisse (plan XY)', [['Rectangle', '3000 × 1500 mm'], ['Traits aux coins', 200, 'mm']]],
+    8: ['Définition du plan', [['Type', 'décalé'], ['Référence', 'plan YZ'], ['Décalage', 1500, 'mm']]],
+    9: ['Fixité et boussole', [['Fixité', 'SOL'], ['Boussole', 'collée sur le sol']]],
+    10: ['Contraintes de la roue', [['Coïncidence', 'axe roue / trait'], ['Distance', 0, 'mm']]],
+    11: ['Paramètre', [['Déport de direction', 130, 'mm'], ['Pivot', 'Ø 20 × 75 mm']]],
+    12: ['Contraintes du porte-fusée', [['Coïncidence', 'axe Ø 20 / pivot'], ['Distance', 0, 'mm']]],
+    13: ['Cacher / afficher', [['Éléments', 'plans et repères']]],
+    14: ['Contraintes', [['Coïncidence', 'axe Ø 50 / axe roue'], ['Distance entre pivots', 1500, 'mm']]],
+    15: ['Contraintes', [['Contact', '4 roues / sol'], ['Angle', '0° ou 180°']]],
+    16: ['Paramètres de manipulation', [['Mode', 'sous contraintes'], ['Axe', 'Ø 20 du porte-fusée']]],
+    17: ['Modifier le paramètre', [['Diamètre roue', '600 → 800 mm']]]
+  };
+  const DUREE = 2600, ATTENTE_OK = 500;
+  let animJeton = 0, animFinie = true, paroleFinie = true;
+  const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lisse = (x) => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  function majDialogue(i, t, ok) {
+    const d = DIALOGUES[i], box = $('dialogue');
+    if (!d) { box.hidden = true; return; }
+    box.hidden = false; $('dlg-titre').textContent = d[0];
+    $('dlg-champs').replaceChildren(...d[1].map(([lab, v, u]) => {
+      const ligne = document.createElement('div'), s = document.createElement('span'), b = document.createElement('b');
+      s.textContent = lab; b.textContent = typeof v === 'number' ? `${Math.round(v * t)}${u ? ' ' + u : ''}` : v;
+      ligne.append(s, b); return ligne;
+    }));
+    $('dlg-ok').classList.toggle('appuye', !!ok);
+  }
+  function animerEtape(i) {
+    const mon = ++animJeton;
+    const final = i;
+    // onglet caché (CATIA en plein écran…) : le navigateur met les animations en pause, on affiche directement le résultat
+    if (i === 0 || reduit || document.hidden) { $('dialogue').hidden = true; dessiner(final, true, i !== 0); animFinie = true; verifierSuite(); return; }
+    animFinie = false; animEtape = i;
+    const debut = performance.now();
+    const image = (now) => {
+      if (mon !== animJeton) return;
+      const x = Math.min(1, (now - debut) / DUREE), t = lisse(x);
+      dessiner(i, false, true, Math.max(t, 0.001), true); majDialogue(i, t, false);
+      if (x < 1) { requestAnimationFrame(image); return; }
+      // on « clique » sur OK, puis l'opération est validée
+      majDialogue(i, 1, true);
+      setTimeout(() => {
+        if (mon !== animJeton) return;
+        dessiner(i, true, true, 1, false);
+        setTimeout(() => { if (mon === animJeton) $('dialogue').hidden = true; }, 700);
+        animFinie = true; verifierSuite();
+      }, ATTENTE_OK);
+    };
+    requestAnimationFrame(image);
+  }
+  // si l'onglet passe en arrière-plan pendant une animation, on la termine d'un coup pour que la lecture continue
+  let animEtape = 0;
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden || animFinie) return;
+    ++animJeton; $('dialogue').hidden = true;
+    dessiner(animEtape, true, true, 1, false);
+    animFinie = true; verifierSuite();
+  });
+  // on passe à l'étape suivante quand la voix a fini ET que l'animation est terminée
+  function verifierSuite() {
+    if (!lecture || !animFinie || !paroleFinie) return;
+    const mon = jeton;
+    minuterie = setTimeout(() => { if (mon !== jeton || !lecture) return; if (courant < ETAPES.length - 1) aller(courant + 1, false); else { lecture = false; majBouton(); } }, 1000);
+  }
+  function arreterParole() { jeton++; clearTimeout(minuterie); if (peutParler) speechSynthesis.cancel(); }
+  function parler(i) {
+    const mon = ++jeton;
+    paroleFinie = false;
+    const suite = () => { if (mon !== jeton) return; paroleFinie = true; verifierSuite(); };
+    const texte = ETAPES[i].t + '. ' + ETAPES[i].d;
+    if (peutParler && $('voix').checked) {
+      const u = new SpeechSynthesisUtterance(texte);
+      u.lang = 'fr-FR'; if (voixFr) u.voice = voixFr; u.rate = parseFloat($('vitesse').value);
+      u.onend = suite; u.onerror = suite;
+      speechSynthesis.speak(u);
+    } else {
+      const duree = Math.max(4000, texte.split(/\s+/).length * 420 / parseFloat($('vitesse').value));
+      minuterie = setTimeout(suite, duree);
+    }
+  }
+  function aller(i, manuel) {
+    arreterParole();
+    courant = Math.max(0, Math.min(ETAPES.length - 1, i));
+    paroleFinie = !lecture;
+    if (lecture) parler(courant);
+    afficher(courant, true);
+    if (manuel) majBouton();
+  }
+  function majBouton() { $('lire').textContent = lecture ? '❚❚ Pause' : (courant === ETAPES.length - 1 ? '↺ Revoir' : '▶ Lecture'); }
+  $('lire').onclick = () => {
+    if (lecture) { lecture = false; arreterParole(); }
+    else { lecture = true; if (courant === ETAPES.length - 1) { courant = 0; parler(0); afficher(0, true); } else parler(courant); }
+    majBouton();
+  };
+  $('prec').onclick = () => aller(courant - 1, true);
+  $('suiv').onclick = () => aller(courant + 1, true);
+  $('voix').onchange = () => { if (lecture) { arreterParole(); parler(courant); } };
+  document.addEventListener('keydown', (ev) => { if (ev.target.tagName === 'SELECT') return; if (ev.key === 'ArrowRight') aller(courant + 1, true); if (ev.key === 'ArrowLeft') aller(courant - 1, true); if (ev.key === ' ') { ev.preventDefault(); $('lire').click(); } });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redessiner);
+  new MutationObserver(redessiner).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  // première vue : la pièce finie, pour montrer d'emblée ce qu'on va construire
+  afficher(0, false); dessiner(FIN, false, false); premiereVue = true;
+  $('arbre').replaceChildren(...['Aperçu de l’assemblage terminé'].map(t => { const li = document.createElement('li'); li.textContent = t; return li; }));
+})();
+</script>
+<script>
+  // intégré dans la leçon du site : prendre le thème clair ou sombre de la page qui l'affiche
+  try { if (parent !== window && parent.document.documentElement.classList) document.documentElement.setAttribute('data-theme', parent.document.documentElement.classList.contains('clair') ? 'light' : 'dark'); } catch (e) { }
+</script>

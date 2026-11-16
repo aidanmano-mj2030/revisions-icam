@@ -161,3 +161,9 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 
 - CM 1ère année : nouveau chapitre 3 « La cotation tolérancée » (cote nominale, écarts, IT, mesure et contrôle, jeu et serrage, ajustements ISO en alésage normal) avec trois exercices : lire une cote, ajustement ISO, jeux. La cinématique et la statique deviennent les chapitres 4 et 5.
 - CE 1ère année, composants et schémas : nouvel exercice « Chronogrammes de relais ». Un schéma de commande (S1, deux ou trois relais instantanés, à travail retardé ou à repos retardé, lampe H1) est tiré au hasard et l'élève remplit les chronogrammes seconde par seconde. La leçon a un tableau des règles des relais temporisés et un chronogramme d'exemple. Chaque relais tiré commande un relais suivant ou la lampe (plus de relais qui ne sert à rien).
+
+## 16 novembre 2026 – CATIA en EST 2ème année et mention de l'IA (Baptiste)
+
+- EST 2ème année : deux chapitres CATIA V5, « L'assemblage paramétré » et « La tôlerie (Generative Sheetmetal Design) », avec leurs exercices. La leçon de tôlerie montre les 29 icônes de l'atelier (captures de Baptiste, dans `public/catia/`) et a un exercice « Reconnaître l'icône ».
+- Trois tutoriels animés et commentés à voix haute (synthèse vocale du navigateur), ouverts depuis une carte dans la leçon : le TP de tôlerie, la Jeep Willys (une seule tôle pliée, miroir puis dépliage ; version simplifiée de l'énoncé) et le croquis de voiture de l'assemblage paramétré. Chaque opération s'affiche en pointillés pendant le réglage des valeurs, puis est validée ; la lecture continue quand l'onglet passe en arrière-plan.
+- Pied de page : mention que le site est réalisé avec l'aide de l'IA et peut contenir des erreurs, à vérifier avec les cours et les professeurs.
