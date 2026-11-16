@@ -167,3 +167,7 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - EST 2ème année : deux chapitres CATIA V5, « L'assemblage paramétré » et « La tôlerie (Generative Sheetmetal Design) », avec leurs exercices. La leçon de tôlerie montre les 29 icônes de l'atelier (captures de Baptiste, dans `public/catia/`) et a un exercice « Reconnaître l'icône ».
 - Trois tutoriels animés et commentés à voix haute (synthèse vocale du navigateur), ouverts depuis une carte dans la leçon : le TP de tôlerie, la Jeep Willys (une seule tôle pliée, miroir puis dépliage ; version simplifiée de l'énoncé) et le croquis de voiture de l'assemblage paramétré. Chaque opération s'affiche en pointillés pendant le réglage des valeurs, puis est validée ; la lecture continue quand l'onglet passe en arrière-plan.
 - Pied de page : mention que le site est réalisé avec l'aide de l'IA et peut contenir des erreurs, à vérifier avec les cours et les professeurs.
+
+## 16 novembre 2026 – Notes des QCM de la Révision DS de physique (Baptiste)
+
+- Ma progression : les séries de la Révision DS de physique (QCM de chapitre et examen blanc) étaient refusées par le serveur, car leurs questions ont un identifiant `ds/<id du DS>/<partie>/<chapitre>#…` que `src/regles-series.js` ne connaissait pas (seulement `rds/…` et `exo/…`). Ce format est maintenant accepté et rangé dans la matière du chapitre (table `DS_CHAPITRES`), avec un test dans `test/series.test.js`. Le serveur doit être redéployé pour que la correction marche en ligne.
