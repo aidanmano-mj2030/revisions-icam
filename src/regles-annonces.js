@@ -25,7 +25,7 @@ const PREFIXES_CHAPITRES = {
   },
   a2: {
     cm: ["cm2-", "produit-scalaire"], ce: ["ce2-"], aii: ["aii2-"], oi: ["oi-", "oi2-"], est: ["est2-"],
-    maths: ["maths-"], phys: ["phys-"], eco: ["eco2-"],
+    maths: ["maths-", "m2-"], phys: ["phys-"], eco: ["eco2-"],
   },
 };
 
