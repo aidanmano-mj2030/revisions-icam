@@ -7624,6 +7624,7 @@
                     ])),
                 ecoSec("3. Seuil de rentabilité, point mort et sécurité", "target",
                     H.formule(R`SR = \dfrac{CF}{\text{taux de } MsCV} \qquad SR_{\text{quantité}} = \dfrac{CF}{\text{marge unitaire}} = \dfrac{SR}{\text{prix de vente}} \qquad \text{point mort} = \dfrac{SR}{CA} \times 360 \text{ jours}`),
+                    H.figure(svgEcoSeuil(), "Exemple de la leçon : tant que la marge sur coûts variables reste sous les charges fixes, l'entreprise perd de l'argent."),
                     H.liste([
                         "Le <strong>seuil de rentabilité</strong> est le CA pour lequel le résultat est nul : au-dessus, l'entreprise fait du bénéfice.",
                         "Le <strong>point mort</strong> est la date à laquelle ce seuil est atteint (activité régulière ; s'il y a une fermeture, on décale la date).",
@@ -7654,7 +7655,8 @@
                         "Taux dégressif = taux linéaire × coefficient (1,25 pour 3 ou 4 ans ; 1,75 pour 5 ou 6 ans ; 2,25 au-delà de 6 ans).",
                         "Chaque année : annuité = VNC de début × taux. On prend le <strong>plus grand</strong> entre le taux dégressif et le taux linéaire calculé sur les années restantes (100 / nombre d'années restantes). Le plan a toujours n lignes."
                     ]),
-                    H.p("Exemple : 12 000 € sur 4 ans, acquis en octobre. Taux = 25 % × 1,25 = 31,25 %. Année 1 (3 mois) : 12 000 × 31,25 % × 3/12 = 937,50 € ; VNC = 11 062,50 €. Année 2 : taux linéaire restant 100/3 = 33,33 % > 31,25 %, donc 11 062,50 × 33,33 % ≈ 3 687,50 €."))
+                    H.p("Exemple : 12 000 € sur 4 ans, acquis en octobre. Taux = 25 % × 1,25 = 31,25 %. Année 1 (3 mois) : 12 000 × 31,25 % × 3/12 = 937,50 € ; VNC = 11 062,50 €. Année 2 : taux linéaire restant 100/3 = 33,33 % > 31,25 %, donc 11 062,50 × 33,33 % ≈ 3 687,50 €."),
+                    H.figure(svgEcoVNC(), "10 000 € amortis sur 5 ans (achat le 1<sup>er</sup> janvier). En dégressif, taux 20 % × 1,75 = 35 %, puis passage au linéaire quand il devient plus fort : la VNC baisse plus vite au début, le total amorti est le même."))
             ] },
             "eco1-entreprise": { badge: ECO_BADGE, titre: "Qu'est-ce qu'une entreprise ?", sections: () => [
                 ecoSec("1. Moyens, activité, objectifs", "building-2",
@@ -7685,6 +7687,215 @@
                     ]))
             ] }
         });
+
+        // ---------- Éco : schémas des leçons (SVG). Couleurs reprises par le mode clair (règles html.clair svg) ----------
+        const EC = { bleu: '#38bdf8', vert: '#34d399', rouge: '#f87171', ambre: '#fbbf24', violet: '#a78bfa' };
+        const ecSvg = (w, h, label, contenu, max = 460) => `<div style="align-self:stretch;overflow-x:auto"><svg viewBox="0 0 ${w} ${h}" style="display:block;width:100%;min-width:320px;max-width:${max}px;height:auto;margin:0 auto" role="img" aria-label="${label}">${contenu}</svg></div>`;
+        const ecTxt = (x, y, t, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.ancre || 'middle'}" fill="${o.couleur || SVG_TEXTE}" font-size="${o.taille || 11}"${o.gras ? ' font-weight="bold"' : ''}${o.rot ? ` transform="rotate(${o.rot} ${x} ${y})"` : ''}>${t}</text>`;
+        const ecBoite = (x, y, w, h, coul, lignes, o = {}) => {
+            const t = o.taille || 11, n = lignes.length, y0 = y + h / 2 - (n - 1) * (t + 2) / 2 + t * 0.35;
+            return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx ?? 6}" fill="${coul}" fill-opacity="${o.opacite ?? 0.16}" stroke="${coul}" stroke-width="1.5"/>`
+                + lignes.map((l, i) => ecTxt(x + w / 2, y0 + i * (t + 2), l, { taille: n > 1 && i > 0 ? t - 1.5 : t, gras: n > 1 && i === 0 })).join('');
+        };
+        const ecFleche = (x1, y1, x2, y2, coul = SVG_DISCRET) => {
+            const a = Math.atan2(y2 - y1, x2 - x1), L = 7, p = (d) => `${(x2 - L * Math.cos(a + d)).toFixed(1)},${(y2 - L * Math.sin(a + d)).toFixed(1)}`;
+            return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${coul}" stroke-width="1.5"/><polygon points="${x2},${y2} ${p(-0.4)} ${p(0.4)}" fill="${coul}"/>`;
+        };
+        const ecAccolade = (x, y1, y2, coul) => `<path d="M${x} ${y1} q6 0 6 6 v${(y2 - y1) / 2 - 12} l5 6 l-5 6 v${(y2 - y1) / 2 - 12} q0 6 -6 6" fill="none" stroke="${coul}" stroke-width="1.5"/>`;
+
+        // A1 : le bilan
+        const svgEcoBilan = () => ecSvg(360, 245, 'Structure du bilan : actif à gauche, passif à droite',
+            ecTxt(107, 20, 'ACTIF (emplois)', { gras: true }) + ecTxt(252, 20, 'PASSIF (ressources)', { gras: true })
+            + ecBoite(40, 30, 135, 90, EC.bleu, ['Actif immobilisé', 'incorporel, corporel,', 'financier'])
+            + ecBoite(40, 120, 135, 30, EC.bleu, ['Stocks'], { opacite: 0.08 }) + ecBoite(40, 150, 135, 30, EC.bleu, ['Créances'], { opacite: 0.08 }) + ecBoite(40, 180, 135, 30, EC.bleu, ['Trésorerie'], { opacite: 0.08 })
+            + ecTxt(107, 224, 'stocks + créances + trésorerie = actif circulant', { taille: 8.5, couleur: SVG_DISCRET })
+            + ecBoite(185, 30, 135, 80, EC.vert, ['Capitaux propres', 'capital, réserves,', 'résultat de l\'exercice'])
+            + ecBoite(185, 110, 135, 22, EC.ambre, ['Provisions'], { taille: 10 })
+            + ecBoite(185, 132, 135, 78, EC.rouge, ['Dettes', 'emprunts, fournisseurs,', 'fiscales et sociales'])
+            + ecFleche(24, 34, 24, 206) + ecTxt(14, 120, 'liquidité croissante', { rot: -90, taille: 9, couleur: SVG_DISCRET })
+            + ecFleche(336, 34, 336, 206) + ecTxt(348, 120, 'exigibilité croissante', { rot: 90, taille: 9, couleur: SVG_DISCRET })
+            + ecTxt(180, 241, 'Total de l\'actif = total du passif', { gras: true, couleur: EC.ambre }));
+
+        // A1 : le compte de résultat
+        const svgEcoCR = () => ecSvg(360, 245, 'Compte de résultat : charges à gauche, produits à droite, le bénéfice équilibre',
+            ecTxt(107, 20, 'CHARGES', { gras: true }) + ecTxt(252, 20, 'PRODUITS', { gras: true })
+            + ecBoite(40, 30, 135, 100, EC.rouge, ['Exploitation', 'achats, charges externes,', 'salaires, dotations'])
+            + ecBoite(40, 130, 135, 22, EC.rouge, ['Financières'], { taille: 10, opacite: 0.08 })
+            + ecBoite(40, 152, 135, 18, EC.rouge, ['Exceptionnelles'], { taille: 9.5, opacite: 0.08 })
+            + ecBoite(40, 170, 135, 14, EC.rouge, ['Participation et impôt'], { taille: 8.5, opacite: 0.08 })
+            + ecBoite(40, 184, 135, 26, EC.vert, ['Résultat : bénéfice'], { taille: 10.5, opacite: 0.3 })
+            + ecBoite(185, 30, 135, 130, EC.bleu, ['Exploitation', 'ventes, production', 'stockée et immobilisée,', 'subventions d\'exploitation'])
+            + ecBoite(185, 160, 135, 26, EC.bleu, ['Financiers'], { taille: 10, opacite: 0.08 })
+            + ecBoite(185, 186, 135, 24, EC.bleu, ['Exceptionnels'], { taille: 10, opacite: 0.08 })
+            + ecTxt(180, 230, 'Produits − charges = résultat', { gras: true, couleur: EC.ambre })
+            + ecTxt(180, 243, 'Une perte se place côté produits pour équilibrer.', { taille: 9, couleur: SVG_DISCRET }));
+
+        // A1 : les SIG en cascade (exemple en k€)
+        const svgEcoSIG = () => {
+            const L = [['MC + production de l\'exercice', 500, 't'], ['− consommations des tiers', -200], ['= Valeur ajoutée', 300, 't'], ['− impôts, salaires, charges sociales', -180], ['= EBE', 120, 't'], ['− dotations, autres charges', -40], ['= Résultat d\'exploitation', 80, 't'],
+                ['± résultat financier', -10], ['= RCAI', 70, 't'], ['± résultat exceptionnel', 5], ['− participation et impôt', -19], ['= Résultat de l\'exercice', 56, 't']];
+            const x0 = 168, k = 0.32, h = 15, pas = 19; let niveau = 0, s = '';
+            L.forEach(([lib, v, tot], i) => {
+                const y = 10 + i * pas; let a, b, coul;
+                if (tot) { a = 0; b = v; niveau = v; coul = i === L.length - 1 ? EC.vert : EC.ambre; } else { a = niveau; b = niveau + v; niveau = b; coul = v < 0 ? EC.rouge : EC.vert; }
+                const g = Math.min(a, b), w = Math.max(Math.abs(b - a) * k, 1.5);
+                s += ecTxt(x0 - 6, y + 11, lib, { ancre: 'end', taille: 9, gras: !!tot }) + `<rect x="${x0 + g * k}" y="${y}" width="${w}" height="${h}" rx="2" fill="${coul}" fill-opacity="${tot ? 0.55 : 0.35}" stroke="${coul}"/>`
+                    + ecTxt(x0 + Math.max(a, b) * k + 4, y + 11, (v > 0 && !tot ? '+' : '') + String(v).replace('-', '−'), { ancre: 'start', taille: 9, couleur: SVG_DISCRET });
+            });
+            return ecSvg(360, 10 + L.length * pas + 4, 'Soldes intermédiaires de gestion en cascade, exemple chiffré', s);
+        };
+
+        // A1 : seuil de rentabilité (exemple de la leçon)
+        const svgEcoSeuil = () => {
+            const X = (ca) => 45 + ca * 2.9, Y = (v) => 185 - v * 3.8;
+            return ecSvg(360, 225, 'Seuil de rentabilité : la marge sur coûts variables couvre les charges fixes à partir de 60 000 euros de chiffre d\'affaires',
+                `<polygon points="${X(0)},${Y(0)} ${X(60)},${Y(24)} ${X(0)},${Y(24)}" fill="${EC.rouge}" fill-opacity="0.18"/><polygon points="${X(60)},${Y(24)} ${X(100)},${Y(40)} ${X(100)},${Y(24)}" fill="${EC.vert}" fill-opacity="0.22"/>`
+                + `<line x1="${X(0)}" y1="${Y(0)}" x2="${X(100)}" y2="${Y(0)}" stroke="${SVG_TRAIT}"/><line x1="${X(0)}" y1="${Y(0)}" x2="${X(0)}" y2="${Y(44)}" stroke="${SVG_TRAIT}"/>`
+                + [0, 20, 40, 60, 80, 100].map(v => ecTxt(X(v), Y(0) + 13, v, { taille: 9, couleur: SVG_DISCRET })).join('') + [0, 10, 20, 30, 40].map(v => ecTxt(X(0) - 5, Y(v) + 3, v, { ancre: 'end', taille: 9, couleur: SVG_DISCRET })).join('')
+                + ecTxt(X(100), Y(0) + 26, 'chiffre d\'affaires (k€)', { ancre: 'end', taille: 9, couleur: SVG_DISCRET }) + ecTxt(X(0), Y(44) - 6, 'k€', { taille: 9, couleur: SVG_DISCRET })
+                + `<line x1="${X(0)}" y1="${Y(24)}" x2="${X(100)}" y2="${Y(24)}" stroke="${EC.rouge}" stroke-width="2"/><line x1="${X(0)}" y1="${Y(0)}" x2="${X(100)}" y2="${Y(40)}" stroke="${EC.bleu}" stroke-width="2.5"/>`
+                + `<line x1="${X(60)}" y1="${Y(24)}" x2="${X(60)}" y2="${Y(0)}" stroke="${EC.ambre}" stroke-dasharray="4 3" stroke-width="1.5"/><circle cx="${X(60)}" cy="${Y(24)}" r="4" fill="${EC.ambre}"/>`
+                + ecTxt(X(60), Y(24) - 10, 'SR = 60 000 €', { gras: true, couleur: EC.ambre, taille: 10 })
+                + ecTxt(X(100) - 2, Y(40) - 6, 'MsCV = 40 % du CA', { ancre: 'end', couleur: EC.bleu, taille: 10 }) + ecTxt(X(1), Y(24) - 6, 'charges fixes = 24 000 €', { ancre: 'start', couleur: EC.rouge, taille: 10 })
+                + ecTxt(X(18), Y(14), 'perte', { taille: 10, couleur: EC.rouge }) + ecTxt(X(93), Y(25.5), 'bénéfice', { taille: 10, couleur: EC.vert }));
+        };
+
+        // A1 : VNC en linéaire et en dégressif (12 000 € sur 4 ans, acquis le 1er janvier)
+        const svgEcoVNC = () => {
+            const lin = [10000, 8000, 6000, 4000, 2000, 0], deg = [10000, 6500, 4225, 2746.25, 1373.13, 0], X = (i) => 55 + i * 56, Y = (v) => 175 - v * 0.016;
+            const courbe = (t, c) => `<polyline points="${t.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="${c}" stroke-width="2.5"/>` + t.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${c}"/>`).join('');
+            return ecSvg(360, 220, 'Valeur nette comptable année après année, en linéaire et en dégressif',
+                `<line x1="${X(0)}" y1="${Y(0)}" x2="${X(5) + 10}" y2="${Y(0)}" stroke="${SVG_TRAIT}"/><line x1="${X(0)}" y1="${Y(0)}" x2="${X(0)}" y2="${Y(10600)}" stroke="${SVG_TRAIT}"/>`
+                + [0, 2000, 4000, 6000, 8000, 10000].map(v => ecTxt(X(0) - 5, Y(v) + 3, v.toLocaleString('fr-FR'), { ancre: 'end', taille: 9, couleur: SVG_DISCRET })).join('')
+                + ['achat', 'fin N', 'N+1', 'N+2', 'N+3', 'N+4'].map((t, i) => ecTxt(X(i), Y(0) + 14, t, { taille: 9, couleur: SVG_DISCRET })).join('')
+                + courbe(lin, EC.bleu) + courbe(deg, EC.ambre)
+                + `<rect x="200" y="14" width="12" height="4" fill="${EC.bleu}"/>` + ecTxt(218, 19, 'linéaire', { ancre: 'start', taille: 10 })
+                + `<rect x="200" y="30" width="12" height="4" fill="${EC.ambre}"/>` + ecTxt(218, 35, 'dégressif (35 %)', { ancre: 'start', taille: 10 })
+                + ecTxt(X(0) + 4, 12, 'VNC (€)', { ancre: 'start', taille: 9, couleur: SVG_DISCRET }));
+        };
+
+        // A2 : de la CAF à l'autofinancement
+        const svgEcoCAF = () => ecSvg(360, 190, 'De la capacité d\'autofinancement à l\'autofinancement',
+            ecBoite(5, 8, 150, 26, EC.vert, ['Résultat de l\'exercice'], { taille: 10 }) + ecBoite(5, 38, 150, 22, EC.bleu, ['+ dotations'], { taille: 10, opacite: 0.08 })
+            + ecBoite(5, 64, 150, 22, EC.rouge, ['− reprises'], { taille: 10, opacite: 0.08 }) + ecBoite(5, 90, 150, 22, EC.rouge, ['− produits de cession'], { taille: 10, opacite: 0.08 })
+            + ecBoite(5, 116, 150, 22, EC.bleu, ['+ VNC des éléments cédés'], { taille: 10, opacite: 0.08 })
+            + ecAccolade(158, 8, 138, SVG_DISCRET) + ecFleche(172, 73, 192, 73)
+            + ecBoite(195, 55, 70, 36, EC.ambre, ['CAF'], { taille: 13, opacite: 0.3 })
+            + ecFleche(265, 66, 290, 40) + ecBoite(275, 14, 82, 26, EC.rouge, ['Dividendes'], { taille: 10 })
+            + ecFleche(265, 80, 290, 110) + ecBoite(268, 110, 89, 30, EC.vert, ['Autofinancement'], { taille: 10, opacite: 0.3 })
+            + ecTxt(312, 156, 'investir, rembourser,', { taille: 9, couleur: SVG_DISCRET }) + ecTxt(312, 168, 'renforcer la trésorerie', { taille: 9, couleur: SVG_DISCRET })
+            + ecTxt(316, 52, 'sortent de l\'entreprise', { taille: 8.5, couleur: SVG_DISCRET }) + ecTxt(180, 186, 'On ne garde que ce qui fait vraiment entrer ou sortir de l\'argent.', { taille: 9, couleur: SVG_DISCRET }));
+
+        // A2 : bilan fonctionnel, FRNG, BFR, trésorerie (exemple de la leçon, en k€)
+        const svgEcoFonctionnel = () => {
+            const y0 = 30, x1 = 8, x2 = 112, w = 100;
+            const es = 120, ace = 60, ta = 14, rs = 140, pce = 34, tp = 20;
+            return ecSvg(360, 252, 'Bilan fonctionnel : emplois à gauche, ressources à droite, FRNG, BFR et trésorerie',
+                ecTxt(x1 + w / 2, 20, 'EMPLOIS', { gras: true }) + ecTxt(x2 + w / 2, 20, 'RESSOURCES', { gras: true })
+                + ecBoite(x1, y0, w, es, EC.bleu, ['ES', 'emplois stables', '820']) + ecBoite(x1, y0 + es, w, ace, EC.bleu, ['ACE', 'stocks, clients', '400'], { opacite: 0.08 })
+                + ecBoite(x1, y0 + es + ace, w, ta, EC.bleu, ['TA 15'], { taille: 9, opacite: 0.08 })
+                + ecBoite(x2, y0, w, rs, EC.vert, ['RS', 'ressources stables', '950']) + ecBoite(x2, y0 + rs, w, pce, EC.vert, ['PCE', 'fournisseurs… 230'], { opacite: 0.08 })
+                + ecBoite(x2, y0 + rs + pce, w, tp, EC.rouge, ['TP (découvert) 55'], { taille: 9, opacite: 0.2 })
+                + `<line x1="${x1}" y1="${y0 + es}" x2="${x2 + w + 6}" y2="${y0 + es}" stroke="${EC.ambre}" stroke-dasharray="3 3"/>`
+                + ecAccolade(x2 + w + 6, y0 + es, y0 + rs, EC.ambre) + ecTxt(x2 + w + 20, y0 + es + 14, 'FRNG = 950 − 820 = 130', { ancre: 'start', taille: 9.5, couleur: EC.ambre, gras: true })
+                + ecTxt(x2 + w + 20, y0 + es + 40, 'BFR = ACE − PCE', { ancre: 'start', taille: 9.5, couleur: EC.bleu }) + ecTxt(x2 + w + 20, y0 + es + 52, '= 400 − 230 = 170', { ancre: 'start', taille: 9.5, couleur: EC.bleu })
+                + ecTxt(x2 + w + 20, y0 + es + 66, 'TN = TA − TP', { ancre: 'start', taille: 9.5, couleur: EC.rouge }) + ecTxt(x2 + w + 20, y0 + es + 78, '= 15 − 55 = −40', { ancre: 'start', taille: 9.5, couleur: EC.rouge })
+                + ecTxt(180, 245, 'TN = FRNG − BFR = 130 − 170 = −40 k€ : le FRNG ne couvre pas le BFR', { taille: 9.5, gras: true }));
+        };
+
+        // A2 : les modes de financement
+        const svgEcoFinancements = () => ecSvg(360, 210, 'Les modes de financement : interne et externe',
+            ecBoite(105, 6, 150, 28, EC.ambre, ['Financer un investissement'], { taille: 10.5, opacite: 0.3 })
+            + ecFleche(150, 34, 65, 56) + ecFleche(210, 34, 250, 56)
+            + ecBoite(10, 58, 110, 26, EC.vert, ['Interne'], { taille: 11, opacite: 0.3 }) + ecBoite(140, 58, 210, 26, EC.bleu, ['Externe'], { taille: 11, opacite: 0.3 })
+            + ecBoite(10, 94, 110, 70, EC.vert, ['Ses propres moyens', 'autofinancement', 'cession', 'd\'immobilisations'], { taille: 10, opacite: 0.08 })
+            + ecBoite(140, 94, 100, 70, EC.bleu, ['Capitaux propres', 'augmentation', 'de capital', 'subvention'], { taille: 10, opacite: 0.08 })
+            + ecBoite(248, 94, 102, 70, EC.rouge, ['Endettement', 'emprunt bancaire', 'emprunt obligataire', 'compte courant'], { taille: 10, opacite: 0.08 })
+            + ecBoite(140, 172, 210, 26, EC.violet, ['Crédit-bail et financement participatif'], { taille: 9.5, opacite: 0.08 })
+            + ecTxt(65, 186, 'rien à rembourser', { taille: 9, couleur: SVG_DISCRET }));
+
+        // A2 : affectation du bénéfice
+        const svgEcoAffectation = () => ecSvg(360, 150, 'Affectation du bénéfice : dividendes, réserves, report à nouveau',
+            ecBoite(125, 6, 110, 30, EC.ambre, ['Bénéfice'], { taille: 12, opacite: 0.3 })
+            + ecFleche(150, 36, 62, 66) + ecFleche(180, 36, 180, 66) + ecFleche(210, 36, 298, 66)
+            + ecBoite(5, 68, 115, 40, EC.rouge, ['Dividendes', 'versés aux associés'], { taille: 10.5 })
+            + ecBoite(125, 68, 110, 52, EC.vert, ['Réserves', 'légale (5 %, max 10 %', 'du capital), statutaires,', 'facultatives'], { taille: 10.5 })
+            + ecBoite(240, 68, 115, 40, EC.ambre, ['Report à nouveau', 'en attente'], { taille: 10.5 })
+            + ecTxt(62, 124, 'l\'argent sort', { taille: 9, couleur: EC.rouge }) + ecTxt(240, 140, 'restent dans les capitaux propres', { taille: 9, couleur: EC.vert }));
+
+        // A2 : les trois méthodes de remboursement (5 000 € à 3 % sur 5 ans)
+        const svgEcoEmprunts = () => {
+            const M = [['Annuités constantes', [941.77, 970.02, 999.12, 1029.1, 1059.99], [150, 121.75, 92.65, 62.67, 31.8], 'coût : 458,87 €'],
+                ['Amortissement constant', [1000, 1000, 1000, 1000, 1000], [150, 120, 90, 60, 30], 'coût : 450 €'],
+                ['In fine', [0, 0, 0, 0, 5000], [150, 150, 150, 150, 150], 'coût : 750 €']];
+            const base = 165, k = 0.1, haut = 1250 * k; let s = '';
+            M.forEach(([titre, am, it, cout], m) => {
+                const x0 = 12 + m * 118;
+                s += ecTxt(x0 + 52, 14, titre, { taille: 9.5, gras: true }) + `<line x1="${x0}" y1="${base}" x2="${x0 + 104}" y2="${base}" stroke="${SVG_TRAIT}"/>`;
+                am.forEach((a, i) => {
+                    const x = x0 + 4 + i * 20, ha = Math.min(a * k, haut - it[i] * k), hi = it[i] * k, coupe = a * k > haut - hi;
+                    s += `<rect x="${x}" y="${base - ha}" width="14" height="${ha}" fill="${EC.bleu}" fill-opacity="0.5" stroke="${EC.bleu}"/><rect x="${x}" y="${base - ha - hi}" width="14" height="${hi}" fill="${EC.ambre}" fill-opacity="0.6" stroke="${EC.ambre}"/>`
+                        + ecTxt(x + 7, base + 11, i ? 'N+' + i : 'N', { taille: 8, couleur: SVG_DISCRET });
+                    if (coupe) s += ecTxt(x + 7, base - ha - hi - 4, '5 150 ↑', { taille: 8.5, couleur: EC.ambre });
+                });
+                s += ecTxt(x0 + 52, base + 26, cout, { taille: 9.5, couleur: EC.ambre });
+            });
+            s += `<rect x="70" y="200" width="10" height="10" fill="${EC.bleu}" fill-opacity="0.5" stroke="${EC.bleu}"/>` + ecTxt(85, 209, 'capital remboursé', { ancre: 'start', taille: 9.5 })
+                + `<rect x="200" y="200" width="10" height="10" fill="${EC.ambre}" fill-opacity="0.6" stroke="${EC.ambre}"/>` + ecTxt(215, 209, 'intérêts', { ancre: 'start', taille: 9.5 });
+            return ecSvg(360, 218, 'Annuités des trois méthodes de remboursement pour 5 000 euros à 3 % sur 5 ans', s);
+        };
+
+        // A2 : validité du contrat et nullité
+        const svgEcoValidite = () => {
+            const col = [['Consentement', 'réel, sérieux,', 'libre et éclairé'], ['Capacité', 'majeur, facultés', 'mentales'], ['Contenu', 'licite et certain']];
+            const def = [['Vicié', 'dol, erreur,', 'violence'], ['Absente', 'mineur, majeur', 'protégé'], ['Illicite', 'ou incertain']];
+            const nul = [['Nullité relative', EC.ambre], ['Nullité relative', EC.ambre], ['Nullité absolue', EC.rouge]];
+            let s = ecBoite(20, 4, 320, 26, EC.vert, ['Contrat valable (art. 1128) si les 3 conditions sont réunies'], { taille: 9.5, opacite: 0.3 });
+            col.forEach((c, i) => {
+                const x = 6 + i * 118;
+                s += ecFleche(180, 30, x + 52, 44) + ecBoite(x, 46, 104, 44, EC.vert, c, { taille: 10.5 }) + ecFleche(x + 52, 90, x + 52, 104, EC.rouge)
+                    + ecBoite(x, 106, 104, 40, EC.rouge, def[i], { taille: 10, opacite: 0.08 }) + ecFleche(x + 52, 146, x + 52, 160, nul[i][1]) + ecBoite(x, 162, 104, 26, nul[i][1], [nul[i][0]], { taille: 10, opacite: 0.3 });
+            });
+            s += ecTxt(180, 204, 'Relative : protège une partie, elle seule peut agir.', { taille: 9, couleur: SVG_DISCRET }) + ecTxt(180, 216, 'Absolue : protège l\'intérêt général, toute personne intéressée peut agir.', { taille: 9, couleur: SVG_DISCRET });
+            return ecSvg(360, 222, 'Les trois conditions de validité du contrat et la nullité qui sanctionne chacune', s);
+        };
+
+        // A2 : que faire si le débiteur n'exécute pas ?
+        const svgEcoInexecution = () => ecSvg(360, 180, 'Les réponses à l\'inexécution du contrat',
+            ecBoite(90, 4, 180, 28, EC.rouge, ['Le débiteur n\'exécute pas'], { taille: 10.5, opacite: 0.3 })
+            + ecFleche(140, 32, 60, 52) + ecFleche(180, 32, 180, 52) + ecFleche(220, 32, 300, 52)
+            + ecBoite(4, 54, 112, 80, EC.bleu, ['Obtenir la prestation', 'exécution forcée', 'en nature : le juge', 'ordonne d\'exécuter'], { taille: 10 })
+            + ecBoite(124, 54, 112, 80, EC.ambre, ['Être indemnisé', 'dommages et intérêts', 'si inexécution,', 'dommage et lien', 'de causalité'], { taille: 10 })
+            + ecBoite(244, 54, 112, 80, EC.violet, ['Sortir du contrat', 'résolution : effacé', 'depuis le début ;', 'résiliation : fin', 'pour l\'avenir'], { taille: 10 })
+            + ecTxt(180, 152, 'Le débiteur échappe à sa responsabilité en cas de force majeure :', { taille: 9, couleur: SVG_DISCRET })
+            + ecTxt(180, 164, 'événement imprévisible, irrésistible et extérieur.', { taille: 9, couleur: SVG_DISCRET }));
+
+        // A2 : hiérarchie des normes du droit du travail
+        const svgEcoNormes = () => {
+            const N = [[[['Constitution', EC.bleu], ['Union européenne', EC.ambre]]], [[['Lois, jurisprudence, décrets', EC.bleu]]], [[['Conventions et accords collectifs', EC.vert]]], [[['Usages, règlement intérieur', EC.vert]]], [[['Contrat de travail', EC.vert]]]];
+            let s = '';
+            N.forEach(([cases], i) => {
+                const w = 180 + i * 34, x0 = 195 - w / 2, y = 8 + i * 36, wc = w / cases.length;
+                cases.forEach(([t, c], j) => { s += ecBoite(x0 + j * wc + (j ? 2 : 0), y, wc - (cases.length > 1 ? 2 : 0), 30, c, [t], { taille: cases.length > 1 ? 9.5 : 10 }); });
+            });
+            s += ecFleche(18, 188, 18, 12) + ecTxt(10, 100, 'chaque règle respecte celles du dessus', { rot: -90, taille: 9, couleur: SVG_DISCRET })
+                + `<rect x="40" y="198" width="10" height="10" fill="${EC.ambre}" fill-opacity="0.3" stroke="${EC.ambre}"/>` + ecTxt(54, 207, 'internationale', { ancre: 'start', taille: 9 })
+                + `<rect x="135" y="198" width="10" height="10" fill="${EC.bleu}" fill-opacity="0.3" stroke="${EC.bleu}"/>` + ecTxt(149, 207, 'interne, étatique', { ancre: 'start', taille: 9 })
+                + `<rect x="240" y="198" width="10" height="10" fill="${EC.vert}" fill-opacity="0.3" stroke="${EC.vert}"/>` + ecTxt(254, 207, 'non étatique', { ancre: 'start', taille: 9 });
+            return ecSvg(360, 214, 'Hiérarchie des sources du droit du travail', s);
+        };
+
+        // A2 : modification du contrat ou changement des conditions de travail ?
+        const svgEcoModif = () => ecSvg(360, 220, 'Modification du contrat ou changement des conditions de travail : la démarche',
+            ecBoite(80, 4, 200, 26, SVG_DISCRET, ['L\'employeur veut changer quelque chose'], { taille: 10, opacite: 0.12 }) + ecFleche(180, 30, 180, 42)
+            + ecBoite(40, 44, 280, 34, EC.ambre, ['Touche-t-il un élément essentiel ?', 'rémunération, durée du travail, qualification'], { taille: 10.5 })
+            + ecFleche(110, 78, 90, 96) + ecTxt(88, 90, 'oui', { taille: 9.5, gras: true, couleur: EC.rouge }) + ecFleche(250, 78, 270, 96) + ecTxt(272, 90, 'non', { taille: 9.5, gras: true, couleur: EC.vert })
+            + ecBoite(6, 98, 168, 44, EC.rouge, ['Modification du contrat', 'accord du salarié obligatoire'], { taille: 10.5 })
+            + ecBoite(186, 98, 168, 44, EC.vert, ['Changement des conditions', 's\'impose : pouvoir de direction'], { taille: 10.5 })
+            + ecFleche(90, 142, 90, 156) + ecFleche(270, 142, 270, 156)
+            + ecBoite(6, 158, 168, 50, EC.rouge, ['S\'il refuse', 'l\'employeur renonce, ou', 'licencie pour motif économique'], { taille: 10, opacite: 0.08 })
+            + ecBoite(186, 158, 168, 50, EC.vert, ['S\'il refuse', 'c\'est une faute : licenciement', 'pour motif personnel'], { taille: 10, opacite: 0.08 }));
+
 
         // ==========================================
         // Éco-gestion 1ère année, ch. 10 à 12 : bilan, compte de résultat, SIG (leçons et exercices)
@@ -7789,11 +8000,7 @@
                         "À droite, le <strong>passif</strong> : d'où viennent les moyens de financement (capitaux propres et dettes). Ce sont les <strong>ressources</strong>.",
                         "Chaque emploi a une ressource : <strong>total de l'actif = total du passif</strong>."
                     ]),
-                    H.tableau(["Actif (emplois)", "Passif (ressources)"], [
-                        ["Actif immobilisé", "Capitaux propres"],
-                        ["Actif circulant", "Provisions pour risques et charges"],
-                        ["", "Dettes"]
-                    ])),
+                    H.figure(svgEcoBilan(), "Le bilan en un coup d'œil : ce que l'entreprise possède (actif) et la façon dont elle l'a financé (passif).")),
                 ecoSec("2. L'actif", "building",
                     H.tableau(["Poste", "Contenu", "Exemples"], [
                         ["Immobilisations incorporelles", "biens sans substance physique, utilisés durablement", "brevets, logiciels, fonds commercial"],
@@ -7831,7 +8038,8 @@
                         "Résultat positif : <strong>bénéfice</strong> ; négatif : <strong>perte</strong>. Il est reporté au passif du bilan.",
                         "Les montants sont <strong>hors taxes</strong> et enregistrés à la date de la facture, pas à celle du paiement.",
                         "Ne sont <strong>pas</strong> des charges : l'achat d'une machine (c'est une immobilisation, à l'actif ; seule sa dotation aux amortissements est une charge) et le remboursement du capital d'un emprunt (il fait baisser la dette au passif). Seuls les <strong>intérêts</strong> sont une charge."
-                    ])),
+                    ]),
+                    H.figure(svgEcoCR(), "Les produits de l'exercice couvrent ses charges : la différence est le résultat.")),
                 ecoSec("2. Trois niveaux de charges et de produits", "layers",
                     H.tableau(["Niveau", "Charges", "Produits"], [
                         ["Exploitation (I) : l'activité normale", "achats et variation de stocks, autres achats et charges externes (loyer, énergie, sous-traitance), impôts et taxes, salaires et charges sociales, dotations aux amortissements", "ventes de marchandises, production vendue, stockée et immobilisée, subventions d'exploitation, reprises"],
@@ -7861,6 +8069,7 @@
                         ["9. Résultat de l'exercice", "RCAI + RX − participation des salariés − impôt sur les bénéfices"]
                     ], { nowrap: false, gauche: true }),
                     H.note("Deux contrôles : le RE doit valoir « total des produits d'exploitation − total des charges d'exploitation », et le dernier solde doit être égal au bénéfice du compte de résultat."),
+                    H.figure(svgEcoSIG(), "Exemple en milliers d'euros : chaque solde part du précédent, jusqu'au résultat de l'exercice."),
                     H.p("La valeur ajoutée est partagée entre ceux qui ont aidé à la créer : le personnel (salaires), l'État (impôts), les prêteurs (intérêts), les associés (dividendes) et l'entreprise elle-même (autofinancement).")),
                 ecoSec("3. Les pièges", "triangle-alert",
                     H.liste([
@@ -8098,6 +8307,7 @@
                 ecoSec("1. Les conditions de validité", "scale",
                     H.p("Un contrat est un accord de volontés qui crée des obligations entre deux parties ou plus. Pour qu'il soit valable, l'article 1128 du Code civil exige trois conditions, toutes en même temps :"),
                     H.note("« Sont nécessaires à la validité d'un contrat : 1° le consentement des parties ; 2° leur capacité de contracter ; 3° un contenu licite et certain. » (art. 1128 du Code civil)"),
+                    H.figure(svgEcoValidite(), "Chaque condition manquante a sa sanction : la nullité, relative ou absolue."),
                     H.p("Signer, c'est s'engager en connaissance de cause. Si une condition manque, le contrat peut être annulé : c'est la <strong>nullité</strong> (partie 5).")),
                 ecoSec("2. Le consentement et ses vices", "handshake",
                     H.tableau(["Le consentement doit être", "Ce que cela veut dire"], [
@@ -8138,6 +8348,7 @@
                     H.p("Un contrat annulé est anéanti depuis le début : chacun rend ce qu'il a reçu.")),
                 ecoSec("6. L'inexécution du contrat", "triangle-alert",
                     H.p("Si une partie (le <strong>débiteur</strong>) n'exécute pas ce qu'elle a promis, l'autre partie peut demander :"),
+                    H.figure(svgEcoInexecution(), "Les trois réponses possibles du créancier quand le contrat n'est pas exécuté."),
                     H.tableau(["Sanction", "Ce qui se passe"], [
                         ["Exécution forcée en nature", "le juge ordonne au débiteur de s'exécuter, c'est-à-dire de donner ce qui était prévu"],
                         ["Exécution par équivalent", "le juge condamne le débiteur à verser des dommages et intérêts"],
@@ -8162,6 +8373,7 @@
                         ["− Quote-part des subventions d'investissement", "produits exceptionnels, si l'énoncé la donne", "777"]
                     ], { nowrap: false, gauche: true }),
                     H.formule(R`\text{Autofinancement} = CAF - \text{dividendes versés}`),
+                    H.figure(svgEcoCAF(), "La CAF part du résultat et ne garde que ce qui fait entrer ou sortir de l'argent ; après les dividendes, il reste l'autofinancement."),
                     H.p("Méthode soustractive, pour vérifier : CAF = EBE + autres produits encaissables − autres charges décaissables, sans dotations, reprises ni cessions. Les deux méthodes donnent le même résultat.")),
                 ecoSec("2. Du bilan comptable au bilan fonctionnel", "repeat",
                     H.p("Le <strong>bilan fonctionnel</strong> reclasse le bilan comptable selon les cycles de l'entreprise : investissement et financement stable, exploitation, trésorerie. Deux règles : l'actif se prend en <strong>brut</strong>, et le total des amortissements et dépréciations rejoint les <strong>ressources stables</strong>."),
@@ -8178,6 +8390,7 @@
                     H.note("Piège classique : les concours bancaires courants sont souvent cachés dans une note « dont… » sous les emprunts. On les retire des emprunts (ressources stables) pour les mettre en trésorerie passive.")),
                 ecoSec("3. FRNG, BFR et trésorerie", "scale",
                     H.formule(R`\begin{aligned} FRNG &= RS - ES \\ BFR &= (ACE - PCE) + (ACHE - PCHE) \\ TN &= FRNG - BFR = TA - TP \end{aligned}`),
+                    H.figure(svgEcoFonctionnel(), "Exemple de la leçon, en milliers d'euros : le surplus de ressources stables (FRNG) ne suffit pas à financer le BFR."),
                     H.liste([
                         "<strong>FRNG &gt; 0</strong> : les ressources stables financent toutes les immobilisations et il reste une marge pour l'exploitation.",
                         "<strong>BFR &gt; 0</strong> : l'exploitation immobilise de l'argent (stocks et créances clients supérieurs aux dettes fournisseurs), il faut le financer. BFR &lt; 0 : le cycle d'exploitation dégage une ressource, comme dans la grande distribution.",
@@ -8207,6 +8420,7 @@
                 ecoSec("1. Le financement interne", "piggy-bank",
                     H.p("Une entreprise finance d'abord ses projets avec ce qu'elle dégage elle-même : c'est le <strong>financement interne</strong>. Il prend deux formes : l'<strong>autofinancement</strong> (la CAF qui n'est pas distribuée) et les <strong>cessions d'immobilisations</strong> (vendre un bien dont elle n'a plus besoin)."),
                     H.p("Quand l'exercice dégage un <strong>bénéfice</strong>, les associés décident de son affectation au moment où ils approuvent les comptes :"),
+                    H.figure(svgEcoAffectation(), "Ce que devient le bénéfice : seuls les dividendes quittent l'entreprise."),
                     H.tableau(["Affectation", "Règle"], [
                         ["Dividendes", "versés aux associés : l'argent sort de l'entreprise"],
                         ["Réserve légale", "obligatoire dans les sociétés commerciales (SARL, SAS, SA) : au moins 5 % du bénéfice (diminué des pertes antérieures) chaque année, jusqu'à ce que la réserve atteigne 10 % du capital"],
@@ -8217,6 +8431,7 @@
                     H.p("Exemple : capital de 50 000 €, donc réserve légale plafonnée à 5 000 €. Si elle contient déjà 4 200 € et que le bénéfice est de 30 000 €, on lui affecte le plus petit de 5 % × 30 000 = 1 500 € et de 5 000 − 4 200 = 800 €, soit <strong>800 €</strong>."),
                     H.note("Les réserves restent dans les capitaux propres : c'est de l'argent gardé dans l'entreprise pour financer ses investissements.")),
                 ecoSec("2. Le financement externe", "handshake",
+                    H.figure(svgEcoFinancements(), "Les grandes familles de financement."),
                     H.tableau(["Mode", "Principe", "Avantages", "Inconvénients"], [
                         ["Augmentation de capital", "les associés, anciens ou nouveaux, apportent des fonds contre de nouvelles parts ou actions", "rien à rembourser, renforce les capitaux propres", "partage du pouvoir et des bénéfices"],
                         ["Emprunt bancaire", "prêt d'une banque, remboursé avec intérêts selon un tableau d'emprunt", "les associés gardent le contrôle ; les intérêts sont des charges déductibles", "coût des intérêts, garanties demandées, endettement plus fort"],
@@ -8245,6 +8460,7 @@
                     ]),
                     H.p("La dernière annuité est ajustée de quelques centimes pour solder le capital, à cause des arrondis. Avec le même emprunt, l'amortissement constant donne des annuités de 1 150, 1 120, 1 090, 1 060 et 1 030 €, et l'in fine quatre annuités de 150 € puis une de 5 150 €.")),
                 ecoSec("4. Comparer et enregistrer", "scale",
+                    H.figure(svgEcoEmprunts(), "5 000 € à 3 % sur 5 ans : même capital, trois profils de remboursement. L'in fine rembourse tout la dernière année."),
                     H.tableau(["Méthode", "Coût de l'emprunt (5 000 € à 3 % sur 5 ans)"], [
                         ["Amortissement constant", "150 + 120 + 90 + 60 + 30 = 450 €"],
                         ["Annuités constantes", "458,87 €"],
@@ -8269,6 +8485,7 @@
                         ["Interne, non étatique", "droit émanant de l'employeur : usages (avantages accordés de façon répétée), règlement intérieur", "prime versée chaque année"],
                         ["Interne, non étatique", "le contrat de travail", ""]
                     ], { nowrap: false, gauche: true }),
+                    H.figure(svgEcoNormes(), "Plus une règle est haute, plus sa valeur est forte : celles du dessous doivent la respecter."),
                     H.p("<strong>Hiérarchie des normes</strong> : chaque règle respecte toutes celles de valeur supérieure. Le contrat de travail, tout en bas, respecte la Constitution, les lois, la convention collective et le règlement intérieur, ainsi que les conditions de validité de tout contrat du Code civil : consentement sans vice, capacité, contenu licite et certain.")),
                 ecoSec("2. Le droit négocié", "handshake",
                     H.liste([
@@ -8312,6 +8529,7 @@
                         ["Accord du salarié", "<strong>obligatoire</strong>", "pas nécessaire"],
                         ["Si le salarié refuse", "l'employeur renonce, ou licencie pour motif économique", "c'est une faute : licenciement pour motif personnel"]
                     ], { nowrap: false, gauche: true }),
+                    H.figure(svgEcoModif(), "La question à se poser : le changement touche-t-il un élément essentiel du contrat ?"),
                     H.note("Si l'employeur change (vente du fonds de commerce, fusion), le contrat de travail se poursuit avec le nouvel employeur.")),
                 ecoSec("5. La fin du contrat", "door-open",
                     H.tableau(["Initiative", "Mode de rupture", "À retenir"], [
