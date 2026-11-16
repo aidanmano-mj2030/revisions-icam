@@ -175,3 +175,7 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 ## 16 novembre 2026 – 2ème année réservée à sa promo (Baptiste)
 
 - Nouveau `public/acces-promo.js` : les élèves des promos de `PROMOS_A1` (adresses `@2031.icam.fr`, les premières années de 2026-2027) n'ont accès qu'à la 1ère année. La carte « 2ème Année » de l'accueil est grisée avec un cadenas ; toute leçon, tout exercice ou toute Révision DS de 2ème année (même par un lien direct) ramène à l'accueil avec un message. Les comptes 2030 et ceux qui ont un rôle (prof, équipe) voient tout. C'est un verrou d'affichage : le contenu reste dans la page. À chaque rentrée, mettre à jour `PROMOS_A1`.
+
+## 16 novembre 2026 – Calcul vectoriel en CM 1ère année (Baptiste)
+
+- CM 1ère année : nouveau chapitre 3 « Calcul vectoriel : produits scalaire et vectoriel » (scalaire et vecteur, composantes et norme, base orthonormée directe, somme et Chasles, produit scalaire, produit vectoriel, applications : angle, aire, vecteur unitaire orthogonal, moment, double produit vectoriel) avec 7 types d'exercices. La cotation, la cinématique et la statique deviennent les chapitres 4, 5 et 6.
