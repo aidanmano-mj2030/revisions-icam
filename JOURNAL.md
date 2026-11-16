@@ -118,3 +118,10 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - 5 nouvelles questions de QCM (la question du ressuage, posée par les deux groupes CND, n'est pas doublée) : QCM du site (21 questions), exposés de l'onglet « Révision DS » (21 QCM) et exercice 9 du DS blanc d'OI (21 × 0,25 pt, corrigé compris).
 - Deux autres groupes ajoutés (maintenance et Job Shop / Flow Shop) : 4 nouvelles questions et leur cours (5 niveaux de maintenance, GMAO, SNCF ; flow shop et familles de modèles). Le QCM du site, les exposés de la révision DS et l'exercice 9 du DS blanc d'OI passent à 25 questions (25 × 0,25 pt).
 - 2e groupe SST (santé et sécurité au travail) : cours ajouté à la partie SST de la leçon (DUERP, principes de prévention, TF, TG, pyramide de Bird, ISO 45001, exemple Airbus) et 2 nouvelles questions. Le QCM du site, les exposés de la révision DS et l'exercice 9 du DS blanc d'OI passent à 27 questions (27 × 0,25 pt).
+
+## 16 novembre 2026 – Torseurs, liaisons, symboles de CE, courbes paramétrées (Baptiste)
+
+- CM 1ère année : nouveau chapitre 2 « Les torseurs : notions de base » (résultante et moment, produit vectoriel, changement de point, automoment, couple et glisseur, torseurs statique et cinématique) avec 5 types d'exercices ; la cinématique et la statique deviennent les chapitres 3 et 4.
+- Liaisons : perspectives redessinées dans le style du cours (repère x, y, z avec z vers le haut, solide 1 bleu, solide 2 rouge, gouttière pour la linéaire annulaire), liaisons planes de normale z ; dans l'exercice, l'axe ou la normale est tiré au hasard (x, y ou z) et il faut le choisir avec le nom.
+- CE 1ère année, composants et schémas : 38 symboles à reconnaître (interrupteurs, interrupteurs de position, parafoudre, bobines temporisées, commandes, disjoncteurs thermique, magnétique et magnétothermique avec la variante I>) et nouvel exercice « À quoi sert-il ? » avec le tableau du rôle de chaque élément dans la leçon.
+- Maths 2ème année : chapitre 5 « Fonctions vectorielles et courbes paramétrées » (dérivée, points stationnaires, tangentes, asymptotes, symétries, plan d'étude), avec courbes tracées et 5 types d'exercices.
