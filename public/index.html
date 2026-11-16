@@ -3036,7 +3036,7 @@
             'maths-geo-vect': { calc: [5], aire: [5], mixte: [6], dist: [5], moment: [5] },
             'eco1-typo': { taille: [1], secteur: [2], conc: [4] }, 'eco1-stocks': { moyen: [2], cump: [3] }, 'eco1-seuil': { _: [2, 3] }, 'eco1-amort': { lin: [2], deg: [3] },
             'eco1-bilan': { classe: [2, 3], vnc: [2, 4], equil: [1, 3], amdep: [2] }, 'eco1-resultat': { nature: [2], calc: [3] }, 'eco1-sig': { _: [2, 3] },
-            'eco2-analyse': { caf: [1], fonc: [2, 3], ratio: [4] }, 'eco2-financement': { annu: [3], amc: [3], infine: [3], famille: [2], reserve: [1] }, 'eco2-travail': { qcm: [1, 2, 3, 4, 5], modif: [4], source: [1, 2], rupture: [5] },
+            'eco2-analyse': { caf: [1], fonc: [2, 3], ratio: [4] }, 'eco2-financement': { annu: [3], amc: [3], infine: [3], famille: [2], reserve: [1] }, 'eco2-travail': { qcm: [1, 2, 3, 4, 5], modif: [4], source: [1, 2], rupture: [5] }, 'eco2-contrats': { qcm: [1, 2, 3, 4, 5, 6], vice: [2], acte: [3], nullite: [5], sanction: [6] },
             'ce1-production': { energie: [2], solaire: [2], eol: [2], danger: [4], cours: [1, 2, 3, 4] }, 'ce1-schemas': { sym: [1, 4], role: [4], q: [1, 2, 3, 4, 5] }, 'ce1-mcc': { mot: [3], gen: [4], fem: [2] },
             'phys-sli': { rc: [3], dech: [4], rl: [5], ener: [2, 5], assoc: [2], rlc: [6] },
             'cm1-statique': { poids: [2], pression: [2], moment: [5], forces: [4, 5], levier: [4, 5], cours: [1, 2, 3] }, 'cm1-cinematique': { omega: [4], rot: [4], trans: [3] },
@@ -7887,7 +7887,7 @@
         CHAPITRES["2ème Année"].ECO = [
             { num: "Chapitre n°1", titre: "Analyse financière : CAF et bilan fonctionnel", desc: "Capacité d'autofinancement, bilan fonctionnel, FRNG, BFR, trésorerie nette et ratios.", lecon: "eco2-analyse", exo: "eco2-analyse" },
             { num: "Chapitre n°2", titre: "Les modes de financement", desc: "Affectation du résultat et réserves, financements externes, tableaux d'emprunt.", lecon: "eco2-financement", exo: "eco2-financement" },
-            { num: "Chapitre n°3", titre: "Les contrats", desc: "Cours à venir." },
+            { num: "Chapitre n°3", titre: "Les contrats", desc: "Conditions de validité, vices du consentement, capacité, contenu, nullité et inexécution.", lecon: "eco2-contrats", exo: "eco2-contrats" },
             { num: "Chapitre n°4", titre: "Le droit du travail", desc: "Sources, droit négocié, contrat de travail, modification et rupture (question 16).", lecon: "eco2-travail", exo: "eco2-travail" }
         ];
         const ECO2_BADGE = 'Éco-gestion • 2ème Année';
@@ -8039,6 +8039,114 @@
         ECX2('eco2-analyse', 'Analyse financière', 'Analyse financière : CAF, bilan fonctionnel, ratios', { id: 'ean', types: { caf: ecoCAF, fonc: ecoFonctionnel, ratio: ecoRatios }, libelles: { tout: 'Tout', caf: 'CAF', fonc: 'Bilan fonctionnel', ratio: 'Ratios' } }, 'line-chart');
         ECX2('eco2-financement', 'Financement et emprunts', 'Modes de financement et tableaux d\'emprunt', { id: 'efi', types: { annu: ecoAnnuites, amc: ecoAmConstant, infine: ecoInFine, famille: ecoFamille, reserve: ecoReserve }, libelles: { tout: 'Tout', annu: 'Annuités constantes', amc: 'Amortissement constant', infine: 'In fine', famille: 'Quel financement ?', reserve: 'Réserve légale' } }, 'landmark');
         ECX2('eco2-travail', 'QCM et cas', 'Droit du travail : QCM et cas pratiques', { id: 'edw', types: { qcm: () => ecoQ(...choisir(ECO_TRAVAIL_Q)), modif: ecoCas('modif'), source: ecoCas('source'), rupture: ecoCas('rupture') }, libelles: { tout: 'Tout', qcm: 'QCM', modif: 'Modification ou changement ?', source: 'Quelle source ?', rupture: 'Quelle rupture ?' } }, 'briefcase');
+
+        // ---------- Éco A2, ch. 3 : les contrats (validité, vices du consentement, capacité, nullité, inexécution) ----------
+        const ECO_CONTRATS_CAS = {
+            vice: { cats: ['Dol', 'Erreur', 'Violence', 'Pas de vice du consentement'], items: [
+                ['Le vendeur d\'une maison sait qu\'il y a des infiltrations d\'eau et se tait volontairement.', 0, 'Silence volontaire sur une information déterminante : c\'est une réticence dolosive.'],
+                ['Le vendeur affirme que la maison est conforme au permis de construire, alors que la mairie a un autre permis.', 0, 'Mensonge pour obtenir le consentement : dol.'],
+                ['Un acheteur paie un tableau présenté comme ancien, qui s\'avère être une copie récente ; le vendeur l\'ignorait aussi.', 1, 'Erreur sur une qualité essentielle de la chose, sans tromperie de l\'autre partie.'],
+                ['Une entreprise commande du bois venant d\'une région précise, condition prévue au contrat, et en reçoit d\'une autre région.', 1, 'Erreur sur une qualité essentielle convenue entre les parties.'],
+                ['Une entreprise engage un graphiste en le prenant pour un autre, réputé, qui porte le même nom.', 1, 'Erreur sur les qualités essentielles du cocontractant, dans un contrat conclu en fonction de sa personne.'],
+                ['Un fournisseur menace de révéler des secrets de famille du dirigeant s\'il ne signe pas.', 2, 'Pression morale exercée sur la personne ou ses proches : violence.'],
+                ['On tient la main du signataire pour lui faire signer le contrat.', 2, 'Violence physique : il n\'y a même pas de volonté de contracter, donc une absence totale de consentement.'],
+                ['Un acheteur se rend compte qu\'il aurait pu trouver la même voiture 500 € moins cher ailleurs.', 3, 'Une erreur sur la valeur ne rend pas le contrat invalide.'],
+                ['Un salarié achète un appartement près de son travail, puis il est muté dans une autre ville.', 3, 'Erreur sur un simple motif, qui n\'est pas entré dans le contrat : le contrat reste valable.']] },
+            acte: { cats: ['Acte de conservation', 'Acte d\'administration', 'Acte de disposition'], items: [
+                ['Faire réparer la toiture d\'un immeuble.', 0, 'Il s\'agit de conserver le bien en l\'état.'],
+                ['Faire entretenir sa chaudière.', 0, 'Entretenir un bien, c\'est le conserver.'],
+                ['Louer un appartement à un étudiant.', 1, 'Gérer et faire fructifier un bien sans le faire sortir du patrimoine.'],
+                ['Encaisser les loyers et gérer un compte bancaire.', 1, 'Gestion courante du patrimoine.'],
+                ['Vendre sa maison.', 2, 'Le bien sort du patrimoine : c\'est l\'acte le plus grave.'],
+                ['Donner une somme importante à un neveu.', 2, 'La donation diminue le patrimoine.']] },
+            nullite: { cats: ['Nullité absolue', 'Nullité relative'], items: [
+                ['Un contrat de vente de stupéfiants.', 0, 'Contenu illicite, contraire à l\'ordre public : l\'intérêt général est en jeu.'],
+                ['Un contrat signé après des mensonges du vendeur.', 1, 'Le dol est un vice du consentement : seule la victime est protégée.'],
+                ['Un contrat signé sous la menace.', 1, 'La violence est un vice du consentement.'],
+                ['Une vente conclue par un majeur sous tutelle, seul, sans son tuteur.', 1, 'Défaut de capacité : la règle protège la personne vulnérable.'],
+                ['Un contrat dont l\'objet est une prestation impossible à réaliser.', 0, 'Contenu qui n\'est pas certain : le contrat ne peut pas exister.']] },
+            sanction: { cats: ['Exécution forcée en nature', 'Exécution par équivalent (dommages et intérêts)', 'Résolution', 'Résiliation'], items: [
+                ['Le juge ordonne au fournisseur de livrer les pièces prévues au contrat.', 0, 'Le débiteur est contraint de donner ce qui était prévu.'],
+                ['Le juge condamne le fournisseur à indemniser le client pour le préjudice causé par le retard.', 1, 'Une somme d\'argent remplace ou complète l\'exécution.'],
+                ['La vente est anéantie : le vendeur rend le prix, l\'acheteur rend la machine, comme si le contrat n\'avait jamais existé.', 2, 'La résolution efface le contrat depuis le début.'],
+                ['Un contrat d\'entretien mensuel prend fin pour l\'avenir ; les mois déjà effectués restent dus.', 3, 'La résiliation ne joue que pour l\'avenir, ce qui convient aux contrats à exécution successive.']] }
+        };
+        const ECO_CONTRATS_Q = [
+            ['Quelles sont les trois conditions de validité d\'un contrat (article 1128 du Code civil) ?', ['Consentement, capacité, contenu licite et certain', 'Écrit, signature, date', 'Prix, durée, objet', 'Consentement, rémunération, subordination'], 0, ''],
+            ['Le consentement doit être…', ['Réel, sérieux, libre et éclairé', 'Écrit et daté', 'Donné devant notaire', 'Confirmé par un témoin'], 0, ''],
+            ['Une simple plaisanterie (« je te vends ma voiture 1 € ») constitue-t-elle un consentement ?', ['Non, il n\'est pas sérieux', 'Oui, la parole donnée suffit', 'Oui, si quelqu\'un l\'a entendue', 'Seulement entre commerçants'], 0, 'Il faut une volonté sérieuse de s\'engager juridiquement.'],
+            ['Se taire volontairement sur un défaut déterminant pour l\'autre partie, c\'est…', ['Une réticence dolosive', 'Une erreur sur la valeur', 'Une violence morale', 'Une nullité absolue'], 0, 'C\'est une forme de dol.'],
+            ['Laquelle de ces erreurs ne rend pas le contrat invalide ?', ['L\'erreur sur la valeur de la prestation', 'L\'erreur sur une qualité essentielle de la prestation', 'L\'erreur sur la personne dans un contrat conclu en fonction d\'elle', 'Aucune, toutes l\'annulent'], 0, 'Ne rendent pas le contrat invalide : l\'erreur sur la valeur, sur un simple motif, et l\'erreur inexcusable.'],
+            ['La violence physique entraîne…', ['Une absence totale de consentement', 'Un simple vice du consentement', 'Une résiliation', 'Une erreur sur la personne'], 0, 'La volonté de contracter n\'existe pas du tout.'],
+            ['Quel acte est le plus grave pour le patrimoine ?', ['L\'acte de disposition', 'L\'acte d\'administration', 'L\'acte de conservation', 'Ils se valent tous'], 0, 'Vendre ou donner fait sortir un bien du patrimoine.'],
+            ['Quelle mesure protège le plus fortement un majeur qui ne peut plus défendre ses intérêts ?', ['La tutelle', 'La curatelle', 'La sauvegarde de justice', 'L\'émancipation'], 0, 'Sauvegarde de justice, curatelle puis tutelle : la protection augmente.'],
+            ['Un contrat contraire à l\'ordre public est…', ['Illicite, donc nul', 'Valable s\'il est écrit', 'Valable si les deux parties sont d\'accord', 'Simplement résiliable'], 0, ''],
+            ['La prestation prévue au contrat doit être…', ['Possible et déterminée ou déterminable', 'Payée d\'avance', 'Réalisée dans le mois', 'Toujours chiffrée en euros'], 0, ''],
+            ['Qui peut demander la nullité absolue ?', ['Toute personne qui y a un intérêt', 'Seulement la partie protégée', 'Seulement le juge', 'Personne, elle est automatique'], 0, 'Elle protège l\'intérêt général.'],
+            ['Qui peut demander la nullité relative ?', ['La partie que la règle protège', 'Toute personne qui y a un intérêt', 'Le ministère public seulement', 'Les créanciers seulement'], 0, 'Elle protège un intérêt particulier : vice du consentement, défaut de capacité.'],
+            ['Après une résolution, le contrat…', ['Est anéanti comme s\'il n\'avait jamais existé', 'Prend fin pour l\'avenir seulement', 'Est suspendu', 'Est renouvelé'], 0, ''],
+            ['Après une résiliation, le contrat…', ['Prend fin pour l\'avenir', 'Est anéanti depuis le début', 'Continue normalement', 'Devient un contrat de travail'], 0, ''],
+            ['Pour engager la responsabilité contractuelle du débiteur défaillant, il faut…', ['Une inexécution, un dommage et un lien de causalité', 'Seulement un retard', 'Une plainte pénale', 'Un contrat signé devant notaire'], 0, 'Le débiteur peut s\'exonérer en prouvant un cas de force majeure.']
+        ];
+        ECX2('eco2-contrats', 'QCM et cas', 'Les contrats : QCM et cas pratiques', { id: 'ect', types: { qcm: () => ecoQ(...choisir(ECO_CONTRATS_Q)), vice: () => { const s = ECO_CONTRATS_CAS.vice, [t, a, w] = choisir(s.items); return { enonce: `<p>${t} Quel vice du consentement ?</p>`, champs: [gChoix('r', String(a), s.cats.map((c, i) => [String(i), c]), { groupe: 'Ta réponse' })], correction: `<p><strong class="text-white">${s.cats[a]}</strong>. ${w}</p>` }; },
+            acte: () => { const s = ECO_CONTRATS_CAS.acte, [t, a, w] = choisir(s.items); return { enonce: `<p>${t} De quel type d'acte s'agit-il ?</p>`, champs: [gChoix('r', String(a), s.cats.map((c, i) => [String(i), c]), { groupe: 'Ta réponse' })], correction: `<p><strong class="text-white">${s.cats[a]}</strong>. ${w}</p>` }; },
+            nullite: () => { const s = ECO_CONTRATS_CAS.nullite, [t, a, w] = choisir(s.items); return { enonce: `<p>${t} Quelle nullité ?</p>`, champs: [gChoix('r', String(a), s.cats.map((c, i) => [String(i), c]), { groupe: 'Ta réponse' })], correction: `<p><strong class="text-white">${s.cats[a]}</strong>. ${w}</p>` }; },
+            sanction: () => { const s = ECO_CONTRATS_CAS.sanction, [t, a, w] = choisir(s.items); return { enonce: `<p>${t} De quelle sanction de l'inexécution s'agit-il ?</p>`, champs: [gChoix('r', String(a), s.cats.map((c, i) => [String(i), c]), { groupe: 'Ta réponse' })], correction: `<p><strong class="text-white">${s.cats[a]}</strong>. ${w}</p>` }; } },
+            libelles: { tout: 'Tout', qcm: 'QCM', vice: 'Quel vice ?', acte: 'Quel acte ?', nullite: 'Quelle nullité ?', sanction: 'Quelle sanction ?' } }, 'file-text');
+        Object.assign(LECONS, {
+            "eco2-contrats": { badge: ECO2_BADGE, titre: "Les contrats", sections: () => [
+                ecoSec("1. Les conditions de validité", "scale",
+                    H.p("Un contrat est un accord de volontés qui crée des obligations entre deux parties ou plus. Pour qu'il soit valable, l'article 1128 du Code civil exige trois conditions, toutes en même temps :"),
+                    H.note("« Sont nécessaires à la validité d'un contrat : 1° le consentement des parties ; 2° leur capacité de contracter ; 3° un contenu licite et certain. » (art. 1128 du Code civil)"),
+                    H.p("Signer, c'est s'engager en connaissance de cause. Si une condition manque, le contrat peut être annulé : c'est la <strong>nullité</strong> (partie 5).")),
+                ecoSec("2. Le consentement et ses vices", "handshake",
+                    H.tableau(["Le consentement doit être", "Ce que cela veut dire"], [
+                        ["Réel", "la partie a toutes ses facultés : il n'est pas réel si elle s'engage alors que ses facultés mentales sont altérées"],
+                        ["Sérieux", "la partie veut vraiment s'engager juridiquement et en supporter les conséquences : une simple plaisanterie n'est pas un consentement"],
+                        ["Libre et éclairé", "il ne doit pas être vicié par un dol, une erreur ou une violence"]
+                    ], { nowrap: false, gauche: true }),
+                    H.tableau(["Vice", "Définition", "Exemples"], [
+                        ["Dol", "manœuvres ou mensonges destinés à tromper l'autre partie pour obtenir son consentement. Deux formes : la <strong>réticence dolosive</strong> (se taire volontairement sur une information déterminante) et le <strong>dol mensonge</strong>", "taire des infiltrations d'eau dans la maison vendue ; affirmer qu'elle est conforme au permis de construire alors que la mairie en a un autre"],
+                        ["Erreur", "croire à quelque chose qui n'est pas conforme à la réalité, sans avoir été trompé. Elle annule le contrat si elle porte sur les <strong>qualités essentielles de la prestation</strong> (celles convenues et qui ont décidé du contrat) ou du <strong>cocontractant</strong> (contrat conclu en fonction de sa personne)", "bois commandé d'une région précise, livré d'une autre ; artiste engagé pour un autre"],
+                        ["Violence", "contrainte exercée pour faire signer. <strong>Physique</strong> : la volonté de contracter n'existe pas, il y a absence totale de consentement. <strong>Morale</strong> : pression exercée sur le cocontractant", "menace sur la fortune, sur les proches ou sur la personne"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("Toutes les erreurs ne rendent pas le contrat invalide : il reste valable si l'erreur est <strong>inexcusable</strong>, si elle porte sur un <strong>simple motif</strong> ou sur la <strong>valeur</strong> de la prestation.")),
+                ecoSec("3. La capacité de contracter", "user-check",
+                    H.p("Chaque signataire doit avoir la capacité de contracter : en principe, être <strong>majeur</strong> et avoir ses <strong>facultés mentales</strong>. Un mineur non émancipé est représenté par ses parents, sauf pour les actes de la vie courante."),
+                    H.tableau(["Type d'acte", "Exemples", "Gravité"], [
+                        ["Conservation", "réparer, entretenir un bien", "faible : on garde le bien en l'état"],
+                        ["Administration", "louer, gérer un bien ou un compte", "moyenne : gestion courante"],
+                        ["Disposition", "vendre, donner", "forte : le bien sort du patrimoine"]
+                    ], { nowrap: false, gauche: true }),
+                    H.tableau(["Mesure de protection du majeur", "Effet"], [
+                        ["Sauvegarde de justice", "protection temporaire et légère : la personne garde l'exercice de ses droits"],
+                        ["Curatelle", "la personne est <strong>assistée</strong> par un curateur pour les actes de disposition"],
+                        ["Tutelle", "la personne est <strong>représentée</strong> par un tuteur pour les actes de la vie civile"]
+                    ], { nowrap: false, gauche: true })),
+                ecoSec("4. Un contenu licite et certain", "file-check",
+                    H.liste([
+                        "<strong>Licite</strong> : il est interdit de conclure un contrat contraire à l'<strong>ordre public</strong> (vente de produits interdits, par exemple).",
+                        "<strong>Certain</strong> : l'obligation doit porter sur une prestation présente ou future, <strong>possible</strong>, et <strong>déterminée ou déterminable</strong> (on doit pouvoir savoir exactement ce qui est dû, par exemple le prix).",
+                        "Le contrat doit respecter un certain <strong>équilibre</strong> : un simple écart de valeur ne suffit pas à annuler un contrat, mais un prix dérisoire ou une clause qui crée un déséquilibre important entre les parties peuvent être écartés par le juge."
+                    ])),
+                ecoSec("5. La nullité du contrat", "ban",
+                    H.tableau(["", "Nullité absolue", "Nullité relative"], [
+                        ["Ce qu'elle protège", "l'intérêt général", "l'intérêt d'un particulier"],
+                        ["Cas", "contenu illicite ou incertain", "vice du consentement (dol, erreur, violence), défaut de capacité"],
+                        ["Qui peut la demander", "toute personne qui y a un intérêt", "seulement la partie que la règle protège"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Un contrat annulé est anéanti depuis le début : chacun rend ce qu'il a reçu.")),
+                ecoSec("6. L'inexécution du contrat", "triangle-alert",
+                    H.p("Si une partie (le <strong>débiteur</strong>) n'exécute pas ce qu'elle a promis, l'autre partie peut demander :"),
+                    H.tableau(["Sanction", "Ce qui se passe"], [
+                        ["Exécution forcée en nature", "le juge ordonne au débiteur de s'exécuter, c'est-à-dire de donner ce qui était prévu"],
+                        ["Exécution par équivalent", "le juge condamne le débiteur à verser des dommages et intérêts"],
+                        ["Résolution", "le contrat est anéanti : en principe, c'est comme s'il n'avait jamais existé, et chacun rend ce qu'il a reçu"],
+                        ["Résiliation", "le contrat prend fin pour l'avenir ; ce qui a déjà été exécuté reste acquis"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("<strong>Responsabilité contractuelle du débiteur défaillant</strong> : pour obtenir des dommages et intérêts, il faut une inexécution (ou un retard), un dommage, et un lien de causalité entre les deux. Le débiteur échappe à sa responsabilité s'il prouve un cas de <strong>force majeure</strong> (événement imprévisible, irrésistible et extérieur)."))
+            ] }
+        });
 
         Object.assign(LECONS, {
             "eco2-analyse": { badge: ECO2_BADGE, titre: "Analyse financière : CAF et bilan fonctionnel", sections: () => [

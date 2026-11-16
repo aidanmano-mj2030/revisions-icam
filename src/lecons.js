@@ -81,6 +81,7 @@ export const LIEUX_LECONS = {
   "m2-fvect": ["a2/maths"],
   "eco2-analyse": ["a2/eco"],
   "eco2-financement": ["a2/eco"],
+  "eco2-contrats": ["a2/eco"],
   "eco2-travail": ["a2/eco"],
   "ce2-dimensions": ["a2/ce"],
   "ce2-triphase": ["a2/ce"],
