@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tuto tôlerie CATIA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  /* Layout : une fenêtre de CAO (vue 3D + arbre des fonctions) et un panneau d'étape avec la narration, barre de lecture en bas. */
+  :root {
+    --bg: #eef1f4; --surface: #ffffff; --ink: #18212b; --muted: #5a6876; --line: #cfd6dd;
+    --view: #dfe6ee; --view2: #c7d3df; --grid: rgba(40, 70, 100, .09);
+    --tole: #b8c7d6; --tole-ombre: #93a6b9; --tole-bord: #3b5168; --trou: #dfe6ee;
+    --accent: #e0661c; --accent-doux: rgba(224, 102, 28, .14); --ok: #1f7a55;
+    --display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+    --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #11161c; --surface: #18202a; --ink: #e8eef4; --muted: #9aa8b6; --line: #2a3644;
+    --view: #1b2633; --view2: #0f1720; --grid: rgba(150, 190, 230, .07);
+    --tole: #8fa6bd; --tole-ombre: #667f98; --tole-bord: #d6e2ee; --trou: #142030;
+    --accent: #ff8a3d; --accent-doux: rgba(255, 138, 61, .16); --ok: #4fd1a0; color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #11161c; --surface: #18202a; --ink: #e8eef4; --muted: #9aa8b6; --line: #2a3644;
+    --view: #1b2633; --view2: #0f1720; --grid: rgba(150, 190, 230, .07);
+    --tole: #8fa6bd; --tole-ombre: #667f98; --tole-bord: #d6e2ee; --trou: #142030;
+    --accent: #ff8a3d; --accent-doux: rgba(255, 138, 61, .16); --ok: #4fd1a0; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+  .page { max-width: 1180px; margin: 0 auto; padding-block: 20px 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+  h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 4vw, 34px); letter-spacing: .01em; margin: 0; text-wrap: balance; }
+  h1 span { color: var(--accent); }
+  .sous { color: var(--muted); font-size: 14px; margin: 0; }
+  .atelier { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+  @media (max-width: 860px) { .atelier { grid-template-columns: minmax(0, 1fr); } }
+  .vue { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: radial-gradient(ellipse at 50% 35%, var(--view), var(--view2)); min-height: 340px; }
+  .vue svg.scene { display: block; width: 100%; height: 100%; min-height: 340px; }
+  .vue .barre-vue { position: absolute; left: 10px; top: 10px; display: flex; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .vue .barre-vue b { color: var(--ink); font-weight: 500; }
+  .arbre { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; background: var(--bg); }
+  .arbre p { margin: 0 0 4px; font-family: var(--display); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: 11px; color: var(--muted); }
+  .arbre ol { margin: 0; padding-left: 16px; display: grid; gap: 1px; }
+  .arbre li.actif { color: var(--accent); font-weight: 700; }
+  .param { position: absolute; right: 12px; top: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+  .param h3 { margin: 0 0 6px; font-family: var(--display); font-size: 14px; font-weight: 600; }
+  .param div { display: flex; justify-content: space-between; gap: 18px; font-family: var(--mono); font-size: 12px; }
+  .dialogue { position: absolute; right: 12px; top: 12px; width: min(250px, 60%); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.18); font-size: 12.5px; overflow: hidden; }
+  .dlg-titre { background: var(--accent-doux); padding: 6px 10px; font-family: var(--display); font-weight: 600; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+  .dlg-champs { padding: 8px 10px; display: grid; gap: 5px; }
+  .dlg-champs div { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .dlg-champs span { color: var(--muted); }
+  .dlg-champs b { font-family: var(--mono); font-weight: 500; font-size: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+  .dlg-boutons { display: flex; justify-content: flex-end; gap: 6px; padding: 0 10px 9px; }
+  .dlg-boutons span { border: 1px solid var(--line); border-radius: 5px; padding: 2px 12px; font-size: 12px; }
+  .dlg-ok { border-color: var(--ok) !important; color: var(--ok); font-weight: 700; transition: transform .15s, background .15s; }
+  .dlg-ok.appuye { background: var(--ok); color: var(--surface); transform: scale(.92); }
+  .panneau { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .num { font-family: var(--display); font-weight: 600; color: var(--accent); letter-spacing: .06em; text-transform: uppercase; font-size: 13px; }
+  .panneau h2 { font-family: var(--display); font-weight: 700; font-size: 24px; margin: 0; text-wrap: balance; }
+  .titre-ligne { display: flex; align-items: center; gap: 12px; }
+  #icone { width: 44px; height: 44px; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--line); flex-shrink: 0; }
+  .panneau .texte { margin: 0; font-size: 16px; }
+  .panneau .texte .dit { background: var(--accent-doux); border-radius: 3px; }
+  .valeurs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .valeurs span { font-family: var(--mono); font-size: 12px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); }
+  .astuce { font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; margin: 0; }
+  .astuce b { color: var(--ink); }
+  .lecteur { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 10px; }
+  .boutons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  button, select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.lire { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; min-width: 128px; }
+  .reglages { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+  .reglages label { display: flex; align-items: center; gap: 6px; }
+  .pistes { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 3px; }
+  .pistes button { height: 10px; padding: 0; border-radius: 3px; background: var(--line); border: 0; }
+  .pistes button.fait { background: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+  .pistes button.actif { background: var(--accent); }
+  .note-voix { font-size: 12.5px; color: var(--muted); margin: 0; }
+  .nouveau { animation: apparait .9s ease both; }
+  .contour-actif { stroke: var(--accent) !important; stroke-width: 2.2 !important; }
+  @keyframes apparait { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .scene g { transition: opacity .6s ease; }
+  @media (prefers-reduced-motion: reduce) { .nouveau { animation: none; } .scene g { transition: none; } }
+</style>
+
+<div class="page">
+  <header>
+    <h1>Tuto <span>tôlerie</span> · CATIA V5</h1>
+    <p class="sous">Prise en main de Generative Sheetmetal Design, d'après le TP de BTS ATI. Appuie sur Lecture et laisse-toi guider.</p>
+  </header>
+
+  <div class="atelier">
+    <div class="vue" id="vue">
+      <svg class="scene" id="scene" viewBox="-200 -150 400 300" role="img" aria-label="Pièce de tôlerie en construction"></svg>
+      <div class="barre-vue"><span>Atelier</span><b>Generative Sheetmetal Design</b></div>
+      <div class="dialogue" id="dialogue" hidden>
+        <div class="dlg-titre" id="dlg-titre"></div>
+        <div class="dlg-champs" id="dlg-champs"></div>
+        <div class="dlg-boutons"><span class="dlg-ok" id="dlg-ok">OK</span><span class="dlg-annuler">Annuler</span></div>
+      </div>
+      <div class="param" id="param" hidden>
+        <h3>Paramètres de la pièce de tôlerie</h3>
+        <div><span>Épaisseur</span><b>2 mm</b></div>
+        <div><span>Rayon de pli standard</span><b>4 mm</b></div>
+        <div><span>Extrémités de pli</span><b>minimum sans grugeage</b></div>
+      </div>
+    </div>
+
+    <section class="panneau" aria-live="polite">
+      <div class="num" id="num">Étape 1 sur 16</div>
+      <div class="titre-ligne"><img id="icone" alt="" width="44" height="44" hidden><h2 id="titre">…</h2></div>
+      <p class="texte" id="texte">…</p>
+      <div class="valeurs" id="valeurs"></div>
+      <p class="astuce" id="astuce" hidden></p>
+      <div class="arbre"><p>Arbre des fonctions</p><ol id="arbre"></ol></div>
+    </section>
+  </div>
+
+  <div class="lecteur">
+    <div class="pistes" id="pistes" role="group" aria-label="Aller à une étape"></div>
+    <div class="boutons">
+      <button type="button" id="prec" aria-label="Étape précédente">◀ Précédente</button>
+      <button type="button" id="lire" class="lire">▶ Lecture</button>
+      <button type="button" id="suiv" aria-label="Étape suivante">Suivante ▶</button>
+      <div class="reglages">
+        <label><input type="checkbox" id="voix" checked> Voix</label>
+        <label>Vitesse
+          <select id="vitesse"><option value="0.85">lente</option><option value="1" selected>normale</option><option value="1.2">rapide</option></select>
+        </label>
+      </div>
+    </div>
+    <p class="note-voix" id="note-voix">La voix utilise la synthèse vocale de ton navigateur (voix française si elle est installée).</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  // icônes de CATIA (captures de Baptiste), intégrées à la page
+  const ICONES = { 'parametres-tolerie': 'data:image/png;base64,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', 'esquisse': 'data:image/png;base64,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', 'extrusion': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAUgSURBVFhH7ZdrbFNlGMef4AXQwIjolEjEePniJ2NiovGWAB9MNF5INvkyRRNvCRLhi0Q0KCqMKEYNxiB2VyJuZGNjm2M3tm7d2bm972m3tmu7daNs3NSBg6kwAn/znrelPe1GGzP95Id/zulz+p7n/zzP723PIcs6ibnRCVje41IZ16S4NQ6TxaBqo/D0RtDlDoDSv/TP9b+B/9CA2qTDvac6U99Xwb1HqBrGEX/GujkxwJQoGl9/F67rCeVLnCq9mbCXpDp3lWSsnRMDdQWvoDRvCRqeJEwOOxV2/YsGTE8E9YXrUJa/DG0vEk64CUBSozUEZQMhtJdQeescG1AbNTS9sQkli/LQ+gJh7HBa8oME9hEh5CL89Qth/11zaEAA17xhC1w3EA49RjjVk0x8eZpwykPwvE0Il8jYnBpIBa7qPsLUmDP5uSjhwAOEWEMynjDQ/tlumN1hh4zuIHQlkruBVODOjRIuX0omOukmHHyIcFohXJrKNFC2NB8Vy+9O0wo0bfwgu4F04EQyx8xrCco7hKN1hEt/JOO/WYTOIkKklBCtSkqAWbFU7o5Dr62/tgEJ3EYbOJE8A7haCZzYcqnxU70E/gmBbyNcPJuMizGZHxLK83IwkA7cydmAS0s+4SPwjwn6ZmdcjM27neC6Ud6v8rYsBn5ev9l2KfbxRL+sJKGZgLtyhXBxktBRSLA+dSYXXBhbyC6m6l7C2SCh5dkcDfxwHWH/CrkwoZmAuzBBaHiCECmX56kGPG8RKm4hND5F+NUk1D8if6qzGqh90AmQkPG+bN/5WDJBKnBT48n49KQc0493EtrWEPxfE1qfI5TeRDj08pvoqWqFbgxD03zocvszDTQ/7axEaKzZaUB04prALSEbYLaV4H6V4Fq4EA1r10KpaYNpiuR+qNoAehVfpoG6hwnjbVJ/ns40YAO3bQbgRghWArjHCcFvCe51hNK8PBxYtRpWtwqvdxiGGYSq+qD0BaCqltPA4U1bUbI4DyWLFmPvvHn2H8xVA3EwO16S1acmnz7vBO6Mn9DyDME1f76d3DA4OD8GxgK2AV0PQ1UNuLv7nQZMdwhqQx88+5pRln+Hw0ACzKzAMUL9oxK4gwUFUFs6wXkMjPWD8SEwFoKuiw6II8/8IRISTzPly5Y7DCT+58V+FtsuVQ7gnpfA1RcVwVNdD8aGYJoBcB4FY4Mw7Q4E0ada8HjSGJjNwO9hgvbe7Kq+n9C0Mg7cggWoWbMmnjwMxiIwzZB9FNWb5iB0PYC+Ph96FW9uBrJJEC+6YwO3chV6Dx+xK5dJB8H5iD1/xiMwmTAwAKUvCFVLgzDdQKSCcOFMdl0FbvVqmKb3KnCyAyOZEBphaJoJtzsNwnQD+24n/HRPdgng6goLobZ2gltHbeDkzEUHxPxj0DQO0xSG4hAqg1AUfWYDTIuh65tKtG7/HG07vkRH8W60bi9Gx87v0F68C+3FX6Fj5260F++0Y207vkBPVR04TySM2rOWHRiCYfhhmkPQdb89f02PoFeJoLtnFgjFS8bAgNg6YRjGIAxDwJMAKWyfy89hO6k8D4HxMBgPwYhfF0qs7e8fldUbOT0RnUAgEIXXK+YnoPGDc3EDMVdRkWij355vIiarDYLxqN1iuf2EgSC83vj9fLHcnwk5Pw5d77cNiOQJuAxjIF7xCHSdpcQGwfhwHLhxcC7WDTnvmetDqUiuaZY9tyRIguJMuBIx2SkfuHVMvida4h3R+Z44k4G/AUPqIGamZ0HOAAAAAElFTkSuQmCC', 'pli': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAQySURBVFhH7ZV/TNRlHMcfZrlsM8VNZEzSytWazJWtrf5wpn8phFtmVg5Zgw11siE24PAOuVGaZjH8HiAGYuDPGkkFUsBMFI27+/4EPC4v8BQBmzXbaq31R3u17/eUH56AOOqPxh+v7bvP9/l+3q97nueeR+j6DSaHAXSjP0TYuxCa3oeiXsPtCXLhYoCWcz7E3YMenP+DQGnxLd5+/Y8RZG334nJVUFZWjdt9JazppApsS/+NyBhYlBRiTiwsWtbKKzsLWFWwm/LqWs6f94c1nlSB+SsgYSDEgnh4OMGHOHSCGQerSd6WSW3t2bDGUwJTAlMCUwL/icCjJYfJSHiV09VfhzX+1wVmFFfy7Lt2Ppo1m7MfV4Y1Hk3AMPotQs996Pp1VO0qXrlnYgJxmTbKhbCYiEBnZxCfrxvDGKCr6zLt7UE6Onpob/ffv8CKWcXsioqmKlLQWy9o3riAxtwP7kMggGF0o+tBVLUTw+hFVi4hy77RZ+CT9M/YHJOGPSnEltg08sSL1CwW+EoEF9MF7XsFF3Li+HJt0giqttuRXOUhpAokqRRJOoAkHWT/fglJKqeoyEVNTcPoe6Ah3cbxWEHrphAnnxCcel7gyRL4iocEVKfg2/jQkphsW7yENckpLM8vGJN1m7cguQ6NLfDNKgGEaF4rOJciCFQJ6pcL+poE51MFikPgcwnKpk3DOT+WZ7LyrH/KaERUHGNm4QFeeieFPXtdExMwf6FZ+/Om4MTjguApgf5+qF448zHm7HOFBd7N9NLDrFz3BgkJCRMXuNcMHIsR2J56mvnOPTx08EhY4HAiP5RYtiGJ1YmJExcwA631Xi2ofETw3QbByYWCTBHP0jk1TF/ePS4xK+us4DtMSMCkt2FoU1obc6EgJc7Ooo2My7znIHauMhiekZHF0aN1ows0OwtpfPNJftEFf/81UmRwWV4TZGXYB8+KsVicExJITFxDauomvjh1Zuyj2KSl5DhH5gp+vxoe/qAC69e/RUuLb/y7wERpDdBa8TlfrYii9gURRtVsQVKUnXlLGJfIaHh56U/U1Z1Glq+hKF14ZT8eb4A2t0rLuc5wARPVHeTM7lKa8vbR6HiPRns+TY69NNh20GjfRaWjnnx7P07Hr+Tbe3E6fmbnjhvk5fbizLuFwxYk337TqrmKelCUAF6vD1nx45V9uN0dfN/WSesF5d4Cd9A08xwPoKo/DDWRzefLgzVV9VtjzObmOa+ol61x5hhZNmtdg98Wl3xKbq6TnJwdZGcXkJ1tG01gAE3rvd3cDOvG6223hLxe80Lxoyg/4vHoaNpVFMVnCWlaN7JsoOvDaz3Wt6p6heTkNKKiohFCDBEebtKPopjNr9yegUtWTZY1q2bOgsdjBpn3facVqOvmtduFblzHMDqG1fxoWh9tbV5kJcDWrVlEREQMCvwDqwwpio1jM1oAAAAASUVORK5CYII=', 'plaque': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAR1SURBVFhH7Zbba1xVFMYXGLVNqg1FEEN9EEUffPBJKXhBxQcreCuIFSpiQ7SFCFoU+2BFEAX/hmQSo7S1SSMzSXOPNnOfc86+zEzmlpnJTNJcikKLrX3QgH6y95nMJSeTJk3e7MPHHtZZZ+9v7f1b+wxJeRk7o2XI6JItxzNbQi6C8XlEjCICwSymvEnQ2qRb120Dtw38nwwYwxZ8Hf216jxf0dpnJXk7+hAcCGzPAI8UMfTBCXTeQfh+z9bU2UAYONq+PQOet99Hd/M+DD5L+COzNQ2/tA0DLJCD53Areu5vwfjrhOWLBGBz+vsaIdhOOLOfMND6EQyziFA4D68vvTkDkSETQ8c/Q9c9ezH+GuHSsHORerpeIPCvCD3NhA5aNTCnDfj8mzCggBv5+BRcdxI8BwiXfc5F6unPOULsOyq/++N96gjsHQiGcpjypjY2UAaugfDTQ4QbC2sW+ZewcoOwcn19sVM2eOpdxcDYq1tkwHP4aBm4aznCPyu1Bv66QrjwPKH3sfWlKh58jvC7QRh42u6ETRnQwL2zMXBXooSJQ4TuRvtsx98g5E/XavItwumWSt7AkTb4z45ubKAM3L31gfstQvC1Ebp3E/xthHOPEKwvnHnia9uca9duuA8dQbBvcuObcDPAXZ0m+FoJP+wjjL5CmHMTBp8hXHzX3qlqqbzuvc3oe+EgrF+mb34VD7ef1I7V2V1NOqFSUiC57rJH1WKqt11370JX0x6HXI1N6HvxYGn+pSoDhZKBxPoG1DWryO191CkFUuAYIX+WcO5hgquBMHbyW4Q9AYQ9flvuAMLuIAL9IwhemIAQSzAMCcbzsKw0wmGJYGgGoZDlNND/BCF/pr7cTxLOP27Tr6oc+/wbGKOi9DWch5QZXS3nWTCWAWNZcJ4CYzkwnoJlpWCYKRhGDH5/1Glg5GXnuVdr4k0brJ6WBzH04QlEQ3FEo2rBIhhXi89AiBw4z4DzGW1E/V6NMZaGaaUQMeIIhmJOA+6nnDBVSwHX88B+DL53DEIUkUzOIhYr6mpNS4FWAOcJcJ4vGUjpPDuWBeNpmOY0QmFlQtYaGPnkSwdIZTUqqBrR1diEoeOfgvMCLEtAiEvgPAkuMhByFoxJHWMsoU1V8hZ0zDSTMM0ZGAaD1zdda8CaSml41pcP3t5+BH+ehPmrqRcVYh6cxyHELCwrA9OMQ8giDEPoM7e3v5LHRRamldQQhiMZTCcyzouoxpA1A8bypSptkDhPl7Y2B8bU5Hl9rkqWOgYzbgPH1ubNQkibgUgkoz9GkUjdj9GyplcRq9rG3kr1cmW0ldaVq1HKHGKxPCyWQjxehBBZRKN5xGIFnas6Q6oj4vn6F5GtJQ2NacZKlaiqElUxZUwtXImpDojH55FIFCCjiyUwF0qxYnnum96EqnI16SpIGi6u2qoSU1usDEg5ByFikHKx/O62/xXb1U1raExT6lZSO7AaW4VLCLXoMqRcKI07ZMCuWm3Zsm4f1TrVMcZmdWztxDtmYHu6NQP/AZj/nUD/Pc40AAAAAElFTkSuQmCC', 'decoupe': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMwSURBVFhH7ZddSJNRGMfPhYJC+TEDUfArAsFA8MILL/RCwQtBvAgUxBK/UvNCJRBNhUEZkRBdpAVBhEFgEIqCIuRm0yvzPdNNWzqn01A3dX4z8/Mf57xmTd32Tl+MoIsf78vZzvv89pz/njEya16FadIGg2EROp0FWu2CjMxDOzwncuo1EfJfwJWASmVFV9fiBbCiq9sicrSm0TjWcCmQkWFHQMCBrJSVbboXGBiwID3djqBnByDduDgfABIMEAIUFGy5FujoWETO3S1cVR6CGACCC2IESC1AHgLkphuBzs5lFBdvglwByEuAfJSBFwDJBYgVILfcCFRWbsLLaw/+/muy4OOzDZL6RzekCERGTqOq6qksJCV99lzg+nUTlEqlLKSkfPrHBQoLXyMrq9Up2dnvUVvbcKqwbAIxMWM8TBERZoSFzfKABgYeICRkHwrFAXx97Sgvf36qsKwCrMDS0jUYjTcQHj4DpXINarUVjY2rlyNQU/OYb7fZFIiKmuKF2cbmZtvfF/D23kV8/CASEzXHJCerUF39xKlAUdEadLoZ/kup15vPL9DauoSUlG0H4uJ2eFcqKsSunC2wAr3eBEqnMDo6eX6Bs/h1LK4E8vM3ePGhoRFQOnP5Anl5FgjCKLTa71zCY4Ho6D0kJPw4k5iYXbcC+flroHQSlI7xTkgWsNt90dR0Dw0ND5ySl/dGgoANlE6AUiO/ShaQQk9PqgSBJVD6jX96Sg3uBUpLmzE9HSmJlpbbEgTEEAqCTloI2QODgpYl4ee3LkHAws+fhZBJuBQoKXmFnJx3HpGb+xZ1dY8cBdYBcgcorJ1HWxubAQwJIbwoXCAK8Kk5RMH9FbS3m48CKCII46cFgoMtyMxslYXYWB0Uil2kp9vQ32/GyAgLHisuhlAQvjoK1NdvIDR0/wS7R7D7HYSG7nm0lpZmw5AgTj2WekrHnU/CwS9W9PU5olaboFIZoFYvoLdXD7XaDJVKytoMX9NoWOBmIXAJsQNOJ+HJf0a/z8vEN4ltM/CzY9PM7RprtZYNHOfvcyIwfzypHGGbPVljV/GeFRaECQwPT0KnY98CI7TaOfwE19uVDckHj/oAAAAASUVORK5CYII=', 'bord-tombe-ourlet': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAVJSURBVFhH3ZZrTBRXGIY/mthYL3ih2ouKVokYMRJTTBPbxLSJxhSkVbEmNSqrCDVRSWpUhGqxKniJuqJUK7iLShHB1AKGRV0Kuyt7mcvOrsuy3EFUalpj27Q/+qd9mznjsoUBFon2R388yXLmzHmfM+fjmyFJ+hHPh25IrocKqmsKTukBBPEe7I4O3KlrRq3JC+o7afj8HwQsBRUwbM/ol5u7DkC406xa9LkKVG5Nw6UwQuUShcLJhOK3CN8tIOjGhKL6UC64ao9q4ecqYFhGABRuryTYPyd0XidcHE/If4lQc1zH5vJ8F2prfQFMDWxBs7kBoti/xLAE5ODqTwg/84Rv3wwIXLhwHVOmTA8wVSYcc+dG49YtSRU+bAGZ+hzCzXiCflRAwGh04+jR84x58xaAiBgTJoTBYBBU4YrAQwhiFxxcB6y2VpjMvuACN94nOA8QrNsJBaEBARmbrR179mRj1qxIREfHYMnS5UMU6GQCZssQBOQitCQT2ksJlycHBGpqvDh2LA8TJ76K2bOjsH//SZzJLQwiIB+B8gTqrC2sboIK9FeEdnsHe/QhISEYOzYUOTmX2X/BuW+KER4+E1VVTlV4QOAZa6CnCIVAEaalZSEsbBLGjRsPvb4cVms7E7DZ21Bp4CAI91XhwxboW4SJ0TGIiJiDyMgoaLUFrA6U+19QH+hbhDs++BAazVZkZp7sE/CCBAYqQjUvSIDPINw3EPJI4dkEup+i/PYLOLj2/0bA7e6Ax9PKrtXXN8Hl7oDb3QbJ1Th0gdI5hIr3lPNvOEswbo5BdfbXQQVEUX5zyrSB4zxwuTogCF7wQgN4oXVggZLZBFeWwrUoZdfFMwl8OkE6RBD2Ekw73kXltvRelGblQF9QqqC/Bp3uEnS6Quh0V5CXlw+9vgT5+QUoLzeyGqira4bJJKoF+nsdy0XYWaY8EW8uwfmV8or2H8u+adOR+PFKLE9LH5S1W7bgTK5eEbA2wWx2qAX6HoG/E16NIDzxEKrXKHXRXkI4HxKCU6NGYX7qLtCFKwOTX4QR5y5i4aZkHD6SA7ujbeAj6Cvg74SPJULZO4SWS0pfKHydoB09BhF7MvHy2QJ16L+Qry9an4hl8R/h4MEsmC380AVYJzxNqFlLaL5IsKUqtbEvfAait+8MGh56PBcxSSlYFh+P2NhYZGefgNXmG5pAy2WC+CXBpCHoRxMcu5XwdFqExa+dwohV7qC8saKEBfs5fOT00BuRTGsRoXJpALkw14dnYOpiBCVsBjBtktATvikpBXn5VwcWqNqRiarlY/DnE8Lff/UW6TmWFYSdqRmI7UZQonYrAnFxcUhIWI3iYsPgrVgwN6Hm2Clcf5vwxwN1+HAFVq9eg7IyC2vBgwrIcMa7+CHrBIyfhsGYQCrkb4LEiAxMj0VQJkUCC+c/QGFhEThO7oSN4PgmOLgW2GwSak0etYCMaG2DIfUL3Ni4DRWaFFRoklCh2Yrv1yeiXPMZTmiKkaz5CSkbf0ey5hFSNL9ic+JjJG14hJSNvyFpQzeSNb+wsf1770EQfOD5RtaGOc4Lu8MDm80Ni8XZv4Afp7OL9XRR9EEU28FxbgiC/HcTRFH+/m+DKHohii3geR843gPR2dozj41x9WyePFZUVI7TZ/Kg1ebipFYHrTZnMIGHTxeXw+RwkQlx3F3wfAMEoQ12u8DGeN4DQZZk4co8NiY09ro3Li4BI0e+0vMJz1AH+8PvwumUdyjv2AunU36UbrYbZWfy9S64XF5IkvxZ1gLJ5YNT6uw9JjWye+12Ebdu27FuXXIvgX8A3rnCg9yCXSsAAAAASUVORK5CYII=', 'repetition': 'data:image/png;base64,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', 'plaque-sur-arete': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAASjSURBVFhH7ZZtUFRVHMb/mC0slAqK4whN1sf6FlOj2GBoOEw6BmNZfgAaNMfKppeZaqrRyWqawRmrD/XBhAhLXneEkCAped9l99577t1XFnZZEAiMATLEMXGKpzn3wsK64KKxfOrDM7t79sx5fv//ee65hxTlMpZGQ1Csg5qC/tMkK79BYn0wW3rRZvSgqdkFunXS3et/gGCA1qIa1L11bI6OoqnAsDwApopGVGbsx5k4QvVWwreRhNNEqM49EmYA3mZjN8pT0lTT+mcJ492E4oRlAhCbXShN2owCfQzaXiV0FxNKHyYUrFwGAGNZPSq2p6MgSg/z2wR2nFCzjVC0iuD6ilD1eBgBWs/UoDJzPwr1hNZDBOVTQl06ofQhAvuIMHmF8EtmmADmBu7nXYRLlYTzTxJKHiQI7xEATUsPIA8FBe6qj1CcSCiMJsifzJqHBUBscqM0acu8gXN9TbgxGm6ABieKNiSo6TY8ogXuu+nAXRsINA8rQH0GwfIO4de9hO/jCRN9weZLBmAoH0H+N2OaTnpwOi4Rvec0g/7aMALI8mUYjb8jLeUGolf+A73+JuKjhnAi4oHQAFOEmxOEC7v/A0Bz0zCSkyaxVj8F3VNeRHxWg1UfnkXemviQADyM51MIhffdJUBF2QjSU/9CXNQUdDvdWHG8DlRQgvu/PIW8uHW3BRhVSM0Ifyyrsw6htfTCnQH8UDSKFzKvI1r3N3TbvFjxca1qvhiAYROh5QCpR3PVc9kwVly8s/uAoWIE+zKuQx8zicjHBhDxRaXfPBTAmJ3QnEsoXB0Lw45n1Cdm0RcSNXBts4GLTOoPML4twDrCH04tcPm6SBie3j277jSAReiZBnDODxAQuFQvIk5WBZkvBJB/D6FkE6EwhvDjvpcg1FsDAOz2HtjsHhhNXTCZxGAAf+C4+c5Of+Dm03wA/FRU3/tZh2EqbwhYWxQ7IUluMNaF9nYFLa1KIIA/cARVuuRe3Pu8sqBi9zQgL3oDmnIIthNzArc3S31D2my84n71riBJHgiiS5PgQnu7DUaTNRDgzSNXsToWSNgaWusfBdbSFbxCL+Jd2o7PN6ag7IlkGHakQbxohyz3q+12On1gzAeLxQaJdUFibgiCA+3mDpgtt3SAAySmAruGQmvLWa1LXPx8eOO1cVhtvbDbXVCUAUiSE5LEW+6D2SyqQIy5IEodEETeDYbmFsfSABz7YByNjT4w2QXFegkWiwxJ8qp7Lgi8G31gzA4me8GYNmZq559yMMCa9cCmPaG1cTMQHzOFo++Po/Ynrz9cfHFuzpj2WxT5mAOMdUOSOiCKXG6IogNtRlsgQP6pMbycc20BTeBg9jAO5vyJA9ljyM0axuuHr6KxkVfKF+xQ2yuKLjDmUc35FvAuaKZ8O/gcLwTRB4vgXPgcmBHfN76fijIIxnrAmBOMzbSWf+/RwiV5VAhBdECWeehm5mlgsjyodYb5FncSahpSQ8Mr4UaCwFQg3jpeWfCYG0z2QRRlFZobcoCAghZ7FPOKrdYOKEoPFKUbitKpBslq5QnnY17/GA8Xr1qSeMsdagidzi5Yrb1q5aEA/gXiM1j5EPLx9QAAAABJRU5ErkJggg==', 'depliage-pliage': 'data:image/png;base64,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' };
+  const ICONE_ETAPE = [null, 'parametres-tolerie', 'esquisse', 'extrusion', 'pli', 'plaque', 'pli', 'decoupe', 'bord-tombe-ourlet', 'bord-tombe-ourlet', 'repetition', 'decoupe', 'bord-tombe-ourlet', 'plaque-sur-arete', 'depliage-pliage', 'depliage-pliage'];
+  // ---------- étapes du TP ----------
+  const ETAPES = [
+    { t: "Ouvrir l'atelier de tôlerie", f: null,
+      d: "Lance CATIA V5, puis Démarrer, Conception mécanique, Generative Sheetmetal Design. Cet atelier sert à modéliser des tôles : des pièces d'épaisseur constante, découpées puis pliées.",
+      v: ["Démarrer › Conception mécanique", "Generative Sheetmetal Design"],
+      a: "Jusqu'ici tu travaillais en Part Design, avec des pièces usinées. Ici, la pièce reste toujours dépliable." },
+    { t: "Régler les paramètres de tôlerie", f: "Paramètres tôlerie",
+      d: "Avant de créer quoi que ce soit, clique sur Paramètres tôlerie. Mets une épaisseur de 2 millimètres et un rayon de pli standard de 4 millimètres. Dans l'onglet Extrémités de pli, choisis minimum sans grugeage.",
+      v: ["épaisseur 2 mm", "rayon de pli 4 mm", "minimum sans grugeage"],
+      a: "<b>À faire en premier</b> : toutes les fonctions suivantes reprennent ces valeurs." },
+    { t: "Dessiner le profil dans le plan XY", f: "Esquisse.1",
+      d: "Dans le plan XY, dessine le profil ouvert de la pièce : un petit palier en haut, une marche verticale, puis une grande partie horizontale. C'est la section de la tôle, sans épaisseur.",
+      v: ["plan XY", "profil ouvert"],
+      a: "Le profil est <b>ouvert</b> : c'est l'épaisseur des paramètres qui donnera la matière." },
+    { t: "Extruder le profil sur 60 mm", f: "Extrusion.1",
+      d: "Sors de l'esquisse et clique sur Extrusion. Donne une longueur de 60 millimètres. L'outil fonctionne comme l'extrusion de Part Design, mais il crée directement une tôle de 2 millimètres.",
+      v: ["Extrusion", "longueur 60 mm"] },
+    { t: "Plier les deux angles droits", f: "Pli.1 · Pli.2",
+      d: "Clique sur l'outil Pli, puis sélectionne les deux parois de chaque angle droit. Le pli arrondit l'angle avec le rayon de 4 millimètres, à l'intérieur comme à l'extérieur, en une seule opération.",
+      v: ["Pli", "2 angles", "rayon 4 mm"],
+      a: "En Part Design, il aurait fallu deux congés. Ici la tôle garde son épaisseur dans le pli." },
+    { t: "Ajouter une plaque", f: "Plaque.1",
+      d: "Dans le plan XY, dessine une esquisse fermée au bout de la pièce, puis utilise l'outil Plaque. La plaque est une paroi plane à l'épaisseur des paramètres de tôlerie.",
+      v: ["Plaque", "esquisse fermée"] },
+    { t: "Raccorder la plaque par un pli", f: "Pli.3",
+      d: "Ajoute un pli entre la grande paroi et la plaque. Les deux parois sont maintenant reliées par un arrondi de 4 millimètres.",
+      v: ["Pli", "rayon 4 mm"] },
+    { t: "Faire une découpe", f: "Découpe.1",
+      d: "Dans le plan ZX, dessine un rectangle, puis utilise l'outil Découpe pour retirer la matière. La découpe correspond à la poche de Part Design.",
+      v: ["plan ZX", "Découpe"] },
+    { t: "Poser un premier ourlet", f: "Ourlet.1",
+      d: "Clique sur Ourlet et sélectionne une partie du bord supérieur. Mets une longueur de 10 millimètres et un rayon de 4 millimètres. Le bord se replie à 180 degrés : il n'est plus coupant.",
+      v: ["Ourlet", "longueur 10 mm", "rayon 4 mm"] },
+    { t: "Poser le second ourlet", f: "Ourlet.2",
+      d: "Les deux parties du bord ne sont pas continues : on ne peut pas les sélectionner ensemble. Relance donc l'outil Ourlet pour la seconde partie, avec les mêmes valeurs.",
+      v: ["Ourlet", "10 mm", "4 mm"],
+      a: "<b>Piège</b> : un ourlet suit une arête continue. Deux bords séparés, c'est deux ourlets." },
+    { t: "Percer et répéter les trous", f: "Découpe.2 · Répétition rectangulaire.1",
+      d: "Sur le palier du haut, dessine un trou et découpe-le. Puis utilise la Répétition rectangulaire pour obtenir quatre trous, deux par deux.",
+      v: ["Découpe", "Répétition rectangulaire", "2 × 2"] },
+    { t: "Découper la plaque", f: "Découpe.3",
+      d: "Sur la face de la plaque, dessine une forme en trou de serrure, puis fais une nouvelle découpe.",
+      v: ["Découpe", "face de la plaque"] },
+    { t: "Ajouter un bord tombé", f: "Bord tombé.1",
+      d: "Sélectionne l'arête avant de la grande paroi, puis l'outil Bord tombé. Indique une longueur, un angle de 90 degrés et le rayon. Une nouvelle paroi se plie le long de l'arête.",
+      v: ["Bord tombé", "angle 90°", "longueur + rayon"] },
+    { t: "Ajouter un pli sur arête", f: "Pli sur arête.1",
+      d: "Sélectionne l'arête avant du palier du haut et utilise Pli sur arête. Contrairement au bord tombé, cet outil permet des décalages : la paroi peut être plus courte que l'arête.",
+      v: ["Pli sur arête", "décalages"],
+      a: "<b>À retenir</b> : bord tombé = toute l'arête ; pli sur arête = avec décalages." },
+    { t: "Déplier la pièce", f: "Dépliage",
+      d: "Clique sur l'icône Déplier. La pièce s'affiche à plat : c'est le développé, la forme exacte à découper dans la tôle avant de la plier.",
+      v: ["Déplier", "développé"],
+      a: "CATIA calcule le développé en tenant compte du rayon et de l'épaisseur des plis." },
+    { t: "Replier et vérifier", f: "Repliage",
+      d: "Clique de nouveau sur l'icône pour replier la pièce. Ta première pièce de tôlerie est terminée. Pour l'exercice de la Jeep Willys, garde la même méthode avec une épaisseur et un rayon de 1 millimètre, et ne modélise que la moitié avant de faire un miroir.",
+      v: ["Replier", "Jeep : 1 mm / 1 mm", "moitié + Miroir"] }
+  ];
+
+  // ---------- petit moteur 3D isométrique ----------
+  // x : profondeur d'extrusion, y : profil horizontal, z : vers le haut
+  const S = 1.65;
+  // vue depuis +x et -y (on voit le bord des ourlets, le palier et la plaque)
+  const P = ([x, y, z]) => [((-y - x) * 0.866) * S, ((x - y) * 0.5 - z) * S];
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const R = 4;   // rayon de pli (mm)
+
+  // une face : 4 points (ou plus), une couleur, une profondeur de tri
+  const face = (pts, coul, etape, extra = {}) => ({ pts, coul, etape, prof: pts.reduce((s, p) => s + p[0] - p[1] + p[2] * 0.6, 0) / pts.length + (extra.dp || 0), trou: !!extra.trou, cle: extra.cle, sur: extra.sur });
+  const rect = (a, b, c, d, coul, e, extra) => face([a, b, c, d], coul, e, extra);
+  // bande arrondie entre deux sections (pli), approximée par des facettes ; sec(t) donne [y, z] pour t de 0 à 1
+  const pli = (x0, x1, sec, e, n = 6) => { const f = []; for (let i = 0; i < n; i++) { const [ya, za] = sec(i / n), [yb, zb] = sec((i + 1) / n); f.push(rect([x0, ya, za], [x1, ya, za], [x1, yb, zb], [x0, yb, zb], 'tole', e)); } return f; };
+  const cercle = (c, r, plan, n = 18) => Array.from({ length: n }, (_, k) => { const a = 2 * Math.PI * k / n, u = Math.cos(a) * r, v = Math.sin(a) * r; return plan === 'z' ? [c[0] + u, c[1] + v, c[2]] : plan === 'y' ? [c[0] + u, c[1], c[2] + v] : [c[0], c[1] + u, c[2] + v]; });
+
+  // la pièce à l'étape n ; t (0 à 1) fait grandir l'opération de l'étape n (longueur, rayon, angle, taille…)
+  function modele(n, t = 1) {
+    const F = [];
+    const k = (s) => (s < n ? 1 : s === n ? t : 0);   // avancement de l'opération de l'étape s
+    const yB = -15, zH = 30, yA = -50, yD = 55;
+    if (n === 2) {
+      // le profil se dessine segment par segment
+      const pts = [[0, yA, zH], [0, yB, zH], [0, yB, 0], [0, yD, 0]], L = [35, 30, 70], tot = 135;
+      let reste = t * tot; const es = [pts[0]];
+      for (let i = 0; i < 3 && reste > 0; i++) { const f = Math.min(1, reste / L[i]); const a = pts[i], b = pts[i + 1]; es.push(a.map((v, j) => v + (b[j] - a[j]) * f)); reste -= L[i]; }
+      return { F, esquisse: es };
+    }
+    if (n < 3) return { F };
+    const X = 60 * k(3);                                  // extrusion qui s'allonge
+    const r1 = R * k(4);                                  // rayon des deux premiers plis
+    // palier du haut (z = 30), marche verticale (y = -15), grande paroi (z = 0)
+    F.push(rect([0, yA, zH], [X, yA, zH], [X, yB - r1, zH], [0, yB - r1, zH], 'tole', 3, { cle: 'palier' }));
+    F.push(rect([0, yB, zH - r1], [X, yB, zH - r1], [X, yB, r1], [0, yB, r1], 'ombre', 3));
+    const finBase = n >= 6 ? yD - R * k(6) : yD;
+    F.push(rect([0, yB + r1, 0], [X, yB + r1, 0], [X, finBase, 0], [0, finBase, 0], 'tole', 3, { dp: -2, cle: 'base' }));
+    if (n >= 4 && r1 > 0.05) {
+      F.push(...pli(0, 60, (s) => { const a = Math.PI / 2 * (1 - s); return [yB - r1 + r1 * Math.cos(a), zH - r1 + r1 * Math.sin(a)]; }, 4));
+      F.push(...pli(0, 60, (s) => { const a = Math.PI + Math.PI / 2 * s; return [yB + r1 + r1 * Math.cos(a), r1 + r1 * Math.sin(a)]; }, 4));
+    }
+    // plaque au bout (y = 55) qui monte, puis son pli
+    if (n >= 5) {
+      const r3 = R * k(6), z0 = n >= 6 ? r3 + 3 * (1 - k(6)) : R + 3, zHaut = z0 + (34 - z0) * k(5);
+      F.push(rect([15, yD, z0], [45, yD, z0], [45, yD, zHaut], [15, yD, zHaut], 'ombre', 5, { dp: 1, cle: 'plaque' }));
+      if (n >= 6 && r3 > 0.05) F.push(...pli(15, 45, (s) => { const a = -Math.PI / 2 + Math.PI / 2 * s; return [yD - r3 + r3 * Math.cos(a), r3 + r3 * Math.sin(a)]; }, 6));
+    }
+    // découpe rectangulaire qui s'agrandit depuis son coin
+    if (n >= 7) { const c = k(7); F.push(face([[12, 18, 0.01], [12 + 22 * c, 18, 0.01], [12 + 22 * c, 18 + 18 * c, 0.01], [12, 18 + 18 * c, 0.01]], 'trou', 7, { trou: true, sur: 'base' })); }
+    // ourlets sur le bord du palier : le bord s'enroule jusqu'à 180°
+    const ourlet = (x0, x1, e, c) => {
+      const ang = Math.PI * c, f = pli(x0, x1, (s) => { const a = ang * s; return [yA - R * Math.sin(a), zH - R + R * Math.cos(a)]; }, e, 8);
+      if (c > 0.98) f.push(rect([x0, yA, zH - 2 * R], [x1, yA, zH - 2 * R], [x1, yA + 10, zH - 2 * R], [x0, yA + 10, zH - 2 * R], 'ombre', e, { dp: -3 }));
+      return f;
+    };
+    if (n >= 8 && k(8) > 0.02) F.push(...ourlet(0, 26, 8, k(8)));
+    if (n >= 9 && k(9) > 0.02) F.push(...ourlet(34, 60, 9, k(9)));
+    // trous du palier : le premier, puis la répétition les fait apparaître un à un
+    if (n >= 10) [[16, -42], [44, -42], [16, -26], [44, -26]].forEach(([x, y], i) => { if (k(10) >= i / 4 + 0.01) F.push(face(cercle([x, y, zH + 0.01], 3 * Math.min(1, (k(10) - i / 4) * 4 + 0.3), 'z'), 'trou', 10, { trou: true, sur: 'palier' })); });
+    // trou de serrure qui grandit
+    if (n >= 11) {
+      const c = k(11);
+      F.push(face(cercle([30, yD + 0.01, 24], 4.5 * c, 'y'), 'trou', 11, { trou: true, sur: 'plaque' }));
+      F.push(face([[30 - 2 * c, yD + 0.01, 22], [30 + 2 * c, yD + 0.01, 22], [30 + 2 * c, yD + 0.01, 22 - 10 * c], [30 - 2 * c, yD + 0.01, 22 - 10 * c]], 'trou', 11, { trou: true, sur: 'plaque' }));
+    }
+    // bord tombé : la paroi pivote autour de l'arête avant jusqu'à 90°
+    if (n >= 12) {
+      const ang = Math.PI / 2 * k(12), L = 14, nPli = 5;
+      const pt = (a) => [60 + R * Math.sin(a), -R + R * Math.cos(a)];      // point du pli à l'angle a
+      for (let i = 0; i < nPli; i++) { const a = ang * i / nPli, b = ang * (i + 1) / nPli, [xa, za] = pt(a), [xb, zb] = pt(b); F.push(rect([xa, -8, za], [xa, 46, za], [xb, 46, zb], [xb, -8, zb], 'tole', 12, { dp: 4 })); }
+      const [xe, ze] = pt(ang), dx = Math.cos(ang), dz = -Math.sin(ang);
+      F.push(rect([xe, -8, ze], [xe, 46, ze], [xe + dx * L, 46, ze + dz * L], [xe + dx * L, -8, ze + dz * L], 'ombre', 12, { dp: 4 }));
+    }
+    // pli sur arête : paroi qui se relève sur l'arête avant du palier
+    if (n >= 13) {
+      const ang = Math.PI / 2 * k(13), L = 12, nPli = 5;
+      const pt = (a) => [60 + R * Math.sin(a), zH + R - R * Math.cos(a)];
+      for (let i = 0; i < nPli; i++) { const a = ang * i / nPli, b = ang * (i + 1) / nPli, [xa, za] = pt(a), [xb, zb] = pt(b); F.push(rect([xa, -44, za], [xa, -24, za], [xb, -24, zb], [xb, -44, zb], 'tole', 13, { dp: 4 })); }
+      const [xe, ze] = pt(ang), dx = Math.cos(ang), dz = Math.sin(ang);
+      F.push(rect([xe, -44, ze], [xe, -24, ze], [xe + dx * L, -24, ze + dz * L], [xe + dx * L, -44, ze + dz * L], 'ombre', 13, { dp: 4 }));
+    }
+    return { F };
+  }
+
+  // développé : toutes les parois à plat dans le plan z = 0 (u le long du profil déroulé)
+  function developpe() {
+    const F = [], f = (x0, x1, u0, u1, coul = 'tole') => F.push(rect([x0, u0, 0], [x1, u0, 0], [x1, u1, 0], [x0, u1, 0], coul, 14));
+    const dec = -95;   // recentre la bande
+    f(0, 26, dec, dec + 22); f(34, 60, dec, dec + 22);          // ourlets dépliés
+    f(0, 60, dec + 22, dec + 59);                               // palier
+    f(60, 76, dec + 28, dec + 48, 'ombre');                     // pli sur arête déplié
+    f(0, 60, dec + 59, dec + 95);                               // marche verticale
+    f(0, 60, dec + 95, dec + 165);                              // grande paroi
+    f(60, 82, dec + 103, dec + 157, 'ombre');                   // bord tombé déplié
+    f(15, 45, dec + 165, dec + 196);                            // plaque
+    [[16, 30], [44, 30], [16, 46], [44, 46]].forEach(([x, u]) => F.push(face(cercle([x, dec + u, 0.01], 3, 'z'), 'trou', 14, { trou: true, dp: 0.1 })));
+    F.push(face([[12, dec + 122, 0.01], [34, dec + 122, 0.01], [34, dec + 140, 0.01], [12, dec + 140, 0.01]], 'trou', 14, { trou: true, dp: 0.1 }));
+    F.push(face(cercle([30, dec + 182, 0.01], 4.5, 'z'), 'trou', 14, { trou: true, dp: 0.1 }));
+    // lignes de pli en pointillé
+    const lignes = [22, 59, 95, 165].map(u => [[0, dec + u, 0.02], [60, dec + u, 0.02]]);
+    return { F, lignes };
+  }
+
+  // ---------- rendu ----------
+  const scene = document.getElementById('scene');
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  // cadrages fixes : un pour la pièce pliée (calculé sur la pièce finie), un pour le développé
+  const cadre = (F) => { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; F.forEach(f => f.pts.forEach(p => { const [a, b] = P(p); x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, b); y1 = Math.max(y1, b); })); const m = 26; return [x0 - m, y0 - m, x1 - x0 + 2 * m, y1 - y0 + 2 * m]; };
+  const CADRE_PLIE = cadre(modele(13).F), CADRE_PLAT = cadre(developpe().F);
+  // repère dans le coin bas droit ; noms des axes comme dans le TP : le profil est dans le plan XY, l'extrusion selon Z
+  function repere(g, vb) {
+    const o = [vb[0] + vb[2] - 46, vb[1] + vb[3] - 30];
+    [['Z', [1, 0, 0]], ['X', [0, 1, 0]], ['Y', [0, 0, 1]]].forEach(([lab, d]) => {
+      const q = P(d.map(v => v * 16)), b = [o[0] + q[0], o[1] + q[1]];
+      g.appendChild(el('line', { x1: o[0], y1: o[1], x2: b[0], y2: b[1], stroke: css('--muted'), 'stroke-width': 1.3 }));
+      const t = el('text', { x: b[0] + (q[0] < -1 ? -9 : 4), y: b[1] + (lab === 'Y' ? -3 : 9), fill: css('--muted'), 'font-size': 10, 'font-family': 'JetBrains Mono, monospace' }); t.textContent = lab; g.appendChild(t);
+    });
+  }
+  // n : étape ; anim : petit fondu des faces validées ; surligner : contour orange de l'opération ;
+  // t : avancement de l'opération (0 à 1) ; apercu : l'opération n'est pas encore validée, on la dessine en pointillés
+  function dessiner(n, anim, surligner = true, t = 1, apercu = false) {
+    scene.replaceChildren();
+    const g = el('g', {}); scene.appendChild(g);
+    const plat = n === 14 && !apercu, vb = n === 14 ? CADRE_PLAT : CADRE_PLIE;
+    repere(g, vb);
+    // dépliage : la pièce pliée s'efface pendant que le développé apparaît en pointillés
+    const { F, esquisse, lignes } = plat ? developpe() : n === 14 ? { F: [...modele(13).F.map(f => ({ ...f, fantome: true })), ...developpe().F.map(f => ({ ...f, etape: 14 }))] } : modele(n, t);
+    const coul = { tole: css('--tole'), ombre: css('--tole-ombre'), trou: css('--trou') };
+    const tracer = (f) => {
+      const d = 'M' + f.pts.map(p => P(p).map(v => v.toFixed(1)).join(' ')).join('L') + 'Z';
+      const enCours = apercu && f.etape === n;
+      const p = el('path', enCours
+        ? { d, fill: 'none', stroke: css('--accent'), 'stroke-width': 1.5, 'stroke-dasharray': '5 3', 'stroke-linejoin': 'round' }
+        : { d, fill: coul[f.coul], stroke: css('--tole-bord'), 'stroke-width': f.trou ? 1 : 0.7, 'stroke-linejoin': 'round' });
+      if (f.fantome) p.setAttribute('opacity', (1 - t).toFixed(2));
+      if (!enCours && surligner && f.etape === n) p.setAttribute('class', (anim ? 'nouveau ' : '') + 'contour-actif');
+      g.appendChild(p);
+    };
+    // chaque trou est dessiné juste après la face qui le porte ; les trous du développé (tout est à plat) à la fin
+    const trous = F.filter(f => f.trou), faces = F.filter(f => !f.trou).sort((a, b) => a.prof - b.prof);
+    faces.forEach(f => { tracer(f); if (f.cle) trous.filter(t => t.sur === f.cle).forEach(tracer); });
+    trous.filter(t => !t.sur).forEach(tracer);
+    if (esquisse) {
+      const d = 'M' + esquisse.map(p => P(p).map(v => v.toFixed(1)).join(' ')).join('L');
+      g.appendChild(el('path', { d, fill: 'none', stroke: css('--accent'), 'stroke-width': 2.6, 'stroke-linejoin': 'round', class: anim ? 'nouveau' : '' }));
+      // plan XY suggéré
+      const pl = [[0, -60, 40], [0, 65, 40], [0, 65, -8], [0, -60, -8]];
+      g.insertBefore(el('path', { d: 'M' + pl.map(p => P(p).join(' ')).join('L') + 'Z', fill: css('--accent-doux'), stroke: 'none' }), g.children[3]);
+    }
+    if (lignes) lignes.forEach(([a, b]) => { const A = P(a), B = P(b); g.appendChild(el('line', { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: css('--accent'), 'stroke-width': 1, 'stroke-dasharray': '5 4' })); });
+    scene.setAttribute('viewBox', vb.map(v => v.toFixed(1)).join(' '));
+  }
+
+  // ---------- lecteur ----------
+  const $ = (id) => document.getElementById(id);
+  const pistes = $('pistes'); pistes.style.setProperty('--n', ETAPES.length);
+  ETAPES.forEach((e, i) => { const b = document.createElement('button'); b.type = 'button'; b.title = `Étape ${i + 1} : ${e.t}`; b.setAttribute('aria-label', b.title); b.onclick = () => { aller(i, true); }; pistes.appendChild(b); });
+  let courant = 0, lecture = false, minuterie = null, jeton = 0;
+  const peutParler = 'speechSynthesis' in window;
+  let voixFr = null;
+  function chercherVoix() { if (!peutParler) return; const v = speechSynthesis.getVoices(); voixFr = v.find(x => /^fr(-|_)FR/i.test(x.lang)) || v.find(x => /^fr/i.test(x.lang)) || null; }
+  if (peutParler) { chercherVoix(); speechSynthesis.onvoiceschanged = chercherVoix; } else { $('voix').checked = false; $('voix').disabled = true; $('note-voix').textContent = 'Ton navigateur ne propose pas de synthèse vocale : le tuto avance seul avec le texte.'; }
+
+  let premiereVue = false; // aperçu de la pièce finie, avant la première étape
+  const redessiner = () => premiereVue ? dessiner(13, false, false) : dessiner(courant === 15 ? 13 : courant, false, courant !== 15);
+  function afficher(i, anim) {
+    premiereVue = false;
+    const e = ETAPES[i];
+    $('num').textContent = `Étape ${i + 1} sur ${ETAPES.length}`;
+    $('titre').textContent = e.t;
+    const ic = ICONE_ETAPE[i]; $('icone').hidden = !ic; if (ic) { $('icone').src = ICONES[ic]; $('icone').alt = "Icône CATIA de l'outil"; }
+    $('texte').textContent = e.d;
+    $('valeurs').replaceChildren(...e.v.map(t => { const s = document.createElement('span'); s.textContent = t; return s; }));
+    const a = $('astuce'); a.hidden = !e.a; a.innerHTML = e.a || '';
+    $('param').hidden = true;
+    const fonctions = ETAPES.slice(0, i + 1).map(x => x.f).filter(Boolean);
+    $('arbre').replaceChildren(...(fonctions.length ? fonctions : ['(pièce vide)']).map((f, k, arr) => { const li = document.createElement('li'); li.textContent = f; if (k === arr.length - 1 && ETAPES[i].f) li.className = 'actif'; return li; }));
+    [...pistes.children].forEach((b, k) => { b.className = k < i ? 'fait' : k === i ? 'actif' : ''; });
+    animerEtape(i);
+  }
+
+  // ---------- animation d'une opération : aperçu en pointillés qui grandit, saisie des valeurs, OK, puis la tôle apparaît ----------
+  // valeurs affichées dans la fenêtre de l'outil ; un nombre défile de 0 à sa valeur pendant l'aperçu
+  const DIALOGUES = {
+    1: ['Paramètres de la pièce de tôlerie', [['Épaisseur', 2, 'mm'], ['Rayon de pli standard', 4, 'mm'], ['Extrémités de pli', 'minimum sans grugeage']]],
+    2: ['Esquisse (plan XY)', [['Profil', 'ouvert']]],
+    3: ["Définition de l'extrusion", [['Profil', 'Esquisse.1'], ['Longueur', 60, 'mm']]],
+    4: ['Définition du pli', [['Support 1', 'palier / marche'], ['Rayon', 4, 'mm']]],
+    5: ['Définition de la plaque', [['Profil', 'Esquisse.2'], ['Épaisseur', '2 mm']]],
+    6: ['Définition du pli', [['Support 1', 'grande paroi'], ['Support 2', 'Plaque.1'], ['Rayon', 4, 'mm']]],
+    7: ['Définition de la découpe', [['Type', 'standard'], ['Profil', 'Esquisse.3 (plan ZX)']]],
+    8: ["Définition de l'ourlet", [['Longueur', '10 mm'], ['Rayon', '4 mm']]],
+    9: ["Définition de l'ourlet", [['Longueur', '10 mm'], ['Rayon', '4 mm']]],
+    10: ['Répétition rectangulaire', [['Instances (direction 1)', '2'], ['Instances (direction 2)', '2']]],
+    11: ['Définition de la découpe', [['Profil', 'Esquisse.5'], ['Type', 'standard']]],
+    12: ['Définition du bord tombé', [['Longueur', '14 mm'], ['Angle', 90, '°'], ['Rayon', '4 mm']]],
+    13: ['Pli sur arête', [['Hauteur', '12 mm'], ['Angle', 90, '°'], ['Décalages', 'oui']]],
+    14: ['Dépliage', [['Face de référence', 'grande paroi']]]
+  };
+  const DUREE = 2600, ATTENTE_OK = 500;
+  let animJeton = 0, animFinie = true, paroleFinie = true;
+  const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lisse = (x) => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  function majDialogue(i, t, ok) {
+    const d = DIALOGUES[i], box = $('dialogue');
+    if (!d) { box.hidden = true; return; }
+    box.hidden = false; $('dlg-titre').textContent = d[0];
+    $('dlg-champs').replaceChildren(...d[1].map(([lab, v, u]) => {
+      const ligne = document.createElement('div'), s = document.createElement('span'), b = document.createElement('b');
+      s.textContent = lab; b.textContent = typeof v === 'number' ? `${Math.round(v * t)}${u ? ' ' + u : ''}` : v;
+      ligne.append(s, b); return ligne;
+    }));
+    $('dlg-ok').classList.toggle('appuye', !!ok);
+  }
+  function animerEtape(i) {
+    const mon = ++animJeton;
+    const final = i === 15 ? 13 : i;
+    // onglet caché (CATIA en plein écran…) : le navigateur met les animations en pause, on affiche directement le résultat
+    if (i === 0 || i === 15 || reduit || document.hidden) { $('dialogue').hidden = true; dessiner(final, true, i !== 15 && i !== 0); animFinie = true; verifierSuite(); return; }
+    animFinie = false; animEtape = i;
+    const debut = performance.now();
+    const image = (now) => {
+      if (mon !== animJeton) return;
+      const x = Math.min(1, (now - debut) / DUREE), t = lisse(x);
+      dessiner(i, false, true, Math.max(t, 0.001), true); majDialogue(i, t, false);
+      if (x < 1) { requestAnimationFrame(image); return; }
+      // on « clique » sur OK, puis l'opération est validée
+      majDialogue(i, 1, true);
+      setTimeout(() => {
+        if (mon !== animJeton) return;
+        dessiner(i, true, true, 1, false);
+        setTimeout(() => { if (mon === animJeton) $('dialogue').hidden = true; }, 700);
+        animFinie = true; verifierSuite();
+      }, ATTENTE_OK);
+    };
+    requestAnimationFrame(image);
+  }
+  // si l'onglet passe en arrière-plan pendant une animation, on la termine d'un coup pour que la lecture continue
+  let animEtape = 0;
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden || animFinie) return;
+    ++animJeton; $('dialogue').hidden = true;
+    dessiner(animEtape, true, true, 1, false);
+    animFinie = true; verifierSuite();
+  });
+  // on passe à l'étape suivante quand la voix a fini ET que l'animation est terminée
+  function verifierSuite() {
+    if (!lecture || !animFinie || !paroleFinie) return;
+    const mon = jeton;
+    minuterie = setTimeout(() => { if (mon !== jeton || !lecture) return; if (courant < ETAPES.length - 1) aller(courant + 1, false); else { lecture = false; majBouton(); } }, 1000);
+  }
+  function arreterParole() { jeton++; clearTimeout(minuterie); if (peutParler) speechSynthesis.cancel(); }
+  function parler(i) {
+    const mon = ++jeton;
+    paroleFinie = false;
+    const suite = () => { if (mon !== jeton) return; paroleFinie = true; verifierSuite(); };
+    const texte = ETAPES[i].t + '. ' + ETAPES[i].d;
+    if (peutParler && $('voix').checked) {
+      const u = new SpeechSynthesisUtterance(texte);
+      u.lang = 'fr-FR'; if (voixFr) u.voice = voixFr; u.rate = parseFloat($('vitesse').value);
+      u.onend = suite; u.onerror = suite;
+      speechSynthesis.speak(u);
+    } else {
+      const duree = Math.max(4000, texte.split(/\s+/).length * 420 / parseFloat($('vitesse').value));
+      minuterie = setTimeout(suite, duree);
+    }
+  }
+  function aller(i, manuel) {
+    arreterParole();
+    courant = Math.max(0, Math.min(ETAPES.length - 1, i));
+    paroleFinie = !lecture;
+    if (lecture) parler(courant);
+    afficher(courant, true);
+    if (manuel) majBouton();
+  }
+  function majBouton() { $('lire').textContent = lecture ? '❚❚ Pause' : (courant === ETAPES.length - 1 ? '↺ Revoir' : '▶ Lecture'); }
+  $('lire').onclick = () => {
+    if (lecture) { lecture = false; arreterParole(); }
+    else { lecture = true; if (courant === ETAPES.length - 1) { courant = 0; parler(0); afficher(0, true); } else parler(courant); }
+    majBouton();
+  };
+  $('prec').onclick = () => aller(courant - 1, true);
+  $('suiv').onclick = () => aller(courant + 1, true);
+  $('voix').onchange = () => { if (lecture) { arreterParole(); parler(courant); } };
+  document.addEventListener('keydown', (ev) => { if (ev.target.tagName === 'SELECT') return; if (ev.key === 'ArrowRight') aller(courant + 1, true); if (ev.key === 'ArrowLeft') aller(courant - 1, true); if (ev.key === ' ') { ev.preventDefault(); $('lire').click(); } });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redessiner);
+  new MutationObserver(redessiner).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  // première vue : la pièce finie, pour montrer d'emblée ce qu'on va construire
+  afficher(0, false); dessiner(13, false, false); premiereVue = true;
+  $('arbre').replaceChildren(...['Aperçu de la pièce finie'].map(t => { const li = document.createElement('li'); li.textContent = t; return li; }));
+})();
+</script>
+<script>
+  // intégré dans la leçon du site : prendre le thème clair ou sombre de la page qui l'affiche
+  try { if (parent !== window && parent.document.documentElement.classList) document.documentElement.setAttribute('data-theme', parent.document.documentElement.classList.contains('clair') ? 'light' : 'dark'); } catch (e) { }
+</script>

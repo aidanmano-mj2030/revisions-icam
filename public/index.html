@@ -698,7 +698,7 @@
 
     <!-- Pied de page -->
     <footer class="border-t border-darkborder py-6 text-center text-xs text-slate-500">
-        <p>© BTS ATI Icam — Espace d'apprentissage interactif</p>
+        <p>© BTS ATI Icam — Espace d'apprentissage interactif · Réalisé avec l'aide de l'intelligence artificielle : des erreurs peuvent subsister, vérifie toujours avec tes cours et tes professeurs.</p>
     </footer>
 
     
@@ -717,7 +717,7 @@
                 { id: "CE", code: "CE", nom: "Construction Électrique", icone: "zap", desc: "Schémas électriques, distribution & appareillage.", descAnnee: { "1ère Année": "Énergie électrique, schémas, machines à courant continu.", "2ème Année": "Triphasé, polaires et intégrales, magnétisme, moteurs, variateurs." } },
                 { id: "AII", code: "AII", nom: "Automatisme & Informatique Ind.", icone: "cpu", desc: "Automates, langage GRAFCET & systèmes automatisés.", descAnnee: { "1ère Année": "GRAFCET, logique combinatoire, codes, portes, bascules, pneumatique, capteurs.", "2ème Année": "GEMMA, structuration du GRAFCET, régulation et asservissement." } },
                 { id: "OI", code: "OI", nom: "Organisation Industrielle", icone: "factory", desc: "Gestion de production, maintenance & qualité.", descAnnee: { "1ère Année": "Organisation du travail, Gantt et PERT, usinage, contrat de phase, flux et stocks.", "2ème Année": "Qualité, MRP et kanban, maîtrise statistique des procédés, cotation GPS." } },
-                { id: "EST", code: "EST", nom: "Étude des Systèmes Techniques", icone: "layers", desc: "Analyse fonctionnelle et étude globale de systèmes.", descAnnee: { "1ère Année": "Analyse fonctionnelle, dessin technique, coupes et perspectives.", "2ème Année": "Cours de 2ème année à venir." } }
+                { id: "EST", code: "EST", nom: "Étude des Systèmes Techniques", icone: "layers", desc: "Analyse fonctionnelle et étude globale de systèmes.", descAnnee: { "1ère Année": "Analyse fonctionnelle, dessin technique, coupes et perspectives.", "2ème Année": "CATIA V5 : assemblage paramétré et tôlerie." } }
             ],
             scientifiques: [
                 { id: "MATHS", code: "MATHS", nom: "Mathématiques", icone: "calculator", desc: "Analyse, algèbre, matrices, géométrie & probabilités.", descAnnee: { "1ère Année": "Polynômes, trigo, complexes, suites, intégrales, équations différentielles.", "2ème Année": "Développements limités, matrices, calcul vectoriel, barycentres et produits." } },
@@ -835,6 +835,10 @@
             { num: "Géométrie", titre: "Calcul vectoriel - Droites - Plans", desc: "Reprise des cours, étude de 2 vecteurs, 3 vecteurs.", lecon: "maths-vecto", exo: "maths-vecto-coord" },
             { num: "Géométrie", titre: "Barycentres, produit scalaire et vectoriel", desc: "Barycentres, produit scalaire, Al-Kashi, plans, produit vectoriel et produit mixte.", lecon: "maths-geo", exo: "maths-geo-bary" },
             { num: "Chapitre 5", titre: "Fonctions vectorielles et courbes paramétrées", desc: "Limite et dérivée d'une fonction à valeurs dans R², arcs paramétrés, points stationnaires, tangentes, asymptotes, symétries et plan d'étude.", lecon: "m2-fvect", exo: "m2-fvect" }
+        ],
+        "EST": [
+            { num: "CATIA V5", titre: "L'assemblage paramétré", desc: "Paramètres et formules, Product et Part, squelette, boussole, contraintes d'assemblage, manipulation sous contraintes.", lecon: "est2-assemblage", exo: "est2-assemblage" },
+            { num: "CATIA V5", titre: "La tôlerie (Generative Sheetmetal Design)", desc: "Paramètres de tôlerie, plaque, pli, découpe, ourlet, bord tombé, développé, exercice de la Jeep.", lecon: "est2-tolerie", exo: "est2-tolerie" }
         ]
     }
 };
@@ -16958,6 +16962,307 @@
         }
         EXB('m2-fvect', 'm2-fvect', 'Maths • 2ème Année', 'Courbes paramétrées', 'Fonctions vectorielles et courbes paramétrées', { id: 'fve', types: { der: fvDerivee, pente: fvPente, asym: fvAsymptote, sym: fvSym, q: fvQ }, libelles: { tout: 'Tout', der: 'Vitesse et nature du point', pente: 'Tangente en un point stationnaire', asym: 'Asymptote oblique', sym: 'Symétries', q: 'Cours' } }, 'spline');
         Object.assign(RENVOIS, { 'm2-fvect': { der: [2, 4], pente: [4], asym: [5], sym: [6], q: [2, 3, 4, 5, 6] } });
+
+        // ==========================================
+        // EST 2ème année • CATIA V5 : assemblage paramétré et tôlerie
+        // ==========================================
+        // Arbre d'un assemblage : Product, sous-Product, Part (exemple du TD de la voiture)
+        function svgArbreProduct() {
+            const T = SVG_TRAIT, X = SVG_TEXTE, D = SVG_DISCRET, A = SVG_ACCENT, B = '#60a5fa', V = '#34d399';
+            const ligne = (x, y, txt, type) => {
+                const c = type === 'product' ? B : type === 'part' ? V : D;
+                const ic = type === 'product' ? `<rect x="${x}" y="${y - 9}" width="12" height="12" rx="2" stroke="${c}" fill="${c}" fill-opacity=".25"/>`
+                    : type === 'part' ? `<path d="M${x + 6} ${y - 10}L${x + 12} ${y - 4}L${x + 6} ${y + 2}L${x} ${y - 4}Z" stroke="${c}" fill="${c}" fill-opacity=".25"/>`
+                    : `<path d="M${x} ${y - 2}h12" stroke="${c}"/>`;
+                return ic + `<text x="${x + 18}" y="${y}" fill="${type ? X : D}" font-size="11">${txt}</text>`;
+            };
+            const tr = (x1, y1, y2) => `<path d="M${x1} ${y1}V${y2}" stroke="${D}"/>`;
+            const br = (x1, y, x2) => `<path d="M${x1} ${y - 4}H${x2}" stroke="${D}"/>`;
+            let o = ligne(10, 18, 'Croquis-voiture (Product principal)', 'product');
+            o += tr(16, 24, 186);
+            o += br(16, 44, 34) + ligne(36, 44, 'Chassis (sous-Product)', 'product') + tr(42, 50, 70) + br(42, 70, 60) + ligne(62, 70, 'Squelette-chassis (Part)', 'part');
+            o += br(16, 96, 34) + ligne(36, 96, 'SOL (Part)', 'part');
+            o += br(16, 122, 34) + ligne(36, 122, 'Porte-fusee (Part)', 'part');
+            o += br(16, 148, 34) + ligne(36, 148, 'Cremaillere (Part)', 'part');
+            o += br(16, 174, 34) + ligne(36, 174, 'Contraintes (fixité, coïncidences…)', null);
+            o += `<text x="300" y="44" fill="${B}" font-size="10">Product = assemblage (.CATProduct)</text><text x="300" y="62" fill="${V}" font-size="10">Part = pièce (.CATPart)</text><text x="300" y="80" fill="${A}" font-size="10">tous dans le même répertoire</text>`;
+            return `<svg viewBox="0 0 480 196" width="480" role="img" aria-label="Arbre d'un assemblage CATIA" fill="none" stroke-width="1.4" style="max-width:100%">${o}</svg>`;
+        }
+        // Tôlerie : profils en coupe des opérations sur une tôle d'épaisseur e
+        function svgOperationsTole() {
+            const A = SVG_ACCENT, X = SVG_TEXTE, D = SVG_DISCRET;
+            const e = 6;
+            const cadre = (x, titre, chemin) => `<text x="${x + 55}" y="16" fill="${X}" font-size="11" font-weight="700" text-anchor="middle">${titre}</text><path d="${chemin}" stroke="${A}" fill="${A}" fill-opacity=".25"/>`;
+            // pli à 90° (intérieur R, extérieur R+e)
+            const pli = (x) => { const R = 12, y0 = 110; return `M${x} ${y0}H${x + 60}A${R + e} ${R + e} 0 0 0 ${x + 60 + R + e} ${y0 - R - e}V${y0 - 80}H${x + 60 + R}V${y0 - R - e}A${R} ${R} 0 0 1 ${x + 60} ${y0 - e}H${x}Z`; };
+            // ourlet : retour à 180°
+            const ourlet = (x) => { const R = 8, y0 = 100; return `M${x} ${y0}H${x + 80}A${R + e} ${R + e} 0 0 0 ${x + 80} ${y0 - 2 * R - 2 * e}H${x + 40}V${y0 - 2 * R - e}H${x + 80}A${R} ${R} 0 0 1 ${x + 80} ${y0 - e}H${x}Z`; };
+            // bord tombé : paroi pliée sur une arête, angle quelconque (ici 120°)
+            const bord = (x) => { const y0 = 110; return `M${x} ${y0}H${x + 70}L${x + 105} ${y0 - 60}L${x + 100} ${y0 - 63}L${x + 67} ${y0 - e}H${x}Z`; };
+            let o = cadre(10, 'Pli (90°)', pli(10)) + cadre(175, 'Ourlet (180°)', ourlet(175)) + cadre(330, 'Bord tombé', bord(330));
+            o += `<text x="20" y="132" fill="${D}" font-size="10">congé intérieur R</text><text x="20" y="145" fill="${D}" font-size="10">et extérieur R + e</text>`;
+            o += `<text x="185" y="132" fill="${D}" font-size="10">longueur L, rayon R</text><text x="340" y="132" fill="${D}" font-size="10">longueur, angle, rayon</text>`;
+            return `<svg viewBox="0 0 480 152" width="480" role="img" aria-label="Pli, ourlet et bord tombé en coupe" fill="none" stroke-width="1.4" style="max-width:100%">${o}</svg>`;
+        }
+        // icônes de l'atelier de tôlerie (captures de Baptiste, découpées dans public/catia), avec leur nom
+        const TOLE_ICONES = [
+            ['parametres-tolerie', 'Paramètres tôlerie'], ['decoupe', 'Découpe'], ['trou', 'Trou / découpe circulaire'], ['grugeage-coin', 'Grugeage en coin'],
+            ['coin', 'Coin'], ['chanfrein', 'Chanfrein'], ['emboutis', 'Emboutis (surfacique, boudin, curviligne, bord tombé…)'], ['depliage-multivue', 'Dépliage multivue'],
+            ['gestion-vues', 'Gestion des vues'], ['tremie', 'Trémie'], ['surface-forme-libre', 'Surface de forme libre'], ['plaque-roulee', 'Plaque roulée'],
+            ['selectionner', 'Sélectionner'], ['esquisse', 'Esquisse'], ['detection-recouvrements', 'Détection des recouvrements'], ['export-dxf', 'Sauvegarder au format DXF'],
+            ['pli', 'Pli / pli conique'], ['repliage', 'Repliage'], ['depliage-pliage', 'Dépliage / pliage'], ['mappage', 'Mappage de point ou de courbe'],
+            ['reconnaissance', 'Reconnaissance'], ['plaque', 'Plaque'], ['plaque-sur-arete', 'Plaque sur arête'], ['extrusion', 'Extrusion'],
+            ['bord-tombe-ourlet', 'Bord tombé / ourlet / goutte d\'eau / balayage'], ['miroir', 'Miroir'], ['repetition', 'Répétition rectangulaire / circulaire / personnalisée'],
+            ['transformations', 'Translation / rotation / symétrie / changement de repère'], ['contrainte', 'Contrainte']
+        ];
+        // carte qui ouvre un tutoriel animé dans un nouvel onglet (la page est trop riche pour être lue dans la leçon)
+        const carteTuto = (href, titre, texte, icones) => `<a href="${href}" target="_blank" rel="noopener" class="group block rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-500/15 via-slate-950 to-slate-950 p-5 hover:border-amber-400 hover:from-amber-500/25 transition-all">
+                <div class="flex flex-wrap items-center gap-5">
+                    <div class="w-16 h-16 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform"><i data-lucide="play" class="w-8 h-8 ml-1"></i></div>
+                    <div class="flex-1 min-w-[14rem] space-y-1"><p class="text-lg font-bold text-white">${titre}</p><p class="text-sm text-slate-300">${texte}</p></div>
+                    <span class="px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 text-sm font-bold flex items-center gap-2 group-hover:bg-amber-400">Ouvrir <i data-lucide="external-link" class="w-4 h-4"></i></span>
+                </div>
+                ${icones.length ? `<div class="flex flex-wrap gap-1.5 mt-4">${icones.map(s => toleIco(s, 28)).join('')}</div>` : ''}
+            </a>`;
+        const toleIco = (s, t = 32) => `<img src="catia/tole-${s}.png" alt="" width="${t}" height="${t}" style="image-rendering:pixelated;width:${t}px;height:${t}px" class="inline-block rounded border border-slate-700 shrink-0">`;
+        // Développé d'une tôle pliée : deux ailes a et b et un pli de rayon R
+        function svgDeveloppe() {
+            const A = SVG_ACCENT, X = SVG_TEXTE, D = SVG_DISCRET, V = '#34d399';
+            const e = 8, R = 18;
+            let o = `<path d="M20 130H110A${R + e} ${R + e} 0 0 0 ${110 + R + e} ${130 - R - e}V30H${110 + R}V${130 - R - e}A${R} ${R} 0 0 1 110 ${130 - e}H20Z" stroke="${A}" fill="${A}" fill-opacity=".2"/>`;
+            o += `<path d="M20 ${130 - e / 2}H110A${R + e / 2} ${R + e / 2} 0 0 0 ${110 + R + e / 2} ${130 - R - e}V30" stroke="${V}" stroke-dasharray="4 3"/>`;
+            o += `<text x="60" y="148" fill="${X}" font-size="11" text-anchor="middle">a</text><text x="${136 + R}" y="70" fill="${X}" font-size="11">b</text><text x="96" y="104" fill="${D}" font-size="10">R</text><text x="40" y="20" fill="${V}" font-size="10">fibre neutre (à K·e de l'intérieur)</text>`;
+            o += `<path d="M215 90H240M234 85L240 90L234 95" stroke="${D}"/><text x="228" y="80" fill="${D}" font-size="10" text-anchor="middle">déplier</text>`;
+            o += `<rect x="255" y="84" width="200" height="${e}" stroke="${A}" fill="${A}" fill-opacity=".2"/><path d="M335 80V100M375 80V100" stroke="${V}" stroke-dasharray="3 3"/>`;
+            o += `<text x="295" y="115" fill="${X}" font-size="11" text-anchor="middle">a</text><text x="355" y="115" fill="${V}" font-size="10" text-anchor="middle">pli</text><text x="415" y="115" fill="${X}" font-size="11" text-anchor="middle">b</text>`;
+            return `<svg viewBox="0 0 470 156" width="470" role="img" aria-label="Développé d'une tôle pliée" fill="none" stroke-width="1.4" style="max-width:100%">${o}</svg>`;
+        }
+        Object.assign(LECONS, {
+            "est2-assemblage": {
+                badge: "EST • 2ème Année", titre: "CATIA V5 : l'assemblage paramétré",
+                sections: () => [
+                    { titre: "1. Préparer CATIA", icone: "settings", contenu: [
+                        H.p(R`Avant de commencer un assemblage paramétré, on règle quelques options (menu <strong>Outils › Options</strong>) pour voir les paramètres et les formules et pour que l'assemblage se mette à jour tout seul :`),
+                        H.tableau(["Option", "Réglage"], [
+                            ["Paramètres et mesure", "cocher « Avec valeur » et « Avec formule » : les paramètres et formules apparaissent dans l'arbre"],
+                            ["Infrastructure › Part", "tout cocher dans « Affichage dans l'arbre »"],
+                            ["Infrastructure › Product structure", "activer la personnalisation de l'arbre"],
+                            ["Conception mécanique › Assembly Design", "mise à jour automatique : l'assemblage suit les modifications des pièces"]
+                        ], { nowrap: false, gauche: true })
+                    ].join('') },
+                    { titre: "2. Paramètres et formules", icone: "variable", contenu: [
+                        H.p(R`Un <strong>paramètre</strong> est une grandeur nommée (longueur, angle…) qu'on crée avec l'outil <strong>f(x)</strong> : par exemple « diametre_roue » et « largeur_roue » pour la roue. Il apparaît dans l'arbre et on le modifie d'un double clic.`),
+                        H.p(R`On relie ensuite une cote à ce paramètre par une <strong>formule</strong> : double clic sur la cote, puis clic droit › <strong>Éditer formule</strong>, on clique sur le paramètre dans l'arbre et on complète. La cote s'affiche alors suivie de <strong>f(x)</strong>.`),
+                        H.note(R`<strong>Exemple de la roue</strong> : dans le plan XY, l'esquisse du demi-profil a pour hauteur la formule <code>diametre_roue / 2</code> (le rayon) et pour largeur <code>largeur_roue</code>. On sort de l'esquisse et on fait une <strong>révolution</strong> autour du trait d'axe. Changer « diametre_roue » redessine la roue, et tout l'assemblage avec.`),
+                        H.p(R`De la même façon, le porte-fusée reçoit un paramètre « deport_direction » (130 mm) qui pilote la longueur de son bras. L'intérêt : modifier une grandeur et voir tout de suite son influence sur l'assemblage.`)
+                    ].join('') },
+                    { titre: "3. Product et Part : la structure", icone: "network", contenu: [
+                        H.p(R`Un assemblage CATIA est un <strong>Product</strong> (fichier .CATProduct) qui contient des pièces, les <strong>Parts</strong> (fichiers .CATPart), et éventuellement d'autres Products : des <strong>sous-assemblages</strong>.`),
+                        H.figure(svgArbreProduct(), "L'arbre du TD : un Product principal, un sous-assemblage Chassis, des pièces, puis les contraintes."),
+                        H.liste([
+                            R`<strong>Fichier › Nouveau › Product</strong>, puis une icône pour insérer un nouveau Product (sous-assemblage) et une autre pour insérer une nouvelle Part dans un Product.`,
+                            R`Renommer : clic droit › <strong>Propriétés</strong>. Mettre le même nom pour le <strong>nom d'instance</strong> et la <strong>référence</strong>.`,
+                            R`Noms sans accents, sans espaces, sans points ni / ou \ : préférer - ou _.`,
+                            R`Enregistrer <strong>toutes les pièces et assemblages dans le même répertoire</strong>, avec <strong>Fichier › Gestion des enregistrements</strong>, et enregistrer souvent.`,
+                            R`Pour modifier une pièce depuis l'assemblage : double clic sur son « Corps principal » (les outils Part Design apparaissent), ou clic droit › Ouvrir dans une nouvelle fenêtre.`
+                        ])
+                    ].join('') },
+                    { titre: "4. Le squelette", icone: "spline", contenu: [
+                        H.p(R`Le <strong>squelette</strong> (ici « Squelette-chassis ») est une Part sans volume : seulement des esquisses et des plans qui fixent les positions clés de l'assemblage (empattement, voie, axes des roues). Les autres pièces viennent ensuite se contraindre <strong>sur le squelette</strong>.`),
+                        H.listeNum([R`Dans le plan XY : un rectangle de 3000 × 1500 centré sur le repère, avec 4 traits de 200 mm aux extrémités (axes des roues).`, R`Créer un <strong>plan décalé</strong> de 1500 mm par rapport au plan YZ (outil Plan, sélection du plan YZ dans l'arbre).`, R`Sur ce plan : 2 traits de 150 mm dont le milieu est sur l'axe H, passant par les extrémités du rectangle (pivots du porte-fusée).`]),
+                        H.note(R`Pour rendre deux traits symétriques par rapport à l'axe V : outil Contrainte, sélectionner les deux traits, clic droit › <strong>Autoriser un axe de symétrie</strong>, puis cliquer sur l'axe V.`)
+                    ].join('') },
+                    { titre: "5. Positionner les pièces", icone: "move-3d", contenu: [
+                        H.liste([
+                            R`On commence par <strong>fixer</strong> une pièce de référence (le SOL) avec la contrainte de <strong>fixité</strong> (icône d'ancre) : elle apparaît sous « Contraintes » dans l'arbre.`,
+                            R`<strong>La boussole</strong> déplace une pièce : on attrape son carré rouge et on la colle sur une face, puis on tire sur ses axes (translations) ou ses arcs (rotations). Pour la ranger, on la dépose dans le fond de l'écran.`,
+                            R`<strong>Insérer un composant existant</strong> : sélectionner dans l'arbre le Product qui va le recevoir, puis choisir le fichier (.CATPart). La pièce arrive à une position quelconque : on l'approche avec la boussole avant de la contraindre.`
+                        ])
+                    ].join('') },
+                    { titre: "6. Les contraintes d'assemblage", icone: "link", contenu: [
+                        H.tableau(["Contrainte", "Ce qu'elle impose", "Exemple du TD"], [
+                            ["<strong>Fixité</strong>", "la pièce ne bouge plus dans l'assemblage", "le SOL"],
+                            ["<strong>Coïncidence</strong>", "deux éléments confondus : axes coaxiaux, plans ou points confondus", "axe de la roue sur le trait d'axe du squelette"],
+                            ["<strong>Contact</strong>", "deux surfaces en contact (plan/plan, cylindre/plan…)", "les 4 roues posées sur le dessus du sol"],
+                            ["<strong>Distance</strong> (décalage)", "écart imposé entre deux éléments", "plan de la roue à 0 mm du point du squelette ; 1500 mm entre les axes des porte-fusées"],
+                            ["<strong>Angle</strong>", "angle imposé entre deux éléments", "plan de la roue arrière à 0° ou 180° de l'arête du sol"]
+                        ], { nowrap: false }),
+                        H.p(R`Pour une roue : une <strong>coïncidence</strong> axe/axe la rend coaxiale (il lui reste la translation le long de l'axe et la rotation autour), puis une <strong>distance</strong> de 0 entre son plan et un point du squelette bloque la translation. Il ne lui reste que la rotation : c'est une liaison pivot. On fait de même pour chaque roue et chaque porte-fusée.`),
+                        H.note(R`Une pièce n'est bien positionnée que si ses contraintes bloquent tous les mouvements qui ne doivent pas exister, et seulement ceux-là : les mouvements restants sont ceux du mécanisme (rotation des roues, braquage des porte-fusées).`)
+                    ].join('') },
+                    { titre: "7. Manipuler sous contraintes", icone: "hand", contenu: [
+                        H.p(R`L'outil <strong>Manipulation</strong> (paramètres de manipulation › <strong>Sous contraintes</strong>) déplace une pièce en respectant ses contraintes : en tirant sur une roue avant, les roues tournent autour des axes des porte-fusées, comme une direction.`),
+                        H.p(R`Pour y voir clair, on <strong>cache les plans</strong> et repères de chaque pièce (sélection, clic droit › Cacher/Afficher) : ils deviennent grisés dans l'arbre.`),
+                        H.note(R`<strong>À retenir</strong> : paramètres + formules + squelette = un assemblage qui se met à jour seul. On change le diamètre de roue ou le déport de direction, et tout suit.`)
+                    ].join('') },
+                    { titre: "8. Le tutoriel animé du TD", icone: "play-circle", contenu: [
+                        H.p(R`Tout le TD du croquis de voiture, étape par étape et commenté à voix haute : la roue paramétrée, l'arborescence, le squelette, les contraintes, la direction qui tourne et le changement de diamètre des roues.`),
+                        carteTuto('catia/tuto-assemblage.html', "Lancer le tutoriel de l'assemblage", "18 étapes commentées, de la roue paramétrée jusqu'à la direction qui braque. S'ouvre dans un nouvel onglet, en grand.", []),
+                        H.note(R`Ouvre-le dans un onglet à part (Chrome ou Edge pour la voix). La vidéo continue même si tu passes sur CATIA : tu peux l'écouter pendant que tu refais les manipulations.`)
+                    ].join('') }
+                ]
+            },
+            "est2-tolerie": {
+                badge: "EST • 2ème Année", titre: "CATIA V5 : la tôlerie (Generative Sheetmetal Design)",
+                sections: () => [
+                    { titre: "1. L'atelier de tôlerie", icone: "layers", contenu: [
+                        H.p(R`Les pièces vues jusqu'ici (atelier <strong>Part Design</strong>) étaient prismatiques ou cylindriques, comme en tournage ou fraisage. L'atelier <strong>Generative Sheetmetal Design</strong> modélise des <strong>tôles</strong> : des pièces d'épaisseur constante, découpées et pliées.`),
+                        H.p(R`On le lance par <strong>Démarrer › Conception mécanique › Generative Sheetmetal Design</strong>. La pièce reste dépliable à tout moment, ce qui donne directement la forme à découper dans la tôle (le <strong>développé</strong>).`)
+                    ].join('') },
+                    { titre: "2. Les paramètres de tôlerie", icone: "sliders-horizontal", contenu: [
+                        H.p(R`<strong>Avant de créer quoi que ce soit</strong>, on ouvre <strong>Paramètres tôlerie</strong> : toutes les fonctions s'en servent ensuite.`),
+                        H.tableau(["Paramètre", "Rôle", "Tuto", "Exercice (Jeep)"], [
+                            ["<strong>Épaisseur</strong>", "épaisseur e de la tôle", "2 mm", "1 mm"],
+                            ["<strong>Rayon de pli standard</strong>", "rayon intérieur R appliqué aux plis", "4 mm", "1 mm"],
+                            ["<strong>Extrémités de pli</strong>", "forme du dégagement au bout d'un pli", "minimum sans grugeage", "–"]
+                        ], { nowrap: false })
+                    ].join('') },
+                    { titre: "3. Les outils", icone: "wrench", contenu: [
+                        H.tableau(["Icône", "Outil", "Ce qu'il fait", "Équivalent en Part Design"], [
+                            [toleIco('parametres-tolerie'), "<strong>Paramètres tôlerie</strong>", "épaisseur, rayon de pli, extrémités de pli : à régler en premier", "–"],
+                            [toleIco('extrusion'), "<strong>Extrusion</strong>", "tôle à partir d'une esquisse ouverte extrudée (ex. 60 mm)", "Extrusion"],
+                            [toleIco('plaque'), "<strong>Plaque</strong>", "paroi plane à partir d'une esquisse fermée, à l'épaisseur des paramètres", "Extrusion d'épaisseur imposée"],
+                            [toleIco('pli'), "<strong>Pli</strong>", "arrondit un angle vif entre deux parois : congé intérieur et extérieur en une seule opération", "Congé (fait deux fois)"],
+                            [toleIco('decoupe'), "<strong>Découpe</strong>", "enlève de la matière à partir d'une esquisse", "Poche"],
+                            [toleIco('bord-tombe-ourlet'), "<strong>Ourlet</strong> et <strong>Bord tombé</strong>", "même bouton (parois balayées) : l'ourlet replie le bord à 180° (ex. 10 mm, rayon 4 mm), le bord tombé plie une paroi sur une arête (longueur, angle, rayon)", "–"],
+                            [toleIco('plaque-sur-arete'), "<strong>Pli sur arête</strong> (Plaque sur arête)", "comme le bord tombé, mais permet des décalages", "–"],
+                            [toleIco('repetition') + ' ' + toleIco('miroir'), "<strong>Répétition rectangulaire</strong>, <strong>Miroir</strong>", "répète une découpe ; symétrise la pièce", "Répétition, Symétrie"],
+                            [toleIco('depliage-pliage'), "<strong>Déplier / Replier</strong>", "affiche la tôle à plat (développé) ou pliée", "–"]
+                        ], { nowrap: false }),
+                        H.figure(svgOperationsTole(), "Pli, ourlet et bord tombé vus en coupe : la tôle garde son épaisseur e partout."),
+                        H.note(R`Un ourlet ne se pose que sur une arête continue : pour deux bords séparés, on relance l'outil une deuxième fois.`),
+                        H.p("<strong>Toutes les icônes de l'atelier</strong> (captures de CATIA V5). Un petit triangle noir en bas à droite d'une icône indique un menu : on y trouve plusieurs outils de la même famille."),
+                        `<div class="grid grid-cols-2 sm:grid-cols-3 gap-2">${TOLE_ICONES.map(([s, n]) => `<div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg p-2 min-w-0">${toleIco(s)}<span class="text-xs text-slate-300 leading-snug min-w-0">${n}</span></div>`).join('')}</div>`
+                    ].join('') },
+                    { titre: "4. Le développé", icone: "unfold-horizontal", contenu: [
+                        H.p(R`Plier une tôle étire sa face extérieure et comprime sa face intérieure. Entre les deux, une <strong>fibre neutre</strong> garde sa longueur : c'est elle qu'on déroule pour obtenir la longueur à découper. Elle est à $K \cdot e$ de la face intérieure, avec le <strong>facteur K</strong> entre 0 et 0,5 (0,5 = milieu de l'épaisseur).`),
+                        H.figure(svgDeveloppe(), "La longueur développée est celle de la fibre neutre : les deux ailes droites plus l'arc du pli."),
+                        H.formule(R`L = a + b + \theta \times (R + K \cdot e)`),
+                        H.p(R`$a$ et $b$ : longueurs droites des ailes (hors pli) ; $\theta$ : angle de pliage <strong>en radians</strong> ($90° = \pi/2$) ; $R$ : rayon intérieur ; $e$ : épaisseur. Exemple : $a = 50$, $b = 30$, $R = 4$, $e = 2$, $K = 0{,}5$, pli à 90° : $L = 80 + \frac{\pi}{2} \times 5 \approx 87{,}85$ mm. CATIA fait ce calcul tout seul quand on déplie.`),
+                        H.note(R`Ce calcul complète le TP pour comprendre ce que fait le bouton Déplier.`)
+                    ].join('') },
+                    { titre: "5. Le tutoriel animé du TP", icone: "play-circle", contenu: [
+                        H.p(R`La pièce du TP se construit étape par étape, commentée à voix haute : pour chaque outil, la fenêtre de CATIA s'ouvre, les valeurs se règlent, la forme apparaît en pointillés, puis on valide. Appuie sur <strong>Lecture</strong> et laisse-toi guider, ou clique sur une étape de la barre pour y aller directement.`),
+                        carteTuto('catia/tuto-tolerie.html', 'Lancer le tutoriel animé', "14 étapes commentées, de la plaque au développé. S'ouvre dans un nouvel onglet, en grand.", ['parametres-tolerie', 'esquisse', 'extrusion', 'pli', 'plaque', 'decoupe', 'bord-tombe-ourlet', 'trou', 'repetition', 'plaque-sur-arete', 'depliage-pliage']),
+                        H.note(R`Ouvre-le dans un onglet à part (Chrome ou Edge pour la voix). La vidéo continue même si tu passes sur CATIA : tu peux l'écouter pendant que tu refais les manipulations.`)
+                    ].join('') },
+                    { titre: "6. L'exercice : la Jeep Willys MB", icone: "car", contenu: [
+                        H.p(R`On modélise la carrosserie d'un véhicule tout-terrain Willys MB avec les outils du tutoriel, en relevant les cotes sur le fichier STEP fourni.`),
+                        H.liste([
+                            R`Ne faire que <strong>la moitié</strong>, puis la commande <strong>Miroir</strong>.`,
+                            R`Commencer par le capot (conseillé, pas obligatoire).`,
+                            R`Avancer <strong>étape par étape</strong>, sans tout faire d'un coup.`,
+                            R`Paramètres de tôlerie : <strong>épaisseur 1 mm</strong>, <strong>rayon de pli 1 mm</strong>.`
+                        ]),
+                        H.note(R`La Jeep de la vidéo n'est pas exactement celle de l'énoncé : c'est une version <strong>simplifiée</strong>, pour montrer la méthode et l'ordre des fonctions. Les vraies formes et les cotes se relèvent sur le fichier STEP.`),
+                        carteTuto('catia/tuto-jeep.html', 'Lancer le tutoriel de la Jeep', "18 étapes commentées : toute la carrosserie pliée dans une seule tôle, jusqu'au miroir et au dépliage. S'ouvre dans un nouvel onglet, en grand.", ['parametres-tolerie', 'esquisse', 'extrusion', 'bord-tombe-ourlet', 'plaque', 'decoupe', 'plaque-sur-arete', 'trou', 'repetition', 'miroir', 'depliage-pliage'])
+                    ].join('') }
+                ]
+            }
+        });
+        // Exercices
+        function asmQ() {
+            return qcm(...choisir([
+                ['Quel type de fichier est un assemblage dans CATIA ?', 'p', [['p', 'un Product (.CATProduct)'], ['a', 'une Part (.CATPart)'], ['d', 'un Drawing (.CATDrawing)']], 'Les pièces sont des Parts, l\'assemblage qui les contient est un Product.'],
+                ['Un Product placé dans un autre Product est…', 's', [['s', 'un sous-assemblage'], ['p', 'une pièce'], ['e', 'une esquisse']], 'Par exemple le Chassis dans Croquis-voiture.'],
+                ['Avec quel outil crée-t-on un paramètre (par exemple le diamètre de la roue) ?', 'f', [['f', 'f(x)'], ['b', 'la boussole'], ['c', 'la contrainte de coïncidence']], 'f(x) ouvre la fenêtre des formules et paramètres.'],
+                ['Comment relie-t-on une cote d\'esquisse à un paramètre ?', 'e', [['e', 'clic droit sur la valeur de la cote, Éditer formule, puis clic sur le paramètre'], ['r', 'en renommant la cote comme le paramètre'], ['b', 'avec la boussole']], 'La cote affiche ensuite f(x).'],
+                ['La cote de l\'esquisse de la roue vaut « diametre_roue / 2 ». Pourquoi /2 ?', 'r', [['r', 'parce que l\'esquisse dessine le rayon, et la révolution fait le tour'], ['l', 'pour avoir la largeur'], ['e', 'pour l\'épaisseur du pneu']], 'Le demi-profil tourne autour de l\'axe : sa hauteur est le rayon.'],
+                ['Quelle fonction transforme le demi-profil de la roue en volume ?', 'r', [['r', 'une révolution'], ['e', 'une extrusion'], ['p', 'une poche']], 'Le profil tourne autour du trait d\'axe.'],
+                ['Quels noms faut-il éviter pour les pièces et assemblages ?', 'a', [['a', 'les noms avec accents, espaces, points, / ou \\'], ['m', 'les noms en majuscules'], ['c', 'les noms de plus de 5 lettres']], 'Préférer - ou _.'],
+                ['Où enregistrer les pièces et assemblages d\'un même projet ?', 'm', [['m', 'tous dans le même répertoire'], ['d', 'chaque pièce dans son propre dossier'], ['b', 'seulement le Product, les pièces se rangent seules']], 'Avec Gestion des enregistrements, sinon le Product perd ses liens.'],
+                ['Que doivent avoir en commun le nom d\'instance et la référence d\'une pièce, d\'après le TD ?', 'n', [['n', 'le même nom'], ['x', 'aucun rapport'], ['d', 'la même date']], 'Renommer par clic droit › Propriétés.'],
+                ['Qu\'est-ce que le squelette d\'un assemblage ?', 's', [['s', 'une Part faite d\'esquisses et de plans qui fixent les positions clés, sur laquelle les pièces se contraignent'], ['v', 'la pièce la plus lourde'], ['c', 'la liste des contraintes']], 'Ici : rectangle de l\'empattement et de la voie, axes des roues, pivots.'],
+                ['Quelle contrainte pose-t-on en premier sur la pièce de référence (le sol) ?', 'f', [['f', 'la fixité'], ['c', 'le contact'], ['a', 'l\'angle']], 'Elle ne bouge plus, tout le reste se positionne par rapport à elle.'],
+                ['À quoi sert la boussole ?', 'd', [['d', 'à déplacer et tourner une pièce à la main'], ['c', 'à créer une contrainte'], ['m', 'à mesurer une distance']], 'On la colle sur une face par son carré rouge.'],
+                ['Comment remettre la boussole à sa place ?', 'f', [['f', 'la déposer dans le fond de l\'écran par son carré rouge'], ['s', 'la supprimer de l\'arbre'], ['e', 'touche Échap']], 'Elle revient en haut à droite.'],
+                ['Pour insérer une pièce déjà enregistrée dans un assemblage, on utilise…', 'e', [['e', 'Composant existant, après avoir sélectionné le Product qui la reçoit'], ['n', 'Nouvelle Part'], ['c', 'Copier-coller depuis l\'explorateur']], 'La pièce arrive à une position quelconque.'],
+                ['Une coïncidence entre l\'axe de la roue et le trait d\'axe du squelette laisse à la roue…', 'tr', [['tr', 'la translation le long de l\'axe et la rotation autour'], ['r', 'seulement la rotation'], ['z', 'aucun mouvement']], 'Il faut encore une distance pour bloquer la translation.'],
+                ['Que reste-t-il à la roue après la coïncidence d\'axe et une distance de 0 mm entre son plan et un point du squelette ?', 'r', [['r', 'la rotation autour de son axe (liaison pivot)'], ['t', 'une translation'], ['z', 'rien']], 'C\'est le mouvement voulu : la roue tourne.'],
+                ['Quelle contrainte pose les 4 roues sur le sol ?', 'c', [['c', 'contact'], ['f', 'fixité'], ['a', 'angle']], 'Contact entre la roue et le dessus du sol.'],
+                ['Quelle option déplace une pièce en respectant ses contraintes ?', 'm', [['m', 'Manipulation, avec « Sous contraintes »'], ['b', 'la boussole seule'], ['f', 'f(x)']], 'Les roues avant tournent alors autour des porte-fusées.'],
+                ['Pourquoi cacher les plans des pièces ?', 'v', [['v', 'pour mieux voir l\'assemblage (ils restent dans l\'arbre, grisés)'], ['s', 'pour les supprimer'], ['p', 'pour alléger le fichier']], 'Clic droit › Cacher/Afficher.'],
+                ['Quel réglage fait que l\'assemblage suit les modifications des pièces ?', 'm', [['m', 'la mise à jour automatique (Options › Assembly Design)'], ['f', 'la fixité'], ['g', 'la gestion des enregistrements']], 'Sinon il faut lancer la mise à jour à la main.'],
+                ['Quel est l\'intérêt d\'un assemblage paramétré ?', 'i', [['i', 'modifier une grandeur (diamètre de roue, déport de direction) et voir tout l\'assemblage se mettre à jour'], ['l', 'rendre le fichier plus léger'], ['c', 'éviter les contraintes']], 'Paramètres + formules + squelette.']
+            ]));
+        }
+        // choisir la contrainte d'assemblage pour une situation
+        const ASM_SITUATIONS = [
+            ['Rendre une vis coaxiale à un trou', 'co', 'Les axes sont confondus : coïncidence.'],
+            ['Poser une pièce à plat sur une table', 'ct', 'Deux surfaces planes qui se touchent : contact.'],
+            ['Laisser un jeu de 2 mm entre deux faces', 'di', 'Écart imposé : distance (décalage).'],
+            ['Incliner un bras de 30° par rapport au bâti', 'an', 'Angle imposé : contrainte d\'angle.'],
+            ['Empêcher le bâti de bouger dans l\'assemblage', 'fi', 'Pièce de référence : fixité.'],
+            ['Mettre l\'axe d\'une roue sur le trait d\'axe du squelette', 'co', 'Axe sur droite : coïncidence.'],
+            ['Placer le plan d\'une roue à 0 mm d\'un point du squelette', 'di', 'Distance de 0 entre un plan et un point.'],
+            ['Imposer 1500 mm entre les axes des deux porte-fusées', 'di', 'Écart entre deux axes : distance.'],
+            ['Poser les 4 roues sur le dessus du sol', 'ct', 'Roue (surface) sur plan : contact.'],
+            ['Mettre le plan d\'une roue arrière parallèle à une arête du sol (0° ou 180°)', 'an', 'Contrainte d\'angle de 0° ou 180°.'],
+            ['Faire coïncider le plan médian d\'une pièce avec celui d\'une autre', 'co', 'Deux plans confondus : coïncidence.'],
+            ['Appuyer une face d\'épaulement contre une face de roulement', 'ct', 'Deux faces en appui : contact.']
+        ];
+        const ASM_CONTRAINTES = [['fi', 'Fixité'], ['co', 'Coïncidence'], ['ct', 'Contact'], ['di', 'Distance'], ['an', 'Angle']];
+        function asmContrainte() {
+            const [sit, sol, expl] = choisir(ASM_SITUATIONS);
+            return { enonce: `<p>Quelle contrainte d'assemblage utiliser pour :</p><p class="text-white font-semibold">${sit} ?</p>`,
+                champs: [gChoix('r', sol, ASM_CONTRAINTES, { groupe: 'Contrainte' })],
+                correction: `<p>${ASM_CONTRAINTES.find(c => c[0] === sol)[1]} : ${expl}</p>` };
+        }
+        EXB('est2-assemblage', 'est2-assemblage', 'EST • 2ème Année', 'Assemblage paramétré', 'CATIA : assemblage paramétré', { id: 'eas', types: { q: asmQ, cont: asmContrainte }, libelles: { tout: 'Tout', q: 'Cours', cont: 'Choisir la contrainte' } }, 'boxes');
+        // Tôlerie : quel outil pour quel résultat
+        const TOLE_OUTILS = [['ex', 'Extrusion'], ['pl', 'Plaque'], ['pi', 'Pli'], ['de', 'Découpe'], ['ou', 'Ourlet'], ['bt', 'Bord tombé'], ['pa', 'Pli sur arête'], ['dp', 'Déplier']];
+        const TOLE_BESOINS = [
+            ['Créer une tôle en extrudant une esquisse ouverte sur 60 mm', 'ex'],
+            ['Créer une paroi plane à partir d\'une esquisse fermée, à l\'épaisseur des paramètres', 'pl'],
+            ['Arrondir l\'angle vif entre deux parois (congé intérieur et extérieur d\'un coup)', 'pi'],
+            ['Percer des trous ou enlever une zone de matière à partir d\'une esquisse', 'de'],
+            ['Replier un bord à 180° pour le rendre non coupant', 'ou'],
+            ['Ajouter une paroi pliée sur une arête, avec une longueur et un angle', 'bt'],
+            ['Ajouter une paroi pliée sur une arête avec des décalages', 'pa'],
+            ['Voir la forme à découper dans la tôle avant pliage', 'dp']
+        ];
+        function toleOutil() {
+            const [b, sol] = choisir(TOLE_BESOINS);
+            return { enonce: `<p>Dans Generative Sheetmetal Design, quel outil utiliser pour :</p><p class="text-white font-semibold">${b} ?</p>`,
+                champs: [gChoix('r', sol, TOLE_OUTILS, { groupe: 'Outil' })],
+                correction: `<p>${TOLE_OUTILS.find(o => o[0] === sol)[1]}.</p>` };
+        }
+        function toleQ() {
+            return qcm(...choisir([
+                ['Que faut-il régler avant de créer la première fonction de tôlerie ?', 'p', [['p', 'les paramètres de tôlerie (épaisseur, rayon de pli…)'], ['m', 'le matériau'], ['c', 'les couleurs']], 'Toutes les fonctions utilisent ensuite ces paramètres.'],
+                ['Dans le tutoriel, quelle épaisseur et quel rayon de pli standard ?', 'a', [['a', '2 mm et 4 mm'], ['b', '1 mm et 1 mm'], ['c', '4 mm et 2 mm']], '1 mm et 1 mm, c\'est pour l\'exercice de la Jeep.'],
+                ['Pour l\'exercice de la Jeep, quels paramètres de tôlerie ?', 'b', [['b', 'épaisseur 1 mm, rayon de pli 1 mm'], ['a', 'épaisseur 2 mm, rayon 4 mm'], ['c', 'épaisseur 10 mm, rayon 1 mm']], 'Indiqués dans les conseils de l\'exercice.'],
+                ['L\'outil Découpe correspond, en Part Design, à…', 'p', [['p', 'la poche'], ['c', 'le congé'], ['e', 'l\'extrusion']], 'Il enlève de la matière.'],
+                ['L\'outil Pli est proche du congé de Part Design, mais…', 'd', [['d', 'il fait le congé intérieur et extérieur en une seule opération'], ['s', 'il ne marche que sur les cylindres'], ['e', 'il change l\'épaisseur']], 'La tôle garde son épaisseur dans le pli.'],
+                ['Pourquoi relancer l\'outil Ourlet pour le deuxième bord de la pièce du tuto ?', 'c', [['c', 'les deux bords ne sont pas continus, on ne peut pas les sélectionner ensemble'], ['r', 'il faut un autre rayon'], ['o', 'l\'ourlet ne marche qu\'une fois par pièce']], 'Un ourlet suit une arête continue.'],
+                ['Quelle différence entre Bord tombé et Pli sur arête ?', 'd', [['d', 'le pli sur arête permet des décalages'], ['a', 'le bord tombé est toujours à 180°'], ['r', 'aucune']], 'D\'après le TP.'],
+                ['Qu\'appelle-t-on le développé d\'une tôle ?', 'p', [['p', 'sa forme à plat, avant pliage'], ['v', 'son volume'], ['m', 'sa masse']], 'Obtenu avec l\'outil Déplier.'],
+                ['Conseil pour modéliser la Jeep symétrique :', 'm', [['m', 'faire une moitié, puis un Miroir'], ['t', 'tout dessiner en une seule esquisse'], ['d', 'faire chaque côté séparément']], 'Moins de travail et une pièce parfaitement symétrique.'],
+                ['Quelle fibre garde sa longueur quand on plie une tôle ?', 'n', [['n', 'la fibre neutre, à K·e de la face intérieure'], ['e', 'la face extérieure'], ['i', 'la face intérieure']], 'L\'extérieur s\'étire, l\'intérieur se comprime.'],
+                ['Dans quel atelier lance-t-on la tôlerie ?', 'g', [['g', 'Démarrer › Conception mécanique › Generative Sheetmetal Design'], ['p', 'Part Design'], ['a', 'Assembly Design']], 'Atelier dédié aux tôles.']
+            ]));
+        }
+        // longueur développée : L = a + b + θ(R + K·e)
+        function toleDev() {
+            const a = gInt(3, 12) * 5, b = gInt(2, 10) * 5, e = choisir([1, 1.5, 2, 3]), R = choisir([1, 2, 3, 4, 5]), K = choisir([0.5, 0.4, 0.33]), ang = choisir([90, 90, 45, 60, 120]);
+            const th = ang * Math.PI / 180, L = a + b + th * (R + K * e);
+            const fr = (x) => String(x).replace('.', ',');
+            return {
+                enonce: `<p>Une tôle d'épaisseur $e = ${fr(e)}$ mm est pliée à <strong>${ang}°</strong> avec un rayon intérieur $R = ${R}$ mm. Les ailes droites mesurent $a = ${a}$ mm et $b = ${b}$ mm (hors pli). Facteur $K = ${fr(K)}$.</p><p>Calcule la longueur développée $L$.</p>`,
+                champs: [gNum('L', 'L =', L, { unite: 'mm', groupe: 'Longueur développée (mm)' })],
+                correction: `<p>$L = a + b + \\theta (R + K e)$ avec $\\theta = ${ang}° = ${fr((ang / 180).toFixed(3).replace(/0+$/, ''))}\\pi$ rad.</p><p>$L = ${a} + ${b} + ${(th).toFixed(4).replace('.', '{,}')} \\times (${R} + ${fr(K)} \\times ${fr(e)}) \\approx ${centiemeTeX(L)}$ mm.</p>`
+            };
+        }
+        // reconnaître une icône de l'atelier
+        function toleIcone() {
+            const [s, nom] = choisir(TOLE_ICONES);
+            const autres = TOLE_ICONES.map(x => x[1]).filter(n => n !== nom).sort(() => Math.random() - 0.5).slice(0, 3);
+            const opts = [nom, ...autres].sort(() => Math.random() - 0.5).map((n, k) => [String(k), n]);
+            return { enonce: `<p>Dans l'atelier Generative Sheetmetal Design, à quel outil correspond cette icône ?</p><div class="flex justify-center">${toleIco(s, 64)}</div>`,
+                champs: [gChoix('r', opts.find(o => o[1] === nom)[0], opts, { groupe: 'Outil' })], correction: `<p>C'est l'icône <strong class="text-white">${nom}</strong>.</p>` };
+        }
+        EXB('est2-tolerie', 'est2-tolerie', 'EST • 2ème Année', 'Tôlerie', 'CATIA : tôlerie', { id: 'etl', types: { outil: toleOutil, icone: toleIcone, q: toleQ, dev: toleDev }, libelles: { tout: 'Tout', outil: 'Quel outil ?', icone: 'Reconnaître l\'icône', q: 'Cours', dev: 'Longueur développée' } }, 'layers');
+        Object.assign(RENVOIS, { 'est2-assemblage': { q: [2, 3, 4, 5, 6, 7], cont: [6] }, 'est2-tolerie': { outil: [3], icone: [3], q: [2, 3, 6], dev: [4] } });
     </script>
 <script src="revision-ds-blancs.js" defer></script>
 <script src="serie.js" defer></script>
