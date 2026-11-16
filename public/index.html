@@ -711,7 +711,7 @@
             scientifiques: [
                 { id: "MATHS", code: "MATHS", nom: "Mathématiques", icone: "calculator", desc: "Analyse, algèbre, matrices, géométrie & probabilités.", descAnnee: { "1ère Année": "Polynômes, trigo, complexes, suites, intégrales, équations différentielles.", "2ème Année": "Développements limités, matrices, calcul vectoriel, barycentres et produits." } },
                 { id: "PHYS", code: "PHYS", nom: "Physique-Chimie", icone: "flask-conical", desc: "Thermodynamique, électronique, hacheurs & fluides.", descAnnee: { "1ère Année": "Lois des circuits, dipôles, régime sinusoïdal, spectre, filtres et ALI.", "2ème Année": "Réponse indicielle, semi-conducteurs, redressement, hacheur, onduleur." } },
-                { id: "ECO", code: "ECO", nom: "Économie & Gestion", icone: "trending-up", desc: "Économie d'entreprise, coûts, marchés & organisation.", descAnnee: { "1ère Année": "Entreprise, production, coûts, amortissements, bilan et résultat.", "2ème Année": "Cours de 2ème année à venir." } }
+                { id: "ECO", code: "ECO", nom: "Économie & Gestion", icone: "trending-up", desc: "Économie d'entreprise, coûts, marchés & organisation.", descAnnee: { "1ère Année": "Entreprise, production, coûts, amortissements, bilan et résultat.", "2ème Année": "Analyse financière, modes de financement et emprunts, droit du travail." } }
             ]
         };
 
@@ -770,9 +770,9 @@
             { num: "Chapitre n°7", titre: "Coût de revient et seuil de rentabilité", desc: "Coûts d'achat, de production, de revient, marge sur coûts variables, point mort.", lecon: "eco1-couts", exo: "eco1-seuil" },
             { num: "Chapitre n°8", titre: "Les amortissements", desc: "Amortissement linéaire, prorata temporis, non linéaire et dégressif.", lecon: "eco1-amortissements", exo: "eco1-amort" },
             { num: "Chapitre n°9", titre: "Qu'est-ce qu'une entreprise ?", desc: "Moyens, activité, objectifs, flux réels et financiers, rôle de la comptabilité.", lecon: "eco1-entreprise" },
-            { num: "Chapitre n°10", titre: "Le bilan", desc: "Cours à venir." },
-            { num: "Chapitre n°11", titre: "Le compte de résultat", desc: "Cours à venir." },
-            { num: "Chapitre n°12", titre: "Les soldes intermédiaires de gestion", desc: "Cours à venir." }
+            { num: "Chapitre n°10", titre: "Le bilan", desc: "Actif et passif, brut, amortissements et net, capitaux propres et dettes, taux de vétusté.", lecon: "eco1-bilan", exo: "eco1-bilan" },
+            { num: "Chapitre n°11", titre: "Le compte de résultat", desc: "Charges et produits d'exploitation, financiers et exceptionnels, résultat de l'exercice.", lecon: "eco1-resultat", exo: "eco1-resultat" },
+            { num: "Chapitre n°12", titre: "Les soldes intermédiaires de gestion", desc: "Marge commerciale, production, valeur ajoutée, EBE, résultats en cascade et ratios.", lecon: "eco1-sig", exo: "eco1-sig" }
         ],
         "EST": [
             { num: "Chapitre n°1", titre: "Analyse fonctionnelle", desc: "Besoin, bête à cornes, diagramme pieuvre, SAFE, FAST, caractérisation et hiérarchisation des fonctions.", lecon: "est1-af", exo: "est1-af" },
@@ -2885,6 +2885,8 @@
             'maths-geo-bary': { pos: [1], plan: [2], esp: [2], bal: [1] }, 'maths-geo-scal': { calc: [3], angle: [3], ortho: [3], kashi: [4], plan: [4], dist: [4] },
             'maths-geo-vect': { calc: [5], aire: [5], mixte: [6], dist: [5], moment: [5] },
             'eco1-typo': { taille: [1], secteur: [2], conc: [4] }, 'eco1-stocks': { moyen: [2], cump: [3] }, 'eco1-seuil': { _: [2, 3] }, 'eco1-amort': { lin: [2], deg: [3] },
+            'eco1-bilan': { classe: [2, 3], vnc: [2, 4], equil: [1, 3], amdep: [2] }, 'eco1-resultat': { nature: [2], calc: [3] }, 'eco1-sig': { _: [2, 3] },
+            'eco2-analyse': { caf: [1], fonc: [2, 3], ratio: [4] }, 'eco2-financement': { annu: [3], amc: [3], infine: [3], famille: [2], reserve: [1] }, 'eco2-travail': { qcm: [1, 2, 3, 4, 5], modif: [4], source: [1, 2], rupture: [5] },
             'ce1-production': { energie: [2], solaire: [2], eol: [2], danger: [4], cours: [1, 2, 3, 4] }, 'ce1-schemas': { sym: [1, 4], q: [1, 2, 3, 4, 5] }, 'ce1-mcc': { mot: [3], gen: [4], fem: [2] },
             'phys-sli': { rc: [3], dech: [4], rl: [5], ener: [2, 5], assoc: [2], rlc: [6] },
             'cm1-statique': { poids: [2], pression: [2], moment: [5], forces: [4, 5], levier: [4, 5], cours: [1, 2, 3] }, 'cm1-cinematique': { omega: [4], rot: [4], trans: [3] },
@@ -7531,6 +7533,537 @@
                         "Une opération est enregistrée à la date de sa <strong>facture</strong>, pas à la date du paiement. Une entreprise peut donc être bénéficiaire tout en étant à découvert.",
                         "Ses documents (<strong>bilan</strong>, <strong>compte de résultat</strong>, annexe) sont obligatoires et publics : ils servent au calcul des impôts, de preuve en droit, et informent tous les partenaires. D'où un vocabulaire et une présentation communs à tous."
                     ]))
+            ] }
+        });
+
+        // ==========================================
+        // Éco-gestion 1ère année, ch. 10 à 12 : bilan, compte de résultat, SIG (leçons et exercices)
+        // ==========================================
+        const ecoLignes = (lignes) => H.tableau(['Poste', 'Montant'], lignes.map(([a, b]) => [a, typeof b === 'number' ? eur(b) : b]), { gauche: true, nowrap: false });
+        const ecoArr = (x, pas = 1000) => Math.round(x / pas) * pas;
+
+        const ECO_MASSES = [['ai', 'Actif immobilisé'], ['ac', 'Actif circulant'], ['cp', 'Capitaux propres'], ['de', 'Dettes']];
+        const ECO_POSTES = [['Terrain', 'ai'], ['Brevet', 'ai'], ['Logiciel acheté', 'ai'], ['Matériel industriel', 'ai'], ['Constructions', 'ai'], ['Titres de participation', 'ai'], ['Prêt accordé à un fournisseur pour 5 ans', 'ai'],
+            ['Stock de matières premières', 'ac'], ['Stock de produits finis', 'ac'], ['Créances clients', 'ac'], ['Valeurs mobilières de placement', 'ac'], ['Disponibilités (argent en banque)', 'ac'],
+            ['Capital social', 'cp'], ['Réserve légale', 'cp'], ['Résultat de l\'exercice', 'cp'], ['Report à nouveau', 'cp'], ['Subvention d\'investissement', 'cp'],
+            ['Emprunt auprès d\'une banque', 'de'], ['Dettes fournisseurs', 'de'], ['Dettes fiscales et sociales', 'de'], ['Concours bancaires courants (découvert)', 'de'], ['Compte courant d\'associé', 'de'], ['Dettes sur immobilisations', 'de']];
+        function ecoBilanClasse() {
+            const [poste, m] = choisir(ECO_POSTES), noms = Object.fromEntries(ECO_MASSES);
+            const pourquoi = { ai: 'il reste durablement dans l\'entreprise (plus d\'un an).', ac: 'il est lié au cycle d\'exploitation et se transforme vite en argent.', cp: 'c\'est une ressource apportée ou laissée dans l\'entreprise par les associés.', de: 'c\'est une ressource que l\'entreprise devra rembourser à un tiers.' };
+            return { enonce: `<p>Dans quelle masse du bilan ranger : <strong>${poste}</strong> ?</p>`,
+                champs: [gChoix('m', m, ECO_MASSES, { groupe: 'Masse du bilan' })],
+                correction: `<p><strong class="text-white">${noms[m]}</strong> : ${pourquoi[m]}</p>` };
+        }
+        function ecoAmortDep() {
+            const [cas, s] = choisir([['Une machine perd de la valeur parce qu\'elle s\'use.', 'a'], ['Un ordinateur devient obsolète au fil des années.', 'a'], ['Un camion de livraison roule 40 000 km par an.', 'a'],
+                ['Un client en difficulté risque de ne pas payer sa facture.', 'd'], ['Des produits en stock sont passés de mode et se vendront moins cher.', 'd'], ['Des actions détenues ont perdu de la valeur en bourse.', 'd'], ['Un terrain voisin d\'une zone polluée risque de perdre de la valeur.', 'd']]);
+            return { enonce: `<p>${cas} Amortissement ou dépréciation ?</p>`, champs: [gChoix('r', s, [['a', 'Amortissement'], ['d', 'Dépréciation']], { groupe: 'Perte de valeur' })],
+                correction: `<p><strong class="text-white">${s === 'a' ? 'Amortissement' : 'Dépréciation'}</strong>. L'amortissement constate une perte de valeur <strong>certaine</strong> d'une immobilisation, liée à l'usure ou à l'obsolescence. La dépréciation constate une perte <strong>probable</strong> (stocks, créances, titres, terrain), qui peut être reprise si la situation s'améliore.</p>` };
+        }
+        function ecoVNC() {
+            const brut = gInt(8, 120) * 1000, amort = ecoArr(brut * gInt(15, 85) / 100, 100), net = brut - amort, tv = amort / brut * 100;
+            const bien = choisir(['Matériel industriel', 'Constructions', 'Matériel de transport', 'Matériel informatique']);
+            return { enonce: `<p>À l'actif, la ligne <strong>${bien}</strong> affiche une valeur brute de <strong>${eur(brut)}</strong> et des amortissements cumulés de <strong>${eur(amort)}</strong>. Calcule la valeur nette et le taux de vétusté.</p>`,
+                champs: [gNum('n', 'Valeur nette =', net, { unite: '€', groupe: 'Lecture du bilan', largeur: '7rem' }), gNum('t', 'Taux de vétusté =', tv, { unite: '%', groupe: 'Lecture du bilan' })],
+                correction: `<p>Net = brut − amortissements = ${eur(brut)} − ${eur(amort)} = <strong class="text-white">${eur(net)}</strong>.</p><p>Taux de vétusté = amortissements / brut × 100 ≈ <strong class="text-white">${centiemeFR(tv)}&nbsp;%</strong> : ${tv > 50 ? 'plus de la moitié de la valeur est consommée, il faudra bientôt renouveler ce bien.' : 'le bien est encore assez récent.'}</p>` };
+        }
+        function ecoEquilibre() {
+            const imm = gInt(20, 90) * 1000, sto = gInt(3, 30) * 1000, cli = gInt(5, 40) * 1000, dis = gInt(1, 20) * 1000, actif = imm + sto + cli + dis;
+            const cap = ecoArr(actif * 0.3), rsv = ecoArr(actif * gInt(3, 10) / 100), four = ecoArr(actif * gInt(8, 18) / 100), fisc = ecoArr(actif * gInt(4, 10) / 100);
+            const res = ecoArr(actif * choisir([-4, -2, 3, 5, 7, 9, 12]) / 100, 100), emp = actif - cap - rsv - four - fisc - res;
+            return { enonce: `<p>Voici le bilan (valeurs nettes) d'une petite entreprise au 31 décembre. Le résultat de l'exercice a été effacé. Retrouve le total du bilan, puis le résultat.</p>`
+                    + ecoLignes([['<em>Actif</em>', ''], ['Immobilisations', imm], ['Stocks', sto], ['Créances clients', cli], ['Disponibilités', dis]])
+                    + '<div class="h-2"></div>' + ecoLignes([['<em>Passif</em>', ''], ['Capital', cap], ['Réserves', rsv], ['Résultat de l\'exercice', '?'], ['Emprunts', emp], ['Dettes fournisseurs', four], ['Dettes fiscales et sociales', fisc]]),
+                champs: [gNum('t', 'Total du bilan =', actif, { unite: '€', groupe: 'Équilibre du bilan', largeur: '7rem' }), gNum('r', 'Résultat de l\'exercice =', res, { unite: '€', groupe: 'Équilibre du bilan', largeur: '7rem' })],
+                correction: `<p>Total de l'actif = ${eur(imm)} + ${eur(sto)} + ${eur(cli)} + ${eur(dis)} = <strong class="text-white">${eur(actif)}</strong>, qui est aussi le total du passif.</p><p>Résultat = total du passif − autres postes du passif = ${eur(actif)} − ${eur(cap + rsv + emp + four + fisc)} = <strong class="text-white">${eur(res)}</strong>${res < 0 ? ' : c\'est une perte, inscrite en négatif dans les capitaux propres.' : ' : c\'est un bénéfice.'}</p>` };
+        }
+
+        const ECO_CR = [['Achats de matières premières', 'c', 'x'], ['Salaires et traitements', 'c', 'x'], ['Dotations aux amortissements des machines', 'c', 'x'], ['Impôts et taxes (CFE)', 'c', 'x'], ['Loyer de l\'usine', 'c', 'x'], ['Charges sociales', 'c', 'x'],
+            ['Ventes de produits finis', 'p', 'x'], ['Ventes de marchandises', 'p', 'x'], ['Subvention d\'exploitation reçue', 'p', 'x'], ['Production stockée', 'p', 'x'],
+            ['Intérêts d\'un emprunt bancaire', 'c', 'f'], ['Pertes de change', 'c', 'f'], ['Intérêts reçus sur un placement', 'p', 'f'], ['Dividendes reçus d\'une filiale', 'p', 'f'],
+            ['Prix de vente d\'une machine d\'occasion cédée', 'p', 'e'], ['Valeur nette comptable de la machine cédée', 'c', 'e'], ['Amende payée pour une infraction', 'c', 'e'], ['Quote-part de subvention d\'investissement virée au résultat', 'p', 'e']];
+        const ECO_NIVEAUX = [['x', 'Exploitation'], ['f', 'Financier'], ['e', 'Exceptionnel']];
+        function ecoNature() {
+            const [ligne, cp, niv] = choisir(ECO_CR), n = Object.fromEntries(ECO_NIVEAUX);
+            return { enonce: `<p>Où inscrire <strong>${ligne}</strong> dans le compte de résultat ?</p>`,
+                champs: [gChoix('c', cp, [['c', 'Charge'], ['p', 'Produit']], { groupe: 'Sens' }), gChoix('n', niv, ECO_NIVEAUX, { groupe: 'Niveau' })],
+                correction: `<p><strong class="text-white">${cp === 'c' ? 'Charge' : 'Produit'} ${n[niv].toLowerCase()}${cp === 'c' ? 'le' : ''}</strong>. Exploitation : l'activité normale (produire, vendre, payer le personnel). Financier : les placements et les dettes. Exceptionnel : ce qui sort de l'activité courante (cessions d'immobilisations, amendes).</p>` };
+        }
+        function ecoResultat() {
+            const pe = gInt(40, 300) * 10000, ce = ecoArr(pe * gInt(82, 97) / 100), pf = choisir([0, gInt(1, 20) * 1000]), cf = gInt(2, 40) * 1000, px = choisir([0, gInt(1, 30) * 1000]), cx = choisir([0, gInt(1, 25) * 1000]);
+            const re = pe - ce, rf = pf - cf, rx = px - cx, is = ecoArr(Math.max(0, re + rf + rx) * 0.25, 100), rn = re + rf + rx - is;
+            return { enonce: `<p>Totaux du compte de résultat de l'exercice (aucune participation des salariés) :</p>`
+                    + H.tableau(['Niveau', 'Produits', 'Charges'], [['Exploitation', eur(pe), eur(ce)], ['Financier', eur(pf), eur(cf)], ['Exceptionnel', eur(px), eur(cx)], ['Impôt sur les bénéfices', '', eur(is)]]),
+                champs: [gNum('re', 'RE =', re, { unite: '€', groupe: 'Résultats', largeur: '7rem' }), gNum('rf', 'RF =', rf, { unite: '€', groupe: 'Résultats', largeur: '7rem' }), gNum('rx', 'RX =', rx, { unite: '€', groupe: 'Résultats', largeur: '7rem' }), gNum('rn', 'Résultat de l\'exercice =', rn, { unite: '€', groupe: 'Résultats', largeur: '7rem' })],
+                correction: `<p>RE = ${eur(pe)} − ${eur(ce)} = <strong class="text-white">${eur(re)}</strong> ; RF = ${eur(pf)} − ${eur(cf)} = <strong class="text-white">${eur(rf)}</strong> ; RX = ${eur(px)} − ${eur(cx)} = <strong class="text-white">${eur(rx)}</strong>.</p><p>Résultat = RE + RF + RX − impôt = ${eur(re)} + (${eur(rf)}) + (${eur(rx)}) − ${eur(is)} = <strong class="text-white">${eur(rn)}</strong>.</p>` };
+        }
+
+        function ecoSIG() {
+            const avecM = Math.random() < 0.6;
+            const vm = avecM ? gInt(15, 80) * 10000 : 0, am = avecM ? ecoArr(vm * gInt(55, 72) / 100) : 0, vsm = avecM ? gInt(-8, 8) * 1000 : 0;
+            const pv = gInt(60, 200) * 10000, ps = gInt(-3, 6) * 5000, pi = choisir([0, 0, gInt(1, 6) * 5000]);
+            const amp = ecoArr(pv * gInt(28, 42) / 100), vsmp = gInt(-6, 6) * 1000, ace = ecoArr(pv * gInt(10, 18) / 100);
+            const mc = vm - am - vsm, pe = pv + ps + pi, conso = amp + vsmp + ace, va = mc + pe - conso;
+            const sub = choisir([0, 0, gInt(1, 5) * 2000]), it = ecoArr(va * gInt(2, 4) / 100, 100), sal = ecoArr(va * gInt(42, 52) / 100), cs = ecoArr(sal * 0.42, 100);
+            const ebe = va + sub - it - sal - cs, dap = ecoArr(pv * gInt(4, 8) / 100), rep = choisir([0, gInt(1, 8) * 1000]), ap = choisir([0, gInt(1, 4) * 1000]), ac = gInt(1, 6) * 1000;
+            const re = ebe + rep + ap - dap - ac, ca = vm + pv;
+            const ch = [], pr = [];
+            if (avecM) { ch.push(['Achats de marchandises', am], ['Variation de stock de marchandises', vsm]); pr.push(['Ventes de marchandises', vm]); }
+            ch.push(['Achats de matières premières', amp], ['Variation de stock de matières premières', vsmp], ['Autres achats et charges externes', ace], ['Impôts et taxes', it], ['Salaires et traitements', sal], ['Charges sociales', cs], ['Dotations aux amortissements et provisions', dap], ['Autres charges', ac]);
+            pr.push(['Production vendue', pv], ['Production stockée', ps]);
+            if (pi) pr.push(['Production immobilisée', pi]);
+            if (sub) pr.push(['Subventions d\'exploitation', sub]);
+            if (rep) pr.push(['Reprises sur amortissements et provisions', rep]);
+            if (ap) pr.push(['Autres produits', ap]);
+            return { enonce: `<p>Extrait du compte de résultat (exploitation) d'une entreprise industrielle. Calcule les soldes intermédiaires de gestion jusqu'au résultat d'exploitation.</p>`
+                    + ecoLignes([['<em>Charges d\'exploitation</em>', ''], ...ch]) + '<div class="h-2"></div>' + ecoLignes([['<em>Produits d\'exploitation</em>', ''], ...pr]),
+                champs: [gNum('ca', 'Chiffre d\'affaires =', ca, { unite: '€', groupe: 'SIG', largeur: '7rem' }), gNum('mc', 'Marge commerciale =', mc, { unite: '€', groupe: 'SIG', largeur: '7rem' }), gNum('pe', 'Production de l\'exercice =', pe, { unite: '€', groupe: 'SIG', largeur: '7rem' }),
+                    gNum('va', 'Valeur ajoutée =', va, { unite: '€', groupe: 'SIG', largeur: '7rem' }), gNum('ebe', 'EBE =', ebe, { unite: '€', groupe: 'SIG', largeur: '7rem' }), gNum('re', 'Résultat d\'exploitation =', re, { unite: '€', groupe: 'SIG', largeur: '7rem' })],
+                correction: `<p>CA = ventes de marchandises + production vendue = ${eur(vm)} + ${eur(pv)} = <strong class="text-white">${eur(ca)}</strong>.</p>`
+                    + (avecM ? `<p>MC = ${eur(vm)} − ${eur(am)} − (${eur(vsm)}) = <strong class="text-white">${eur(mc)}</strong> (la variation de stock se recopie avec son signe).</p>` : `<p>Pas de marchandises : MC = <strong class="text-white">0 €</strong>.</p>`)
+                    + `<p>PE = ${eur(pv)} + (${eur(ps)})${pi ? ' + ' + eur(pi) : ''} = <strong class="text-white">${eur(pe)}</strong>.</p>`
+                    + `<p>Consommations en provenance des tiers = ${eur(amp)} + (${eur(vsmp)}) + ${eur(ace)} = ${eur(conso)}, donc VA = ${eur(mc)} + ${eur(pe)} − ${eur(conso)} = <strong class="text-white">${eur(va)}</strong>.</p>`
+                    + `<p>EBE = VA${sub ? ' + ' + eur(sub) : ''} − ${eur(it)} − ${eur(sal)} − ${eur(cs)} = <strong class="text-white">${eur(ebe)}</strong>.</p>`
+                    + `<p>RE = EBE${rep ? ' + ' + eur(rep) : ''}${ap ? ' + ' + eur(ap) : ''} − ${eur(dap)} − ${eur(ac)} = <strong class="text-white">${eur(re)}</strong>. Vérification : total des produits d'exploitation − total des charges d'exploitation donne le même chiffre.</p>` };
+        }
+        ECX('eco1-bilan', 'eco1-bilan', 'Lire un bilan', 'Le bilan : classer, équilibrer, lire', { id: 'ebi', types: { classe: ecoBilanClasse, amdep: ecoAmortDep, vnc: ecoVNC, equil: ecoEquilibre }, libelles: { tout: 'Tout', classe: 'Actif ou passif ?', amdep: 'Amortissement ou dépréciation ?', vnc: 'Net et vétusté', equil: 'Équilibre du bilan' } }, 'scale');
+        ECX('eco1-resultat', 'eco1-resultat', 'Compte de résultat', 'Le compte de résultat : classer et calculer', { id: 'ecr', types: { nature: ecoNature, calc: ecoResultat }, libelles: { tout: 'Tout', nature: 'Classer une ligne', calc: 'Calculer les résultats' } }, 'receipt');
+        ECX('eco1-sig', 'eco1-sig', 'SIG', 'Soldes intermédiaires de gestion', { id: 'esg', types: { sig: ecoSIG } }, 'list-ordered');
+
+        Object.assign(LECONS, {
+            "eco1-bilan": { badge: ECO_BADGE, titre: "Le bilan", sections: () => [
+                ecoSec("1. Une photographie du patrimoine", "camera",
+                    H.p("Le <strong>bilan</strong> décrit le patrimoine de l'entreprise à une date précise, la <strong>clôture de l'exercice</strong> : souvent le 31 décembre, mais l'exercice peut se terminer à une autre date, par exemple pour une activité saisonnière. Les comptes sont ensuite approuvés et déposés dans les mois qui suivent."),
+                    H.liste([
+                        "À gauche, l'<strong>actif</strong> : ce que l'entreprise possède et ce qu'on lui doit (biens et créances). Ce sont les <strong>emplois</strong>.",
+                        "À droite, le <strong>passif</strong> : d'où viennent les moyens de financement (capitaux propres et dettes). Ce sont les <strong>ressources</strong>.",
+                        "Chaque emploi a une ressource : <strong>total de l'actif = total du passif</strong>."
+                    ]),
+                    H.tableau(["Actif (emplois)", "Passif (ressources)"], [
+                        ["Actif immobilisé", "Capitaux propres"],
+                        ["Actif circulant", "Provisions pour risques et charges"],
+                        ["", "Dettes"]
+                    ])),
+                ecoSec("2. L'actif", "building",
+                    H.tableau(["Poste", "Contenu", "Exemples"], [
+                        ["Immobilisations incorporelles", "biens sans substance physique, utilisés durablement", "brevets, logiciels, fonds commercial"],
+                        ["Immobilisations corporelles", "biens physiques utilisés durablement", "terrains, constructions, machines, véhicules"],
+                        ["Immobilisations financières", "placements et prêts à long terme", "titres de participation, prêts accordés, dépôts de garantie"],
+                        ["Stocks", "biens destinés à être consommés ou vendus", "matières premières, en-cours, produits finis, marchandises"],
+                        ["Créances", "sommes que des tiers doivent à l'entreprise", "créances clients, TVA déductible"],
+                        ["Trésorerie", "argent placé ou disponible", "valeurs mobilières de placement, disponibilités"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Les trois premières lignes forment l'<strong>actif immobilisé</strong>, qui reste plus d'un an dans l'entreprise. Les trois suivantes forment l'<strong>actif circulant</strong>, qui se renouvelle au rythme de l'activité. L'actif est rangé par <strong>liquidité croissante</strong> : du plus difficile au plus facile à transformer en argent."),
+                    H.formule(R`\text{Net} = \text{Brut} - \text{Amortissements et dépréciations}`),
+                    H.p("L'actif a trois colonnes : <strong>brut</strong> (valeur d'origine), <strong>amortissements et dépréciations</strong> (pertes de valeur cumulées) et <strong>net</strong>. Pour une immobilisation, le net s'appelle la <strong>VNC</strong>, valeur nette comptable.")),
+                ecoSec("3. Le passif", "landmark",
+                    H.tableau(["Poste", "Contenu"], [
+                        ["Capitaux propres", "capital (apports des associés), réserves (bénéfices laissés dans l'entreprise : légale, statutaires, facultatives), report à nouveau, <strong>résultat de l'exercice</strong>, subventions d'investissement"],
+                        ["Provisions pour risques et charges", "charges probables à venir dont le montant est incertain (litige, garantie donnée aux clients)"],
+                        ["Dettes", "emprunts auprès des banques, dont les <strong>concours bancaires courants</strong> (le découvert), comptes courants d'associés, dettes fournisseurs, dettes fiscales et sociales, dettes sur immobilisations"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Le passif est rangé par <strong>exigibilité croissante</strong> : des ressources qui restent le plus longtemps (capitaux propres) à celles qu'il faut rembourser le plus vite."),
+                    H.note("Le résultat de l'exercice figure au passif, dans les capitaux propres : un bénéfice les augmente, une perte les diminue (montant négatif). C'est le même chiffre que le résultat du compte de résultat.")),
+                ecoSec("4. Lire un bilan", "search",
+                    H.formule(R`\text{taux de vétusté} = \dfrac{\text{amortissements cumulés}}{\text{valeur brute}} \times 100`),
+                    H.liste([
+                        "Au-delà de 50&nbsp;%, le matériel a consommé plus de la moitié de sa valeur : il faudra bientôt investir pour le renouveler.",
+                        "Un terrain ne s'amortit pas, car il ne s'use pas. Il peut en revanche être déprécié.",
+                        "Avant tout calcul, vérifier que total de l'actif = total du passif."
+                    ]),
+                    H.p("Exemple : une machine achetée 80 000 €, amortie de 52 000 €. Net = 28 000 € ; taux de vétusté = 52 000 / 80 000 × 100 = 65&nbsp;% : elle est déjà ancienne."))
+            ] },
+            "eco1-resultat": { badge: ECO_BADGE, titre: "Le compte de résultat", sections: () => [
+                ecoSec("1. Le film de l'exercice", "film",
+                    H.p("Le <strong>compte de résultat</strong> récapitule ce que l'entreprise a consommé (<strong>charges</strong>) et ce qu'elle a produit ou vendu (<strong>produits</strong>) pendant l'exercice. Le bilan est une photographie à une date, le compte de résultat est le film de l'année."),
+                    H.formule(R`\text{Résultat} = \text{Produits} - \text{Charges}`),
+                    H.liste([
+                        "Résultat positif : <strong>bénéfice</strong> ; négatif : <strong>perte</strong>. Il est reporté au passif du bilan.",
+                        "Les montants sont <strong>hors taxes</strong> et enregistrés à la date de la facture, pas à celle du paiement.",
+                        "Ne sont <strong>pas</strong> des charges : l'achat d'une machine (c'est une immobilisation, à l'actif ; seule sa dotation aux amortissements est une charge) et le remboursement du capital d'un emprunt (il fait baisser la dette au passif). Seuls les <strong>intérêts</strong> sont une charge."
+                    ])),
+                ecoSec("2. Trois niveaux de charges et de produits", "layers",
+                    H.tableau(["Niveau", "Charges", "Produits"], [
+                        ["Exploitation (I) : l'activité normale", "achats et variation de stocks, autres achats et charges externes (loyer, énergie, sous-traitance), impôts et taxes, salaires et charges sociales, dotations aux amortissements", "ventes de marchandises, production vendue, stockée et immobilisée, subventions d'exploitation, reprises"],
+                        ["Financier (II) : placements et dettes", "intérêts des emprunts, pertes de change", "intérêts reçus, gains de change, dividendes reçus"],
+                        ["Exceptionnel (III) : hors activité courante", "VNC des immobilisations cédées, amendes et pénalités", "prix de cession des immobilisations, quote-part des subventions d'investissement"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Viennent ensuite la <strong>participation des salariés</strong> (IV) et l'<strong>impôt sur les bénéfices</strong> (V).")),
+                ecoSec("3. Calculer les résultats", "calculator",
+                    H.formule(R`\begin{aligned} RE &= \text{produits d'exploitation} - \text{charges d'exploitation} \\ RF &= \text{produits financiers} - \text{charges financières} \\ RX &= \text{produits exceptionnels} - \text{charges exceptionnelles} \\ \text{Résultat} &= RE + RF + RX - \text{participation} - \text{impôt sur les bénéfices} \end{aligned}`),
+                    H.p("Exemple : produits d'exploitation 900 000 €, charges d'exploitation 820 000 €, donc RE = 80 000 €. Charges financières 12 000 €, produits financiers 2 000 €, donc RF = −10 000 €. Cession d'une machine à 15 000 € dont la VNC était 9 000 €, donc RX = 6 000 €. Avec un impôt de 19 000 €, le résultat vaut 80 000 − 10 000 + 6 000 − 19 000 = <strong>57 000 €</strong>."))
+            ] },
+            "eco1-sig": { badge: ECO_BADGE, titre: "Les soldes intermédiaires de gestion", sections: () => [
+                ecoSec("1. À quoi servent les SIG ?", "circle-help",
+                    H.p("Le résultat seul ne dit pas d'où vient la richesse. Les <strong>soldes intermédiaires de gestion</strong> découpent le compte de résultat en étapes : ce que rapporte le commerce, ce que l'entreprise produit, la richesse qu'elle crée, ce que dégage l'exploitation… Tout se lit dans le compte de résultat."),
+                    H.liste(["Ils permettent de comparer l'entreprise d'une année sur l'autre et avec ses concurrents.", "Ils se calculent toujours <strong>dans l'ordre</strong> : chaque solde part du précédent."])),
+                ecoSec("2. Les soldes en cascade", "list-ordered",
+                    H.tableau(["Solde", "Calcul"], [
+                        ["Chiffre d'affaires (CA)", "ventes de marchandises + production vendue"],
+                        ["1. Marge commerciale (MC)", "ventes de marchandises − achats de marchandises − variation de stock de marchandises"],
+                        ["2. Production de l'exercice (PE)", "production vendue + production stockée + production immobilisée"],
+                        ["3. Consommations en provenance des tiers", "achats de matières et approvisionnements + variation de stock de matières + autres achats et charges externes"],
+                        ["4. Valeur ajoutée (VA)", "MC + PE − consommations en provenance des tiers"],
+                        ["5. Excédent brut d'exploitation (EBE)", "VA + subventions d'exploitation − impôts et taxes − salaires − charges sociales"],
+                        ["6. Résultat d'exploitation (RE)", "EBE + reprises + transferts de charges + autres produits − dotations aux amortissements, dépréciations et provisions − autres charges"],
+                        ["7. Résultat courant avant impôts (RCAI)", "RE + produits financiers − charges financières"],
+                        ["8. Résultat exceptionnel (RX)", "produits exceptionnels − charges exceptionnelles"],
+                        ["9. Résultat de l'exercice", "RCAI + RX − participation des salariés − impôt sur les bénéfices"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("Deux contrôles : le RE doit valoir « total des produits d'exploitation − total des charges d'exploitation », et le dernier solde doit être égal au bénéfice du compte de résultat."),
+                    H.p("La valeur ajoutée est partagée entre ceux qui ont aidé à la créer : le personnel (salaires), l'État (impôts), les prêteurs (intérêts), les associés (dividendes) et l'entreprise elle-même (autofinancement).")),
+                ecoSec("3. Les pièges", "triangle-alert",
+                    H.liste([
+                        "<strong>Variation de stock</strong> (côté charges) = stock initial − stock final. Si le stock a augmenté, elle est négative : on retranche un nombre négatif, donc on ajoute.",
+                        "<strong>Production stockée</strong> (côté produits) = stock final − stock initial de produits : elle peut être négative.",
+                        "Pas de marchandises dans l'énoncé (entreprise purement industrielle) : MC = 0.",
+                        "Les dotations et reprises existent à trois niveaux (exploitation, financier, exceptionnel) : seules celles d'exploitation entrent dans le RE."
+                    ]),
+                    H.p("Exemple : ventes de marchandises 200 000 €, achats de marchandises 130 000 €, stock de marchandises passé de 10 000 € à 14 000 €. Variation = 10 000 − 14 000 = −4 000 €, donc MC = 200 000 − 130 000 − (−4 000) = 74 000 €.")),
+                ecoSec("4. Les ratios", "percent",
+                    H.tableau(["Ratio", "Formule", "Lecture"], [
+                        ["Taux de marge commerciale", "MC / ventes de marchandises × 100", "ce que rapportent 100 € de marchandises vendues"],
+                        ["Taux d'intégration", "VA / (MC + production de l'exercice) × 100", "au-delà de 50 %, l'entreprise fait elle-même l'essentiel de sa production"],
+                        ["Taux de marge d'EBE", "EBE / CA × 100", "part du CA qui reste après les charges courantes"],
+                        ["Taux de marge nette", "résultat / CA × 100", "bénéfice pour 100 € de chiffre d'affaires"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Certains manuels calculent le taux d'intégration avec VA / CA : suivre la formule du professeur."))
+            ] }
+        });
+
+        // ==========================================
+        // Éco-gestion 2ème année : analyse financière, modes de financement, droit du travail
+        // ==========================================
+        CHAPITRES["2ème Année"].ECO = [
+            { num: "Chapitre n°1", titre: "Analyse financière : CAF et bilan fonctionnel", desc: "Capacité d'autofinancement, bilan fonctionnel, FRNG, BFR, trésorerie nette et ratios.", lecon: "eco2-analyse", exo: "eco2-analyse" },
+            { num: "Chapitre n°2", titre: "Les modes de financement", desc: "Affectation du résultat et réserves, financements externes, tableaux d'emprunt.", lecon: "eco2-financement", exo: "eco2-financement" },
+            { num: "Chapitre n°3", titre: "Les contrats", desc: "Cours à venir." },
+            { num: "Chapitre n°4", titre: "Le droit du travail", desc: "Sources, droit négocié, contrat de travail, modification et rupture (question 16).", lecon: "eco2-travail", exo: "eco2-travail" }
+        ];
+        const ECO2_BADGE = 'Éco-gestion • 2ème Année';
+        const ECX2 = (id, libelle, titre, fn, icone) => { EXOS[id] = { chapitre: id, libelle, badge: ECO2_BADGE, titre, demarrer: () => exgLancer(fn.id, titre, icone, fn.types, fn.libelles) }; };
+        const ecoQ = (q, opts, ans, why) => ({ enonce: `<p>${q}</p>`, champs: [gChoix('r', String(ans), melanger(opts.map((t, i) => [String(i), t])), { groupe: 'Réponse' })], correction: `<p>Réponse : <strong class="text-white">${opts[ans]}</strong>. ${why}</p>` });
+
+        function ecoCAF() {
+            const rnc = gInt(5, 80) * 1000, dex = gInt(10, 90) * 1000, dfi = choisir([0, 0, gInt(1, 8) * 1000]), dxc = choisir([0, gInt(1, 10) * 1000]);
+            const rex = choisir([0, gInt(1, 15) * 1000]), rfi = choisir([0, 0, gInt(1, 4) * 1000]), pc = choisir([0, gInt(5, 40) * 1000]), vnc = pc ? ecoArr(pc * gInt(40, 130) / 100) : 0;
+            const div = ecoArr(rnc * gInt(0, 60) / 100), caf = rnc + dex + dfi + dxc - rex - rfi - pc + vnc, auto = caf - div;
+            const l = [['Bénéfice de l\'exercice (12)', rnc], ['Dotations aux amortissements, dépréciations et provisions d\'exploitation (681)', dex]];
+            if (dfi) l.push(['Dotations financières (686)', dfi]);
+            if (dxc) l.push(['Dotations exceptionnelles (687)', dxc]);
+            if (rex) l.push(['Reprises d\'exploitation (781)', rex]);
+            if (rfi) l.push(['Reprises financières (786)', rfi]);
+            if (pc) l.push(['Produits de cession d\'éléments d\'actif (775)', pc], ['Valeur nette comptable des éléments d\'actif cédés (675)', vnc]);
+            l.push(['Dividendes versés dans l\'année', div]);
+            return { enonce: `<p>Extrait du compte de résultat et informations complémentaires. Calcule la CAF (méthode additive), puis l'autofinancement.</p>` + ecoLignes(l),
+                champs: [gNum('c', 'CAF =', caf, { unite: '€', groupe: 'Capacité d\'autofinancement', largeur: '7rem' }), gNum('a', 'Autofinancement =', auto, { unite: '€', groupe: 'Capacité d\'autofinancement', largeur: '7rem' })],
+                correction: `<p>CAF = résultat + dotations − reprises − produits de cession + VNC des éléments cédés</p><p>= ${eur(rnc)} + ${eur(dex + dfi + dxc)} − ${eur(rex + rfi)} − ${eur(pc)} + ${eur(vnc)} = <strong class="text-white">${eur(caf)}</strong>.</p><p>Autofinancement = CAF − dividendes = ${eur(caf)} − ${eur(div)} = <strong class="text-white">${eur(auto)}</strong>.</p>` };
+        }
+        function ecoFonctionnel() {
+            let I, A, sto, cli, cdiv, dis, prov, cbc, four, fisc, dimm, net, CP, emp;
+            do {
+                I = gInt(40, 120) * 10; A = Math.round(I * gInt(25, 60) / 100); sto = gInt(6, 25) * 10; cli = gInt(8, 30) * 10; cdiv = choisir([0, gInt(1, 6) * 5]); dis = gInt(1, 16) * 5;
+                prov = choisir([0, gInt(1, 8) * 5]); cbc = choisir([0, gInt(2, 12) * 5]); four = gInt(6, 22) * 10; fisc = gInt(3, 12) * 10; dimm = choisir([0, gInt(1, 8) * 5]);
+                net = I + sto + cli + cdiv + dis - A; CP = Math.round(net * gInt(28, 45) / 100); emp = net - CP - prov - cbc - four - fisc - dimm;
+            } while (emp < 40);
+            const cap = Math.round(CP * 0.5), resu = Math.round(CP * gInt(5, 15) / 100), rsv = CP - cap - resu;
+            const ES = I, RS = CP + A + prov + emp, FRNG = RS - ES, BFRE = sto + cli - four - fisc, BFRHE = cdiv - dimm, BFR = BFRE + BFRHE, TN = dis - cbc;
+            const actif = [['Immobilisations (brut)', I], ['Amortissements des immobilisations', A], ['Stocks', sto], ['Créances clients', cli]];
+            if (cdiv) actif.push(['Créances diverses (hors exploitation)', cdiv]);
+            actif.push(['Disponibilités', dis]);
+            const passif = [['Capital', cap], ['Réserves', rsv], ['Résultat de l\'exercice', resu]];
+            if (prov) passif.push(['Provisions pour risques et charges', prov]);
+            passif.push([`Emprunts auprès des établissements de crédit${cbc ? ' (1)' : ''}`, emp + cbc], ['Dettes fournisseurs', four], ['Dettes fiscales et sociales', fisc]);
+            if (dimm) passif.push(['Dettes sur immobilisations', dimm]);
+            const k = (x) => `${String(x).replace('-', '−')} k€`;
+            const tab = (l) => H.tableau(['Poste', 'Montant'], l.map(([a, b]) => [a, k(b)]), { gauche: true, nowrap: false });
+            return { enonce: `<p>Bilan comptable simplifié, en milliers d'euros (l'actif circulant n'a pas de dépréciation). Calcule les grandeurs du bilan fonctionnel.</p>`
+                    + tab(actif) + '<div class="h-2"></div>' + tab(passif) + (cbc ? `<p class="text-xs text-slate-400 mt-1">(1) dont concours bancaires courants : ${k(cbc)}</p>` : ''),
+                champs: [gNum('es', 'ES =', ES, { unite: 'k€', groupe: 'Bilan fonctionnel' }), gNum('rs', 'RS =', RS, { unite: 'k€', groupe: 'Bilan fonctionnel' }), gNum('fr', 'FRNG =', FRNG, { unite: 'k€', groupe: 'Bilan fonctionnel' }),
+                    gNum('bfr', 'BFR =', BFR, { unite: 'k€', groupe: 'Bilan fonctionnel' }), gNum('tn', 'TN =', TN, { unite: 'k€', groupe: 'Bilan fonctionnel' })],
+                correction: `<p>ES = immobilisations brutes = <strong class="text-white">${k(ES)}</strong>.</p>`
+                    + `<p>RS = capitaux propres ${k(CP)} + amortissements ${k(A)}${prov ? ' + provisions ' + k(prov) : ''} + emprunts hors découvert ${k(emp)} = <strong class="text-white">${k(RS)}</strong>.</p>`
+                    + `<p>FRNG = RS − ES = <strong class="text-white">${k(FRNG)}</strong>.</p>`
+                    + `<p>BFR d'exploitation = (${k(sto)} + ${k(cli)}) − (${k(four)} + ${k(fisc)}) = ${k(BFRE)}${cdiv || dimm ? ` ; hors exploitation = ${k(cdiv)} − ${k(dimm)} = ${k(BFRHE)}` : ''} ; BFR = <strong class="text-white">${k(BFR)}</strong>.</p>`
+                    + `<p>TN = FRNG − BFR = <strong class="text-white">${k(TN)}</strong>. Vérification : trésorerie active ${k(dis)} − trésorerie passive ${k(cbc)} = ${k(TN)}. ${TN >= 0 ? 'Le FRNG couvre le BFR.' : 'Le FRNG ne couvre pas le BFR : l\'entreprise vit sur son découvert.'}</p>` };
+        }
+        function ecoRatios() {
+            const total = gInt(30, 150) * 10000, cp = ecoArr(total * gInt(20, 60) / 100), dfin = ecoArr(total * gInt(10, 45) / 100), caf = ecoArr(dfin * gInt(15, 60) / 100);
+            const auto = cp / total * 100, endet = dfin / cp, remb = dfin / caf;
+            return { enonce: `<p>Total du passif : <strong>${eur(total)}</strong> ; capitaux propres : <strong>${eur(cp)}</strong> ; dettes financières (emprunts) : <strong>${eur(dfin)}</strong> ; CAF de l'exercice : <strong>${eur(caf)}</strong>. Calcule les trois ratios.</p>`,
+                champs: [gNum('a', 'Autonomie financière =', auto, { unite: '%', groupe: 'Ratios' }), gNum('e', 'Endettement =', endet, { groupe: 'Ratios' }), gNum('r', 'Capacité de remboursement =', remb, { unite: 'ans', groupe: 'Ratios' })],
+                correction: `<p>Autonomie financière = capitaux propres / total du passif × 100 ≈ <strong class="text-white">${centiemeFR(auto)}&nbsp;%</strong>.</p><p>Endettement = dettes financières / capitaux propres ≈ <strong class="text-white">${centiemeFR(endet)}</strong> ${endet < 1 ? '(moins de 1 : les banques prêteront plus facilement).' : '(plus de 1 : l\'entreprise doit plus aux banques que ce que possèdent ses associés).'}</p><p>Capacité de remboursement = dettes financières / CAF ≈ <strong class="text-white">${centiemeFR(remb)} ans</strong> ${remb <= 4 ? '(moins de 3 à 4 ans : correct).' : '(au-delà de 3 à 4 ans : l\'entreprise est très endettée par rapport à ce qu\'elle dégage).'}</p>` };
+        }
+
+        function ecoAnnuites() {
+            const C = gInt(4, 60) * 2500, tp = choisir([2, 2.5, 3, 3.5, 4, 4.5, 5, 6]), t = tp / 100, n = gInt(3, 8);
+            const a = C * t / (1 - Math.pow(1 + t, -n)), aC = arrondiCentieme(a), I1 = arrondiCentieme(C * t), A1 = arrondiCentieme(aC - I1), CD1 = C - A1, I2 = arrondiCentieme(CD1 * t);
+            return { enonce: `<p>Emprunt de <strong>${eur(C)}</strong> au taux de <strong>${centiemeFR(tp)}&nbsp;%</strong> sur <strong>${n} ans</strong>, remboursé par <strong>annuités constantes</strong>. Calcule la première ligne du tableau et les intérêts de la deuxième année (au centime).</p>`,
+                champs: [gNum('a', 'Annuité =', aC, { unite: '€', alt: a, groupe: 'Année 1', largeur: '7rem' }), gNum('i', 'Intérêts =', I1, { unite: '€', groupe: 'Année 1', largeur: '7rem' }), gNum('am', 'Amortissement =', A1, { unite: '€', groupe: 'Année 1', largeur: '7rem' }),
+                    gNum('cd', 'Capital restant dû fin d\'année =', CD1, { unite: '€', groupe: 'Année 1', largeur: '7rem' }), gNum('i2', 'Intérêts de l\'année 2 =', I2, { unite: '€', groupe: 'Année 2', largeur: '7rem' })],
+                correction: `<p>$a = C \\times \\dfrac{t}{1-(1+t)^{-n}} = ${C} \\times \\dfrac{${centiemeTeX(t)}}{1-(1+${centiemeTeX(t)})^{-${n}}}$ ≈ <strong class="text-white">${eur(aC)}</strong>.</p><p>Intérêts année 1 = ${eur(C)} × ${centiemeFR(tp)}&nbsp;% = <strong class="text-white">${eur(I1)}</strong> ; amortissement = annuité − intérêts = <strong class="text-white">${eur(A1)}</strong> ; capital restant dû = ${eur(C)} − ${eur(A1)} = <strong class="text-white">${eur(CD1)}</strong>.</p><p>Intérêts année 2 = ${eur(CD1)} × ${centiemeFR(tp)}&nbsp;% = <strong class="text-white">${eur(I2)}</strong>. Les intérêts baissent, l'amortissement augmente, l'annuité ne change pas.</p>` };
+        }
+        function ecoAmConstant() {
+            const n = gInt(3, 8), C = gInt(2, 40) * 500 * n, tp = choisir([2, 3, 4, 5, 6]), t = tp / 100;
+            const am = C / n, a1 = am + C * t, a2 = am + (C - am) * t, cout = C * t * (n + 1) / 2;
+            return { enonce: `<p>Emprunt de <strong>${eur(C)}</strong> à <strong>${tp}&nbsp;%</strong> sur <strong>${n} ans</strong>, remboursé par <strong>amortissements constants</strong>.</p>`,
+                champs: [gNum('am', 'Amortissement annuel =', am, { unite: '€', groupe: 'Tableau d\'emprunt', largeur: '7rem' }), gNum('a1', 'Annuité 1 =', a1, { unite: '€', groupe: 'Tableau d\'emprunt', largeur: '7rem' }), gNum('a2', 'Annuité 2 =', a2, { unite: '€', groupe: 'Tableau d\'emprunt', largeur: '7rem' }), gNum('c', 'Coût total de l\'emprunt =', cout, { unite: '€', groupe: 'Tableau d\'emprunt', largeur: '7rem' })],
+                correction: `<p>Amortissement = C / n = ${eur(C)} / ${n} = <strong class="text-white">${eur(am)}</strong> chaque année.</p><p>Année 1 : intérêts = ${eur(C)} × ${tp}&nbsp;% = ${eur(C * t)}, annuité = <strong class="text-white">${eur(a1)}</strong>. Année 2 : capital restant dû ${eur(C - am)}, intérêts ${eur((C - am) * t)}, annuité = <strong class="text-white">${eur(a2)}</strong>.</p><p>Les intérêts baissent chaque année de ${eur(am * t)} : leur somme vaut <strong class="text-white">${eur(cout)}</strong>.</p>` };
+        }
+        function ecoInFine() {
+            const C = gInt(4, 80) * 2500, tp = choisir([2, 3, 3.5, 4, 5, 6]), t = tp / 100, n = gInt(3, 8), i = arrondiCentieme(C * t);
+            return { enonce: `<p>Emprunt de <strong>${eur(C)}</strong> à <strong>${centiemeFR(tp)}&nbsp;%</strong> sur <strong>${n} ans</strong>, remboursé <strong>in fine</strong>.</p>`,
+                champs: [gNum('a', 'Annuité des ' + (n - 1) + ' premières années =', i, { unite: '€', groupe: 'Tableau d\'emprunt', largeur: '7rem' }), gNum('d', 'Dernière annuité =', C + i, { unite: '€', groupe: 'Tableau d\'emprunt', largeur: '7rem' }), gNum('c', 'Coût total =', n * i, { unite: '€', groupe: 'Tableau d\'emprunt', largeur: '7rem' })],
+                correction: `<p>Le capital reste dû en entier jusqu'au bout : chaque année, intérêts = ${eur(C)} × ${centiemeFR(tp)}&nbsp;% = <strong class="text-white">${eur(i)}</strong>, sans amortissement.</p><p>Dernière année : capital + intérêts = <strong class="text-white">${eur(C + i)}</strong>. Coût = ${n} × ${eur(i)} = <strong class="text-white">${eur(n * i)}</strong> : c'est la méthode la plus chère en intérêts.</p>` };
+        }
+        const ECO_FIN_NOMS = [['auto', 'Autofinancement'], ['cession', 'Cession d\'immobilisation'], ['capital', 'Augmentation de capital'], ['emprunt', 'Emprunt bancaire'], ['oblig', 'Emprunt obligataire'], ['cb', 'Crédit-bail'], ['part', 'Financement participatif'], ['subv', 'Subvention d\'investissement']];
+        function ecoFamille() {
+            const [txt, s] = choisir([['L\'entreprise paie une nouvelle machine avec les bénéfices gardés en réserve les années précédentes.', 'auto'], ['L\'entreprise vend un entrepôt dont elle ne se sert plus pour financer un robot.', 'cession'],
+                ['Les associés apportent 200 000 € de plus en échange de nouvelles actions.', 'capital'], ['La banque prête 150 000 € remboursables en 7 ans, avec intérêts.', 'emprunt'],
+                ['Une grande entreprise émet des titres achetés par des investisseurs, qui touchent un intérêt chaque année et récupèrent leur argent à l\'échéance.', 'oblig'],
+                ['Une société de financement achète le robot et le loue à l\'entreprise, avec la possibilité de le racheter au bout de 5 ans.', 'cb'],
+                ['Des particuliers prêtent de petites sommes par une plateforme en ligne pour financer le projet.', 'part'], ['La région verse une aide non remboursable pour une ligne de production moins polluante.', 'subv']]);
+            const interne = s === 'auto' || s === 'cession', nom = ECO_FIN_NOMS.find(o => o[0] === s)[1];
+            return { enonce: `<p>${txt} De quel mode de financement s'agit-il ?</p>`, champs: [gChoix('f', s, ECO_FIN_NOMS, { groupe: 'Mode de financement' })],
+                correction: `<p><strong class="text-white">${nom}</strong> : financement ${interne ? 'interne (l\'entreprise utilise ses propres ressources)' : 'externe (l\'argent vient d\'un tiers : associés, prêteurs, organisme public)'}.</p>` };
+        }
+        function ecoReserve() {
+            const K = choisir([20000, 40000, 50000, 80000, 100000, 150000, 200000]), plaf = K / 10, RL = ecoArr(plaf * gInt(0, 95) / 100, 100), B = gInt(5, 120) * 1000, dot = Math.min(B * 0.05, plaf - RL);
+            return { enonce: `<p>Une SARL au capital de <strong>${eur(K)}</strong> a déjà <strong>${eur(RL)}</strong> en réserve légale. Le bénéfice de l'exercice est de <strong>${eur(B)}</strong> (pas de pertes antérieures). Quelle somme doit-elle affecter à la réserve légale ?</p>`,
+                champs: [gNum('p', 'Plafond de la réserve légale =', plaf, { unite: '€', groupe: 'Affectation du résultat', largeur: '7rem' }), gNum('d', 'Dotation à la réserve légale =', dot, { unite: '€', groupe: 'Affectation du résultat', largeur: '7rem' }), gNum('r', 'Reste à affecter =', B - dot, { unite: '€', groupe: 'Affectation du résultat', largeur: '7rem' })],
+                correction: `<p>Plafond = 10&nbsp;% du capital = <strong class="text-white">${eur(plaf)}</strong> ; il manque ${eur(plaf - RL)} pour l'atteindre.</p><p>Dotation = le plus petit de 5&nbsp;% du bénéfice (${eur(B * 0.05)}) et de ce qui manque (${eur(plaf - RL)}) = <strong class="text-white">${eur(dot)}</strong>.</p><p>Reste = ${eur(B)} − ${eur(dot)} = <strong class="text-white">${eur(B - dot)}</strong>, à répartir entre dividendes, réserves statutaires ou facultatives et report à nouveau.</p>` };
+        }
+
+        const ECO_TRAVAIL_Q = [
+            ['Quel est le critère essentiel du contrat de travail ?', ['L\'exécution d\'un travail', 'La rémunération', 'Le lien de subordination', 'Un contrat écrit'], 2, 'Les trois critères sont cumulatifs, mais le lien de subordination est celui qui distingue le salarié de l\'indépendant.'],
+            ['Le lien de subordination existe quand l\'employeur peut…', ['Fixer le salaire et la durée', 'Donner des ordres, contrôler le travail et sanctionner', 'Recruter et licencier', 'Négocier avec les syndicats'], 1, ''],
+            ['Un contrat intitulé « prestation de services » avec un auto-entrepreneur…', ['Reste toujours un contrat commercial', 'Peut être requalifié en contrat de travail par le juge', 'Est nul', 'Devient automatiquement un CDD'], 1, 'La qualification dépend du contenu réel du contrat, pas de son titre.'],
+            ['Le critère de la rémunération distingue le contrat de travail…', ['Du CDD et du CTT', 'Du bénévolat et du contrat de société', 'Du règlement intérieur', 'De la période d\'essai'], 1, ''],
+            ['Quel est le contrat de droit commun ?', ['Le CDD', 'Le CTT', 'Le CDI', 'Le contrat d\'apprentissage'], 2, 'CDD et CTT sont dérogatoires : réservés à des cas prévus par le Code du travail.'],
+            ['Un CDD peut être conclu pour…', ['Toute activité permanente', 'Remplacer un salarié absent', 'Éviter de payer des indemnités', 'Une durée illimitée'], 1, 'Cas limités : remplacement d\'un salarié absent, accroissement temporaire d\'activité.'],
+            ['Le droit négocié est une source…', ['Internationale', 'Interne étatique', 'Interne non étatique', 'Constitutionnelle'], 2, 'Il vient des partenaires sociaux, pas de l\'État.'],
+            ['Un accord moins favorable au salarié, admis dans des cas limités, est un accord…', ['Supplétif', 'Dérogatoire', 'De faveur', 'Majoritaire'], 1, 'En général le principe de faveur s\'applique ; les accords dérogatoires sont l\'exception.'],
+            ['Un accord qui fixe des règles absentes des normes supérieures est un accord…', ['Supplétif', 'Dérogatoire', 'D\'entreprise', 'De branche'], 0, ''],
+            ['Pour qu\'un accord d\'entreprise soit valable, les syndicats signataires doivent…', ['Représenter tous les salariés', 'Être majoritaires aux dernières élections professionnelles', 'Être affiliés au MEDEF', 'Être agréés par l\'inspection du travail'], 1, ''],
+            ['La jurisprudence, c\'est…', ['Les décisions des juges qui interprètent ou complètent la loi', 'Les accords entre syndicats', 'Le règlement intérieur', 'Les directives européennes'], 0, 'Elle est rendue notamment par la Cour de cassation : c\'est une source étatique.'],
+            ['Quelle clause interdit certaines activités après la fin du contrat ?', ['Confidentialité', 'Mobilité', 'Non-concurrence', 'Période d\'essai'], 2, ''],
+            ['Les clauses particulières du contrat ne sont valables que si elles…', ['Sont signées devant notaire', 'Protègent les intérêts légitimes de l\'employeur', 'Sont plus favorables au salarié', 'Durent moins d\'un an'], 1, 'Par exemple le bon fonctionnement de l\'entreprise ou la protection de son savoir-faire.'],
+            ['Lequel est un élément essentiel du contrat ?', ['La répartition des heures dans la journée', 'Le service d\'affectation', 'La qualification professionnelle', 'Les tâches confiées'], 2, 'Éléments essentiels : rémunération, durée du travail, qualification.'],
+            ['Le salarié refuse une modification de son contrat. L\'employeur peut…', ['Le licencier pour faute', 'Renoncer, ou le licencier pour motif économique', 'Imposer la modification', 'Le muter d\'office'], 1, 'La modification exige l\'accord du salarié : son refus n\'est pas une faute.'],
+            ['Le salarié refuse un changement de ses conditions de travail. C\'est…', ['Son droit, sans conséquence', 'Une faute pouvant justifier un licenciement pour motif personnel', 'Un motif de licenciement économique', 'Une démission'], 1, 'Le changement relève du pouvoir de direction de l\'employeur.'],
+            ['Le fonds de commerce où travaille le salarié est vendu. Son contrat…', ['Prend fin', 'Se poursuit avec le nouvel employeur', 'Devient un CDD', 'Doit être renégocié'], 1, ''],
+            ['Un licenciement doit toujours reposer sur…', ['Une faute grave', 'Une cause réelle et sérieuse', 'L\'accord du salarié', 'Un plan de sauvegarde de l\'emploi'], 1, 'Et respecter des formalités, comme l\'entretien préalable.'],
+            ['Le plan de sauvegarde de l\'emploi (PSE) est lié…', ['À la démission', 'Au licenciement économique', 'À la rupture conventionnelle', 'À la période d\'essai'], 1, 'Il cherche à limiter les licenciements, à reclasser et à mieux indemniser.'],
+            ['Après une démission, le salarié…', ['Touche toujours l\'allocation chômage (ARE)', 'N\'a pas droit à l\'ARE, sauf cas particuliers', 'Reçoit une indemnité de licenciement', 'Doit payer une indemnité'], 1, '']
+        ];
+        const ECO_TRAVAIL_CAS = {
+            modif: { cats: ['Modification du contrat', 'Changement des conditions de travail'], items: [
+                ['Le salaire mensuel baisse de 200 €.', 0, 'La rémunération est un élément essentiel : l\'accord du salarié est obligatoire.'],
+                ['Les horaires passent de 8 h-16 h à 9 h-17 h, pour la même durée.', 1, 'La répartition des heures dans la journée relève du pouvoir de direction.'],
+                ['La durée du travail passe de 35 h à 28 h par semaine.', 0, 'La durée du travail est un élément essentiel.'],
+                ['Le salarié passe du service expédition au service réception.', 1, 'Le service d\'affectation est une simple condition de travail.'],
+                ['Un agent de maîtrise est rétrogradé ouvrier.', 0, 'La qualification est un élément essentiel.'],
+                ['On confie au salarié de nouvelles tâches de même niveau.', 1, 'Les tâches confiées relèvent des conditions de travail : un refus serait une faute.']] },
+            source: { cats: ['Internationale', 'Interne étatique', 'Interne non étatique'], items: [
+                ['Une directive européenne sur les travailleurs des plateformes.', 0, 'Règle de l\'Union européenne.'],
+                ['Un arrêt de la Cour de cassation.', 1, 'La jurisprudence est une source étatique.'],
+                ['La convention collective de la métallurgie.', 2, 'Droit négocié par les partenaires sociaux.'],
+                ['Une prime de fin d\'année versée chaque année depuis dix ans.', 2, 'C\'est un usage, qui émane de l\'employeur.'],
+                ['Un décret qui précise l\'application d\'une loi.', 1, 'Acte du gouvernement.'],
+                ['Le règlement intérieur de l\'entreprise.', 2, 'Texte élaboré par l\'employeur.'],
+                ['La liberté syndicale inscrite dans le préambule de la Constitution.', 1, 'Règle constitutionnelle.']] },
+            rupture: { cats: ['Licenciement pour motif personnel', 'Licenciement économique', 'Démission', 'Rupture conventionnelle'], items: [
+                ['Absences répétées et injustifiées.', 0, 'Cause inhérente à la personne du salarié : motif disciplinaire.'],
+                ['Forte baisse des commandes : le poste est supprimé.', 1, 'Difficultés économiques.'],
+                ['Le salarié part de lui-même pour créer son entreprise.', 2, 'Rupture à l\'initiative du salarié.'],
+                ['Employeur et salarié négocient ensemble la fin du contrat.', 3, 'Rupture d\'un commun accord, encadrée par le Code du travail.'],
+                ['Inaptitude constatée par le médecin du travail.', 0, 'Cause inhérente à la personne du salarié.'],
+                ['La ligne est automatisée pour rester compétitive, des postes disparaissent.', 1, 'Mutation technologique et réorganisation : motif économique.'],
+                ['Le salarié refuse un changement de ses horaires dans la journée.', 0, 'Refus d\'un changement des conditions de travail : faute, donc motif personnel.'],
+                ['Le salarié refuse une baisse de salaire et l\'employeur maintient son projet de réorganisation.', 1, 'Refus d\'une modification du contrat : licenciement pour motif économique.']] }
+        };
+        const ecoCas = (type) => () => {
+            const set = ECO_TRAVAIL_CAS[type], [txt, ans, why] = choisir(set.items);
+            return { enonce: `<p>${txt}</p>`, champs: [gChoix('r', String(ans), set.cats.map((c, i) => [String(i), c]), { groupe: 'Ta réponse' })], correction: `<p><strong class="text-white">${set.cats[ans]}</strong>. ${why}</p>` };
+        };
+        ECX2('eco2-analyse', 'Analyse financière', 'Analyse financière : CAF, bilan fonctionnel, ratios', { id: 'ean', types: { caf: ecoCAF, fonc: ecoFonctionnel, ratio: ecoRatios }, libelles: { tout: 'Tout', caf: 'CAF', fonc: 'Bilan fonctionnel', ratio: 'Ratios' } }, 'line-chart');
+        ECX2('eco2-financement', 'Financement et emprunts', 'Modes de financement et tableaux d\'emprunt', { id: 'efi', types: { annu: ecoAnnuites, amc: ecoAmConstant, infine: ecoInFine, famille: ecoFamille, reserve: ecoReserve }, libelles: { tout: 'Tout', annu: 'Annuités constantes', amc: 'Amortissement constant', infine: 'In fine', famille: 'Quel financement ?', reserve: 'Réserve légale' } }, 'landmark');
+        ECX2('eco2-travail', 'QCM et cas', 'Droit du travail : QCM et cas pratiques', { id: 'edw', types: { qcm: () => ecoQ(...choisir(ECO_TRAVAIL_Q)), modif: ecoCas('modif'), source: ecoCas('source'), rupture: ecoCas('rupture') }, libelles: { tout: 'Tout', qcm: 'QCM', modif: 'Modification ou changement ?', source: 'Quelle source ?', rupture: 'Quelle rupture ?' } }, 'briefcase');
+
+        Object.assign(LECONS, {
+            "eco2-analyse": { badge: ECO2_BADGE, titre: "Analyse financière : CAF et bilan fonctionnel", sections: () => [
+                ecoSec("1. La capacité d'autofinancement (CAF)", "piggy-bank",
+                    H.p("La <strong>CAF</strong> est la ressource que l'activité de l'exercice laisse à l'entreprise : de l'argent qu'elle peut utiliser pour investir, rembourser ses emprunts ou verser des dividendes. On part du résultat et on retire tout ce qui n'est pas un vrai encaissement ou décaissement."),
+                    H.formule(R`CAF = \text{résultat} + \text{dotations} - \text{reprises} - \text{produits de cession} + \text{VNC des éléments cédés}`),
+                    H.tableau(["Terme", "Où le trouver", "Comptes"], [
+                        ["Résultat net comptable", "bénéfice (ou perte) du compte de résultat", "12"],
+                        ["+ Dotations aux amortissements, dépréciations et provisions", "les trois blocs de charges : exploitation, financières, exceptionnelles", "681, 686, 687"],
+                        ["− Reprises", "les trois blocs de produits", "781, 786, 787"],
+                        ["− Produits de cession d'éléments d'actif", "produits exceptionnels sur opérations en capital", "775"],
+                        ["+ VNC des éléments d'actif cédés", "charges exceptionnelles sur opérations en capital", "675"],
+                        ["− Quote-part des subventions d'investissement", "produits exceptionnels, si l'énoncé la donne", "777"]
+                    ], { nowrap: false, gauche: true }),
+                    H.formule(R`\text{Autofinancement} = CAF - \text{dividendes versés}`),
+                    H.p("Méthode soustractive, pour vérifier : CAF = EBE + autres produits encaissables − autres charges décaissables, sans dotations, reprises ni cessions. Les deux méthodes donnent le même résultat.")),
+                ecoSec("2. Du bilan comptable au bilan fonctionnel", "repeat",
+                    H.p("Le <strong>bilan fonctionnel</strong> reclasse le bilan comptable selon les cycles de l'entreprise : investissement et financement stable, exploitation, trésorerie. Deux règles : l'actif se prend en <strong>brut</strong>, et le total des amortissements et dépréciations rejoint les <strong>ressources stables</strong>."),
+                    H.tableau(["Ligne du bilan comptable", "Rangée dans"], [
+                        ["Immobilisations (brut)", "ES : emplois stables"],
+                        ["Capitaux propres, amortissements et dépréciations, provisions pour risques et charges, emprunts hors découvert, comptes courants d'associés", "RS : ressources stables"],
+                        ["Stocks, créances clients, autres créances d'exploitation (brut)", "ACE : actif circulant d'exploitation"],
+                        ["Créances diverses hors exploitation", "ACHE : actif circulant hors exploitation"],
+                        ["Dettes fournisseurs, dettes fiscales et sociales", "PCE : passif circulant d'exploitation"],
+                        ["Dettes sur immobilisations, impôt sur les bénéfices à payer, dividendes à payer", "PCHE : passif circulant hors exploitation"],
+                        ["Valeurs mobilières de placement, disponibilités", "TA : trésorerie active"],
+                        ["Concours bancaires courants (découvert), soldes créditeurs de banque", "TP : trésorerie passive"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("Piège classique : les concours bancaires courants sont souvent cachés dans une note « dont… » sous les emprunts. On les retire des emprunts (ressources stables) pour les mettre en trésorerie passive.")),
+                ecoSec("3. FRNG, BFR et trésorerie", "scale",
+                    H.formule(R`\begin{aligned} FRNG &= RS - ES \\ BFR &= (ACE - PCE) + (ACHE - PCHE) \\ TN &= FRNG - BFR = TA - TP \end{aligned}`),
+                    H.liste([
+                        "<strong>FRNG &gt; 0</strong> : les ressources stables financent toutes les immobilisations et il reste une marge pour l'exploitation.",
+                        "<strong>BFR &gt; 0</strong> : l'exploitation immobilise de l'argent (stocks et créances clients supérieurs aux dettes fournisseurs), il faut le financer. BFR &lt; 0 : le cycle d'exploitation dégage une ressource, comme dans la grande distribution.",
+                        "<strong>TN &gt; 0</strong> : le FRNG couvre le BFR. TN &lt; 0 : l'entreprise vit sur son découvert.",
+                        "Règle d'équilibre : <strong>un investissement durable se finance avec des ressources durables</strong>."
+                    ]),
+                    H.p("Pour améliorer la trésorerie : réduire les stocks, encaisser plus vite les clients, obtenir des délais fournisseurs plus longs (le BFR baisse), ou renforcer les ressources stables (augmentation de capital, emprunt à long terme)."),
+                    H.p("Exemple, en k€ : ES = 820 et RS = 950, donc FRNG = 130. ACE − PCE = 170 et rien hors exploitation, donc BFR = 170. TN = 130 − 170 = −40, ce qu'on vérifie au bilan : trésorerie active 15 − découvert 55 = −40.")),
+                ecoSec("4. Les ratios", "percent",
+                    H.tableau(["Ratio", "Formule", "Repère"], [
+                        ["Autonomie financière", "capitaux propres / total du passif × 100", "plus il est élevé, moins l'entreprise dépend des prêteurs"],
+                        ["Endettement", "dettes financières / capitaux propres", "les banques attendent en général moins de 1"],
+                        ["Capacité de remboursement", "dettes financières / CAF", "en années : en général moins de 3 à 4 ans"],
+                        ["Taux de vétusté", "amortissements / valeur brute des immobilisations × 100", "au-delà de 50 %, le matériel est à renouveler"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("Ces seuils sont des repères usuels. Si le cours en donne d'autres, ce sont ceux du cours.")),
+                ecoSec("5. Méthode pour le DS", "list-checks",
+                    H.listeNum([
+                        "Repérer les totaux : total de l'actif = total du passif, et bénéfice du compte de résultat = résultat au passif.",
+                        "Calculer les SIG dans l'ordre, puis vérifier le RE et le résultat (voir le chapitre SIG de 1ère année).",
+                        "Calculer la CAF par la méthode additive, puis l'autofinancement si les dividendes sont donnés.",
+                        "Bilan fonctionnel : ES, RS, FRNG, BFR, TN, en vérifiant la TN deux fois.",
+                        "Écrire les calculs, pas seulement les résultats : une erreur de lecture ne coûte alors qu'une ligne."
+                    ]))
+            ] },
+            "eco2-financement": { badge: ECO2_BADGE, titre: "Les modes de financement", sections: () => [
+                ecoSec("1. Le financement interne", "piggy-bank",
+                    H.p("Une entreprise finance d'abord ses projets avec ce qu'elle dégage elle-même : c'est le <strong>financement interne</strong>. Il prend deux formes : l'<strong>autofinancement</strong> (la CAF qui n'est pas distribuée) et les <strong>cessions d'immobilisations</strong> (vendre un bien dont elle n'a plus besoin)."),
+                    H.p("Quand l'exercice dégage un <strong>bénéfice</strong>, les associés décident de son affectation au moment où ils approuvent les comptes :"),
+                    H.tableau(["Affectation", "Règle"], [
+                        ["Dividendes", "versés aux associés : l'argent sort de l'entreprise"],
+                        ["Réserve légale", "obligatoire dans les sociétés commerciales (SARL, SAS, SA) : au moins 5 % du bénéfice (diminué des pertes antérieures) chaque année, jusqu'à ce que la réserve atteigne 10 % du capital"],
+                        ["Réserves statutaires", "prévues par les statuts dès la création (par exemple 8 % du bénéfice chaque année), sans plafond légal"],
+                        ["Réserves facultatives", "décidées librement par les associés"],
+                        ["Report à nouveau", "bénéfice laissé en attente d'affectation"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Exemple : capital de 50 000 €, donc réserve légale plafonnée à 5 000 €. Si elle contient déjà 4 200 € et que le bénéfice est de 30 000 €, on lui affecte le plus petit de 5 % × 30 000 = 1 500 € et de 5 000 − 4 200 = 800 €, soit <strong>800 €</strong>."),
+                    H.note("Les réserves restent dans les capitaux propres : c'est de l'argent gardé dans l'entreprise pour financer ses investissements.")),
+                ecoSec("2. Le financement externe", "handshake",
+                    H.tableau(["Mode", "Principe", "Avantages", "Inconvénients"], [
+                        ["Augmentation de capital", "les associés, anciens ou nouveaux, apportent des fonds contre de nouvelles parts ou actions", "rien à rembourser, renforce les capitaux propres", "partage du pouvoir et des bénéfices"],
+                        ["Emprunt bancaire", "prêt d'une banque, remboursé avec intérêts selon un tableau d'emprunt", "les associés gardent le contrôle ; les intérêts sont des charges déductibles", "coût des intérêts, garanties demandées, endettement plus fort"],
+                        ["Emprunt obligataire", "l'entreprise émet des obligations achetées par des investisseurs : intérêt versé chaque année, capital remboursé à une date prévue, souvent en une fois", "montants plus importants qu'un prêt bancaire, durée longue", "réservé aux grandes entreprises"],
+                        ["Crédit-bail", "une société de financement achète le bien et le loue à l'entreprise, avec une option d'achat à la fin", "pas d'apport, matériel facile à renouveler", "coût total plus élevé ; le bien n'est pas à l'actif tant que l'option n'est pas levée ; les loyers sont des charges externes"],
+                        ["Financement participatif", "des particuliers ou des entreprises financent un projet par une plateforme en ligne : dons, prêts ou prises de participation", "accessible aux petites structures, fait connaître le projet", "montants limités, campagne à mener"],
+                        ["Subvention d'investissement", "aide non remboursable de l'État, d'une région ou de l'Union européenne", "gratuite", "conditions à respecter, délais"],
+                        ["Compte courant d'associé", "un associé prête de l'argent à sa société", "souple et rapide", "à rembourser à l'associé"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("Règle d'or : un investissement durable se finance avec des ressources durables (capitaux propres, emprunts à long terme). Le court terme (découvert, crédit fournisseur, affacturage) sert à financer le cycle d'exploitation, c'est-à-dire le BFR.")),
+                ecoSec("3. Rembourser un emprunt : trois méthodes", "table",
+                    H.p("Le <strong>tableau d'emprunt</strong> a une ligne par année : capital restant dû en début d'année (CD), intérêts, amortissement (la part du capital remboursée), annuité, capital restant dû en fin d'année. On arrondit au centime à chaque ligne."),
+                    H.formule(R`\text{intérêts} = CD \times t \qquad \text{annuité} = \text{intérêts} + \text{amortissement} \qquad CD_{\text{fin}} = CD - \text{amortissement}`),
+                    H.tableau(["Méthode", "On calcule d'abord", "Puis"], [
+                        ["Annuités constantes", "$a = C \\times \\dfrac{t}{1-(1+t)^{-n}}$", "amortissement = a − intérêts : il augmente chaque année"],
+                        ["Amortissement constant", "amortissement = C / n", "annuité = amortissement + intérêts : elle diminue chaque année"],
+                        ["In fine", "intérêts = C × t chaque année", "tout le capital est remboursé la dernière année : a = C + C × t"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Exemple : 5 000 € empruntés à 3 % sur 5 ans, par annuités constantes. $a = 5\\,000 \\times \\dfrac{0{,}03}{1-1{,}03^{-5}} \\approx 1\\,091{,}77$ €."),
+                    H.tableau(["Année", "CD début", "Intérêts", "Amortissement", "Annuité", "CD fin"], [
+                        ["N", "5 000,00", "150,00", "941,77", "1 091,77", "4 058,23"],
+                        ["N+1", "4 058,23", "121,75", "970,02", "1 091,77", "3 088,21"],
+                        ["N+2", "3 088,21", "92,65", "999,12", "1 091,77", "2 089,09"],
+                        ["N+3", "2 089,09", "62,67", "1 029,10", "1 091,77", "1 059,99"],
+                        ["N+4", "1 059,99", "31,80", "1 059,99", "1 091,79", "0"]
+                    ]),
+                    H.p("La dernière annuité est ajustée de quelques centimes pour solder le capital, à cause des arrondis. Avec le même emprunt, l'amortissement constant donne des annuités de 1 150, 1 120, 1 090, 1 060 et 1 030 €, et l'in fine quatre annuités de 150 € puis une de 5 150 €.")),
+                ecoSec("4. Comparer et enregistrer", "scale",
+                    H.tableau(["Méthode", "Coût de l'emprunt (5 000 € à 3 % sur 5 ans)"], [
+                        ["Amortissement constant", "150 + 120 + 90 + 60 + 30 = 450 €"],
+                        ["Annuités constantes", "458,87 €"],
+                        ["In fine", "5 × 150 = 750 €"]
+                    ]),
+                    H.liste([
+                        "Du moins cher au plus cher en intérêts : <strong>amortissement constant</strong>, <strong>annuités constantes</strong>, <strong>in fine</strong>, car le capital reste dû plus longtemps.",
+                        "L'in fine pèse le moins sur la trésorerie pendant le prêt (on ne paie que les intérêts), mais il faut prévoir le remboursement du capital en une fois.",
+                        "Les annuités constantes donnent des échéances régulières, faciles à prévoir.",
+                        "Au compte de résultat, seuls les <strong>intérêts</strong> sont une charge (charges financières). Le remboursement du capital fait baisser l'emprunt au passif.",
+                        "Coût de l'emprunt = somme des intérêts, hors frais de dossier et assurance. Contrôle : le capital restant dû à la fin de la dernière année vaut 0."
+                    ]))
+            ] },
+            "eco2-travail": { badge: ECO2_BADGE, titre: "Le droit du travail", sections: () => [
+                ecoSec("1. Les sources du droit du travail", "scale",
+                    H.p("Problématique : <strong>comment le droit prend-il en considération les besoins des entreprises et des salariés ?</strong> Le droit du travail régit les rapports individuels et collectifs entre employeurs et salariés. Sa fonction : protéger le salarié face au pouvoir de l'employeur."),
+                    H.tableau(["Famille", "Source", "Exemple"], [
+                        ["Internationale", "règles de l'Union européenne, communes aux États membres", "directive du 23/10/2024 sur les travailleurs des plateformes"],
+                        ["Interne, étatique", "Constitution (préambule)", "droit à l'emploi, liberté syndicale, droit de grève, égalité femmes-hommes"],
+                        ["Interne, étatique", "lois rassemblées dans des codes, jurisprudence (décisions des juges, Cour de cassation), décrets (actes du gouvernement qui précisent l'application des lois)", "Code du travail, Code civil"],
+                        ["Interne, non étatique", "droit négocié : conventions et accords collectifs (une branche), accords d'entreprise", "accord de télétravail dans une entreprise"],
+                        ["Interne, non étatique", "droit émanant de l'employeur : usages (avantages accordés de façon répétée), règlement intérieur", "prime versée chaque année"],
+                        ["Interne, non étatique", "le contrat de travail", ""]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("<strong>Hiérarchie des normes</strong> : chaque règle respecte toutes celles de valeur supérieure. Le contrat de travail, tout en bas, respecte la Constitution, les lois, la convention collective et le règlement intérieur, ainsi que les conditions de validité de tout contrat du Code civil : consentement sans vice, capacité, contenu licite et certain.")),
+                ecoSec("2. Le droit négocié", "handshake",
+                    H.liste([
+                        "<strong>Qui négocie ?</strong> Les syndicats représentatifs des salariés (CFDT, CGT…) avec des groupements d'employeurs (MEDEF) ou un employeur seul. Un accord d'entreprise doit être signé par des syndicats <strong>majoritaires</strong> aux dernières élections professionnelles.",
+                        "<strong>Pourquoi ?</strong> Trouver un équilibre entre efficacité économique et justice sociale, et adapter le Code du travail à une branche ou à une entreprise.",
+                        "<strong>Quelle valeur ?</strong> Il respecte en principe les règles supérieures et est en général plus favorable au salarié : c'est le <strong>principe de faveur</strong>. Dans des cas limités, il peut être moins favorable : <strong>accords dérogatoires</strong>. Il peut aussi fixer des règles que les normes supérieures ne prévoient pas : <strong>accords supplétifs</strong>."
+                    ]),
+                    H.note("Piège : le droit négocié est une source interne <strong>non étatique</strong>, comme les usages, le règlement intérieur et le contrat. La jurisprudence, elle, est étatique.")),
+                ecoSec("3. Le contrat de travail", "file-text",
+                    H.p("C'est la convention par laquelle le <strong>salarié</strong> met son travail à la disposition de l'<strong>employeur</strong>, moyennant <strong>rémunération</strong>, dans un <strong>lien de subordination juridique</strong>. Trois critères, vérifiés en même temps :"),
+                    H.listeNum([
+                        "<strong>L'exécution d'un travail</strong>, physique ou intellectuel.",
+                        "<strong>Une rémunération</strong> : elle distingue le contrat de travail du bénévolat et du contrat de société.",
+                        "<strong>Un lien de subordination</strong>, le critère essentiel : l'employeur peut donner des ordres, contrôler le travail et sanctionner."
+                    ]),
+                    H.note("Le contrat peut être verbal ; il est le plus souvent écrit. Sa qualification dépend de son contenu réel, pas de son titre : un faux contrat de prestation de services avec un indépendant (ubérisation) est requalifié en contrat de travail par le juge si les trois critères sont réunis."),
+                    H.tableau(["Contrat", "Définition", "Nature"], [
+                        ["CDI", "durée indéterminée, pas de date de fin", "<strong>droit commun</strong> : la forme normale, pour l'activité permanente"],
+                        ["CDD", "durée déterminée, date de fin prévue", "<strong>dérogatoire</strong> : cas limités (remplacement d'un salarié absent, accroissement temporaire d'activité), durée et renouvellement encadrés (en général 18 mois au maximum)"],
+                        ["CTT", "travail temporaire : l'intérimaire est mis à disposition d'une autre entreprise par une entreprise de travail temporaire", "<strong>dérogatoire</strong>, mêmes cas que le CDD"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("<strong>Éléments essentiels</strong>, non modifiables sans l'accord du salarié : la rémunération, la durée du travail, la qualification (niveau et échelon)."),
+                    H.tableau(["Clause", "Ce qu'elle prévoit"], [
+                        ["Période d'essai", "au début du contrat, chaque partie peut rompre sans motif et sans indemnité"],
+                        ["Non-concurrence", "interdit certaines activités <strong>après</strong> la fin du contrat"],
+                        ["Confidentialité", "interdit de divulguer des informations sensibles"],
+                        ["Mobilité", "le salarié accepte à l'avance un changement de lieu de travail"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Ces clauses ne sont valables que si elles protègent les <strong>intérêts légitimes</strong> de l'employeur (bon fonctionnement, savoir-faire).")),
+                ecoSec("4. L'exécution du contrat", "briefcase",
+                    H.liste([
+                        "<strong>Non-discrimination</strong> : nul ne peut être sanctionné ou licencié en raison de son origine, de son sexe, de ses opinions, de ses convictions religieuses, de son âge…",
+                        "<strong>Santé et sécurité</strong> des salariés : obligation de l'employeur.",
+                        "<strong>Libertés et vie privée</strong> : l'employeur ne lit pas les correspondances privées.",
+                        "<strong>Bonne foi</strong> : employeur et salarié exécutent le contrat loyalement.",
+                        "<strong>Formation tout au long de la vie</strong> : compte personnel de formation (CPF), projet de transition professionnelle (PTP), validation des acquis de l'expérience (VAE)."
+                    ]),
+                    H.tableau(["", "Modification du contrat", "Changement des conditions de travail"], [
+                        ["Exemples", "rémunération, durée du travail, qualification", "horaires dans la journée, service d'affectation, tâches de même niveau"],
+                        ["Fondement", "force obligatoire du contrat", "lien de subordination : pouvoir de direction"],
+                        ["Accord du salarié", "<strong>obligatoire</strong>", "pas nécessaire"],
+                        ["Si le salarié refuse", "l'employeur renonce, ou licencie pour motif économique", "c'est une faute : licenciement pour motif personnel"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("Si l'employeur change (vente du fonds de commerce, fusion), le contrat de travail se poursuit avec le nouvel employeur.")),
+                ecoSec("5. La fin du contrat", "door-open",
+                    H.tableau(["Initiative", "Mode de rupture", "À retenir"], [
+                        ["Employeur", "licenciement pour motif personnel", "cause inhérente au salarié : faute (vol, absences injustifiées répétées) ou inaptitude médicalement constatée ; indemnité de licenciement sauf faute grave ou lourde"],
+                        ["Employeur", "licenciement économique", "difficultés économiques, mutations technologiques, réorganisation pour rester compétitif ; parfois un plan de sauvegarde de l'emploi (PSE) pour limiter les licenciements, reclasser et mieux indemniser"],
+                        ["Salarié", "démission", "pas d'allocation chômage (ARE), sauf cas particuliers"],
+                        ["Salarié", "départ à la retraite", "à partir de l'âge minimal"],
+                        ["Commun accord", "rupture conventionnelle", "négociée et encadrée par le Code du travail, individuelle ou collective"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Tout licenciement doit reposer sur une <strong>cause réelle et sérieuse</strong> et respecter une procédure, notamment l'entretien préalable. Le droit concilie ainsi la souplesse dont les entreprises ont besoin et la protection due aux salariés."))
             ] }
         });
 
