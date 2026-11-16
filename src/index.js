@@ -7,6 +7,8 @@ import { apiProfStats } from "./prof-stats.js";
 import { apiSignalements } from "./prof-signalements.js";
 import { apiAnnonces } from "./prof-annonces.js";
 import { apiCorrections } from "./prof-corrections.js";
+import { apiSeries } from "./series.js";
+import { apiProfQuestions } from "./prof-questions.js";
 
 const COOKIE_GOOGLE = "studicam_google"; // état, nonce et vérificateur PKCE pendant l'aller-retour Google
 const DUREE_COOKIE_GOOGLE = 600;         // secondes
@@ -166,6 +168,8 @@ const MODULES_API = [
   apiSignalements,  // relecture et signalements (PR 3)
   apiAnnonces,  // annonces des profs (PR 2)
   apiCorrections,  // corrections de cours par les profs
+  apiSeries,  // Ma progression : séries terminées et carnet d'erreurs de l'élève
+  apiProfQuestions,  // questions les plus ratées (vue prof, agrégée)
 ];
 
 async function api(request, env, chemin) {

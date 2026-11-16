@@ -119,6 +119,37 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - Deux autres groupes ajoutés (maintenance et Job Shop / Flow Shop) : 4 nouvelles questions et leur cours (5 niveaux de maintenance, GMAO, SNCF ; flow shop et familles de modèles). Le QCM du site, les exposés de la révision DS et l'exercice 9 du DS blanc d'OI passent à 25 questions (25 × 0,25 pt).
 - 2e groupe SST (santé et sécurité au travail) : cours ajouté à la partie SST de la leçon (DUERP, principes de prévention, TF, TG, pyramide de Bird, ISO 45001, exemple Airbus) et 2 nouvelles questions. Le QCM du site, les exposés de la révision DS et l'exercice 9 du DS blanc d'OI passent à 27 questions (27 × 0,25 pt).
 
+## 14 novembre 2026 – Fin d'examen et retour au cours (Aidan, avec Claude)
+
+- Examen blanc et QCM de la Révision DS, QCM des oraux de la veille OI : mode Entraînement ou Mode DS, bouton Terminer collant, bilan (note sur 20 et en %, durée, détail par chapitre, questions ratées avec correction et lien vers le chapitre), « Refaire mes erreurs » jusqu'au sans-faute, retour au cours sans perdre l'examen et série en cours gardée dans le navigateur (nouveau fichier `public/serie.js`, tests dans `test/serie.test.js`).
+
+## 14 novembre 2026 – Une adresse par écran et bouton retour (Aidan, avec Claude)
+
+- Chaque écran a son adresse après un « # » (#/a2/ce, #/a2/ce/asynchrone/lecon, #/a2/revision-ds/examen…, schéma dans le README) : le bouton retour du navigateur ou le geste retour du téléphone réaffiche l'écran précédent au lieu de quitter le site, l'exercice, l'examen en cours et la position dans la page sont retrouvés, rafraîchir ou coller une adresse rouvre le même écran, et l'adresse demandée est rouverte après la connexion Google (nouveau fichier `public/navigation.js`, tests dans `test/navigation.test.js`, PR #30).
+
+## 14 novembre 2026 – Ma progression et carnet d'erreurs (Aidan, avec Claude)
+
+- Chaque série de QCM terminée est enregistrée (note sur 20, %, durée, mode), ainsi que les questions ratées : page « Ma progression » (adresse #/progression, bouton dans l'en-tête) avec la courbe des notes par matière, les dernières séries et le carnet d'erreurs par chapitre (« Refaire ces questions » jusqu'à les réussir) ; résumé en tête de chaque matière et de la Révision DS. Espace prof : onglet « Questions ratées » (par promo, taux d'échec à la première réponse par tranches de 20 %, à partir de 5 élèves, jamais nominatif). Page de confidentialité mise à jour, migration `0007_series_carnet.sql` appliquée en ligne (PR #29).
+
+## 14 novembre 2026 – DS passés et plusieurs Révisions DS (Aidan, avec Claude)
+
+- La Révision DS du 14/11 (CE puis OI) quitte l'accueil A2 : elle est rangée dans une rubrique « DS passés », toujours consultable avec la progression (mêmes clés et mêmes identifiants de questions, carnet d'erreurs inchangé).
+- Le site accepte plusieurs Révisions DS : `revision-ds.js` devient un moteur commun, le contenu du 14/11 passe dans `revision-ds-2026-11.js`. Un DS à venir a sa carte sur l'accueil, un DS passé (ou marqué `archive: true`) va dans « DS passés ».
+- Adresses : `#/a2/revision-ds/<id du DS>/<onglet>/<chapitre>` ; les anciennes adresses sans id ouvrent le DS du 14/11.
+- Côté serveur, chaque DS déclare ses filtres d'examen dans `DS_CHAPITRES` ; un test vérifie que chaque fichier de Révision DS y figure. Marche à suivre dans le README, « Ajouter une Révision DS ».
+
+## 15 novembre 2026 – Révision DS de physique du 21/11 (Aidan, avec Claude)
+
+- Nouvelle Révision DS pour le DS de physique du samedi 21/11 (chapitres 10 à 13) : `revision-ds-2026-11-phys.js`. Onglet « Cours » : composants à semi-conducteurs, pont de Graetz, redressement commandé et pont mixte, hacheur série et 4 quadrants, onduleur, avec 31 QCM et 10 exercices corrigés à d'autres valeurs. Onglet « Anciens DS » : les exercices des DS n°2 de 2022, 2024 et 2025 et de l'épreuve de sciences de janvier 2026 (store, contrôle de portes, porte de garage, capteur cardiaque, pont mixte, robot RICA IV), avec la correction du professeur quand elle existe, 18 QCM sourcés et des variantes chiffrées. Onglet « Formules ». Examen blanc de 49 questions.
+- Moteur commun : l'examen blanc nommait toujours les onglets « CE et OI » ; il cite maintenant les onglets du DS affiché.
+
+## 15 novembre 2026 – Schémas de la Révision DS de physique (Aidan, avec Claude)
+
+- Les schémas des polys de physique (chapitres 10 à 13) et des anciens DS sont dans la Révision DS du 21/11 : 36 figures dans le cours et les anciens DS (ponts de Graetz, mixte et tout thyristors, hacheurs, pont en H, onduleur, détection d'obstacle, capteur du robot RICA IV, comparateur), avec leurs oscillogrammes. Les dessins des leçons sont réutilisés ; les montages propres aux sujets sont dessinés avec les mêmes outils.
+- Un QCM ou un exercice peut afficher un schéma (champ `fig`, lu par `serie.js` et `revision-ds.js`) : 37 QCM et 14 exercices en ont un. L'identifiant d'une question ne change pas.
+- Roue libre du pont mixte rétablie (T1 et D1 du même bras, i1 = 10 A de π/4 à 5π/4), comme dans le poly et le corrigé du DS de 2025.
+- Leçon « Redressement » : les diodes du pont mixte s'appellent D1 et D2, comme dans le poly. Mode clair : les composants des schémas, restés gris pâle, sont foncés sur tout le site.
+
 ## 16 novembre 2026 – Torseurs, liaisons, symboles de CE, courbes paramétrées (Baptiste)
 
 - CM 1ère année : nouveau chapitre 2 « Les torseurs : notions de base » (résultante et moment, produit vectoriel, changement de point, automoment, couple et glisseur, torseurs statique et cinématique) avec 5 types d'exercices ; la cinématique et la statique deviennent les chapitres 3 et 4.

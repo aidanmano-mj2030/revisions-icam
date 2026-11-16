@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import {
   normaliserEmail, cleValide, validerProgression, lirePerimetre, dansPerimetre, matiereDeCle,
 } from "../src/regles.js";
@@ -94,17 +94,31 @@ test("matière d'une clé de progression", () => {
   }
 });
 
-// Garde-fou : chaque chapitre de public/revision-ds.js est rattaché à la bonne matière.
+// Garde-fou : chaque chapitre du DS du 14/11 (public/revision-ds-2026-11.js) est rattaché à la bonne matière.
 test("chapitres de la Révision DS rattachés à CE ou OI", () => {
-  const source = readFileSync(new URL("../public/revision-ds.js", import.meta.url), "utf8");
+  const source = readFileSync(new URL("../public/revision-ds-2026-11.js", import.meta.url), "utf8");
   const section = (debut, fin) => {
     const morceau = source.slice(source.indexOf(debut), fin ? source.indexOf(fin) : undefined);
     return [...morceau.matchAll(/^\s+id: '([a-z0-9-]+)', code: /gm)].map((m) => m[1]);
   };
-  const ds = source.match(/const DS = \{ id: '([a-z0-9-]+)'/)[1];
+  const ds = source.match(/RD\.enregistrer\(\{\s*id: '([a-z0-9-]+)'/)[1];
   const oi = [...section("const EXPOSES = [", "const COURS_OI = ["), ...section("const COURS_OI = [", "const CE = [")];
   const ce = section("const CE = [", "const DSB =");
   assert.ok(oi.length >= 10 && ce.length >= 5, `chapitres lus : ${oi.length} OI, ${ce.length} CE`);
   for (const id of ce) assert.deepEqual(matiereDeCle(`a2/ds/${ds}/${id}`), { annee: "a2", matiere: "ce" }, id);
   for (const id of oi) assert.deepEqual(matiereDeCle(`a2/ds/${ds}/${id}`), { annee: "a2", matiere: "oi" }, id);
+});
+
+// Garde-fou : chaque Révision DS (public/revision-ds-<aaaa-mm>.js) est déclarée dans DS_CHAPITRES,
+// sinon ses résultats n'entrent pas dans le tableau de bord des profs.
+test("chaque Révision DS est déclarée côté serveur", () => {
+  const regles = readFileSync(new URL("../src/regles.js", import.meta.url), "utf8");
+  const dossier = new URL("../public/", import.meta.url);
+  const fichiers = readdirSync(dossier).filter((f) => /^revision-ds-\d{4}-\d{2}.*\.js$/.test(f));
+  assert.ok(fichiers.length >= 1);
+  for (const f of fichiers) {
+    const id = readFileSync(new URL(f, dossier), "utf8").match(/RD\.enregistrer\(\{\s*id: '([a-z0-9-]+)'/)?.[1];
+    assert.ok(id, `id introuvable dans ${f}`);
+    assert.ok(regles.includes(`"${id}": {`), `${id} (${f}) absent de DS_CHAPITRES`);
+  }
 });

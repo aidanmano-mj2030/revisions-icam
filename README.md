@@ -21,8 +21,12 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 |---|---|
 | `public/index.html` | Le site : cours et exercices |
 | `public/progression.js` | Enregistre les exercices réussis, affiche les pastilles |
-| `public/revision-ds.js` | Onglet « Révision DS » de l'A2 : examen blanc, QCM, exercices corrigés, formules |
-| `public/revision-ds-blancs.js` | Les deux DS blancs de cet onglet (sujets et corrigés, fichier généré) |
+| `public/navigation.js` | Une adresse `#/...` par écran, bouton retour du navigateur, routes ajoutées par d'autres scripts (voir « Adresses des écrans ») |
+| `public/ma-progression.js` | Page « Ma progression » : notes des séries terminées, carnet d'erreurs, résumé en tête de chaque matière |
+| `public/revision-ds.js` | Moteur de l'onglet « Révision DS » de l'A2 : cartes de l'accueil, rubrique « DS passés », examen blanc, QCM, exercices corrigés, formules |
+| `public/revision-ds-2026-11.js` | Contenu de la Révision DS du 14/11/2026 (CE puis OI), rangée dans « DS passés » (voir « Ajouter une Révision DS ») |
+| `public/revision-ds-2026-11-phys.js` | Contenu de la Révision DS du 21/11/2026 (physique, chapitres 10 à 13) : cours, exercices des anciens DS 2022 à 2026 avec leur correction, variantes, formules |
+| `public/revision-ds-blancs.js` | Les deux DS blancs du 14/11/2026 (sujets et corrigés, fichier généré) |
 | `public/prof.js` | Bouton « Vue prof » / « Vue élève » de l'en-tête et Espace prof, pour les comptes qui ont un rôle |
 | `public/connexion.html` | Page de connexion |
 | `src/index.js` | Serveur (Cloudflare Worker) : connexion Google, sessions, progression, accès prof, protection des pages ; les modules d'API s'ajoutent au tableau `MODULES_API` |
@@ -33,6 +37,37 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 Nouvel exercice : ajouter ses blocs dans la table `UNITES` en tête de `public/progression.js`,
 et garder les classes de correction (`border-emerald-500`, `border-red-500`, bilans
 `emerald` / `red`), sinon la réussite n'est pas comptée.
+
+## Adresses des écrans
+
+Chaque écran a sa propre adresse, après un `#` : le bouton retour du navigateur (ou le geste
+retour du téléphone) réaffiche l'écran précédent, et rafraîchir la page ou ouvrir une adresse
+copiée ramène au même écran. Le serveur ne voit pas cette partie de l'adresse.
+
+| Adresse | Écran |
+|---|---|
+| `#/` | Accueil (choix de l'année) |
+| `#/a2` | Choix du domaine de l'année (`a1` ou `a2`) |
+| `#/a2/techniques`, `#/a2/sciences` | Matières du domaine |
+| `#/a2/ce` | Chapitres d'une matière (`cm`, `ce`, `aii`, `oi`, `est`, `maths`, `phys`, `eco`) |
+| `#/a2/ce/asynchrone/lecon` | Leçon : identifiant de la leçon sans son préfixe (`ce2-asynchrone` donne `asynchrone`) |
+| `#/a2/ce/asynchrone/lecon/3` | Leçon ouverte sur sa partie 3 (renvoi depuis une correction) |
+| `#/a2/ce/asynchrone/exo/ce2-asynchrone` | Exercice (clé de `EXOS`) ; chapitres interactifs : `#/a2/cm/vecteurs/exo/exo1`, `#/a1/cm/liaisons/exo/exo` |
+| `#/a2/revision-ds` | Révision DS : le prochain DS, sinon le plus récent |
+| `#/a2/revision-ds/ds-2026-11/examen` | Un DS précis, sur un onglet : `examen`, `formules`, `dsblanc` ou une de ses parties (`ce`, `expo`, `cours`…) |
+| `#/a2/revision-ds/ds-2026-11/ce/mas` | Un chapitre d'une partie. Les anciennes adresses sans id (`#/a2/revision-ds/examen`) ouvrent le DS du 14/11/2026 |
+| `#/prof`, `#/prof/annonces` | Espace prof, sur un onglet |
+| `#/serie` | Série « Refaire » ouverte par `studicamLancerSerie` (gardée en mémoire : après un rafraîchissement, accueil) |
+
+Une adresse inconnue, ou dont le contenu n'existe plus, ramène à l'accueil sans erreur. Si
+l'élève n'est pas connecté, la page de connexion garde l'adresse demandée (`sessionStorage`)
+et le site la rouvre après la connexion Google. Renommer une leçon (son identifiant dans
+`CHAPITRES`) change son adresse : les liens déjà partagés mènent alors à l'accueil.
+
+Pour un nouvel écran hors de ces adresses, un script chargé après `navigation.js` appelle
+`window.studicamRoutes.ajouter('#/progression', fonction, titre)` et l'ouvre avec
+`window.studicamRoutes.aller('#/progression')`. L'événement `studicam:ecran` est émis à chaque
+changement d'écran. Le détail est en tête de `public/navigation.js`.
 
 ## Connexion
 
@@ -101,6 +136,45 @@ traités, une fois par an après la fin de l'année scolaire (début juillet) :
 ```
 npx wrangler d1 execute studicam --remote --command "DELETE FROM signalements WHERE statut IN ('corrige', 'rejete') AND traite_le < '2027-07-01'"
 ```
+
+### Ma progression et carnet d'erreurs
+
+Migration `0007_series_carnet.sql`. À chaque « Terminer » d'une série de QCM,
+`public/ma-progression.js` envoie la série à `POST /api/series` (`src/series.js`, règles dans
+`src/regles-series.js`) : note, durée, et pour chaque question répondue, juste ou fausse.
+L'élève a sa page « Ma progression » (adresse `#/progression`, bouton dans l'en-tête) : courbe
+des notes par matière, dernières séries, carnet d'erreurs avec « Refaire ces questions » ; et un
+résumé en tête de chaque matière. Limites : 60 envois par minute, 1 000 séries et 3 000 questions
+par élève, deux ans au plus (élagage à chaque envoi). Les profs ont l'onglet « Questions ratées »
+(`src/prof-questions.js`) : par promo, taux d'échec à la première réponse par tranches de 20 %,
+seulement pour les questions répondues par 5 élèves ou plus, jamais nominatif.
+
+Effacer un compte efface ses séries et son carnet (`ON DELETE CASCADE`). Purge annuelle (début
+juillet) des lignes de plus de deux ans des comptes qui ne viennent plus :
+
+```
+npx wrangler d1 execute studicam --remote --command "DELETE FROM series WHERE fait_le < strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-2 years'); DELETE FROM questions_suivi WHERE maj_le < strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-2 years')"
+```
+
+## Ajouter une Révision DS
+
+Chaque DS a son fichier de contenu ; `public/revision-ds.js` est le moteur commun et ne change pas.
+
+1. Copier `public/revision-ds-2026-11.js` en `public/revision-ds-<aaaa-mm>.js` (ajouter un suffixe s'il y a
+   deux DS le même mois, par exemple `revision-ds-2026-11-phys.js`), puis remplacer le contenu : les
+   parties (`PARTIES`, chacune avec ses chapitres, leurs sections et leurs QCM), `ORDRE_PARTIES`, `FILTRES`
+   de l'examen blanc, `FORMULES` et `DS_BLANCS` (listes vides possibles).
+2. Dans l'appel `RD.enregistrer({...})` : nouvel `id` (`ds-<aaaa-mm>[-suffixe]`), `date`, `libelle`, `titre`,
+   `titrePage`, `resume`, `intro`, `chap` (premier chapitre de chaque partie) et `matiere` (matière de
+   chaque partie). Retirer `prefixeId: 'rds'` et `archive: true`, propres au DS du 14/11 : les questions
+   d'un nouveau DS ont pour identifiant `ds/<id>/<partie>/<chapitre>#<hash>`.
+3. Ajouter `<script src="revision-ds-<aaaa-mm>.js" defer></script>` dans `public/index.html`, juste après les
+   autres fichiers de Révision DS.
+4. Déclarer le DS dans `DS_CHAPITRES` de `src/regles.js` (chapitres par matière et matière de chaque filtre
+   de l'examen), sinon le tableau de bord des profs ne le compte pas ; `npm test` le vérifie.
+
+Un DS dont la date est passée, ou qui porte `archive: true`, quitte l'accueil A2 et rejoint la rubrique
+« DS passés » : il reste consultable, avec la progression des élèves.
 
 ## Tester en local
 
