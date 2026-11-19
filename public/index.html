@@ -17429,6 +17429,331 @@
         }
         EXB('est2-tolerie', 'est2-tolerie', 'EST • 2ème Année', 'Tôlerie', 'CATIA : tôlerie', { id: 'etl', types: { outil: toleOutil, icone: toleIcone, q: toleQ, dev: toleDev }, libelles: { tout: 'Tout', outil: 'Quel outil ?', icone: 'Reconnaître l\'icône', q: 'Cours', dev: 'Longueur développée' } }, 'layers');
         Object.assign(RENVOIS, { 'est2-assemblage': { q: [2, 3, 4, 5, 6, 7], cont: [6] }, 'est2-tolerie': { outil: [3], icone: [3], q: [2, 3, 6], dev: [4] } });
+
+        // ==========================================
+        // Physique A2, chapitre 15 : conversion analogique-numérique (CAN)
+        // ==========================================
+        CHAPITRES["2ème Année"].PHYS.push({ num: "Chapitre n°15", titre: "Conversion analogique-numérique", desc: "Signaux analogique et numérique, échantillonnage et théorème de Shannon, quantification, pas et codage sur n bits, qualité du signal numérisé.", lecon: "phys-can", exo: "phys-can" });
+        const canFr = (x) => String(+(+x).toPrecision(4)).replace('.', ',');
+        const canTeX = (x) => canFr(x).replace(',', '{,}');
+        // petit graphe : courbe analogique (bleue), échantillons bloqués et quantifiés sur n bits (orange)
+        function canGraphe(x0, y0, w, h, f, nEch, nBits, o = {}) {
+            const N = 2 ** nBits, X = (t) => x0 + t * w, Y = (v) => y0 + h - v * h;
+            let s = PF.L(x0, y0 - 6, x0, y0 + h + 4, SVG_DISCRET) + PF.L(x0 - 4, y0 + h, x0 + w + 8, y0 + h, SVG_DISCRET);
+            if (o.niveaux) for (let k = 1; k < N; k++) s += PF.L(x0, Y(k / N), x0 + w, Y(k / N), '#334155', '2 3');
+            let d = '';
+            for (let i = 0; i <= 200; i++) { const t = i / 200; d += (i ? 'L' : 'M') + X(t).toFixed(1) + ' ' + Y(f(t)).toFixed(1); }
+            s += `<path d="${d}" stroke="${CB}" stroke-width="1.6"/>`;
+            if (o.analogique) return s;
+            let e = '';
+            for (let k = 0; k < nEch; k++) {
+                const t = k / nEch, q = o.brut ? f(t) : Math.min(N - 1, Math.floor(f(t) * N)) / N;
+                e += (k ? 'L' : 'M') + X(t).toFixed(1) + ' ' + Y(q).toFixed(1) + 'L' + X((k + 1) / nEch).toFixed(1) + ' ' + Y(q).toFixed(1);
+                if (o.points) s += `<circle cx="${X(t).toFixed(1)}" cy="${Y(f(t)).toFixed(1)}" r="2.6" fill="${CR}" stroke="none"/>`;
+            }
+            s += `<path d="${e}" stroke="${SVG_ACCENT}" stroke-width="1.8"/>`;
+            return s;
+        }
+        const canOnde = (t) => 0.5 + 0.38 * Math.sin(2 * Math.PI * (1.15 * t) + 0.3) + 0.06 * Math.sin(2 * Math.PI * 3 * t);
+        function svgCanTypes() {
+            let o = canGraphe(24, 26, 170, 80, canOnde, 1, 1, { analogique: true }) + PF.t(109, 16, 'Analogique : varie en continu', { s: 10, b: 1, c: CB });
+            const bits = [0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1], x0 = 240, w = 170 / bits.length;
+            let d = '';
+            bits.forEach((b, k) => { const y = b ? 46 : 96; d += (k ? 'L' : 'M') + (x0 + k * w).toFixed(1) + ' ' + y + 'L' + (x0 + (k + 1) * w).toFixed(1) + ' ' + y; });
+            o += PF.L(x0, 20, x0, 110, SVG_DISCRET) + PF.L(x0 - 4, 106, x0 + 178, 106, SVG_DISCRET) + `<path d="${d}" stroke="${SVG_ACCENT}" stroke-width="1.8"/>`;
+            o += PF.t(x0 - 6, 50, '1', { a: 'end', s: 10, c: SVG_DISCRET }) + PF.t(x0 - 6, 100, '0', { a: 'end', s: 10, c: SVG_DISCRET }) + PF.t(325, 16, 'Numérique : 0 ou 1 (bits)', { s: 10, b: 1, c: SVG_ACCENT });
+            o += PF.t(325, 124, bits.join(''), { s: 10, c: SVG_DISCRET }) + PF.t(198, 120, 't', { s: 10, c: SVG_DISCRET }) + PF.t(420, 120, 't', { s: 10, c: SVG_DISCRET });
+            return PF.svg(430, 132, o, 'Signal analogique continu et signal numérique fait de bits', 430);
+        }
+        function svgCanChaine() {
+            const B = [['Son', ''], ['Micro', 'capteur'], ['Ampli', ''], ['CAN', 'échantillonneur', '+ horloge'], ['Calculateur', 'acquisition', 'mémorisation'], ['Stockage', 'disque, carte']];
+            const w = 84, g = 18, y = 22, h = 54;
+            let o = '';
+            B.forEach((b, k) => {
+                const x = 6 + k * (w + g), can = k === 3;
+                o += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" stroke="${can ? SVG_ACCENT : SVG_TRAIT}" fill="${can ? SVG_ACCENT : 'none'}" fill-opacity="0.12"/>`;
+                o += PF.t(x + w / 2, y + (b.length > 2 ? 18 : b[1] ? 24 : 32), b[0], { b: 1, s: 11, c: can ? SVG_ACCENT : SVG_TEXTE });
+                b.slice(1).forEach((l, i) => { if (l) o += PF.t(x + w / 2, y + 34 + i * 12 - (b.length > 2 ? 0 : 0), l, { s: 9, c: SVG_DISCRET }); });
+                if (k < B.length - 1) o += PF.fleche(x + w, y + h / 2, x + w + g, y + h / 2, SVG_TRAIT);
+            });
+            o += PF.t(6 + 2.5 * (w + g) + 1, 100, 'analogique', { s: 10, c: CB, b: 1 }) + PF.t(6 + 3.5 * (w + g) + 1, 100, '0110 1001…', { s: 10, c: SVG_ACCENT, b: 1 });
+            o += PF.L(6 + 3 * (w + g) - g / 2, y + h / 2, 6 + 3 * (w + g) - g / 2, 88, CB, '3 3') + PF.L(6 + 4 * (w + g) - g / 2, y + h / 2, 6 + 4 * (w + g) - g / 2, 88, SVG_ACCENT, '3 3');
+            return PF.svg(6 * w + 5 * g + 12, 110, o, 'Chaîne d\'acquisition : son, micro, ampli, CAN, calculateur, stockage', 600);
+        }
+        function svgCanEchant() {
+            let o = canGraphe(40, 26, 360, 130, canOnde, 12, 0, { brut: true, points: true });
+            for (let k = 0; k <= 12; k++) { const x = 40 + k * 30; o += PF.L(x, 156, x, 160, SVG_DISCRET); }
+            o += PF.t(40, 172, '0', { s: 9, c: SVG_DISCRET }) + PF.t(70, 172, 'Te', { s: 9, c: SVG_DISCRET }) + PF.t(100, 172, '2Te', { s: 9, c: SVG_DISCRET }) + PF.t(130, 172, '3Te', { s: 9, c: SVG_DISCRET }) + PF.t(408, 172, 't', { s: 10, c: SVG_DISCRET });
+            o += PF.t(32, 22, 'u', { a: 'end', s: 11, c: SVG_DISCRET, i: 1 });
+            o += `<circle cx="250" cy="14" r="3" fill="${CR}" stroke="none"/>` + PF.t(258, 18, 'échantillon', { a: 'start', s: 10, c: CR }) + PF.L(320, 14, 336, 14, SVG_ACCENT) + PF.t(340, 18, 'valeur bloquée', { a: 'start', s: 10, c: SVG_ACCENT });
+            return PF.svg(420, 180, o, 'Échantillonnage : une valeur prélevée toutes les Te, puis bloquée jusqu\'à la suivante', 440);
+        }
+        function svgCanQuantif() {
+            const n = 3, N = 8, x0 = 50, y0 = 18, w = 330, h = 176;
+            let o = canGraphe(x0, y0, w, h, canOnde, 14, n, { niveaux: true });
+            for (let k = 0; k < N; k++) {
+                const y = y0 + h - k * h / N;
+                o += PF.t(x0 - 6, y + 3, k ? k + 'p' : '0', { a: 'end', s: 9, c: SVG_DISCRET }) + PF.t(x0 + w + 6, y + 3, k.toString(2).padStart(3, '0'), { a: 'start', s: 9, c: SVG_ACCENT });
+            }
+            o += PF.t(x0 + w + 22, y0 - 4, 'code', { s: 9, c: SVG_ACCENT }) + PF.t(x0 - 6, y0 - 4, 'u', { a: 'end', s: 11, c: SVG_DISCRET, i: 1 });
+            return PF.svg(420, 206, o, 'Quantification sur 3 bits : 8 niveaux séparés par le pas p, chacun associé à un code binaire', 440);
+        }
+        function svgCanQualite() {
+            const f = (t) => 0.5 + 0.42 * Math.sin(2 * Math.PI * 1.5 * t);
+            let o = canGraphe(16, 30, 180, 90, f, 9, 4) + canGraphe(234, 30, 180, 90, f, 18, 4);
+            o += PF.t(106, 16, '4 bits, fe', { s: 10, b: 1 }) + PF.t(324, 16, '4 bits, 2 × fe : plus fidèle', { s: 10, b: 1, c: CV });
+            o += canGraphe(16, 168, 180, 90, f, 24, 2) + canGraphe(234, 168, 180, 90, f, 24, 5);
+            o += PF.t(106, 154, '2 bits (4 niveaux), pas grand', { s: 10, b: 1 }) + PF.t(324, 154, '5 bits (32 niveaux) : plus fidèle', { s: 10, b: 1, c: CV });
+            return PF.svg(430, 268, o, 'En haut : effet de la fréquence d\'échantillonnage. En bas : effet du nombre de bits', 440);
+        }
+        LECONS["phys-can"] = {
+            badge: "Physique • 2ème Année", titre: "Conversion analogique-numérique",
+            sections: () => [
+                { titre: "1. Signal analogique, signal numérique", icone: "activity", contenu: [
+                    H.p(R`Un signal <strong>analogique</strong> évolue de façon <strong>continue</strong> dans le temps : il peut prendre toutes les valeurs. C'est ce que donnent la plupart des capteurs, en général sous forme d'une tension (parfois d'une intensité) : un micro change une onde sonore en une tension qui varie en continu.`),
+                    H.p(R`Un signal <strong>numérique</strong> évolue de façon <strong>discontinue</strong> (on dit <strong>discrète</strong>) : c'est une suite de nombres écrits en binaire, avec des <strong>0</strong> et des <strong>1</strong> appelés <strong>bits</strong>.`),
+                    H.figure(svgCanTypes(), "À gauche, toutes les valeurs sont possibles ; à droite, seulement 0 ou 1."),
+                    H.note(R`<strong>1 octet = 8 bits.</strong>`)
+                ].join('') },
+                { titre: "2. Le convertisseur analogique-numérique", icone: "cpu", contenu: [
+                    H.p(R`Un ordinateur, un automate ou un microcontrôleur ne traite que des nombres. Le <strong>CAN</strong> (convertisseur analogique-numérique) transforme le signal analogique, par exemple la sortie d'un capteur, en une suite de nombres binaires.`),
+                    H.figure(svgCanChaine(), "Exemple d'une chaîne d'acquisition du son : le CAN est le passage de l'analogique au numérique."),
+                    H.p(R`Le CAN travaille en <strong>trois étapes</strong>, l'une après l'autre : l'<strong>échantillonnage</strong> (partie 3), la <strong>quantification</strong> puis le <strong>codage</strong> (partie 4).`)
+                ].join('') },
+                { titre: "3. L'échantillonnage et le théorème de Shannon", icone: "scissors", contenu: [
+                    H.p(R`Échantillonner, c'est prélever la valeur du signal à intervalles de temps réguliers, toutes les $T_e$ secondes (la <strong>période d'échantillonnage</strong>), puis garder (<strong>bloquer</strong>) cette valeur jusqu'au prélèvement suivant. On ne conserve donc qu'un nombre limité de valeurs.`),
+                    H.figure(svgCanEchant(), "Points rouges : valeurs prélevées ; en orange : le signal échantillonné-bloqué."),
+                    H.formule(R`f_e = \frac{1}{T_e}`),
+                    H.p(R`$f_e$ s'exprime en hertz (Hz) : c'est le <strong>nombre d'échantillons prélevés par seconde</strong>.`),
+                    H.note(R`<strong>Théorème de Shannon</strong> : pour pouvoir reconstituer le signal, la fréquence d'échantillonnage doit valoir <strong>au moins le double</strong> de la plus grande fréquence $f_{max}$ contenue dans le signal :<br>$$f_e \geq 2\,f_{max}$$`),
+                    H.p(R`$f_e$ est limitée par le convertisseur (un oscilloscope de TP monte jusqu'à environ 1 milliard d'échantillons par seconde). Et il ne faut pas la choisir inutilement grande : plus $f_e$ est élevée, plus il y a de données à traiter et à stocker.`)
+                ].join('') },
+                { titre: "4. Quantification, pas et codage", icone: "binary", contenu: [
+                    H.p(R`<strong>Quantification</strong> : chaque valeur échantillonnée est remplacée par l'un des niveaux que le convertisseur sait représenter. Ces niveaux sont des <strong>multiples entiers du pas</strong> $p$ (aussi appelé <strong>résolution</strong>).`),
+                    H.p(R`<strong>Codage</strong> : chaque niveau reçoit un nombre binaire. Avec $n$ bits, chaque bit vaut 0 ou 1, donc on peut écrire $2 \times 2 \times \dots \times 2 = 2^n$ nombres différents.`),
+                    H.tableau(["Nombre de bits n", "1", "2", "3", "4", "8", "10", "12", "16"], [["Combinaisons $2^n$", "2", "4", "8", "16", "256", "1 024", "4 096", "65 536"]]),
+                    H.figure(svgCanQuantif(), "Sur 3 bits : 8 niveaux, de 000 à 111. Chaque échantillon prend le niveau du dessous."),
+                    H.formule(R`p = \frac{\Delta U}{2^n} \qquad \Delta U : \text{calibre (plage de mesure), } n : \text{nombre de bits}`),
+                    H.p(R`Le <strong>calibre</strong> $\Delta U$ est l'intervalle des tensions que le CAN peut mesurer (par exemple de 0 à 5 V, soit $\Delta U = 5$ V). Le pas est la <strong>plus petite variation de tension que le CAN peut détecter</strong>.`),
+                    H.note(R`<strong>Lire un code</strong> : le code binaire $N$ correspond à la tension $u = N \times p$.<br>Exemple : CAN 8 bits, calibre 0–5 V : $p = 5 / 256 \approx 19{,}5$ mV. Le code $1000\,0000_2 = 128$ correspond à $u = 128 \times 19{,}5 \text{ mV} = 2{,}5$ V.`)
+                ].join('') },
+                { titre: "5. Qualité du signal numérisé", icone: "sparkles", contenu: [
+                    H.p(R`Le signal numérisé ressemble d'autant plus au signal analogique que :`),
+                    H.liste([
+                        R`la <strong>fréquence d'échantillonnage est grande</strong> : $T_e$ est petite, les mesures sont rapprochées dans le temps ;`,
+                        R`le <strong>pas est petit</strong>, donc le <strong>nombre de bits est grand</strong> : les niveaux sont plus serrés. Passer de 4 à 5 bits double le nombre de niveaux (16 → 32) et divise le pas par 2.`
+                    ]),
+                    H.figure(svgCanQualite(), "Plus d'échantillons ou plus de bits : l'escalier orange colle mieux à la courbe bleue."),
+                    H.note(R`Ces deux améliorations ont un prix : plus de données à traiter et à stocker. Chaque seconde, un CAN produit $f_e \times n$ bits. Par exemple, $44{,}1$ kHz sur 16 bits donne $705\,600$ bits par seconde et par voie.`)
+                ].join('') }
+            ]
+        };
+        function canShannon() {
+            if (Math.random() < 0.5) {
+                const f = choisir([0.5, 1, 2, 2.5, 4, 5, 8, 10, 15, 20]), fe = 2 * f, Te = 1000 / fe;
+                return { enonce: `<p>Un signal contient des fréquences jusqu'à $f_{max} = ${canTeX(f)}$ kHz. Quelle fréquence d'échantillonnage minimale faut-il choisir, et quelle est alors la période d'échantillonnage ?</p>`,
+                    champs: [gNum('fe', '$f_{e\\,min}$ =', fe, { unite: 'kHz' }), gNum('te', '$T_e$ =', Te, { unite: 'µs' })],
+                    correction: `<p>Shannon : $f_e \\geq 2 f_{max} = 2 \\times ${canTeX(f)} = ${canTeX(fe)}$ kHz.</p><p>$T_e = 1/f_e = 1 / (${canTeX(fe)} \\times 10^3) \\approx ${canTeX(Te)}$ µs.</p>` };
+            }
+            const f = choisir([1, 2, 3, 5, 8, 12, 20]), fe = choisir([1.5, 3, 5, 10, 16, 25, 30, 44.1, 48]), ok = fe >= 2 * f;
+            return { enonce: `<p>On échantillonne à $f_e = ${canTeX(fe)}$ kHz un signal dont la plus grande fréquence vaut $${f}$ kHz. Le théorème de Shannon est-il respecté ?</p>`,
+                champs: [gChoix('r', ok ? 'o' : 'n', [['o', 'Oui'], ['n', 'Non']], { groupe: 'Réponse' })],
+                correction: `<p>Il faut $f_e \\geq 2 \\times ${f} = ${2 * f}$ kHz : ${ok ? `<strong class="text-white">oui</strong>, $${canTeX(fe)} \\geq ${2 * f}$.` : `<strong class="text-white">non</strong>, $${canTeX(fe)} < ${2 * f}$ : le signal ne pourra pas être reconstitué correctement.`}</p>` };
+        }
+        function canPas() {
+            const n = choisir([3, 4, 5, 8, 10, 12]), U = choisir([1, 2, 3.3, 5, 10, 12]), N = 2 ** n, p = U / N * 1000;
+            return { enonce: `<p>Un CAN de <strong>${n} bits</strong> a un calibre de 0 à ${canFr(U)} V. Combien de nombres binaires différents peut-il écrire, et quel est son pas ?</p>`,
+                champs: [gNum('n', 'Combinaisons =', N), gNum('p', '$p$ =', p, { unite: 'mV' })],
+                correction: `<p>$2^{${n}} = ${N}$ combinaisons. $p = \\dfrac{\\Delta U}{2^n} = \\dfrac{${canTeX(U)}}{${N}} \\approx ${canTeX(p / 1000)}$ V, soit $${canTeX(p)}$ mV.</p>` };
+        }
+        function canBits() {
+            const U = choisir([5, 10, 3.3, 12]), n = choisir([6, 7, 8, 9, 10, 11, 12]), pmax = +(U / 2 ** n * 1.6 * 1000).toPrecision(2);
+            let k = 1; while (U / 2 ** k * 1000 > pmax) k++;
+            return { enonce: `<p>On veut numériser une tension comprise entre 0 et ${canFr(U)} V en détectant des variations de $${canTeX(pmax)}$ mV ou moins. Quel est le nombre de bits minimal du CAN ?</p>`,
+                champs: [gNum('n', '$n_{min}$ =', k, { unite: 'bits' })],
+                correction: `<p>Il faut $p = \\dfrac{${canTeX(U)}}{2^n} \\leq ${canTeX(pmax / 1000)}$ V, soit $2^n \\geq \\dfrac{${canTeX(U)}}{${canTeX(pmax / 1000)}} \\approx ${canTeX(U / pmax * 1000)}$.</p><p>$2^{${k - 1}} = ${2 ** (k - 1)}$ ne suffit pas, $2^{${k}} = ${2 ** k}$ convient : <strong class="text-white">${k} bits</strong> (pas $\\approx ${canTeX(U / 2 ** k * 1000)}$ mV).</p>` };
+        }
+        function canCode() {
+            const n = choisir([3, 4, 4, 8]), U = choisir([4, 5, 8, 10]), Nmax = 2 ** n, N = gInt(1, Nmax - 1), p = U / Nmax, code = N.toString(2).padStart(n, '0');
+            const aff = n === 8 ? code.slice(0, 4) + '&nbsp;' + code.slice(4) : code;
+            return { enonce: `<p>Un CAN de ${n} bits, de calibre 0 à ${U} V, renvoie le code <strong class="font-mono">${aff}</strong>. Quelle valeur décimale représente ce code, et à quelle tension correspond-il ?</p>`,
+                champs: [gNum('N', '$N$ =', N), gNum('u', '$u$ =', N * p, { unite: 'V' })],
+                correction: `<p>${code.split('').map((b, i) => `${b}\\times 2^{${n - 1 - i}}`).map(s => '$' + s + '$').join(' + ')} = <strong class="text-white">${N}</strong>.</p><p>$p = ${U} / ${Nmax} = ${canTeX(p)}$ V, donc $u = N \\times p = ${N} \\times ${canTeX(p)} = ${canTeX(N * p)}$ V.</p>` };
+        }
+        function canQuiz() {
+            return qcm(...choisir([
+                ['Dans quel ordre le CAN réalise-t-il ses opérations ?', 'a', [['a', 'Échantillonnage, quantification, codage'], ['b', 'Codage, échantillonnage, quantification'], ['c', 'Quantification, codage, échantillonnage']], ''],
+                ['Un signal qui peut prendre toutes les valeurs, de façon continue dans le temps, est…', 'a', [['a', 'analogique'], ['n', 'numérique'], ['b', 'binaire']], ''],
+                ['Combien de bits dans un octet ?', '8', [['8', '8'], ['4', '4'], ['16', '16']], ''],
+                ['Que dit le théorème de Shannon ?', 's', [['s', 'La fréquence d\'échantillonnage doit valoir au moins 2 fois la plus grande fréquence du signal'], ['m', 'La fréquence d\'échantillonnage doit être égale à la fréquence du signal'], ['p', 'Le pas doit valoir 2 fois le calibre']], ''],
+                ['Pour rendre le signal numérisé plus fidèle, on peut…', 'h', [['h', 'augmenter la fréquence d\'échantillonnage ou le nombre de bits'], ['b', 'diminuer le nombre de bits'], ['t', 'augmenter la période d\'échantillonnage']], 'Plus de mesures dans le temps, ou des niveaux plus serrés.'],
+                ['Pourquoi ne pas prendre une fréquence d\'échantillonnage énorme ?', 'd', [['d', 'Il y aurait trop de données à traiter et à stocker'], ['f', 'Le signal serait moins fidèle'], ['s', 'Shannon l\'interdit']], ''],
+                ['Le pas d\'un CAN, c\'est…', 'p', [['p', 'la plus petite variation de tension qu\'il peut détecter'], ['c', 'le calibre'], ['t', 'le temps entre deux mesures']], ''],
+                ['On passe d\'un CAN 8 bits à un CAN 9 bits de même calibre. Le pas…', 'd', [['d', 'est divisé par 2'], ['m', 'est multiplié par 2'], ['r', 'ne change pas']], 'Le nombre de niveaux double : 256 → 512.'],
+                ['Après quantification, la tension échantillonnée ne peut valoir que…', 'm', [['m', 'des multiples entiers du pas'], ['q', 'n\'importe quelle valeur du calibre'], ['z', '0 ou le calibre']], ''],
+                ['La période d\'échantillonnage Te, c\'est…', 't', [['t', 'la durée entre deux prélèvements'], ['f', 'le nombre de prélèvements par seconde'], ['n', 'le nombre de bits']], 'fe = 1/Te est le nombre de prélèvements par seconde.']
+            ]));
+        }
+        EXB('phys-can', 'phys-can', 'Physique • 2ème Année', 'Conversion analogique-numérique', 'Conversion analogique-numérique', { id: 'can', types: { shannon: canShannon, pas: canPas, bits: canBits, code: canCode, quiz: canQuiz }, libelles: { tout: 'Tout', shannon: 'Shannon et fe', pas: 'Calculer le pas', bits: 'Combien de bits ?', code: 'Lire un code', quiz: 'Cours' } }, 'binary');
+        RENVOIS['phys-can'] = { shannon: [3], pas: [4], bits: [4, 5], code: [4], quiz: [1, 2, 3, 4, 5] };
+
+        // ==========================================
+        // Éco A2, chapitre 5 : le diagnostic stratégique (question 18)
+        // ==========================================
+        CHAPITRES["2ème Année"].ECO.push({ num: "Chapitre n°5", titre: "Le diagnostic stratégique", desc: "Démarche stratégique (modèle LCAG), stratégie délibérée ou émergente, diagnostic interne et externe, PESTEL, cinq forces de Porter, SWOT (question 18).", lecon: "eco2-strategie", exo: "eco2-strategie" });
+        const svgEcoLCAG = () => ecSvg(380, 230, 'Les quatre étapes du modèle LCAG',
+            [['1. Diagnostics interne et externe', 'ce qu\'elle sait faire, ce qu\'elle a intérêt à faire', EC.bleu], ['2. Évaluer les choix possibles', 'ce qu\'elle peut faire', EC.violet], ['3. Fixer les objectifs', 'ce qu\'elle veut faire', EC.ambre], ['4. Mettre en œuvre et contrôler', 'comment elle va faire', EC.vert]]
+                .map(([a, b, c], k) => ecBoite(40, 12 + k * 54, 300, 40, c, [a, b]) + (k < 3 ? ecFleche(190, 52 + k * 54, 190, 66 + k * 54) : '')).join('')
+            + `<path d="M340 200 h18 v-168 h-14" fill="none" stroke="${SVG_DISCRET}" stroke-width="1.5" stroke-dasharray="4 3"/>` + ecFleche(350, 32, 342, 32) + ecTxt(368, 116, 'indicateurs, tableaux de bord', { rot: 90, taille: 9, couleur: SVG_DISCRET }));
+        const svgEcoSWOT = () => ecSvg(380, 250, 'Matrice SWOT : forces, faiblesses, opportunités, menaces',
+            ecTxt(140, 18, 'positif', { gras: true, couleur: EC.vert }) + ecTxt(290, 18, 'négatif', { gras: true, couleur: EC.rouge })
+            + ecBoite(70, 28, 145, 95, EC.vert, ['Forces (S)', 'ressources, compétences,', 'savoir-faire'])
+            + ecBoite(220, 28, 145, 95, EC.rouge, ['Faiblesses (W)', 'manques, points', 'à améliorer'])
+            + ecBoite(70, 128, 145, 95, EC.bleu, ['Opportunités (O)', 'évolutions favorables', 'à saisir'])
+            + ecBoite(220, 128, 145, 95, EC.ambre, ['Menaces (T)', 'évolutions défavorables', 'à éviter'])
+            + ecTxt(40, 76, 'INTERNE', { rot: -90, gras: true, taille: 10 }) + ecTxt(56, 76, 'l\'entreprise', { rot: -90, taille: 9, couleur: SVG_DISCRET })
+            + ecTxt(40, 176, 'EXTERNE', { rot: -90, gras: true, taille: 10 }) + ecTxt(56, 176, 'l\'environnement', { rot: -90, taille: 9, couleur: SVG_DISCRET })
+            + ecTxt(217, 242, 'SWOT en anglais, FFOM en français', { taille: 9, couleur: SVG_DISCRET }));
+        const svgEcoPorter = () => ecSvg(420, 250, 'Les cinq forces de Porter',
+            ecBoite(135, 95, 150, 60, EC.ambre, ['Concurrents actuels', 'intensité de la', 'rivalité'], { opacite: 0.25 })
+            + ecBoite(120, 10, 180, 46, EC.violet, ['Entrants potentiels', 'est-il facile d\'entrer ?'])
+            + ecBoite(120, 194, 180, 46, EC.violet, ['Produits de substitution', 'autre façon de répondre au besoin'])
+            + ecBoite(4, 100, 114, 50, EC.bleu, ['Fournisseurs', 'pouvoir de négociation'], { taille: 10.5 })
+            + ecBoite(302, 100, 114, 50, EC.vert, ['Clients', 'pouvoir de négociation'], { taille: 10.5 })
+            + ecFleche(210, 56, 210, 93) + ecFleche(210, 194, 210, 157) + ecFleche(118, 125, 133, 125) + ecFleche(302, 125, 287, 125));
+        const svgEcoDiag = () => ecSvg(400, 200, 'Du diagnostic interne et externe à la matrice SWOT',
+            ecBoite(10, 10, 180, 60, EC.bleu, ['Diagnostic interne', 'ressources et compétences (Penrose)', 'chaîne de valeur (Porter)'])
+            + ecBoite(210, 10, 180, 60, EC.violet, ['Diagnostic externe', 'macro : PESTEL', 'micro : 5 forces de Porter'])
+            + ecFleche(100, 70, 100, 92) + ecFleche(300, 70, 300, 92)
+            + ecBoite(10, 94, 180, 40, EC.vert, ['Forces et faiblesses'], { taille: 10 }) + ecBoite(210, 94, 180, 40, EC.ambre, ['Opportunités et menaces'], { taille: 10 })
+            + ecFleche(100, 134, 100, 152) + ecFleche(300, 134, 300, 152)
+            + ecBoite(10, 154, 180, 38, EC.vert, ['ressources stratégiques,', 'compétences distinctives'], { taille: 9.5, opacite: 0.08 }) + ecBoite(210, 154, 180, 38, EC.ambre, ['facteurs clés de succès'], { taille: 9.5, opacite: 0.08 }));
+        Object.assign(LECONS, {
+            "eco2-strategie": { badge: ECO2_BADGE, titre: "Le diagnostic stratégique", sections: () => [
+                ecoSec("1. La démarche stratégique : le modèle LCAG", "route",
+                    H.p("La <strong>stratégie</strong> engage l'entreprise sur le long terme. Elle consiste à <strong>fixer des objectifs à long terme</strong>, <strong>choisir les actions</strong> pour les atteindre et <strong>mobiliser les ressources</strong> nécessaires."),
+                    H.p("Dans les années 1960, quatre professeurs de Harvard (<strong>L</strong>earned, <strong>C</strong>hristensen, <strong>A</strong>ndrews et <strong>G</strong>uth) ont décrit cette démarche en quatre étapes : c'est le <strong>modèle LCAG</strong>."),
+                    H.figure(svgEcoLCAG(), "Le contrôle de l'étape 4 permet de revenir sur les étapes précédentes."),
+                    H.tableau(["Étape", "Ce qu'on fait", "Question posée"], [
+                        ["1. Diagnostic", "analyser l'entreprise (interne) et son environnement (externe)", "Que sait-elle faire ? Qu'a-t-elle intérêt à faire ou à éviter ?"],
+                        ["2. Choix possibles", "évaluer les stratégies envisageables à partir du diagnostic", "Que peut-elle faire ?"],
+                        ["3. Objectifs", "préciser les choix retenus et les objectifs à atteindre", "Que veut-elle faire ?"],
+                        ["4. Mise en œuvre et contrôle", "exécuter les choix, suivre des <strong>indicateurs de performance</strong> (tableaux de bord)", "Comment fait-elle ? Les objectifs sont-ils atteints ?"]
+                    ], { nowrap: false, gauche: true })),
+                ecoSec("2. Stratégie délibérée ou émergente", "git-branch",
+                    H.tableau(["Stratégie", "Définition"], [
+                        ["<strong>Délibérée</strong>", "planifiée à l'avance par les dirigeants, en suivant une démarche réfléchie comme le modèle LCAG"],
+                        ["<strong>Émergente</strong>", "elle se construit en route : l'environnement change, et l'entreprise doit s'adapter aux imprévus (<strong>Henry Mintzberg</strong>)"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("<strong>Michel Crozier</strong> et <strong>Erhard Friedberg</strong> ajoutent que les comportements des acteurs (salariés, partenaires), parfois imprévisibles, peuvent aussi faire dévier la stratégie de départ."),
+                    H.note("En pratique, la stratégie est les deux à la fois : <strong>délibérée</strong> pour donner une direction à long terme, et <strong>émergente</strong> pour s'adapter aux changements.<br><em>Exemple</em> : un fabricant de vélos électriques prévoit de doubler sa production, mais une pénurie de batteries l'oblige à produire en priorité ses modèles les plus rentables et à revoir ses objectifs.")),
+                ecoSec("3. Le diagnostic interne", "building",
+                    H.p("Il analyse les <strong>ressources</strong> et les <strong>compétences</strong> de l'entreprise (approche d'<strong>Edith Penrose</strong>) pour repérer ses <strong>forces</strong>, sur lesquelles elle peut s'appuyer, et ses <strong>faiblesses</strong>, qui peuvent lui nuire."),
+                    H.tableau(["Élément analysé", "Ce qu'il comprend", "Exemples (fabricant de vélos)"], [
+                        ["Ressources <strong>tangibles</strong>", "physiques, financières, humaines", "usine, trésorerie, 120 salariés"],
+                        ["Ressources <strong>intangibles</strong>", "technologiques, mercatiques, organisationnelles", "brevets, image de marque, culture d'entreprise"],
+                        ["<strong>Compétences</strong>", "professionnelles, organisationnelles, commerciales", "savoir-faire de soudure, réactivité, réseau de vendeurs"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Certaines ressources et compétences comptent plus que les autres :"),
+                    H.tableau(["Notion", "Définition"], [
+                        ["<strong>Ressource stratégique</strong>", "ressource clé qui donne un <strong>avantage concurrentiel durable</strong>"],
+                        ["<strong>Compétence distinctive</strong> (Hamel et Prahalad)", "savoir-faire clé qui donne un avantage concurrentiel durable : il a de la <strong>valeur pour les clients</strong> et il est <strong>rare et difficile à imiter</strong>"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p("Elles permettent de <strong>réduire les coûts</strong> ou d'<strong>apporter plus de valeur au client</strong>, de <strong>saisir une opportunité</strong> ou d'<strong>éviter une menace</strong>, et de <strong>garder un avantage</strong> difficile à copier."),
+                    H.note("<strong>La chaîne de valeur (Michael Porter)</strong> découpe l'entreprise en activités <strong>principales</strong> (approvisionnement, production, vente, service après-vente…) et <strong>de soutien</strong> (RH, R&D, achats, infrastructure). Elle sert à voir quelles activités sont performantes ou à améliorer, et lesquelles créent le plus de valeur pour le client.")),
+                ecoSec("4. Le diagnostic externe", "globe",
+                    H.p("Il analyse l'environnement pour repérer les <strong>opportunités</strong> à saisir et les <strong>menaces</strong> à éviter, à deux niveaux."),
+                    H.tableau(["Niveau", "Outil", "Ce qu'on regarde"], [
+                        ["<strong>Macroenvironnement</strong> (global)", "<strong>PESTEL</strong>", "facteurs Politiques, Économiques, Socioculturels, Technologiques, Écologiques, Légaux"],
+                        ["<strong>Microenvironnement</strong> (proche)", "<strong>5 forces de Porter</strong>", "rapports de force avec les clients, les fournisseurs, les concurrents actuels et potentiels, les produits de substitution"]
+                    ], { nowrap: false, gauche: true }),
+                    H.tableau(["PESTEL", "Exemple d'opportunité ou de menace (vélos électriques)"], [
+                        ["Politique", "aide de l'État à l'achat d'un vélo électrique (O)"],
+                        ["Économique", "hausse du prix des batteries et des métaux (M)"],
+                        ["Socioculturel", "goût croissant pour la mobilité douce en ville (O)"],
+                        ["Technologique", "batteries plus légères et plus durables (O)"],
+                        ["Écologique", "recherche de transports peu polluants (O)"],
+                        ["Légal", "nouvelles normes de sécurité à respecter (M)"]
+                    ], { nowrap: false, gauche: true }),
+                    H.figure(svgEcoPorter(), "Plus une force est puissante, plus elle menace la rentabilité du secteur."),
+                    H.note("Le diagnostic externe fait ressortir les <strong>facteurs clés de succès (FCS)</strong> : ce que l'entreprise doit maîtriser pour réussir sur son marché (qualité, prix, innovation, notoriété, service…).")),
+                ecoSec("5. La synthèse : la matrice SWOT", "layout-grid",
+                    H.p("Les deux diagnostics se résument dans un outil d'aide à la décision : la matrice <strong>SWOT</strong> (<em>Strengths, Weaknesses, Opportunities, Threats</em>), ou <strong>FFOM</strong> en français (Forces, Faiblesses, Opportunités, Menaces)."),
+                    H.figure(svgEcoSWOT(), "En haut ce qui vient de l'entreprise, en bas ce qui vient de son environnement."),
+                    H.figure(svgEcoDiag(), "Le diagnostic, première étape de la démarche délibérée, éclaire ensuite les choix stratégiques."),
+                    H.note("<strong>Piège classique</strong> : une force ou une faiblesse concerne l'entreprise elle-même (ses ressources, ses compétences), elle peut agir dessus. Une opportunité ou une menace vient de l'extérieur, l'entreprise la subit."))
+            ] }
+        });
+        const ECO_STRAT_CAS = {
+            swot: { cats: ['Force', 'Faiblesse', 'Opportunité', 'Menace'], items: [
+                ['L\'entreprise possède plusieurs brevets sur ses moteurs.', 0, 'Ressource intangible technologique de l\'entreprise : diagnostic interne.'],
+                ['La marque est très connue et appréciée des clients.', 0, 'Notoriété : ressource intangible mercatique.'],
+                ['Les salariés sont polyvalents et l\'organisation est réactive.', 0, 'Compétences organisationnelles de l\'entreprise.'],
+                ['La trésorerie est solide et l\'entreprise est peu endettée.', 0, 'Ressource tangible financière.'],
+                ['L\'entreprise n\'a pas ses propres usines et dépend de sous-traitants.', 1, 'Manque de ressources physiques : faiblesse interne.'],
+                ['L\'entreprise est peu connue à l\'étranger.', 1, 'Point faible de sa propre notoriété.'],
+                ['Le site internet est vieillissant et la vente en ligne quasi inexistante.', 1, 'Manque de compétence commerciale interne.'],
+                ['Les marchés d\'Asie et d\'Afrique sont en forte croissance.', 2, 'Évolution favorable de l\'environnement, que l\'entreprise ne contrôle pas.'],
+                ['Les consommateurs demandent de plus en plus de produits écoresponsables.', 2, 'Facteur socioculturel et écologique favorable.'],
+                ['L\'État subventionne les entreprises qui investissent dans la transition énergétique.', 2, 'Facteur politique favorable.'],
+                ['Le prix des matières premières et du transport augmente.', 3, 'Facteur économique défavorable venant de l\'extérieur.'],
+                ['De nombreux concurrents proposent des produits similaires moins chers.', 3, 'Forte pression concurrentielle : menace du microenvironnement.'],
+                ['Le pouvoir d\'achat des ménages baisse.', 3, 'Facteur économique défavorable.'],
+                ['Une nouvelle réglementation impose des contrôles coûteux.', 3, 'Facteur légal défavorable.']] },
+            pestel: { cats: ['Politique', 'Économique', 'Socioculturel', 'Technologique', 'Écologique', 'Légal'], items: [
+                ['Le gouvernement accorde une prime à l\'achat de véhicules propres.', 0, 'Décision des pouvoirs publics (aides, subventions, stabilité politique).'],
+                ['Des tensions entre pays perturbent les échanges commerciaux.', 0, 'Contexte politique.'],
+                ['Les taux d\'intérêt des emprunts augmentent.', 1, 'Conjoncture économique.'],
+                ['Le chômage baisse et les salaires progressent.', 1, 'Conjoncture économique.'],
+                ['Les jeunes achètent de plus en plus en ligne.', 2, 'Modes de vie et habitudes de consommation.'],
+                ['La population vieillit.', 2, 'Démographie : facteur socioculturel.'],
+                ['L\'intelligence artificielle permet d\'automatiser le service client.', 3, 'Innovation technologique.'],
+                ['L\'impression 3D réduit le coût des prototypes.', 3, 'Innovation technologique.'],
+                ['Les épisodes de sécheresse menacent les récoltes.', 4, 'Climat et ressources naturelles.'],
+                ['Les clients exigent des emballages recyclables.', 4, 'Préoccupation environnementale.'],
+                ['Une loi interdit certains plastiques à usage unique.', 5, 'Texte de loi ou réglementation : facteur légal.'],
+                ['Le droit du travail encadre plus strictement le télétravail.', 5, 'Réglementation.']] },
+            porter: { cats: ['Clients', 'Fournisseurs', 'Concurrents actuels', 'Entrants potentiels', 'Produits de substitution'], items: [
+                ['Les acheteurs ont un très grand choix de marques et changent facilement.', 0, 'Pouvoir de négociation des clients.'],
+                ['Trois grandes enseignes achètent 80 % de la production et imposent leurs prix.', 0, 'Clients concentrés : fort pouvoir de négociation.'],
+                ['Un seul fabricant au monde produit la puce électronique indispensable au produit.', 1, 'Fournisseur unique : fort pouvoir de négociation.'],
+                ['De nombreux fournisseurs de matières premières sont disponibles.', 1, 'Faible pouvoir des fournisseurs : opportunité.'],
+                ['Plusieurs grandes marques se partagent déjà le marché.', 2, 'Intensité de la rivalité entre concurrents actuels.'],
+                ['Il faut peu d\'investissement pour se lancer : de nouvelles marques apparaissent chaque année.', 3, 'Barrières à l\'entrée faibles.'],
+                ['Les trottinettes électriques en libre-service séduisent les citadins qui achetaient des vélos.', 4, 'Autre produit qui répond au même besoin (se déplacer en ville).'],
+                ['La visioconférence remplace une partie des voyages d\'affaires.', 4, 'Produit de substitution pour une compagnie aérienne.']] },
+            lcag: { cats: ['1. Diagnostic', '2. Évaluer les choix possibles', '3. Fixer les objectifs', '4. Mise en œuvre et contrôle'], items: [
+                ['La direction fait la liste des forces, faiblesses, opportunités et menaces.', 0, 'C\'est le diagnostic interne et externe.'],
+                ['L\'entreprise compare trois options : se spécialiser, se diversifier ou s\'implanter à l\'étranger.', 1, 'On évalue ce qu\'elle peut faire.'],
+                ['Elle décide d\'atteindre 15 % de parts de marché en Espagne d\'ici trois ans.', 2, 'Objectif précis : ce qu\'elle veut faire.'],
+                ['Elle suit chaque mois son chiffre d\'affaires espagnol sur un tableau de bord.', 3, 'Contrôle avec des indicateurs de performance.'],
+                ['Elle recrute une équipe commerciale à Madrid et ouvre un entrepôt.', 3, 'Les choix sont exécutés.']] }
+        };
+        const ECO_STRAT_Q = [
+            ['Que signifie LCAG ?', ['Les initiales de quatre professeurs de Harvard', 'Logistique, Commerce, Achats, Gestion', 'Les quatre forces de Porter', 'Un outil d\'analyse financière'], 0, 'Learned, Christensen, Andrews et Guth.'],
+            ['Quelle est la première étape du modèle LCAG ?', ['Les diagnostics interne et externe', 'La fixation des objectifs', 'Le contrôle', 'Le choix des actions'], 0, ''],
+            ['Une stratégie planifiée à l\'avance par les dirigeants est dite…', ['Délibérée', 'Émergente', 'Distinctive', 'Externe'], 0, ''],
+            ['Quel auteur est associé à la stratégie émergente ?', ['Henry Mintzberg', 'Michael Porter', 'Edith Penrose', 'Hamel et Prahalad'], 0, ''],
+            ['Le diagnostic interne fait ressortir…', ['Les forces et les faiblesses', 'Les opportunités et les menaces', 'Les facteurs clés de succès', 'Les cinq forces'], 0, ''],
+            ['Le diagnostic externe fait ressortir…', ['Les opportunités et les menaces', 'Les forces et les faiblesses', 'Les compétences distinctives', 'La chaîne de valeur'], 0, ''],
+            ['Une image de marque ou un brevet est une ressource…', ['Intangible', 'Tangible', 'Financière', 'Humaine'], 0, 'On ne peut pas la toucher : technologique ou mercatique.'],
+            ['Une compétence distinctive est…', ['Un savoir-faire clé, rare et difficile à imiter, qui a de la valeur pour les clients', 'Une compétence que tous les concurrents possèdent', 'Une ressource financière', 'Une menace de l\'environnement'], 0, 'Notion de Hamel et Prahalad.'],
+            ['La chaîne de valeur de Porter est un outil de diagnostic…', ['Interne', 'Externe', 'Financier', 'Juridique'], 0, 'Elle analyse les activités de l\'entreprise.'],
+            ['L\'outil PESTEL analyse…', ['Le macroenvironnement', 'Le microenvironnement', 'Les ressources de l\'entreprise', 'La chaîne de valeur'], 0, ''],
+            ['Que veut dire le « L » de PESTEL ?',['Légal', 'Logistique', 'Local', 'Libéral'], 0, 'Politique, Économique, Socioculturel, Technologique, Écologique, Légal.'],
+            ['Laquelle n\'est pas une des cinq forces de Porter ?', ['L\'État', 'Les clients', 'Les produits de substitution', 'Les entrants potentiels'], 0, 'Les cinq forces : clients, fournisseurs, concurrents actuels, entrants potentiels, produits de substitution.'],
+            ['Ce qu\'une entreprise doit maîtriser pour réussir sur son marché, ce sont…', ['Les facteurs clés de succès', 'Les faiblesses', 'Les menaces', 'Les ressources tangibles'], 0, ''],
+            ['Dans la matrice SWOT, le « T » de Threats désigne…', ['Les menaces', 'Les forces', 'Les objectifs', 'Les technologies'], 0, ''],
+            ['Selon Crozier et Friedberg, la stratégie peut dévier à cause…', ['Des comportements des acteurs', 'Du bilan fonctionnel', 'Des cinq forces', 'Du modèle LCAG'], 0, ''],
+            ['À l\'étape 4 du modèle LCAG, on contrôle la stratégie avec…', ['Des indicateurs de performance et des tableaux de bord', 'Une matrice SWOT', 'L\'outil PESTEL', 'La chaîne de valeur'], 0, '']
+        ];
+        const ecoStratCas = (type, question) => () => {
+            const s = ECO_STRAT_CAS[type], [t, a, w] = choisir(s.items);
+            return { enonce: `<p>${t} ${question}</p>`, champs: [gChoix('r', String(a), s.cats.map((c, i) => [String(i), c]), { groupe: 'Ta réponse' })], correction: `<p><strong class="text-white">${s.cats[a]}</strong>. ${w}</p>` };
+        };
+        ECX2('eco2-strategie', 'QCM et cas', 'Le diagnostic stratégique : QCM et cas pratiques', { id: 'esd', types: { qcm: () => ecoQ(...choisir(ECO_STRAT_Q)), swot: ecoStratCas('swot', 'Dans la matrice SWOT, c\'est…'), pestel: ecoStratCas('pestel', 'Quel facteur du PESTEL ?'), porter: ecoStratCas('porter', 'Quelle force de Porter ?'), lcag: ecoStratCas('lcag', 'Quelle étape du modèle LCAG ?') },
+            libelles: { tout: 'Tout', qcm: 'QCM', swot: 'Force, faiblesse, opportunité ou menace ?', pestel: 'Quel facteur PESTEL ?', porter: 'Quelle force de Porter ?', lcag: 'Quelle étape LCAG ?' } }, 'compass');
+        RENVOIS['eco2-strategie'] = { qcm: [1, 2, 3, 4, 5], swot: [3, 4, 5], pestel: [4], porter: [4], lcag: [1] };
     </script>
 <script src="revision-ds-blancs.js" defer></script>
 <script src="serie.js" defer></script>
