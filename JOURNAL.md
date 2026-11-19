@@ -179,3 +179,9 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 ## 16 novembre 2026 – Calcul vectoriel en CM 1ère année (Baptiste)
 
 - CM 1ère année : nouveau chapitre 3 « Calcul vectoriel : produits scalaire et vectoriel » (scalaire et vecteur, composantes et norme, base orthonormée directe, somme et Chasles, produit scalaire, produit vectoriel, applications : angle, aire, vecteur unitaire orthogonal, moment, double produit vectoriel) avec 7 types d'exercices. La cotation, la cinématique et la statique deviennent les chapitres 4, 5 et 6.
+
+## 19 novembre 2026 – CAN en physique et diagnostic stratégique en éco (Baptiste)
+
+- Physique 2ème année : nouveau chapitre 15 « Conversion analogique-numérique » (signal analogique et numérique, chaîne d'acquisition, échantillonnage et théorème de Shannon, quantification, pas et codage sur n bits, lecture d'un code, qualité du signal numérisé), 5 schémas et 5 types d'exercices : Shannon et fe, calculer le pas, combien de bits, lire un code, QCM de cours. Bloc de progression « can ».
+- Éco 2ème année : nouveau chapitre 5 « Le diagnostic stratégique » (question 18 : modèle LCAG, stratégie délibérée ou émergente, diagnostic interne avec Penrose, ressources stratégiques et compétences distinctives, chaîne de valeur, diagnostic externe avec PESTEL, cinq forces de Porter et facteurs clés de succès, matrice SWOT), 4 schémas, 16 QCM et 4 séries de cas (SWOT, PESTEL, force de Porter, étape LCAG). Bloc de progression « esd ».
+- `src/lecons.js` complété à la main (Node absent sur ce poste) : lancer `npm test` avant le merge.
