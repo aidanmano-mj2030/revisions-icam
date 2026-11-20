@@ -185,3 +185,7 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - Physique 2ème année : nouveau chapitre 15 « Conversion analogique-numérique » (signal analogique et numérique, chaîne d'acquisition, échantillonnage et théorème de Shannon, quantification, pas et codage sur n bits, lecture d'un code, qualité du signal numérisé), 5 schémas et 5 types d'exercices : Shannon et fe, calculer le pas, combien de bits, lire un code, QCM de cours. Bloc de progression « can ».
 - Éco 2ème année : nouveau chapitre 5 « Le diagnostic stratégique » (question 18 : modèle LCAG, stratégie délibérée ou émergente, diagnostic interne avec Penrose, ressources stratégiques et compétences distinctives, chaîne de valeur, diagnostic externe avec PESTEL, cinq forces de Porter et facteurs clés de succès, matrice SWOT), 4 schémas, 16 QCM et 4 séries de cas (SWOT, PESTEL, force de Porter, étape LCAG). Bloc de progression « esd ».
 - `src/lecons.js` complété à la main (Node absent sur ce poste) : lancer `npm test` avant le merge.
+
+## 20 novembre 2026 – Calculatrice : exposants négatifs (Baptiste)
+
+- Calculatrice des exercices : avec le bouton ×10ⁿ suivi de (−), la saisie `2E(−3` était lue comme 2 × e × (−3) (le « E » pris pour la constante e), d'où un résultat incohérent. Un « E » collé à un nombre est maintenant toujours ×10ⁿ, avec un exposant `3`, `−3`, `(−3` ou `(−3)` ; le ² et le ^ s'appliquent au nombre entier. Les parenthèses laissées ouvertes sont fermées automatiquement à la fin du calcul.

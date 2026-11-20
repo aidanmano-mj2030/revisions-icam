@@ -3080,7 +3080,8 @@
         // analyseur d'expressions (descente récursive, sans eval) : + − × ÷ ^, parenthèses, fonctions, π, e, REP (réponse précédente), ×10ⁿ, multiplication implicite
         const CALC = { deg: true, ans: 0, hist: [] };
         function calcEvaluer(src) {
-            const s = src.replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/π/g, 'pi').replace(/√/g, 'sqrt').replace(/\s+/g, '');
+            let s = src.replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/π/g, 'pi').replace(/√/g, 'sqrt').replace(/\s+/g, '');
+            s += ')'.repeat(Math.max(0, (s.match(/\(/g) || []).length - (s.match(/\)/g) || []).length));   // parenthèses laissées ouvertes (bouton (−), sin(…) : fermées à la fin
             let i = 0;
             const ang = (x) => (CALC.deg ? x * Math.PI / 180 : x), angInv = (x) => (CALC.deg ? x * 180 / Math.PI : x);
             const F = { sin: (x) => Math.sin(ang(x)), cos: (x) => Math.cos(ang(x)), tan: (x) => Math.tan(ang(x)), asin: (x) => angInv(Math.asin(x)), acos: (x) => angInv(Math.acos(x)), atan: (x) => angInv(Math.atan(x)),
@@ -3092,7 +3093,17 @@
                 let c = voir();
                 if (c === undefined) erreur('expression incomplète');
                 if (c === '(') { i++; const v = somme(); if (voir() !== ')') erreur('parenthèse manquante'); i++; return v; }
-                if (/[0-9.]/.test(c)) { const m = s.slice(i).match(/^(\d+\.?\d*|\.\d+)(E[+-]?\d+)?/i); if (!m) erreur('nombre'); i += m[0].length; return parseFloat(m[0]); }
+                if (/[0-9.]/.test(c)) {
+                    const m = s.slice(i).match(/^(\d+\.?\d*|\.\d+)/); if (!m) erreur('nombre'); i += m[0].length;
+                    let v = parseFloat(m[0]);
+                    // ×10ⁿ : un E collé au nombre, suivi d'un exposant (2E3, 2E−3, 2E(−3) avec le bouton (−))
+                    if (/e/i.test(voir() || '') && /[0-9+\-(]/.test(s[i + 1] || '') && !(s[i] === 'e' && s[i + 1] === '(')) {
+                        i++;
+                        const exposant = () => (voir() === '-' ? (i++, -exposant()) : voir() === '+' ? (i++, exposant()) : primaire());   // pas de ² ni de ^ : ils s'appliquent au nombre entier
+                        v *= Math.pow(10, exposant());
+                    }
+                    return v;
+                }
                 if (/[a-z]/i.test(c)) {
                     const m = s.slice(i).match(/^[a-z]+/i)[0].toLowerCase(), nom = Object.keys(F).concat(Object.keys(C)).sort((a, b) => b.length - a.length).find(n => m.startsWith(n));
                     if (!nom) erreur(`« ${m} » inconnu`);
