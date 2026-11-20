@@ -11295,7 +11295,7 @@
             o += PF.L(220, 30, 220, 45) + PF.inter(220, 65, 90, true) + PF.L(220, 85, 220, 115) + PF.inter(220, 135, 90, false) + PF.L(220, 155, 220, 170);
             o += PF.t(234, 69, 'K1', { a: 'start', b: 1 }) + PF.t(234, 139, 'K2', { a: 'start', b: 1 }) + `<circle cx="220" cy="100" r="3" fill="${SVG_TRAIT}"/>` + PF.t(232, 104, 'A', { a: 'start', b: 1 });
             o += PF.L(60, 100, 120, 100) + PF.res(140, 100, 0) + PF.L(160, 100, 220, 100) + PF.t(140, 90, 'R (ou R, L)', { s: 10 });
-            o += PF.fleche(205, 114, 75, 114, CB) + PF.t(140, 128, 'u', { c: CB, b: 1, i: 1 }) + PF.fleche(180, 100, 196, 100, CR) + PF.t(188, 92, 'i', { c: CR, b: 1, i: 1 });
+            o += PF.fleche(75, 114, 205, 114, CB) + PF.t(140, 128, 'u', { c: CB, b: 1, i: 1 }) + PF.fleche(196, 100, 180, 100, CR) + PF.t(188, 92, 'i', { c: CR, b: 1, i: 1 });
             return PF.svg(280, 186, o, 'Onduleur à deux interrupteurs', 300);
         }
         // charge inductive : u carrée, i en triangle, éléments conducteurs
@@ -11527,7 +11527,7 @@
             o += PF.L(220, 30, 220, 45) + PF.inter(220, 65, 90, k1) + PF.L(220, 85, 220, 115) + PF.inter(220, 135, 90, !k1) + PF.L(220, 155, 220, 170);
             o += PF.t(234, 69, 'K1', { a: 'start', b: 1 }) + PF.t(234, 139, 'K2', { a: 'start', b: 1 }) + `<circle cx="220" cy="100" r="3" fill="${SVG_TRAIT}"/>`;
             o += PF.L(60, 100, 120, 100) + PF.res(140, 100, 0) + PF.L(160, 100, 220, 100) + PF.t(140, 90, `R = ${fmtR(R)}`, { s: 11, b: 1 });
-            o += PF.fleche(205, 114, 75, 114, CB) + PF.t(140, 128, 'u', { c: CB, b: 1, i: 1 }) + PF.fleche(180, 100, 196, 100, CR) + PF.t(188, 92, 'i', { c: CR, b: 1, i: 1 });
+            o += PF.fleche(75, 114, 205, 114, CB) + PF.t(140, 128, 'u', { c: CB, b: 1, i: 1 }) + PF.fleche(196, 100, 180, 100, CR) + PF.t(188, 92, 'i', { c: CR, b: 1, i: 1 });
             return PF.svg(290, 186, o, 'Onduleur à deux interrupteurs, position des interrupteurs', 300);
         }
         // charge inductive : zones numérotées
@@ -11563,7 +11563,7 @@
             const u = k1 ? V : -V, i = u / R;
             return { enonce: `${figPhys(svgOndDeuxEtat(V, R, k1))}<p>Les interrupteurs sont dans la position dessinée (charge résistive). Donne la tension $u$ aux bornes de la charge (avec son signe), l'intensité $i$ (avec son signe, flèche du schéma) et la tension aux bornes de l'interrupteur ouvert.</p>`,
                 champs: [gNum('u', '$u$ =', u, { unite: 'V' }), gNum('i', '$i$ =', i, { unite: 'A' }), gNum('vk', 'Interrupteur ouvert =', 2 * V, { unite: 'V' })],
-                correction: `<p>${k1 ? 'K1 est fermé : la charge est reliée à la source du haut' : 'K2 est fermé : la charge est reliée à la source du bas'}, donc $u = ${u > 0 ? '+' : ''}${u}$ V et $i = u/R = ${centiemeTeX(i)}$ A.</p><p>L'interrupteur ouvert est soumis aux deux sources en série : $${2 * V}$ V.</p>` };
+                correction: `<p>${k1 ? `K1 est fermé ($v_1 = 0$) : la charge est reliée à la source du haut. Maille du haut : $V - v_1 - u = 0$, donc $u = V = +${V}$ V.` : `K2 est fermé ($v_2 = 0$) : la charge est reliée à la source du bas. Maille du bas : $V + u - v_2 = 0$, donc $u = -V = ${u}$ V.`}</p><p>La flèche de $u$ pointe vers A et celle de $i$ va de A vers O (convention récepteur) : $i = u/R = ${centiemeTeX(i)}$ A.</p><p>L'interrupteur ouvert est soumis aux deux sources en série : $${2 * V}$ V.</p>` };
         }
         function ondZones() {
             const V = choisir([24, 48, 100, 230]), d = choisir([0.15, 0.25, 0.3]);
