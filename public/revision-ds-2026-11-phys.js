@@ -1,5 +1,6 @@
 /*
  * Studicam : contenu de la Révision DS du samedi 21 novembre 2026 (A2, physique, chapitres 10 à 13).
+ * DS passé : rangé dans « DS passés » (archive: true), toujours consultable.
  *
  * Chargé par index.html juste après revision-ds.js, qui l'affiche (voir « Ajouter une
  * Révision DS » dans le README). Deux parties :
@@ -761,6 +762,7 @@
 
     RD.enregistrer({
         id: 'ds-2026-11-phys', annee: 'a2', date: new Date(2026, 10, 21), libelle: 'samedi 21 novembre 2026',
+        archive: true,   // DS passé : rangé dans « DS passés »
         titre: 'DS de physique', titrePage: 'Révision DS : physique (chapitres 10 à 13)',
         resume: "Examen blanc, cours des chapitres 10 à 13, exercices des anciens DS corrigés, formules.",
         intro: "Composants, redressement, hacheur, onduleur, puis les anciens DS. Les QCM se corrigent au clic (Entraînement) ou à la fin (Mode DS), les exercices montrent leur correction étape par étape. L'espagnol du même matin n'est pas ici.",

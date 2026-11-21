@@ -89,6 +89,22 @@ const DS_CHAPITRES = {
       "store", "portes", "garage", "cardio", "rica", "variateur",
     ],
   },
+  "ds-2026-11-aii-maths": {
+    annee: "a2",
+    filtres: { aii: "aii", aiids: "aii", maths: "maths", mathsds: "maths" },
+    aii: [
+      // cours
+      "gemma", "grafcet", "asserv",
+      // anciens DS
+      "peinture", "embout", "bidons",
+    ],
+    maths: [
+      // cours
+      "droites", "bary", "produits", "fvect", "deuxvar",
+      // anciens DS
+      "espace", "courbes", "reperes", "deuxvards",
+    ],
+  },
 };
 
 // Clés exactes de la Révision DS rangées dans annee/matiere : chapitres et examen blanc filtré
