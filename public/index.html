@@ -206,7 +206,7 @@
                     <p id="label-annee-selectionnee" class="text-slate-400 text-sm font-semibold uppercase tracking-widest text-blue-400"></p>
                 </div>
 
-                <!-- Révisions des DS (A2 seulement, affichées par choisirAnnee) : cartes des DS à venir puis
+                <!-- Révisions des DS de l'année choisie (affichées par choisirAnnee) : cartes des DS à venir puis
                      rubrique « DS passés », remplies par revision-ds.js à partir des fichiers revision-ds-<aaaa-mm>.js -->
                 <div id="cartes-revision-ds" class="hidden w-full max-w-3xl mx-auto space-y-3"></div>
 
@@ -891,7 +891,7 @@
         function choisirAnnee(annee) {
             anneeSelectionnee = annee;
             document.getElementById('label-annee-selectionnee').textContent = "— " + annee + " —";
-            document.getElementById('cartes-revision-ds').classList.toggle('hidden', annee !== '2ème Année');
+            if (window.StudicamRevisionDS) StudicamRevisionDS.cartes(annee === '1ère Année' ? 'a1' : 'a2');   // Révisions DS de l'année affichée
 
             cacherToutesLesEtapes();
             document.getElementById('etape-categories').classList.remove('hidden');
@@ -17772,6 +17772,7 @@
 <script src="revision-ds-2026-11.js" defer></script>
 <script src="revision-ds-2026-11-phys.js" defer></script>
 <script src="revision-ds-2026-11-aii-maths.js" defer></script>
+<script src="revision-ds-2026-a1-phys.js" defer></script>
 <script src="progression.js" defer></script>
 <script src="acces-promo.js" defer></script>
 <script src="prof.js" defer></script>

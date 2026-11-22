@@ -229,7 +229,7 @@
         if (visible('etape-serie')) return { ecran: 'serie' };
         if (visible('etape-espace-prof')) return etat.prof ? { ecran: 'prof', section: etat.prof } : { ecran: 'prof' };
         if (visible('etape-revision-ds')) {
-            const r = { ecran: 'revision-ds', annee: 'a2' };
+            const r = { ecran: 'revision-ds', annee: (racine.StudicamRevisionDS && racine.StudicamRevisionDS.courant() && racine.StudicamRevisionDS.courant().annee) || 'a2' };
             if (etat.ds && etat.ds.id) {
                 r.ds = etat.ds.id;
                 if (ONGLET_DS.test(etat.ds.onglet || '')) { r.onglet = etat.ds.onglet; if (etat.ds.chap) r.chap = etat.ds.chap; }
@@ -410,8 +410,8 @@
                 return true;
             }
             case 'revision-ds':
-                if (r.annee !== 'a2' || typeof racine.ouvrirRevisionDS !== 'function') return false;
-                preparer('a2');
+                if (!ANNEES[r.annee] || typeof racine.ouvrirRevisionDS !== 'function') return false;
+                preparer(r.annee);
                 return racine.ouvrirRevisionDS(r.onglet, r.chap, r.ds) !== false;
             case 'prof': {
                 const espace = racine.studicamEspaceProf;
