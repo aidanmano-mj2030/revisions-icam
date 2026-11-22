@@ -2,6 +2,8 @@
 // Leçon → paires « annee/matiere » où elle apparaît.
 export const LIEUX_LECONS = {
   "cm1-torseurs": ["a1/cm"],
+  "cm1-vecteurs": ["a1/cm"],
+  "cm1-cotation": ["a1/cm"],
   "cm1-cinematique": ["a1/cm"],
   "cm1-statique": ["a1/cm"],
   "aii-grafcet": ["a1/aii"],
@@ -80,6 +82,8 @@ export const LIEUX_LECONS = {
   "maths-vecto": ["a2/maths"],
   "maths-geo": ["a2/maths"],
   "m2-fvect": ["a2/maths"],
+  "est2-assemblage": ["a2/est"],
+  "est2-tolerie": ["a2/est"],
   "eco2-analyse": ["a2/eco"],
   "eco2-financement": ["a2/eco"],
   "eco2-contrats": ["a2/eco"],
