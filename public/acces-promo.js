@@ -2,7 +2,7 @@
  * Studicam : accès selon la promo.
  * Les élèves des promos de PROMOS_A1 (adresse prenom.nom@<promo>.icam.fr) n'ont accès qu'à la
  * 1ère année : la carte « 2ème Année » est verrouillée, et toute leçon, tout exercice ou toute
- * Révision DS de 2ème année les ramène à l'accueil avec un message. Les comptes qui ont un rôle
+ * Révision DS de 2ème année les ramène à l'accueil avec un message. Les Révisions DS de 1ère année restent ouvertes. Les comptes qui ont un rôle
  * (prof, équipe) voient tout.
  * L'adresse est lue dans /api/moi (événement « studicam:moi » de progression.js). C'est un
  * verrou d'affichage : le contenu reste dans la page, il ne protège pas un élève qui fouille le code.
@@ -40,7 +40,7 @@
         garder('allerLecon', (id) => estA2(lecon(id)));
         garder('ouvrirExercice', (id) => estA2(exo(id)));
         garder('ouvrirChapitreInteractif', () => true);            // CM 2ème année : produit scalaire et vectoriel
-        garder('ouvrirRevisionDS', () => true);                    // la Révision DS n'existe qu'en 2ème année
+        garder('ouvrirRevisionDS', (onglet, chap, id) => { const rd = window.StudicamRevisionDS; return (rd && rd.anneeDe(id)) !== 'a1'; });   // seules les Révisions DS de 1ère année restent ouvertes
     }
 
     // carte « 2ème Année » de l'accueil : grisée, avec un cadenas

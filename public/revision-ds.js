@@ -4,7 +4,7 @@
  * Chargé par index.html avant le contenu de chaque DS (revision-ds-<aaaa-mm>.js), avant
  * progression.js. Chaque fichier de contenu appelle window.StudicamRevisionDS.enregistrer(def) :
  *   def = { id: 'ds-2026-11', annee: 'a2', date: new Date(2026, 10, 14), libelle: 'samedi 14 novembre 2026',
- *           archive: true|false, titre, titrePage, resume, intro, prefixeId,
+ *           archive: true|false, dateAConfirmer: true|false (date provisoire, non affichée), titre, titrePage, resume, intro, prefixeId,
  *           parties: { <cle>: { titre, court, icone, sujets, intro } }, ordre: [<cle>...],
  *           filtres: [['tout', 'Tout'], [<cle>, libellé]...], chap: { <cle>: <id du 1er chapitre> },
  *           matiere: (cle) => 'ce' | 'oi' | 'phys'..., formules: [...], dsBlancs: [...] }
@@ -101,6 +101,7 @@
     const enSerie = (q, s, part) => enSerieDe(D, q, s, part);
     function joursAvant(def) { return Math.round((def.date - aujourdhui()) / 86400000); }
     function texteCompteARebours(def) {
+        if ((def || D).dateAConfirmer) return 'date à confirmer';   // date provisoire, seulement pour l'ordre des cartes
         const j = joursAvant(def || D);
         if (j > 1) return `dans ${j} jours`;
         if (j === 1) return 'demain';
@@ -367,7 +368,7 @@
         if (typeof cacherToutesLesEtapes === 'function') cacherToutesLesEtapes();
         $('etape-revision-ds').classList.remove('hidden');
         const passe = estPasse(def);
-        $('ds-badge').textContent = `${def.annee === 'a1' ? '1ère' : '2ème'} Année • ${passe ? 'DS passé' : 'DS'} du ${def.libelle}`;
+        $('ds-badge').textContent = `${def.annee === 'a1' ? '1ère' : '2ème'} Année • ${passe ? 'DS passé' : 'DS'}${def.dateAConfirmer ? '' : ' du ' + def.libelle}`;
         $('ds-compte').textContent = passe ? '' : ' · ' + texteCompteARebours(def);
         $('ds-titre').textContent = def.titrePage || ('Révision DS : ' + def.titre);
         $('ds-intro').textContent = def.intro || '';
@@ -391,7 +392,7 @@
             <div class="flex-1 min-w-0 pointer-events-none">
                 <div class="flex flex-wrap items-center gap-2 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">Révision DS</span>
-                    <span class="text-xs font-semibold text-slate-400">${echapper(majuscule(def.libelle.replace(/\s+\d{4}$/, '')))} · ${echapper(texteCompteARebours(def))}</span>
+                    <span class="text-xs font-semibold text-slate-400">${def.dateAConfirmer ? 'Date à confirmer' : `${echapper(majuscule(def.libelle.replace(/\s+\d{4}$/, '')))} · ${echapper(texteCompteARebours(def))}`}</span>
                 </div>
                 <h2 class="text-xl font-bold text-white group-hover:text-indigo-400 transition-colors">${echapper(def.titre)}</h2>
                 ${def.resume ? `<p class="text-xs text-slate-400 mt-1">${echapper(def.resume)}</p>` : ''}
@@ -411,11 +412,16 @@
             <span class="text-xs font-semibold text-slate-400 group-hover:text-white shrink-0 pointer-events-none">Revoir</span>
         </button>`;
     }
-    function rendreCartes() {
+    // année dont l'accueil est affiché ('a1' ou 'a2') : chaque année ne voit que ses Révisions DS
+    let anneeCartes = 'a2';
+    function rendreCartes(annee) {
+        if (annee === 'a1' || annee === 'a2') anneeCartes = annee;
         const zone = $('cartes-revision-ds');
         if (!zone) return;
-        const avenir = DEFS.filter(d => !estPasse(d)).sort((a, b) => a.date - b.date);
-        const passes = DEFS.filter(estPasse).sort((a, b) => b.date - a.date);
+        const siens = DEFS.filter(d => d.annee === anneeCartes);
+        zone.classList.toggle('hidden', !siens.length);
+        const avenir = siens.filter(d => !estPasse(d)).sort((a, b) => a.date - b.date);
+        const passes = siens.filter(estPasse).sort((a, b) => b.date - a.date);
         const ouvert = zone.querySelector('details[data-ds-passes]');
         zone.innerHTML = avenir.map(carteAvenir).join('')
             + (passes.length ? `<details data-ds-passes class="rounded-2xl border border-darkborder bg-darkcard/60 px-4 py-3"${ouvert && ouvert.open ? ' open' : ''}>
@@ -430,11 +436,14 @@
         majProgression();
         if (window.lucide) lucide.createIcons();
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', rendreCartes); else rendreCartes();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => rendreCartes()); else rendreCartes();
 
     window.StudicamRevisionDS = {
         outils: { R, P, UL, OL, NOTE, F, T, S },
         enregistrer,
+        // appelé par choisirAnnee (index.html) : cartes de l'année affichée
+        cartes: (annee) => rendreCartes(annee),
+        anneeDe: (id) => { const d = defDe(id); return d ? d.annee : null; },
         // pour navigation.js et ma-progression.js
         liste: () => DEFS.map(d => ({ id: d.id, annee: d.annee, titre: d.titre, passe: estPasse(d) })),
         courant: () => (D ? { id: D.id, annee: D.annee, prefixeCle: `${D.annee}/ds/${D.id}/`, prefixeId: D.prefixeId + '/' } : null),

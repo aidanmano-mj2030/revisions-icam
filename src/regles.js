@@ -105,6 +105,11 @@ const DS_CHAPITRES = {
       "espace", "courbes", "reperes", "deuxvards",
     ],
   },
+  "ds-2026-a1-phys": {
+    annee: "a1",
+    filtres: { cours: "phys", annales: "phys" },
+    phys: ["grandeurs", "dipoles", "theoremes", "vraifaux", "reseaux", "expressions", "theoremesds", "oscillo"],
+  },
 };
 
 // Clés exactes de la Révision DS rangées dans annee/matiere : chapitres et examen blanc filtré
