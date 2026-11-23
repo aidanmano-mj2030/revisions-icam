@@ -100,9 +100,9 @@ const DS_CHAPITRES = {
     ],
     maths: [
       // cours
-      "droites", "bary", "produits", "fvect", "deuxvar",
+      "droites", "bary", "produits", "deuxvar",
       // anciens DS
-      "espace", "courbes", "reperes", "deuxvards",
+      "espace", "reperes", "deuxvards",
     ],
   },
   "ds-2026-a1-phys": {

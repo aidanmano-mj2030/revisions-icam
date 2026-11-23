@@ -7,7 +7,7 @@
  *     macro-étapes, forçage, encapsulation) et l'asservissement (boucle fermée, transmittances,
  *     valeur finale). Les trois chapitres n'ont encore jamais été évalués en DS.
  *   - Maths : géométrie (droites et plans, barycentres, produits scalaire, vectoriel et mixte),
- *     fonctions vectorielles et fonctions de deux variables. Programme probable, à confirmer.
+ *     et fonctions de deux variables. Le chapitre 5 (fonctions vectorielles) n'est pas au programme.
  *   - Anciens DS : AII d'octobre et de fin novembre 2025 et du 30/11/2024 ; maths DS n°2 de 2022
  *     et 2023 et DS de fin novembre 2025. Résumés reformulés, avec la correction du professeur
  *     quand on l'a, sinon la nôtre, puis une variante. Aucun nom d'élève.
@@ -20,7 +20,7 @@
     if (!RD) return;
     const { R, P, UL, NOTE, F, T, S } = RD.outils;
 
-    // Schémas : ceux des leçons d'index.html (gfGemma, asAsservi, svgCourbeParam…, globaux).
+    // Schémas : ceux des leçons d'index.html (gfGemma, asAsservi…, globaux).
     // Si index.html change, un schéma absent donne '' sans erreur.
     const OK_H = typeof H !== 'undefined';
     const dessin = (nom, ...a) => { try { return typeof window[nom] === 'function' ? window[nom](...a) : ''; } catch (e) { console.warn('Studicam : schéma', e); return ''; } };
@@ -29,9 +29,7 @@
         gemma: () => dessin('gfGemma'), chemin: () => dessin('gfCheminement'),
         sources: () => dessin('gfSourcePuits'), sync: () => dessin('gfSync'), macro: () => dessin('gfMacro'),
         forcage: () => dessin('gfForcage'), encaps: () => dessin('gfEncaps'),
-        systeme: () => dessin('asSysteme'), boucles: () => dessin('asBoucles'), asservi: () => dessin('asAsservi'),
-        lissajous: () => dessin('svgCourbeParam', { x: (t) => Math.cos(t), y: (t) => Math.sin(2 * t), tMin: 0, tMax: 2 * Math.PI, cadre: [-1.4, 1.4, -1.3, 1.3], label: 'Courbe x = cos t, y = sin 2t' }),
-        rebrousse: () => dessin('svgCourbeParam', { x: (t) => t * t, y: (t) => t * t * t, tMin: -1.3, tMax: 1.3, cadre: [-0.4, 1.8, -1.6, 1.6], label: 'Point de rebroussement' })
+        systeme: () => dessin('asSysteme'), boucles: () => dessin('asBoucles'), asservi: () => dessin('asAsservi')
     };
     // les figures sont calculées au moment de l'affichage
     const fig = (cle) => FIG[cle]();
@@ -281,45 +279,6 @@
                 { calc: true, q: "u→(1 ; 0 ; 1), v→(0 ; 1 ; 1), w→(1 ; 1 ; 0). Ces vecteurs forment-ils une base ? Calculer le volume du parallélépipède qu'ils engendrent.",
                     steps: ["v→ ∧ w→ = (1×0 − 1×1 ; 1×1 − 0×0 ; 0×1 − 1×1) = (−1 ; 1 ; −1).", "[u→, v→, w→] = u→·(v→ ∧ w→) = −1 + 0 − 1 = −2.", "Non nul : les vecteurs ne sont pas coplanaires, ils forment une base (indirecte, car le signe est négatif).", "Volume = |−2| = 2."] }
             ]
-        },
-        {
-            id: 'fvect', code: 'CH 5', titre: 'Fonctions vectorielles et courbes paramétrées', sous: 'Dérivée, points stationnaires, tangentes, asymptotes, symétries',
-            sections: [
-                S('Dérivée et tangente', 'spline',
-                    P(`M(t) a pour coordonnées (x(t), y(t)) : c'est la position d'un mobile, la courbe est sa trajectoire. On travaille <b>composante par composante</b>.`),
-                    F(R`\vec F'(t) = \big(x'(t),\ y'(t)\big)`, `Vecteur vitesse, qui dirige la tangente en un point régulier (F′(t) ≠ 0→)`),
-                    T(['Cas', 'Conclusion'], [
-                        ['x′ ≠ 0 et y′ = 0', 'tangente <b>horizontale</b>'],
-                        ['x′ = 0 et y′ ≠ 0', 'tangente <b>verticale</b>'],
-                        ['x′ = y′ = 0', 'point <b>stationnaire</b> : pente = limite de (y(t) − y(t₀)) / (x(t) − x(t₀))']
-                    ]),
-                    FIGURE(fig('rebrousse'), `x = t², y = t³ : point stationnaire en t = 0, pente des sécantes t → 0, tangente horizontale.`)),
-                S('Branches infinies et plan d\'étude', 'chart-spline',
-                    T(['Quand t → t₀', 'Conclusion'], [
-                        ['x → l et |y| → ∞', 'asymptote verticale x = l'],
-                        ['|x| → ∞ et y → l', 'asymptote horizontale y = l'],
-                        ['les deux → ∞, y/x → a puis y − ax → b', 'asymptote oblique y = ax + b'],
-                        ['|y/x| → ∞ (ou y/x → 0)', 'branche parabolique de direction (Oy) (ou (Ox))']
-                    ]),
-                    UL([
-                        `Symétries : x(−t) = x(t) et y(−t) = −y(t) → symétrie par rapport à (Ox) ; x(−t) = −x(t) et y(−t) = y(t) → par rapport à (Oy) ; les deux impaires → par rapport à O. On étudie alors sur [0 ; +∞[.`,
-                        `Plan : domaine, symétries, tableau de variations de x et y côte à côte, points stationnaires, branches infinies, tracé.`
-                    ]),
-                    FIGURE(fig('lissajous'), `x = cos t, y = sin 2t : une même abscisse donne deux points, ce n'est pas le graphe d'une fonction.`))
-            ],
-            qcm: [
-                { q: "x(t) = t², y(t) = 3t − 1. Vecteur dérivé en t = 2 ?", opts: ["(4 ; 3)", "(4 ; 5)", "(2 ; 3)", "(4 ; 0)"], ok: [0], expl: "x′ = 2t = 4, y′ = 3." },
-                { q: "Un point M(t₀) est stationnaire quand…", opts: ["x′(t₀) = y′(t₀) = 0", "x′(t₀) = 0 seulement", "y′(t₀) = 0 seulement", "x(t₀) = y(t₀) = 0"], ok: [0], expl: "Le vecteur vitesse est nul." },
-                { q: "En t₀, x′(t₀) = 2 et y′(t₀) = 0. La tangente est…", opts: ["Horizontale", "Verticale", "Indéterminée", "Confondue avec la courbe"], ok: [0], expl: "Elle est dirigée par (2 ; 0)." },
-                { q: "x(t) = t², y(t) = t³. En t = 0, la tangente est…", opts: ["Horizontale (point de rebroussement)", "Verticale", "De pente 1", "Inexistante"], ok: [0], expl: "Point stationnaire ; pente des sécantes t³/t² = t → 0." },
-                { q: "Quand t → 2, x(t) → 3 et y(t) → +∞. On a…", opts: ["Une asymptote verticale x = 3", "Une asymptote horizontale y = 3", "Une asymptote oblique", "Une branche parabolique"], ok: [0], expl: "x se rapproche de 3 pendant que y part à l'infini." },
-                { q: "x(−t) = −x(t) et y(−t) = y(t) : la courbe est symétrique par rapport…", opts: ["À l'axe (Oy)", "À l'axe (Ox)", "À l'origine", "À la droite y = x"], ok: [0], expl: "M(−t) a la même ordonnée et l'abscisse opposée." },
-                { q: "Les deux coordonnées tendent vers l'infini, y/x → 2 et y − 2x → −1. Conclusion ?", opts: ["Asymptote y = 2x − 1", "Asymptote y = −x + 2", "Branche parabolique de direction (Oy)", "Asymptote x = 2"], ok: [0], expl: "a = 2 puis b = −1." },
-                { calc: true, q: "x(t) = t² − 2t, y(t) = t³ − 3t. Calculer x′ et y′, trouver les points à tangente horizontale ou verticale et les points stationnaires, puis la pente de la tangente au point stationnaire.",
-                    steps: ["x′(t) = 2t − 2 et y′(t) = 3t² − 3 = 3(t − 1)(t + 1).", "t = −1 : y′ = 0 et x′ = −4 ≠ 0, tangente horizontale en M(−1) = (3 ; 2).", "t = 1 : x′ = y′ = 0, point stationnaire M(1) = (−1 ; −2). Il n'y a pas d'autre valeur où x′ = 0, donc pas de tangente verticale.", "Pente des sécantes en t = 1 : (y(t) + 2) / (x(t) + 1) = (t³ − 3t + 2) / (t² − 2t + 1) = (t − 1)²(t + 2) / (t − 1)² = t + 2.", "Quand t → 1, la pente tend vers 3 : tangente de pente 3 en (−1 ; −2)."] },
-                { calc: true, q: "x(t) = 1/(t + 1), y(t) = t²/(t + 1). Étudier les branches infinies quand t → −1 et quand t → ±∞.",
-                    steps: ["t → ±∞ : x → 0 et |y| → +∞ : asymptote verticale x = 0.", "t → −1 : |x| et |y| → +∞. y/x = t² → 1.", "y − x = (t² − 1)/(t + 1) = t − 1 → −2 : asymptote oblique y = x − 2.", "Position : y − x + 2 = t + 1, positif pour t → −1⁺ (courbe au-dessus), négatif pour t → −1⁻ (en dessous)."] }
-            ]
         }
     ];
 
@@ -490,32 +449,6 @@
             ]
         },
         {
-            id: 'courbes', code: '2023', titre: 'Courbes paramétrées : symétries et branches infinies', sous: 'DS n°2 de 2023, exercices 1 et 2',
-            sections: [
-                S('Le sujet', 'file-text',
-                    UL([
-                        `Ex. 1 : x(t) = t/(1 + t⁴), y(t) = t³/(1 + t⁴). Domaine, symétries pour t → −t puis t → 1/t, intervalle d'étude, variations, tangentes, points stationnaires, tracé.`,
-                        `Ex. 2 : branches infinies de x(t) = t³/(t² − 9), y(t) = t(t − 2)/(t − 3).`
-                    ]),
-                    FIGURE(fig('lissajous'), `Comme cette courbe, celle de l'ex. 1 se boucle : on l'étudie sur un petit intervalle puis on complète par symétrie.`)),
-                S('Correction (la nôtre)', 'check-check',
-                    UL([
-                        `<b>Ex. 1</b> : définie sur ℝ. x et y impaires : symétrie par rapport à O, on étudie sur [0 ; +∞[. x(1/t) = t³/(1 + t⁴) = y(t) et y(1/t) = x(t) : M(1/t) est le symétrique de M(t) par rapport à la droite y = x, on étudie sur [0 ; 1].`,
-                        `x′(t) = (1 − 3t⁴)/(1 + t⁴)², y′(t) = t²(3 − t⁴)/(1 + t⁴)². En t = 0 : x′ = 1, y′ = 0, tangente horizontale à l'origine. En t = 3<sup>−1/4</sup> ≈ 0,76 : x′ = 0, y′ ≠ 0, tangente verticale. Pas de point stationnaire ; x et y restent bornées : pas de branche infinie. En t = 1 : M(1/2 ; 1/2), sur l'axe de symétrie.`,
-                        `<b>Ex. 2</b>, t → −3 : x → ∞ et y → −5/2 : asymptote horizontale <b>y = −5/2</b>.`,
-                        `t → 3 : les deux tendent vers l'infini ; y/x = (t − 2)(t + 3)/t² → 2/3 ; y − (2/3)x = (t³/3 + t² − 6t)/((t − 3)(t + 3)) → 9/6 = 3/2 (forme 0/0, factoriser ou dériver) : asymptote <b>y = (2/3)x + 3/2</b>.`,
-                        `t → ±∞ : y/x → 1 et y − x = (t² − 6t)/(t² − 9) → 1 : asymptote <b>y = x + 1</b>.`
-                    ]))
-            ],
-            qcm: [
-                { q: "x(t) = t/(1 + t⁴), y(t) = t³/(1 + t⁴). Que donne t → 1/t ?", opts: ["x(1/t) = y(t) et y(1/t) = x(t) : symétrie par rapport à la droite y = x", "Symétrie par rapport à O", "Symétrie par rapport à (Ox)", "Rien de particulier"], ok: [0], expl: "Multiplier haut et bas par t⁴.", src: 'DS n°2, 2023' },
-                { q: "Avec les symétries t → −t et t → 1/t, sur quel intervalle étudier cette courbe ?", opts: ["[0 ; 1]", "ℝ", "[0 ; +∞[", "[−1 ; 1]"], ok: [0], expl: "t → −t ramène à [0 ; +∞[, puis t → 1/t à [0 ; 1].", src: 'DS n°2, 2023' },
-                { q: "x(t) = t³/(t² − 9), y(t) = t(t − 2)/(t − 3). Quand t → −3 ?", opts: ["Asymptote horizontale y = −5/2", "Asymptote verticale x = −3", "Asymptote oblique y = x + 1", "Point stationnaire"], ok: [0], expl: "x part à l'infini, y → (−3)(−5)/(−6) = −5/2.", src: 'DS n°2, 2023' },
-                { calc: true, q: "Variante : x(t) = t²/(t − 1), y(t) = t/(t − 1). Étudier les branches infinies.",
-                    steps: ["t → 1 : x et y tendent vers l'infini. y/x = 1/t → 1.", "y − x = (t − t²)/(t − 1) = −t → −1 : asymptote y = x − 1.", "t → ±∞ : x ~ t → ±∞ et y → 1 : asymptote horizontale y = 1.", "Position quand t → 1 : y − x + 1 = 1 − t, positif pour t → 1⁻ (au-dessus), négatif pour t → 1⁺."] }
-            ]
-        },
-        {
             id: 'reperes', code: '2025', titre: 'Coordonnées cylindriques et sphériques', sous: 'DS de fin novembre 2025, exercice 1',
             sections: [
                 S('Méthode et correction', 'globe',
@@ -584,11 +517,6 @@
             [R`d(M, P) = \dfrac{|a x_M + b y_M + c z_M + d|}{\sqrt{a^2 + b^2 + c^2}}`, `Distance d'un point au plan ax + by + cz + d = 0`],
             [R`\vec u\wedge\vec v = (yz' - zy',\ zx' - xz',\ xy' - yx')`, `Produit vectoriel · aire du triangle ½‖AB→ ∧ AC→‖`],
             [R`[\vec u, \vec v, \vec w] = \vec u\cdot(\vec v\wedge\vec w)`, `Produit mixte · nul ⟺ coplanaires · volume = valeur absolue`]
-        ] },
-        { titre: 'Maths : fonctions vectorielles', items: [
-            [R`\vec F'(t) = \big(x'(t),\ y'(t)\big)`, `Vecteur vitesse, directeur de la tangente en un point régulier`],
-            [R`m = \lim_{t \to t_0} \dfrac{y(t) - y(t_0)}{x(t) - x(t_0)}`, `Pente de la tangente en un point stationnaire`],
-            [R`a = \lim \dfrac{y}{x} \qquad b = \lim\,(y - a\,x)`, `Asymptote oblique y = ax + b`]
         ] }
     ];
 
@@ -598,7 +526,7 @@
         aiids: { titre: 'AII : anciens DS', court: 'Anciens DS AII', icone: 'archive', sujets: AII_DS,
             intro: `Les DS d'AII d'octobre et de fin novembre 2025 et celui du 30/11/2024, résumés avec leur correction (celle du professeur quand on l'a, sinon la nôtre), puis une variante. GEMMA, grafcet de conduite, tâches synchronisées, forçage, Karnaugh et schémas-blocs reviennent chaque année : c'est un bon indice, pas une promesse.` },
         maths: { titre: 'Maths : cours', court: 'Cours maths', icone: 'sigma', sujets: MATHS,
-            intro: `Géométrie de l'espace (droites et plans, barycentres, produits scalaire, vectoriel et mixte), fonctions vectorielles et fonctions de deux variables. Programme probable, d'après les DS des années précédentes à cette période : il sera confirmé.` },
+            intro: `Géométrie de l'espace (droites et plans, barycentres, produits scalaire, vectoriel et mixte) et fonctions de deux variables. Les fonctions vectorielles (chapitre 5) ne sont pas au programme de ce DS.` },
         mathsds: { titre: 'Maths : anciens DS', court: 'Anciens DS maths', icone: 'archive', sujets: MATHS_DS,
             intro: `Les DS n°2 de 2022 et 2023 et le DS de fin novembre 2025, regroupés par thème, avec leur correction (la nôtre quand le professeur n'en a pas donné) et une variante.` }
     };

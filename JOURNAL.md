@@ -203,3 +203,7 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - Le moteur des Révisions DS gère aussi la 1ère année : chaque année ne voit que ses cartes (`StudicamRevisionDS.cartes(annee)`, appelé par `choisirAnnee`), adresses `#/a1/revision-ds/...` (`navigation.js`), les promos de `PROMOS_A1` gardent l'accès aux Révisions DS d'A1 (`acces-promo.js`). Nouvelle option `dateAConfirmer` : la carte affiche « Date à confirmer » au lieu d'un compte à rebours. README complété.
 - Nouveau `public/revision-ds-2026-a1-phys.js` : Révision DS de physique A1, chapitres 1 à 3 (date à confirmer). Cours (grandeurs et Kirchhoff, dipôles, théorèmes généraux) et anciens DS n°2 de 2021, 2023 et 2025 regroupés par type d'exercice : vrai / faux (identique en 2023 et 2025) et relations des dipôles, résistances équivalentes et puissances, expressions littérales de U₁, superposition / Millman / Thévenin, oscillogramme (chapitre 4, tombé en 2025). 45 QCM, 12 exercices corrigés, formules. Corrections refaites par nous, sans nom d'élève.
 - DS déclaré dans `DS_CHAPITRES` (`src/regles.js`). `npm test` à lancer.
+
+## 23 novembre 2026 – Maths A2 : chapitre 5 retiré de la Révision DS (Baptiste)
+
+- Révision DS du 28/11 (AII puis maths) : le chapitre 5 (fonctions vectorielles et courbes paramétrées) n'est pas au programme du DS. Retirés : le chapitre du cours, l'exercice « Courbes paramétrées » des anciens DS (DS n°2 de 2023) et le bloc de formules correspondant. L'examen blanc passe à 81 QCM. `DS_CHAPITRES` et README mis à jour.
