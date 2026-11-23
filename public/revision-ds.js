@@ -221,7 +221,7 @@
         const carteQ = el('div', 'bg-darkcard border border-darkborder rounded-2xl p-5 sm:p-6 shadow-xl space-y-4');
         carteQ.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 shrink-0"><i data-lucide="list-checks" class="w-4 h-4"></i></div><h3 class="text-lg font-bold text-white">${part === 'expo' ? "QCM de l'exposé" : 'QCM'}</h3></div>`;
         const serieQ = SERIE.monter({
-            slot: `rds/chap/${part}/${s.id}`, melanger: false, enregistrer: true, lienCorrection: false,
+            slot: slotDe(`chap/${part}/${s.id}`), melanger: false, enregistrer: true, lienCorrection: false,
             depart: () => ({ questions: qcm.map(q => enSerie(q, s, part)), cle: cleChap(s.id), annee: D.annee, matiere: matiereDe(part), titre: `QCM · ${libelleChapitre(part, s)}` }),
             surChapitre: () => window.scrollTo({ top: Math.max(0, tete.getBoundingClientRect().top + window.scrollY - 120), behavior: 'smooth' }),
             revenir: () => afficherOnglet(part),
@@ -266,13 +266,15 @@
     function poolDe(f) {
         return TOUS.filter(({ part }) => f === 'tout' || part === f).flatMap(({ s, part }) => qcmDe(s).map(q => ({ q, s, part })));
     }
-    // L'examen est une seule série gardée en mémoire (et dans le navigateur) : revenir sur l'onglet,
-    // y compris depuis un lien « Chapitre : … », retrouve l'ordre, les réponses et le bilan.
-    let EXAMEN = null;
+    // Chaque DS a son examen : une série gardée en mémoire (et dans le navigateur) ; revenir sur
+    // l'onglet, y compris depuis un lien « Chapitre : … », retrouve l'ordre, les réponses et le bilan.
+    // Emplacements propres au DS (le DS du 14/11, prefixeId « rds », garde ses anciens noms).
+    const EXAMENS = {};
+    const slotDe = (suite) => (D.prefixeId === 'rds' ? 'rds/' : `${D.prefixeId}/`) + suite;
     function rendreExamen(zone) {
         zone.appendChild(el('p', 'text-sm text-slate-300 leading-relaxed', "Toutes les questions de QCM, mélangées. Le chapitre n'est révélé qu'après la correction. En Entraînement, chaque réponse est corrigée tout de suite ; en Mode DS, tout est corrigé à Terminer. Ton examen en cours est gardé sur cet appareil jusqu'à Terminer. Les exercices de calcul sont dans les onglets " + listeOnglets() + "."));
-        if (!EXAMEN) EXAMEN = SERIE.monter({
-            slot: 'rds/examen', choixModeAvant: true, melanger: true, enregistrer: true, libelleRetour: "à l'examen",
+        const EXAMEN = EXAMENS[D.id] || (EXAMENS[D.id] = SERIE.monter({
+            slot: slotDe('examen'), choixModeAvant: true, melanger: true, enregistrer: true, libelleRetour: "à l'examen",
             avantDepart: (z, redessiner) => {
                 const filtres = el('div', 'flex flex-wrap gap-2');
                 filtres.setAttribute('role', 'group'); filtres.setAttribute('aria-label', "Matière de l'examen");
@@ -295,7 +297,7 @@
             },
             revenir: () => ouvrirRevisionDS('examen'),
             apresTerminer: () => majProgression()
-        });
+        }));
         SERIE.oublierRetour();
         zone.appendChild(EXAMEN.racine);
     }
