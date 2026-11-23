@@ -23,6 +23,7 @@ aussi le journal partagé (dossier OneDrive `Revisions ICAM/JOURNAL.md`) avant d
 | `public/progression.js` | Enregistre les exercices réussis, affiche les pastilles |
 | `public/acces-promo.js` | Réserve la 2ème année : les promos de `PROMOS_A1` (adresses `@2031.icam.fr`) ne voient que la 1ère année ; à mettre à jour à chaque rentrée |
 | `public/navigation.js` | Une adresse `#/...` par écran, bouton retour du navigateur, routes ajoutées par d'autres scripts (voir « Adresses des écrans ») |
+| `public/fiches/` | Fiches de révision : une page A4 en PDF par leçon (`<id de la leçon>.pdf`, toutes les leçons sauf l'EST), ouvertes par l'onglet « Fiche de révision » de la leçon. Liste dans `FICHES_REVISION` (`index.html`) : ajouter l'id d'une nouvelle fiche |
 | `public/ma-progression.js` | Page « Ma progression » : notes des séries terminées, carnet d'erreurs, résumé en tête de chaque matière |
 | `public/revision-ds.js` | Moteur de l'onglet « Révision DS » de l'A2 : cartes de l'accueil, rubrique « DS passés », examen blanc, QCM, exercices corrigés, formules |
 | `public/revision-ds-2026-11.js` | Contenu de la Révision DS du 14/11/2026 (CE puis OI), rangée dans « DS passés » (voir « Ajouter une Révision DS ») |
