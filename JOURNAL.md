@@ -207,3 +207,8 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 ## 23 novembre 2026 – Maths A2 : chapitre 5 retiré de la Révision DS (Baptiste)
 
 - Révision DS du 28/11 (AII puis maths) : le chapitre 5 (fonctions vectorielles et courbes paramétrées) n'est pas au programme du DS. Retirés : le chapitre du cours, l'exercice « Courbes paramétrées » des anciens DS (DS n°2 de 2023) et le bloc de formules correspondant. L'examen blanc passe à 81 QCM. `DS_CHAPITRES` et README mis à jour.
+
+## 23 novembre 2026 – Fiches de révision PDF (Baptiste)
+
+- Nouveau dossier `public/fiches/` : une fiche de révision d'une page A4 en PDF par leçon (90 fiches, toutes les leçons sauf l'EST), nommée `<id de la leçon>.pdf`. Fiches écrites à partir des leçons, condensées à la main quand il le fallait, avec des schémas en plus là où il restait de la place.
+- Chaque carte de chapitre a un bouton « Fiche de révision » à côté de Leçon et Exercices, et la leçon a un onglet « Fiche de révision » juste après « Leçon » : le PDF s'ouvre dans un nouvel onglet (impression, téléchargement). Liste des fiches dans `FICHES_REVISION` (`index.html`) ; une nouvelle leçon demande sa fiche et son id dans cette liste (noté dans le README).

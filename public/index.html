@@ -996,13 +996,19 @@
 
                     // pas encore d'exercices pour ce chapitre : on n'affiche que la leçon
                     const aDesExos = chap.interactif || chap.interactifA1 || (chap.exo && EXOS[chap.exo]);
+                    // fiche de révision PDF de la leçon (public/fiches/), ouverte dans un nouvel onglet
+                    const aUneFiche = !!chap.lecon && FICHES_REVISION.has(chap.lecon);
+                    const nbBoutons = 1 + (aDesExos ? 1 : 0) + (aUneFiche ? 1 : 0);
                     let boutonsHTML = `
-                        <button onclick="${actionLecon}" class="${aDesExos ? '' : 'col-span-2 '}px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                        <button onclick="${actionLecon}" class="${nbBoutons === 1 ? 'col-span-2 ' : ''}px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-semibold flex items-center justify-center gap-2 transition-all">
                             <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Leçon
                         </button>
                         ${aDesExos ? `<button onclick="${actionExo}" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center justify-center gap-2 transition-all">
                             <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Exercices
                         </button>` : ''}
+                        ${aUneFiche ? `<a href="fiches/${chap.lecon}.pdf" target="_blank" rel="noopener" title="Une page A4 à imprimer ou à télécharger (nouvel onglet)" class="px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                            <i data-lucide="file-down" class="w-3.5 h-3.5"></i> Fiche de révision
+                        </a>` : ''}
                     `;
 
                     card.innerHTML = `
@@ -1011,7 +1017,7 @@
                             <h3 class="text-xl font-bold text-white mt-0.5">${chap.titre}</h3>
                             <p class="text-xs text-slate-400 mt-1">${chap.desc}</p>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-darkborder/60">
+                        <div class="grid ${nbBoutons === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-2'} gap-2 pt-2 border-t border-darkborder/60">
                             ${boutonsHTML}
                         </div>
                     `;
@@ -3471,16 +3477,37 @@
             demarrer: () => demarrerExoTables()
         };
 
+        // Fiches de révision : une page A4 en PDF par leçon, dans public/fiches/<id de la leçon>.pdf
+        // (toutes les leçons sauf l'EST). Une leçon de cette liste a l'onglet « Fiche de révision »,
+        // qui ouvre le PDF dans un nouvel onglet (affichage, impression, téléchargement par le navigateur).
+        const FICHES_REVISION = new Set(["m1-calculs", "m1-polynomes", "m1-trigo", "m1-limites", "m1-derivation", "m1-fonctions", "m1-complexes", "m1-suites", "m1-integrale", "m1-edo", "m1-fourier",
+            "ph1-grandeurs", "ph1-dipoles", "ph1-theoremes", "ph1-sinus", "ph1-regime", "ph1-spectre", "ph1-transmittance", "ph1-ali",
+            "cm1-torseurs", "cm1-vecteurs", "cm1-cotation", "cm1-cinematique", "cm1-statique", "ce1-production", "ce1-schemas", "ce1-mcc",
+            "aii-grafcet", "aii-combinatoire", "aii-codes", "aii-portes", "aii-bascules", "aii-pneu", "aii-capteurs",
+            "oi1-courants", "oi1-projet", "oi1-valeur", "oi1-usinage", "oi1-surfaces", "oi1-mipmap", "oi1-contrat", "oi1-coupe", "oi1-production",
+            "eco1-typologie", "eco1-fonctions", "eco1-environnement", "eco1-partenaires", "eco1-processus", "eco1-politique", "eco1-couts", "eco1-amortissements", "eco1-entreprise", "eco1-bilan", "eco1-resultat", "eco1-sig",
+            "maths-dl", "maths-matrices", "maths-vecto", "maths-geo", "m2-fvect",
+            "phys-sli", "phys-semi", "phys-redress", "phys-hacheur", "phys-onduleur", "phys-can",
+            "cm2-engrenages", "cm2-point", "cm2-inertie",
+            "ce2-dimensions", "ce2-triphase", "ce2-polaires", "ce2-magneto", "ce2-choix", "ce2-asynchrone", "ce2-synchrone", "ce2-variateurs",
+            "aii2-gemma", "aii2-grafcet", "aii2-asserv",
+            "oi-qualite", "oi-kanban", "oi-msp", "oi2-gps", "oi2-veille",
+            "eco2-analyse", "eco2-financement", "eco2-contrats", "eco2-travail", "eco2-strategie"]);
+
         function afficherOnglets(conteneur, chapitre, actif) {
             const exos = Object.keys(EXOS).filter(k => EXOS[k].chapitre === chapitre);
+            const fiche = FICHES_REVISION.has(chapitre);
             const zone = document.getElementById(conteneur);
-            if (!LECONS[chapitre] || exos.length === 0) { zone.innerHTML = ''; return; }
+            if (!LECONS[chapitre] || (exos.length === 0 && !fiche)) { zone.innerHTML = ''; return; }
+            const classe = (estActif) => `px-6 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition-all ${estActif ? 'border-blue-400 text-blue-400' : 'border-transparent text-slate-400 hover:text-white'}`;
             const onglet = (libelle, action, estActif) =>
-                `<button type="button" onclick="${action}" ${estActif ? 'aria-current="page"' : ''} class="px-6 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition-all ${estActif ? 'border-blue-400 text-blue-400' : 'border-transparent text-slate-400 hover:text-white'}">${libelle}</button>`;
+                `<button type="button" onclick="${action}" ${estActif ? 'aria-current="page"' : ''} class="${classe(estActif)}">${libelle}</button>`;
             zone.innerHTML = `<div class="flex border-b border-darkborder overflow-x-auto" role="navigation" aria-label="Leçon et exercices du chapitre">`
                 + onglet('Leçon', `ouvrirLecon('${chapitre}')`, actif === 'lecon')
+                + (fiche ? `<a href="fiches/${chapitre}.pdf" target="_blank" rel="noopener" title="Une page A4 à imprimer ou à télécharger (nouvel onglet)" class="${classe(false)} inline-flex items-center gap-1.5"><i data-lucide="file-down" class="w-4 h-4"></i>Fiche de révision</a>` : '')
                 + exos.map(k => onglet('Exercice : ' + EXOS[k].libelle, `ouvrirExercice('${k}')`, actif === k)).join('')
                 + `</div>`;
+            if (window.lucide) lucide.createIcons();
         }
 
         // ==========================================
