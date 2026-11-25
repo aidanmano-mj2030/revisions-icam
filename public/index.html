@@ -6453,7 +6453,15 @@
                                 ["Polaire (plan)", R`$(r, \theta)$`, R`$x = r\cos\theta,\; y = r\sin\theta$ ; $r = \sqrt{x^2 + y^2}$`],
                                 ["Cylindrique", R`$(r, \theta, z)$`, R`$x = r\cos\theta,\; y = r\sin\theta,\; z = z$`],
                                 ["Sphérique", R`$(r, \theta, \varphi)$ avec $\theta$ colatitude, $\varphi$ longitude`, R`$x = r\sin\theta\cos\varphi,\; y = r\sin\theta\sin\varphi,\; z = r\cos\theta$ ; $r = \sqrt{x^2 + y^2 + z^2}$, $\cos\theta = \dfrac{z}{r}$`]
-                            ], { nowrap: false })
+                            ], { nowrap: false }),
+                            H.p(R`<strong>Trouver l'angle $\theta$</strong> (polaire et cylindrique ; c'est aussi $\varphi$ en sphérique) à partir de $x$ et $y$ : on calcule $\arctan\left(\dfrac{y}{x}\right)$, puis on corrige selon le quadrant où se trouve le point, car la calculatrice donne toujours un angle entre $-90^\circ$ et $90^\circ$.`),
+                            H.tableau(["Position du point", R`Angle $\theta \in [0\,;\,360^\circ[$`], [
+                                [R`$x > 0$ et $y \geq 0$ (1er quadrant)`, R`$\theta = \arctan\left(\dfrac{y}{x}\right)$`],
+                                [R`$x < 0$ (2e ou 3e quadrant)`, R`$\theta = \arctan\left(\dfrac{y}{x}\right) + 180^\circ$`],
+                                [R`$x > 0$ et $y < 0$ (4e quadrant)`, R`$\theta = \arctan\left(\dfrac{y}{x}\right) + 360^\circ$`],
+                                [R`$x = 0$`, R`$\theta = 90^\circ$ si $y > 0$, $270^\circ$ si $y < 0$`]
+                            ], { nowrap: false }),
+                            H.note(R`Exemple : $M(3\,;\,-2)$. $\arctan\left(\dfrac{-2}{3}\right) \approx -33{,}69^\circ$. Comme $x > 0$ et $y < 0$, le point est dans le 4e quadrant : $\theta \approx -33{,}69 + 360 = 326{,}31^\circ$. Pour vérifier : $\cos\theta$ a le signe de $x$ et $\sin\theta$ celui de $y$.`)
                         ].join('')
                     },
                     {
@@ -7100,6 +7108,14 @@
         const ANG = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330];
         const rad = (d) => d * Math.PI / 180, deg = (r) => r * 180 / Math.PI;
         const arrondi = (x, d = 3) => Math.round(x * 10 ** d) / 10 ** d;
+        // détail du calcul d'un angle à partir de x et y : arctan, puis correction selon le quadrant
+        function angleTeX(x, y, nom = '\\theta') {
+            if (x === 0) return `<p>$x = 0$ : le point est sur l'axe vertical, donc $${nom} = ${y > 0 ? 90 : 270}^\\circ$.</p>`;
+            const at = arrondi(deg(Math.atan(y / x)), 2), q = x > 0 ? (y >= 0 ? 1 : 4) : (y >= 0 ? 2 : 3);
+            const a = arrondi(q === 1 ? at : q === 4 ? at + 360 : at + 180, 2);
+            const fin = q === 1 ? `on garde cet angle : $${nom} \\approx ${a}^\\circ$` : `on ajoute $${q === 4 ? 360 : 180}^\\circ$ : $${nom} \\approx ${at} + ${q === 4 ? 360 : 180} = ${a}^\\circ$`;
+            return `<p>$\\arctan\\left(\\dfrac{y}{x}\\right) = \\arctan\\left(\\dfrac{${y}}{${x}}\\right) \\approx ${at}^\\circ$. Ici $x ${x > 0 ? '\\gt' : '\\lt'} 0$ et $y ${y >= 0 ? '\\geq' : '\\lt'} 0$ : le point est dans le ${q === 1 ? '1er' : q + 'e'} quadrant, ${fin}.</p>`;
+        }
         function rPolaire() {
             if (Math.random() < 0.5) {
                 const r = choisir([2, 3, 4, 5, 6, 8]), th = choisir(ANG), x = r * Math.cos(rad(th)), y = r * Math.sin(rad(th));
@@ -7111,7 +7127,7 @@
             const r = Math.hypot(x, y); let th = deg(Math.atan2(y, x)); if (th < 0) th += 360;
             return { enonce: `<p>Un point $M$ a pour coordonnées cartésiennes $(${x}\\,;\\,${y})$. Donne ses coordonnées polaires $(r\\,;\\,\\theta)$ avec $r \\geq 0$ et $\\theta \\in [0\\,;\\,360^\\circ[$ (arrondis à $10^{-2}$ ; $\\theta$ en degrés).</p>`,
                 champs: [gNum('r', '$r$ =', r, { groupe: 'Coordonnées polaires', tolAbs: 0.011 }), gNum('th', '$\\theta$ =', th, { groupe: 'Coordonnées polaires', tolAbs: 0.2, modulo: 360, unite: '°' })],
-                correction: `<p>$r = \\sqrt{x^2 + y^2} = \\sqrt{${x * x + y * y}} \\approx ${arrondi(r, 2)}$.</p><p>$\\cos\\theta = \\dfrac{x}{r}$ et $\\sin\\theta = \\dfrac{y}{r}$, donc $\\theta \\approx ${arrondi(th, 2)}^\\circ$.</p>` };
+                correction: `<p>$r = \\sqrt{x^2 + y^2} = \\sqrt{${x * x + y * y}} \\approx ${arrondi(r, 2)}$.</p>${angleTeX(x, y)}` };
         }
         function rCylindrique() {
             if (Math.random() < 0.5) {
@@ -7124,7 +7140,7 @@
             const z = gInt(-4, 5), r = Math.hypot(x, y); let th = deg(Math.atan2(y, x)); if (th < 0) th += 360;
             return { enonce: `<p>Un point $M$ a pour coordonnées cartésiennes $(${x}\\,;\\,${y}\\,;\\,${z})$. Donne ses coordonnées cylindriques $(r\\,;\\,\\theta\\,;\\,z)$ avec $r \\geq 0$ et $\\theta \\in [0\\,;\\,360^\\circ[$ (arrondis à $10^{-2}$).</p>`,
                 champs: [gNum('r', '$r$ =', r, { groupe: 'Coordonnées cylindriques', tolAbs: 0.011 }), gNum('th', '$\\theta$ =', th, { groupe: 'Coordonnées cylindriques', tolAbs: 0.2, modulo: 360, unite: '°' }), gNum('z', '$z$ =', z, { groupe: 'Coordonnées cylindriques' })],
-                correction: `<p>$r = \\sqrt{x^2 + y^2} \\approx ${arrondi(r, 2)}$, $\\theta \\approx ${arrondi(th, 2)}^\\circ$ (comme en polaire) et $z = ${z}$.</p>` };
+                correction: `<p>$r = \\sqrt{x^2 + y^2} = \\sqrt{${x * x + y * y}} \\approx ${arrondi(r, 2)}$ et $z = ${z}$ (la hauteur ne change pas).</p>${angleTeX(x, y)}` };
         }
         function rSpherique() {
             const AN = [30, 45, 60, 90, 120, 135, 150];
@@ -7139,7 +7155,7 @@
             const r = Math.sqrt(x * x + y * y + z * z), th = deg(Math.acos(z / r)); let ph = deg(Math.atan2(y, x)); if (ph < 0) ph += 360;
             return { enonce: `<p>Un point $M$ a pour coordonnées cartésiennes $(${x}\\,;\\,${y}\\,;\\,${z})$. Donne ses coordonnées sphériques $(r\\,;\\,\\theta\\,;\\,\\varphi)$ avec $\\theta \\in [0\\,;\\,180^\\circ]$ et $\\varphi \\in [0\\,;\\,360^\\circ[$ (arrondis à $10^{-2}$ ; angles en degrés).</p>`,
                 champs: [gNum('r', '$r$ =', r, { groupe: 'Coordonnées sphériques', tolAbs: 0.011 }), gNum('th', '$\\theta$ =', th, { groupe: 'Coordonnées sphériques', tolAbs: 0.2, unite: '°' }), gNum('ph', '$\\varphi$ =', ph, { groupe: 'Coordonnées sphériques', tolAbs: 0.2, modulo: 360, unite: '°' })],
-                correction: `<p>$r = \\sqrt{x^2 + y^2 + z^2} = \\sqrt{${x * x + y * y + z * z}} \\approx ${arrondi(r, 2)}$.</p><p>$\\cos\\theta = \\dfrac{z}{r}$, donc $\\theta \\approx ${arrondi(th, 2)}^\\circ$. $\\varphi$ vérifie $\\cos\\varphi = \\dfrac{x}{r\\sin\\theta}$ et $\\sin\\varphi = \\dfrac{y}{r\\sin\\theta}$, donc $\\varphi \\approx ${arrondi(ph, 2)}^\\circ$.</p>` };
+                correction: `<p>$r = \\sqrt{x^2 + y^2 + z^2} = \\sqrt{${x * x + y * y + z * z}} \\approx ${arrondi(r, 2)}$.</p><p>$\\cos\\theta = \\dfrac{z}{r}$, donc $\\theta \\approx ${arrondi(th, 2)}^\\circ$. $\\varphi$ se trouve comme l'angle polaire du point $(x\\,;\\,y)$ :</p>${angleTeX(x, y, '\\varphi')}` };
         }
         // exo V5 : positions relatives de deux droites
         function vDeuxDroites() {
