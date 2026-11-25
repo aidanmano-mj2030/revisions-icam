@@ -61,6 +61,7 @@ export const LIEUX_LECONS = {
   "cm2-engrenages": ["a2/cm"],
   "cm2-point": ["a2/cm"],
   "cm2-inertie": ["a2/cm"],
+  "cm2-dynamique": ["a2/cm"],
   "phys-sli": ["a2/phys"],
   "phys-semi": ["a2/phys"],
   "phys-redress": ["a2/phys"],

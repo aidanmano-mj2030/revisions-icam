@@ -3052,7 +3052,7 @@
             'ce1-production': { energie: [2], solaire: [2], eol: [2], danger: [4], cours: [1, 2, 3, 4] }, 'ce1-schemas': { sym: [1, 4], role: [4], q: [1, 2, 3, 4, 5] }, 'ce1-mcc': { mot: [3], gen: [4], fem: [2] },
             'phys-sli': { rc: [3], dech: [4], rl: [5], ener: [2, 5], assoc: [2], rlc: [6] },
             'cm1-statique': { poids: [2], pression: [2], moment: [5], forces: [4, 5], levier: [4, 5], cours: [1, 2, 3] }, 'cm1-cinematique': { omega: [4], rot: [4], trans: [3] },
-            'cm2-inertie': { masse: [1, 2], usuel: [9], huy: [8] }, 'est1-af': { fct: [4], outils: [3, 4] }, 'est1-dessin': { ech: [3], fmt: [2], trait: [4] },
+            'cm2-inertie': { masse: [1, 2], usuel: [6, 9], huy: [8], ens: [8, 9] }, 'est1-af': { fct: [4], outils: [3, 4] }, 'est1-dessin': { ech: [3], fmt: [2], trait: [4] },
             'oi2-gps': { cote: [3], iso: [3], aj: [3], mm: [6], fam: [5] }, 'oi2-mrp': { art: [2], comp: [2], kan: [4] }, 'oi2-msp': { henry: [3], cause: [4], carte: [5] },
             'oi1-projet': { rang: [2], pert: [3], dates: [3], marges: [4] }, 'oi1-coupe': { tour: [1, 2], fraise: [1, 4], perce: [1, 3], vc: [1] }, 'oi1-mipmap': { norm: [2, 3], comb: [2, 3], cyl: [3] },
             'oi1-contrat': { serv: [1], doc: [2, 3], rub: [3] }, 'oi1-production': { cap: [1], flux: [2], alerte: [3], wilson: [4] },
@@ -3488,7 +3488,7 @@
             "eco1-typologie", "eco1-fonctions", "eco1-environnement", "eco1-partenaires", "eco1-processus", "eco1-politique", "eco1-couts", "eco1-amortissements", "eco1-entreprise", "eco1-bilan", "eco1-resultat", "eco1-sig",
             "maths-dl", "maths-matrices", "maths-vecto", "maths-geo", "m2-fvect",
             "phys-sli", "phys-semi", "phys-redress", "phys-hacheur", "phys-onduleur", "phys-can",
-            "cm2-engrenages", "cm2-point", "cm2-inertie",
+            "cm2-engrenages", "cm2-point", "cm2-inertie", "cm2-dynamique",
             "ce2-dimensions", "ce2-triphase", "ce2-polaires", "ce2-magneto", "ce2-choix", "ce2-asynchrone", "ce2-synchrone", "ce2-variateurs",
             "aii2-gemma", "aii2-grafcet", "aii2-asserv",
             "oi-qualite", "oi-kanban", "oi-msp", "oi2-gps", "oi2-veille",
@@ -9441,21 +9441,48 @@
                 champs: [gNum('m', '$m$ =', m, { unite: 'kg' })],
                 correction: `<p>$V = \\dfrac{\\pi D^2}{4} L = \\dfrac{\\pi \\times ${centiemeTeX(D / 1000)}^2}{4} \\times ${centiemeTeX(L / 1000)}$ m³ et $m = \\rho\\,V \\approx ${centiemeTeX(m)}$ kg.</p>` };
         }
+        // Les matrices d'inertie des solides usuels sont toujours données dans l'énoncé : on ne les apprend
+        // pas par cœur, on doit savoir les lire, les déplacer (Huygens) et les additionner.
+        const inMat = (a, b, c) => `\\begin{pmatrix} ${a} & 0 & 0 \\\\ 0 & ${b} & 0 \\\\ 0 & 0 & ${c} \\end{pmatrix}`;
+        const IN_SOLIDES = {
+            cyl: { nom: (d) => `un cylindre plein de masse $m = ${d.m}$ kg, de rayon $R = ${centiemeTeX(d.R)}$ m et de hauteur $H = ${centiemeTeX(d.H)}$ m, d'axe $\\vec z$`,
+                mat: inMat('m\\left(\\frac{R^2}{4} + \\frac{H^2}{12}\\right)', 'm\\left(\\frac{R^2}{4} + \\frac{H^2}{12}\\right)', '\\frac{mR^2}{2}'), diag: (d) => { const a = d.m * (d.R * d.R / 4 + d.H * d.H / 12); return [a, a, d.m * d.R * d.R / 2]; } },
+            tige: { nom: (d) => `une tige fine de masse $m = ${d.m}$ kg et de longueur $L = ${centiemeTeX(d.L)}$ m, portée par $\\vec z$, $G$ en son milieu`,
+                mat: inMat('\\frac{mL^2}{12}', '\\frac{mL^2}{12}', '0'), diag: (d) => [d.m * d.L * d.L / 12, d.m * d.L * d.L / 12, 0] },
+            disque: { nom: (d) => `un disque mince de masse $m = ${d.m}$ kg et de rayon $R = ${centiemeTeX(d.R)}$ m, d'axe $\\vec z$`,
+                mat: inMat('\\frac{mR^2}{4}', '\\frac{mR^2}{4}', '\\frac{mR^2}{2}'), diag: (d) => [d.m * d.R * d.R / 4, d.m * d.R * d.R / 4, d.m * d.R * d.R / 2] },
+            sphere: { nom: (d) => `une sphère pleine de masse $m = ${d.m}$ kg et de rayon $R = ${centiemeTeX(d.R)}$ m`,
+                mat: inMat('\\frac{2mR^2}{5}', '\\frac{2mR^2}{5}', '\\frac{2mR^2}{5}'), diag: (d) => [0.4 * d.m * d.R * d.R, 0.4 * d.m * d.R * d.R, 0.4 * d.m * d.R * d.R] },
+            pave: { nom: (d) => `un parallélépipède de masse $m = ${d.m}$ kg, de côtés $a = ${centiemeTeX(d.a)}$ m (suivant $\\vec x$), $b = ${centiemeTeX(d.b)}$ m (suivant $\\vec y$) et $c = ${centiemeTeX(d.c)}$ m (suivant $\\vec z$)`,
+                mat: inMat('\\frac{m(b^2 + c^2)}{12}', '\\frac{m(a^2 + c^2)}{12}', '\\frac{m(a^2 + b^2)}{12}'), diag: (d) => [d.m * (d.b * d.b + d.c * d.c) / 12, d.m * (d.a * d.a + d.c * d.c) / 12, d.m * (d.a * d.a + d.b * d.b) / 12] }
+        };
+        const inDonnees = () => ({ m: choisir([2, 4, 5, 8, 10, 20]), R: choisir([0.2, 0.25, 0.3, 0.4, 0.5]), H: choisir([0.4, 0.6, 0.8, 1]), L: choisir([0.6, 0.8, 1, 1.2, 1.5]), a: choisir([0.2, 0.3, 0.4]), b: choisir([0.5, 0.6, 0.8]), c: choisir([0.2, 0.4, 1]) });
+        // lire la matrice d'un solide usuel : un moment d'inertie autour d'un axe passant par G
         function inUsuel() {
-            const cas = choisir(['cyl', 'tige', 'sphere']), m = choisir([2, 4, 5, 8, 10, 20]), r = choisir([0.1, 0.2, 0.25, 0.3, 0.5]), L = choisir([0.4, 0.6, 0.8, 1, 1.2, 2]);
-            const v = cas === 'cyl' ? m * r * r / 2 : cas === 'tige' ? m * L * L / 12 : 2 * m * r * r / 5;
-            const txt = { cyl: `un cylindre plein de masse $${m}$ kg et de rayon $${centiemeTeX(r)}$ m, par rapport à son axe de révolution`, tige: `une tige fine de masse $${m}$ kg et de longueur $${centiemeTeX(L)}$ m, par rapport à un axe perpendiculaire passant par son milieu`, sphere: `une sphère pleine de masse $${m}$ kg et de rayon $${centiemeTeX(r)}$ m, par rapport à un axe passant par son centre` };
-            const f = { cyl: R`\dfrac{m R^2}{2}`, tige: R`\dfrac{m L^2}{12}`, sphere: R`\dfrac{2 m R^2}{5}` };
-            return { enonce: `<p>Calcule le moment d'inertie d'${txt[cas]}.</p>`, champs: [gNum('i', '$I$ =', v, { unite: 'kg·m²', alt: v })],
-                correction: `<p>$I = ${f[cas]} \\approx ${centiemeTeX(v)}$ kg·m².</p>` };
+            const cle = choisir(Object.keys(IN_SOLIDES)), s = IN_SOLIDES[cle], d = inDonnees(), axe = choisir([0, 2]), diag = s.diag(d);
+            const nomAxe = ['(G, \\vec x)', '(G, \\vec y)', '(G, \\vec z)'][axe], lettre = ['A', 'B', 'C'][axe];
+            return { enonce: `<p>On considère ${s.nom(d)}. Sa matrice d'inertie en son centre d'inertie $G$ est donnée :</p><p class="text-center">$[I_G] = ${s.mat}_{(\\vec x, \\vec y, \\vec z)}$</p><p>Calcule son moment d'inertie par rapport à l'axe $${nomAxe}$.</p>`,
+                champs: [gNum('i', '$I_\\Delta$ =', diag[axe], { unite: 'kg·m²' })],
+                correction: `<p>Le moment d'inertie par rapport à $${nomAxe}$ est le terme ${axe === 0 ? '$A$ (1re ligne, 1re colonne)' : '$C$ (3e ligne, 3e colonne)'} de la diagonale : $${lettre} \\approx ${centiemeTeX(diag[axe])}$ kg·m².</p>` };
         }
+        // Huygens : déplacer la matrice d'un solide usuel de G vers un point O
         function inHuygens() {
-            const m = choisir([2, 3, 5, 8, 10]), IG = choisir([0.02, 0.05, 0.1, 0.12, 0.25]), d = choisir([0.1, 0.2, 0.3, 0.5]);
-            return { enonce: `<p>Un solide de masse $${m}$ kg a un moment d'inertie $I_G = ${centiemeTeX(IG)}$ kg·m² autour d'un axe passant par son centre d'inertie $G$. Calcule son moment d'inertie autour d'un axe parallèle situé à $${centiemeTeX(d)}$ m de $G$.</p>`,
-                champs: [gNum('i', '$I_\\Delta$ =', IG + m * d * d, { unite: 'kg·m²' })],
-                correction: `<p>Théorème de Huygens : $I_\\Delta = I_G + m\\,d^2 = ${centiemeTeX(IG)} + ${m} \\times ${centiemeTeX(d)}^2 = ${centiemeTeX(IG + m * d * d)}$ kg·m².</p>` };
+            const cle = choisir(['cyl', 'disque', 'sphere', 'pave']), s = IN_SOLIDES[cle], d = inDonnees(), dist = choisir([0.2, 0.3, 0.5, 0.8, 1]), diag = s.diag(d);
+            const A = diag[0] + d.m * dist * dist, B = diag[1] + d.m * dist * dist, C = diag[2];
+            return { enonce: `<p>On considère ${s.nom(d)}, de centre d'inertie $G$. Matrice d'inertie donnée en $G$ :</p><p class="text-center">$[I_G] = ${s.mat}_{(\\vec x, \\vec y, \\vec z)}$</p><p>Le point $O$ est tel que $\\overrightarrow{OG} = ${centiemeTeX(dist)}\\,\\vec z$ (en m). Donne les trois moments d'inertie en $O$.</p>`,
+                champs: [gNum('a', '$A_O$ =', A, { unite: 'kg·m²', groupe: 'Matrice en O', largeur: '6rem' }), gNum('b', '$B_O$ =', B, { unite: 'kg·m²', groupe: 'Matrice en O', largeur: '6rem' }), gNum('c', '$C_O$ =', C, { unite: 'kg·m²', groupe: 'Matrice en O', largeur: '6rem' })],
+                correction: `<p>Huygens avec $\\overrightarrow{OG} = a\\vec x + b\\vec y + c\\vec z$, ici $a = b = 0$ et $c = ${centiemeTeX(dist)}$ m : $A_O = A_G + m(b^2 + c^2)$, $B_O = B_G + m(a^2 + c^2)$, $C_O = C_G + m(a^2 + b^2)$.</p><p>$A_G \\approx ${centiemeTeX(diag[0])}$, $B_G \\approx ${centiemeTeX(diag[1])}$, $C_G \\approx ${centiemeTeX(diag[2])}$ et $m c^2 = ${centiemeTeX(d.m * dist * dist)}$ : $A_O \\approx ${centiemeTeX(A)}$, $B_O \\approx ${centiemeTeX(B)}$ et $C_O = C_G \\approx ${centiemeTeX(C)}$ kg·m² (l'axe $\\vec z$ passe par $G$ et par $O$, il ne bouge pas).</p>` };
         }
-        EXB('cm2-inertie', 'cm2-inertie', 'CM • 2ème Année', 'Inertie', 'Inertie : masse, solides usuels, Huygens', { id: 'iner', types: { masse: inMasse, usuel: inUsuel, huy: inHuygens }, libelles: { tout: 'Tout', masse: 'Masse', usuel: 'Solides usuels', huy: 'Huygens' } }, 'disc');
+        // ensemble tige + disque (type « panneau » du DS) : Huygens puis somme au même point
+        function inEnsemble() {
+            const m1 = choisir([1, 2, 3]), m2 = choisir([2, 4, 5]), R = choisir([0.2, 0.25, 0.3]), k = choisir([4, 5, 6]), L = k * R, dist = L + R;
+            const tige = [m1 * L * L / 3, m1 * L * L / 3, 0], disqueG = [m2 * R * R / 2, m2 * R * R / 4, m2 * R * R / 4];
+            const disqueO = [disqueG[0] + m2 * dist * dist, disqueG[1] + m2 * dist * dist, disqueG[2]], tot = tige.map((v, i) => v + disqueO[i]);
+            return { enonce: `<p>Un panneau est fait d'un poteau (tige de masse $m_1 = ${m1}$ kg et de longueur $L = ${centiemeTeX(L)}$ m, portée par $\\vec z$, pied en $O$) et d'un disque (masse $m_2 = ${m2}$ kg, rayon $R = ${centiemeTeX(R)}$ m) placé en haut : son centre $G_2$ vérifie $\\overrightarrow{OG_2} = (L + R)\\,\\vec z$ et son axe est $\\vec x$ (le disque est dans le plan $(\\vec y, \\vec z)$).</p><p>Matrices d'inertie données : poteau $[I_O(1)] = ${inMat('\\frac{m_1L^2}{3}', '\\frac{m_1L^2}{3}', '0')}$, disque $[I_{G_2}(2)] = ${inMat('\\frac{m_2R^2}{2}', '\\frac{m_2R^2}{4}', '\\frac{m_2R^2}{4}')}$ dans $(\\vec x, \\vec y, \\vec z)$.</p><p>Donne les trois moments d'inertie de l'ensemble en $O$.</p>`,
+                champs: [gNum('a', '$A_O$ =', tot[0], { unite: 'kg·m²', groupe: 'Ensemble en O', largeur: '6rem' }), gNum('b', '$B_O$ =', tot[1], { unite: 'kg·m²', groupe: 'Ensemble en O', largeur: '6rem' }), gNum('c', '$C_O$ =', tot[2], { unite: 'kg·m²', groupe: 'Ensemble en O', largeur: '6rem' })],
+                correction: `<p>On ne peut additionner que des matrices au même point : on déplace celle du disque de $G_2$ à $O$ avec Huygens ($\\overrightarrow{OG_2} = ${centiemeTeX(dist)}\\,\\vec z$, $m_2(L + R)^2 = ${centiemeTeX(m2 * dist * dist)}$) : $A_O(2) = \\frac{m_2R^2}{2} + m_2(L + R)^2 \\approx ${centiemeTeX(disqueO[0])}$, $B_O(2) = \\frac{m_2R^2}{4} + m_2(L + R)^2 \\approx ${centiemeTeX(disqueO[1])}$, $C_O(2) = \\frac{m_2R^2}{4} \\approx ${centiemeTeX(disqueO[2])}$.</p><p>Poteau : $\\frac{m_1L^2}{3} \\approx ${centiemeTeX(tige[0])}$ sur $\\vec x$ et $\\vec y$, $0$ sur $\\vec z$.</p><p>Somme : $A_O \\approx ${centiemeTeX(tot[0])}$, $B_O \\approx ${centiemeTeX(tot[1])}$, $C_O \\approx ${centiemeTeX(tot[2])}$ kg·m².</p>` };
+        }
+        EXB('cm2-inertie', 'cm2-inertie', 'CM • 2ème Année', 'Inertie', 'Inertie : masse, lecture de matrice, Huygens, ensembles', { id: 'iner', types: { masse: inMasse, usuel: inUsuel, huy: inHuygens, ens: inEnsemble }, libelles: { tout: 'Tout', masse: 'Masse', usuel: 'Lire une matrice', huy: 'Huygens', ens: 'Ensemble de solides' } }, 'disc');
 
         // ---------- EST A1 ----------
         function afFonction() {
@@ -17792,6 +17819,160 @@
         ECX2('eco2-strategie', 'QCM et cas', 'Le diagnostic stratégique : QCM et cas pratiques', { id: 'esd', types: { qcm: () => ecoQ(...choisir(ECO_STRAT_Q)), swot: ecoStratCas('swot', 'Dans la matrice SWOT, c\'est…'), pestel: ecoStratCas('pestel', 'Quel facteur du PESTEL ?'), porter: ecoStratCas('porter', 'Quelle force de Porter ?'), lcag: ecoStratCas('lcag', 'Quelle étape du modèle LCAG ?') },
             libelles: { tout: 'Tout', qcm: 'QCM', swot: 'Force, faiblesse, opportunité ou menace ?', pestel: 'Quel facteur PESTEL ?', porter: 'Quelle force de Porter ?', lcag: 'Quelle étape LCAG ?' } }, 'compass');
         RENVOIS['eco2-strategie'] = { qcm: [1, 2, 3, 4, 5], swot: [3, 4, 5], pestel: [4], porter: [4], lcag: [1] };
+
+        // ==========================================
+        // CM 2ème année, chapitre 5 : la dynamique (cinétique, énergie cinétique, PFD)
+        // ==========================================
+        CHAPITRES["2ème Année"].CM.push({ num: "Chapitre n°5", titre: "La dynamique", desc: "Quantité de mouvement, torseur cinétique, énergie cinétique, torseur dynamique et principe fondamental de la dynamique.", lecon: "cm2-dynamique", exo: "cm2-dynamique" });
+        // matrice d'inertie diagonale en LaTeX (les exercices la donnent toujours : on ne l'apprend pas par cœur)
+        const dyMat = (a, b, c) => `\\begin{pmatrix} ${a} & 0 & 0 \\\\ 0 & ${b} & 0 \\\\ 0 & 0 & ${c} \\end{pmatrix}`;
+        const dyNb = (x) => centiemeTeX(x);
+        // carte des notions : masse / forces / translation, inertie / moments / rotation
+        function svgDyCarte() {
+            const bulle = (x, y, t, c) => `<ellipse cx="${x}" cy="${y}" rx="52" ry="17" fill="${c}" fill-opacity="0.15" stroke="${c}" stroke-width="1.6"/>` + PF.t(x, y + 4, t, { s: 11, b: 1 });
+            const O = '#fb923c', V = '#34d399', J = '#facc15';
+            let o = PF.L(80, 60, 210, 35, SVG_DISCRET) + PF.L(260, 35, 390, 60, SVG_DISCRET) + PF.L(170, 135, 215, 108, SVG_DISCRET) + PF.L(255, 108, 300, 135, SVG_DISCRET);
+            o += PF.L(80, 78, 115, 178, SVG_DISCRET) + PF.L(145, 152, 125, 175, SVG_DISCRET) + PF.L(390, 78, 355, 178, SVG_DISCRET) + PF.L(325, 152, 345, 175, SVG_DISCRET);
+            o += bulle(235, 30, 'Masse', J) + bulle(235, 100, 'Inertie', J) + bulle(70, 65, 'Forces', O) + bulle(400, 65, 'Translation', V);
+            o += bulle(160, 145, 'Moments', O) + bulle(310, 145, 'Rotation', V) + bulle(110, 190, 'Efforts', O) + bulle(360, 190, 'Mouvements', V);
+            o += PF.t(110, 222, 'causes', { s: 10, c: O }) + PF.t(360, 222, 'effets', { s: 10, c: V });
+            return PF.svg(470, 230, o, 'Carte des notions de la dynamique', 470);
+        }
+        // pendule : tige OA articulée en O, angle θ
+        function svgDyPendule() {
+            const ox = 150, oy = 40, L = 150, t = 0.55, ax = ox + L * Math.sin(t), ay = oy + L * Math.cos(t), gx = ox + L / 2 * Math.sin(t), gy = oy + L / 2 * Math.cos(t);
+            let o = PF.L(110, oy - 12, 190, oy - 12) + [0, 1, 2, 3, 4].map(k => PF.L(115 + k * 16, oy - 12, 107 + k * 16, oy - 22)).join('') + PF.L(ox, oy - 12, ox, oy - 4);
+            o += `<circle cx="${ox}" cy="${oy}" r="5" fill="${SVG_FOND}" stroke="${SVG_TRAIT}" stroke-width="1.6"/>` + PF.t(ox - 12, oy + 4, 'O', { a: 'end', b: 1 });
+            o += PF.L(ox, oy, ax, ay, SVG_ACCENT) + `<circle cx="${gx}" cy="${gy}" r="3" fill="${SVG_ACCENT}"/>` + PF.t(gx + 10, gy + 2, 'G', { a: 'start', b: 1 });
+            o += PF.L(ox, oy, ox, oy + L + 20, SVG_DISCRET, '4 3') + PF.fleche(ox, oy + L + 10, ox, oy + L + 30, SVG_DISCRET) + PF.t(ox - 8, oy + L + 30, 'x', { a: 'end', c: SVG_DISCRET, i: 1 });
+            o += PF.fleche(ax, ay, ax + 18 * Math.sin(t), ay + 18 * Math.cos(t), CB) + PF.t(ax + 26 * Math.sin(t) + 4, ay + 26 * Math.cos(t), 'u', { c: CB, b: 1, i: 1, a: 'start' });
+            o += `<path d="M${ox} ${oy + 45} A45 45 0 0 0 ${ox + 45 * Math.sin(t)} ${oy + 45 * Math.cos(t)}" fill="none" stroke="${CR}" stroke-width="1.5"/>` + PF.t(ox + 14, oy + 62, 'θ', { c: CR, b: 1 });
+            o += PF.t(ax + 8, ay + 4, 'A', { a: 'start', b: 1 }) + PF.t(250, 205, 'ℓ, m', { c: SVG_ACCENT, s: 11 });
+            return PF.svg(300, 225, o, 'Pendule : tige OA articulée en O', 300);
+        }
+        LECONS["cm2-dynamique"] = {
+            badge: "CM • 2ème Année", titre: "La dynamique",
+            sections: () => [
+                { titre: "1. De quoi parle la dynamique ?", icone: "network", contenu: [
+                    H.p(R`La dynamique relie les <strong>causes</strong> d'un mouvement (les efforts : forces et moments) à ses <strong>effets</strong> (le mouvement : translation et rotation). Entre les deux, il y a ce qui « résiste » à la mise en mouvement : la <strong>masse</strong> pour la translation et l'<strong>inertie</strong> pour la rotation.`),
+                    H.figure(svgDyCarte(), "La masse relie forces et translation ; l'inertie relie moments et rotation."),
+                    H.tableau(["", "Ce qu'on étudie", "Outil"], [
+                        ["<strong>Cinétique</strong>", "la « quantité de mouvement » d'un solide, qui se conserve ou varie (chocs, wagons qui s'accrochent, mise en mouvement)", "torseur cinétique, énergie cinétique"],
+                        ["<strong>Dynamique</strong>", "les équations instantanées qui expliquent le mouvement par ses causes (2e loi de Newton)", "torseur dynamique, principe fondamental de la dynamique"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note(R`Pour tout le chapitre, on a besoin de la matrice d'inertie du solide (chapitre 4). Elle est donnée dans les sujets : on doit savoir la <strong>déplacer</strong> (Huygens) et l'<strong>utiliser</strong>, pas la retenir.`)
+                ].join('') },
+                { titre: "2. Quantité de mouvement et torseur cinétique", icone: "move-right", contenu: [
+                    H.formule(R`\vec{p} = m\,\vec{V}_{G}`),
+                    H.p(R`La <strong>quantité de mouvement</strong> d'un solide de masse $m$ est celle de son centre d'inertie $G$. Pour un système de plusieurs solides, on additionne les $m_i\,\vec{V}_{G_i}$.`),
+                    H.formule(R`\{\mathcal{C}_{S/R}\}_A = \left\{ \begin{matrix} \vec{R}_c = m\,\vec{V}_{G,S/R} \\ \vec{\sigma}_{A,S/R} \end{matrix} \right\}_A`),
+                    H.p(R`La résultante est la quantité de mouvement ; le moment $\vec\sigma_A$ est le <strong>moment cinétique</strong> en $A$. Pour un point $A$ lié au solide :`),
+                    H.formule(R`\vec{\sigma}_{A,S/R} = m\,\overrightarrow{AG} \wedge \vec{V}_{A,S/R} + [I_A(S)]\,\vec{\Omega}_{S/R}`),
+                    H.tableau(["Point choisi", "Moment cinétique"], [
+                        ["$A$ fixe dans $R$ (pivot)", "$\\vec\\sigma_A = [I_A]\\,\\vec\\Omega$"],
+                        ["$A = G$", "$\\vec\\sigma_G = [I_G]\\,\\vec\\Omega$"],
+                        ["Changer de point", "$\\vec\\sigma_B = \\vec\\sigma_A + \\overrightarrow{BA} \\wedge m\\,\\vec{V}_G$ (comme tout torseur)"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note(R`<strong>Piège</strong> : la formule $m\,\overrightarrow{AG} \wedge \vec V_A + [I_A]\vec\Omega$ ne marche que si $A$ appartient au solide. Pour un point qui n'en fait pas partie (le pivot d'une autre pièce, par exemple), on calcule $\vec\sigma_G$ puis on change de point. Un solide en <strong>translation</strong> a $\vec\Omega = \vec 0$, donc $\vec\sigma_G = \vec 0$, mais son moment cinétique en un autre point n'est pas nul.`)
+                ].join('') },
+                { titre: "3. Le torseur dynamique", icone: "trending-up", contenu: [
+                    H.formule(R`\{\mathcal{D}_{S/R}\}_A = \left\{ \begin{matrix} \vec{R}_d = m\,\vec{\Gamma}_{G,S/R} = \dfrac{d\vec R_c}{dt} \\ \vec{\delta}_{A,S/R} = \dfrac{d\vec{\sigma}_{A,S/R}}{dt} + m\,\vec{V}_{A} \wedge \vec{V}_{G} \end{matrix} \right\}_A`),
+                    H.p(R`La résultante dynamique est la masse fois l'accélération de $G$. Le <strong>moment dynamique</strong> $\vec\delta_A$ se déduit du moment cinétique en le dérivant (dans $R$).`),
+                    H.tableau(["Point choisi", "Moment dynamique"], [
+                        ["$A$ fixe dans $R$, ou $A = G$", "$\\vec\\delta_A = \\dfrac{d\\vec\\sigma_A}{dt}$ (le terme $\\vec V_A \\wedge \\vec V_G$ est nul)"],
+                        ["Rotation autour d'un axe fixe $(O, \\vec z)$, $O$ fixe", "$\\vec\\delta_O \\cdot \\vec z = I_{Oz}\\,\\ddot\\theta$"],
+                        ["Changer de point", "$\\vec\\delta_B = \\vec\\delta_A + \\overrightarrow{BA} \\wedge m\\,\\vec\\Gamma_G$"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note(R`Pour dériver un vecteur d'une base mobile : $\dfrac{d\vec u}{dt} = \vec\Omega \wedge \vec u$. Exemple avec $\vec\Omega = \dot\theta\,\vec z$ : $\dfrac{d\vec u}{dt} = \dot\theta\,\vec v$ et $\dfrac{d\vec v}{dt} = -\dot\theta\,\vec u$.`)
+                ].join('') },
+                { titre: "4. Le principe fondamental de la dynamique", icone: "scale", contenu: [
+                    H.formule(R`\{\mathcal{D}_{S/R_g}\} = \{\mathcal{F}_{\bar S \to S}\}`),
+                    H.p(R`Dans un repère galiléen $R_g$, le torseur dynamique d'un solide (ou d'un ensemble isolé) est égal au torseur des actions mécaniques <strong>extérieures</strong>. Écrit au même point, il donne deux théorèmes :`),
+                    H.liste([
+                        R`<strong>Théorème de la résultante dynamique</strong> : $\sum \vec F_{ext} = m\,\vec\Gamma_G$ (2e loi de Newton).`,
+                        R`<strong>Théorème du moment dynamique</strong> : $\sum \vec M_{A}(\vec F_{ext}) = \vec\delta_{A}$.`
+                    ]),
+                    H.p(R`Cas très fréquent : un solide en <strong>rotation autour d'un axe fixe</strong> $\Delta$, d'inertie $I_\Delta$. En projetant le théorème du moment dynamique sur l'axe : $I_\Delta\,\ddot\theta = \sum M_\Delta$ (somme des moments des actions extérieures par rapport à l'axe).`),
+                    H.note(R`<strong>Méthode</strong> : 1. isoler le solide ; 2. faire le bilan des actions extérieures (poids, liaisons, moteur…) ; 3. calculer le torseur dynamique au point le plus simple (le pivot fixe, souvent) ; 4. écrire le PFD et projeter pour obtenir les équations. Si le solide est immobile ou en mouvement uniforme rectiligne, on retrouve la statique.`)
+                ].join('') },
+                { titre: "5. L'énergie cinétique", icone: "zap", contenu: [
+                    H.formule(R`2\,T_{S/R} = \{\mathcal{C}_{S/R}\}_A \otimes \{\mathcal{V}_{S/R}\}_A = \vec{R}_c \cdot \vec{V}_{A,S/R} + \vec{\sigma}_{A,S/R} \cdot \vec{\Omega}_{S/R}`),
+                    H.p(R`C'est le <strong>comoment</strong> des torseurs cinétique et cinématique, écrits au même point : on fait la somme des produits scalaires « en croix » (résultante de l'un avec le moment de l'autre). $T$ est en joules et toujours positive.`),
+                    H.tableau(["Mouvement", "Énergie cinétique"], [
+                        ["Translation (vitesse $V$)", "$T = \\frac12\\,m\\,V^2$"],
+                        ["Rotation autour d'un axe fixe $\\Delta$", "$T = \\frac12\\,I_\\Delta\\,\\omega^2$"],
+                        ["Mouvement quelconque (König)", "$T = \\frac12\\,m\\,V_G^2 + \\frac12\\,\\vec\\Omega \\cdot [I_G]\\,\\vec\\Omega$"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note(R`L'énergie cinétique d'un ensemble est la somme de celles de ses solides. Le théorème de l'énergie cinétique dit que sa dérivée est égale à la somme des puissances des efforts (extérieurs et intérieurs).`)
+                ].join('') },
+                { titre: "6. Exemple : le pendule pesant", icone: "clock", contenu: [
+                    H.figure(svgDyPendule(), "Tige OA de longueur ℓ et de masse m, articulée en O (pivot d'axe z), G au milieu."),
+                    H.p(R`Base mobile $(\vec u, \vec v, \vec z)$ liée à la tige, $\theta = (\vec x, \vec u)$, $\vec\Omega = \dot\theta\,\vec z$, $\overrightarrow{OG} = \frac{\ell}{2}\,\vec u$. La matrice d'inertie de la tige en $O$, donnée, s'écrit dans cette base :`),
+                    H.formule(R`[I_O] = ${dyMat('0', '\\frac{m\\ell^2}{3}', '\\frac{m\\ell^2}{3}')}_{(\\vec u, \\vec v, \\vec z)}`),
+                    H.tableau(["Grandeur", "Calcul", "Résultat"], [
+                        ["Vitesse de $G$", "$\\frac{d}{dt}\\left(\\frac{\\ell}{2}\\vec u\\right)$", "$\\vec V_G = \\frac{\\ell}{2}\\dot\\theta\\,\\vec v$"],
+                        ["Torseur cinétique en $O$ (fixe)", "$\\vec\\sigma_O = [I_O]\\,\\vec\\Omega$", "$\\left\\{ \\frac{m\\ell}{2}\\dot\\theta\\,\\vec v \\ ;\\ \\frac{m\\ell^2}{3}\\dot\\theta\\,\\vec z \\right\\}_O$"],
+                        ["Torseur dynamique en $O$", "on dérive ($O$ fixe)", "$\\left\\{ \\frac{m\\ell}{2}(\\ddot\\theta\\,\\vec v - \\dot\\theta^2\\,\\vec u) \\ ;\\ \\frac{m\\ell^2}{3}\\ddot\\theta\\,\\vec z \\right\\}_O$"],
+                        ["Énergie cinétique", "$2T = \\vec R_c \\cdot \\vec V_O + \\vec\\sigma_O \\cdot \\vec\\Omega$ avec $\\vec V_O = \\vec 0$", "$T = \\frac{m\\ell^2\\dot\\theta^2}{6}$"]
+                    ], { nowrap: false, gauche: true }),
+                    H.p(R`PFD en moment autour de $(O, \vec z)$ : le poids $m g\,\vec x$ appliqué en $G$ a pour moment $-m g\,\frac{\ell}{2}\sin\theta$ (la liaison pivot parfaite n'a pas de moment sur $\vec z$). D'où l'équation du mouvement :`),
+                    H.formule(R`\frac{m\ell^2}{3}\,\ddot\theta = -m g\,\frac{\ell}{2}\sin\theta \quad\Longleftrightarrow\quad \ddot\theta + \frac{3g}{2\ell}\sin\theta = 0`),
+                    H.note(R`Pour de petites oscillations ($\sin\theta \approx \theta$), c'est un oscillateur de pulsation $\omega_0 = \sqrt{\dfrac{3g}{2\ell}}$ : c'est le principe des horloges à balancier.`)
+                ].join('') }
+            ]
+        };
+
+        // ---------- exercices de dynamique (matrices d'inertie toujours données) ----------
+        function dyPendule() {
+            const m = choisir([0.5, 1, 2, 3, 4]), l = choisir([0.4, 0.6, 0.8, 1, 1.2]), w = choisir([1, 1.5, 2, 2.5, 3, 4]), a = choisir([0.5, 1, 2, 3]);
+            const I = m * l * l / 3, sig = I * w, T = I * w * w / 2, Rt = m * l / 2 * a, Rn = m * l / 2 * w * w;
+            return { enonce: `<p>Une tige homogène de masse $m = ${dyNb(m)}$ kg et de longueur $\\ell = ${dyNb(l)}$ m tourne autour d'un pivot fixe $(O, \\vec z)$ à une extrémité ($\\overrightarrow{OG} = \\frac{\\ell}{2}\\vec u$, $\\vec\\Omega = \\dot\\theta\\,\\vec z$). À l'instant étudié, $\\dot\\theta = ${dyNb(w)}$ rad/s et $\\ddot\\theta = ${dyNb(a)}$ rad/s².</p><p>Matrice d'inertie donnée : $[I_O] = ${dyMat('0', '\\frac{m\\ell^2}{3}', '\\frac{m\\ell^2}{3}')}_{(\\vec u, \\vec v, \\vec z)}$</p><p>Calcule le moment cinétique en $O$, l'énergie cinétique, et les composantes de la résultante dynamique sur $\\vec v$ et sur $\\vec u$.</p>`,
+                champs: [gNum('s', '$\\sigma_{Oz}$ =', sig, { unite: 'kg·m²/s', groupe: 'Torseur cinétique', largeur: '6rem' }), gNum('t', '$T$ =', T, { unite: 'J', groupe: 'Torseur cinétique', largeur: '6rem' }), gNum('rv', '$R_d \\cdot \\vec v$ =', Rt, { unite: 'N', groupe: 'Résultante dynamique', largeur: '6rem' }), gNum('ru', '$R_d \\cdot \\vec u$ =', -Rn, { unite: 'N', groupe: 'Résultante dynamique', largeur: '6rem' })],
+                correction: `<p>$I_{Oz} = \\frac{m\\ell^2}{3} = ${dyNb(I)}$ kg·m² ; $O$ est fixe donc $\\vec\\sigma_O = [I_O]\\vec\\Omega = I_{Oz}\\dot\\theta\\,\\vec z = ${dyNb(sig)}\\,\\vec z$.</p><p>$T = \\frac12 I_{Oz}\\dot\\theta^2 = ${dyNb(T)}$ J.</p><p>$\\vec V_G = \\frac{\\ell}{2}\\dot\\theta\\vec v$, donc $\\vec\\Gamma_G = \\frac{\\ell}{2}(\\ddot\\theta\\vec v - \\dot\\theta^2\\vec u)$ et $\\vec R_d = m\\vec\\Gamma_G$ : $${dyNb(Rt)}$ N sur $\\vec v$ et $${dyNb(-Rn)}$ N sur $\\vec u$ (dirigée vers $O$).</p>` };
+        }
+        function dyRotation() {
+            const cas = choisir(['disque', 'cylindre', 'tige']), m = choisir([2, 4, 5, 8, 10, 20]), R = choisir([0.1, 0.15, 0.2, 0.25, 0.3]), L = choisir([0.5, 0.8, 1, 1.2]);
+            const C = choisir([0.5, 1, 1.5, 2, 3, 5]), N = choisir([300, 600, 1000, 1500]), w = 2 * Math.PI * N / 60;
+            const I = cas === 'tige' ? m * L * L / 12 : m * R * R / 2;
+            const mat = cas === 'tige' ? dyMat('\\frac{mL^2}{12}', '\\frac{mL^2}{12}', '0') : cas === 'disque' ? dyMat('\\frac{mR^2}{4}', '\\frac{mR^2}{4}', '\\frac{mR^2}{2}') : dyMat('m\\left(\\frac{R^2}{4} + \\frac{H^2}{12}\\right)', 'm\\left(\\frac{R^2}{4} + \\frac{H^2}{12}\\right)', '\\frac{mR^2}{2}');
+            const nom = { disque: `un disque de masse $${m}$ kg et de rayon $${dyNb(R)}$ m tourne autour de son axe $(G, \\vec z)$`, cylindre: `un cylindre plein de masse $${m}$ kg et de rayon $${dyNb(R)}$ m tourne autour de son axe $(G, \\vec z)$`, tige: `une tige de masse $${m}$ kg et de longueur $${dyNb(L)}$ m (portée par $\\vec z$) tourne autour de l'axe $(G, \\vec x)$ passant par son milieu` }[cas];
+            const a = C / I, t = w / a, T = I * w * w / 2;
+            return { enonce: `<p>Partant du repos, ${nom}, axe fixe. Un moteur lui applique un couple constant $C = ${dyNb(C)}$ N·m (frottements négligés).</p><p>Matrice d'inertie donnée : $[I_G] = ${mat}$</p><p>Calcule le moment d'inertie utile, l'accélération angulaire, le temps pour atteindre $${N}$ tr/min et l'énergie cinétique à cette vitesse.</p>`,
+                champs: [gNum('i', '$I_\\Delta$ =', I, { unite: 'kg·m²', largeur: '6rem' }), gNum('a', '$\\ddot\\theta$ =', a, { unite: 'rad/s²', largeur: '6rem' }), gNum('t', '$t$ =', t, { unite: 's', largeur: '6rem' }), gNum('e', '$T$ =', T, { unite: 'J', largeur: '6rem' })],
+                correction: `<p>Axe de rotation : ${cas === 'tige' ? '$\\vec x$, on lit $A = \\frac{mL^2}{12}$' : '$\\vec z$, on lit $C = \\frac{mR^2}{2}$'}, soit $I_\\Delta = ${dyNb(I)}$ kg·m².</p><p>PFD en moment sur l'axe : $I_\\Delta\\,\\ddot\\theta = C$, donc $\\ddot\\theta = ${dyNb(a)}$ rad/s².</p><p>$\\omega = \\frac{2\\pi \\times ${N}}{60} \\approx ${dyNb(w)}$ rad/s, atteint en $t = \\omega / \\ddot\\theta \\approx ${dyNb(t)}$ s.</p><p>$T = \\frac12 I_\\Delta\\,\\omega^2 \\approx ${dyNb(T)}$ J.</p>` };
+        }
+        function dyTranslation() {
+            const m = choisir([50, 80, 100, 150, 200, 250]), F = choisir([100, 150, 200, 300, 400, 500]), f = choisir([0, 0.05, 0.1, 0.15]), g = 9.81, t = gInt(2, 8);
+            const a = (F - f * m * g) / m;
+            if (a <= 0) return dyTranslation();
+            const v = a * t;
+            return { enonce: `<p>Un chariot de masse $m = ${m}$ kg, initialement au repos sur un sol horizontal, est tiré par une force horizontale $F = ${F}$ N. ${f ? `Le coefficient de frottement vaut $f = ${dyNb(f)}$ (frottement $f\\,m\\,g$, $g = 9{,}81$ m/s²).` : 'Les frottements sont négligés.'}</p><p>Calcule son accélération, sa vitesse au bout de $${t}$ s et son énergie cinétique à cet instant.</p>`,
+                champs: [gNum('a', '$a$ =', a, { unite: 'm/s²', largeur: '6rem' }), gNum('v', '$v$ =', v, { unite: 'm/s', largeur: '6rem' }), gNum('e', '$T$ =', m * v * v / 2, { unite: 'J', largeur: '6rem' })],
+                correction: `<p>Théorème de la résultante dynamique projeté sur le déplacement : $F ${f ? '- f\\,m\\,g ' : ''}= m\\,a$, donc $a = ${dyNb(a)}$ m/s².</p><p>$v = a\\,t = ${dyNb(v)}$ m/s ; translation : $T = \\frac12 m v^2 = ${dyNb(m * v * v / 2)}$ J.</p>` };
+        }
+        function dyEnsemble() {
+            const m = choisir([0.5, 1, 2]), M = choisir([1, 2, 3, 4]), l = choisir([0.4, 0.5, 0.6, 0.8]), R = choisir([0.05, 0.1]), w = choisir([1, 2, 3, 4]);
+            const d = l - R, Itige = m * l * l / 3, Idisque = M * R * R / 2 + M * d * d, I = Itige + Idisque, p = (m * l / 2 + M * d) * w;
+            return { enonce: `<p>Une tige homogène $OA$ (masse $m = ${dyNb(m)}$ kg, longueur $\\ell = ${dyNb(l)}$ m) tourne autour du pivot fixe $(O, \\vec z)$ à $\\dot\\theta = ${w}$ rad/s. Un disque plein (masse $M = ${dyNb(M)}$ kg, rayon $R = ${dyNb(R)}$ m, d'axe $\\vec z$) lui est <strong>solidaire</strong>, son centre $C$ étant tel que $\\overrightarrow{OC} = (\\ell - R)\\,\\vec u$.</p><p>Matrices d'inertie données : tige $[I_O] = ${dyMat('0', '\\frac{m\\ell^2}{3}', '\\frac{m\\ell^2}{3}')}_{(\\vec u, \\vec v, \\vec z)}$, disque $[I_C] = ${dyMat('\\frac{MR^2}{4}', '\\frac{MR^2}{4}', '\\frac{MR^2}{2}')}_{(\\vec u, \\vec v, \\vec z)}$</p><p>Calcule le moment d'inertie de l'ensemble autour de $(O, \\vec z)$, la quantité de mouvement, le moment cinétique en $O$ et l'énergie cinétique.</p>`,
+                champs: [gNum('i', '$I_{Oz}$ =', I, { unite: 'kg·m²', largeur: '6rem' }), gNum('p', '$p$ =', p, { unite: 'kg·m/s', largeur: '6rem' }), gNum('s', '$\\sigma_{Oz}$ =', I * w, { unite: 'kg·m²/s', largeur: '6rem' }), gNum('e', '$T$ =', I * w * w / 2, { unite: 'J', largeur: '6rem' })],
+                correction: `<p>Tige : $\\frac{m\\ell^2}{3} = ${dyNb(Itige)}$ kg·m². Disque, Huygens de $C$ à $O$ (distance $\\ell - R = ${dyNb(d)}$ m) : $\\frac{MR^2}{2} + M(\\ell - R)^2 = ${dyNb(Idisque)}$ kg·m². Les deux matrices sont alors au même point et dans la même base : $I_{Oz} = ${dyNb(I)}$ kg·m².</p><p>$\\vec p = (m\\,\\frac{\\ell}{2} + M(\\ell - R))\\,\\dot\\theta\\,\\vec v$, soit $${dyNb(p)}$ kg·m/s.</p><p>Ensemble en rotation autour de $O$ fixe : $\\sigma_{Oz} = I_{Oz}\\dot\\theta = ${dyNb(I * w)}$ et $T = \\frac12 I_{Oz}\\dot\\theta^2 = ${dyNb(I * w * w / 2)}$ J.</p>` };
+        }
+        function dyCours() {
+            return qcm(...choisir([
+                ['Que vaut la résultante du torseur cinétique d\'un solide ?', 'a', [['a', 'm·V_G, la quantité de mouvement'], ['b', 'm·Γ_G'], ['c', '[I_G]·Ω']], ''],
+                ['Pour un point A fixe du solide, le moment cinétique vaut…', 'a', [['a', '[I_A]·Ω'], ['b', 'm·V_A'], ['c', 'toujours 0']], 'Le terme m·AG∧V_A est nul car V_A = 0.'],
+                ['Un solide en translation a un moment cinétique en G…', 'n', [['n', 'nul, car Ω = 0'], ['m', 'égal à m·V_G'], ['i', 'égal à [I_G]']], 'Mais pas forcément nul en un autre point : σ_B = σ_G + BG∧m·V_G.'],
+                ['Comment obtient-on l\'énergie cinétique à partir des torseurs ?', 'c', [['c', '2T = comoment du torseur cinétique et du torseur cinématique'], ['s', 'T = somme des deux résultantes'], ['p', 'T = produit des deux moments']], '2T = R_c·V_A + σ_A·Ω, au même point A.'],
+                ['Énergie cinétique d\'un solide en rotation autour d\'un axe fixe Δ :', 'r', [['r', '½·I_Δ·ω²'], ['t', '½·m·V²'], ['d', 'I_Δ·ω']], 'I_Δ·ω est le moment cinétique.'],
+                ['Quand a-t-on δ_A = dσ_A/dt ?', 'f', [['f', 'quand A est fixe ou quand A = G'], ['t', 'toujours'], ['j', 'jamais']], 'Sinon il faut ajouter m·V_A ∧ V_G.'],
+                ['Que dit le principe fondamental de la dynamique ?', 'p', [['p', 'dans un repère galiléen, torseur dynamique = torseur des actions extérieures'], ['s', 'la somme des forces est toujours nulle'], ['c', 'l\'énergie cinétique est constante']], ''],
+                ['Solide en rotation autour d\'un axe fixe Δ : quelle équation donne le PFD ?', 'i', [['i', 'I_Δ·θ̈ = somme des moments par rapport à Δ'], ['m', 'm·θ̈ = somme des forces'], ['z', 'I_Δ·θ̇ = 0']], ''],
+                ['Peut-on additionner deux matrices d\'inertie écrites en deux points différents ?', 'n', [['n', 'non, il faut d\'abord les ramener au même point (Huygens) et dans la même base'], ['o', 'oui, toujours'], ['b', 'oui si les solides ont la même masse']], ''],
+                ['La dérivée de u, vecteur d\'une base qui tourne à Ω = θ̇·z, vaut…', 'v', [['v', 'θ̇·v'], ['u', '−θ̇·u'], ['z', '0']], 'dv/dt = −θ̇·u.']
+            ]));
+        }
+        EXB('cm2-dynamique', 'cm2-dynamique', 'CM • 2ème Année', 'Dynamique', 'Dynamique : torseurs cinétique et dynamique, énergie, PFD', { id: 'dyn', types: { pendule: dyPendule, rotation: dyRotation, translation: dyTranslation, ensemble: dyEnsemble, cours: dyCours }, libelles: { tout: 'Tout', pendule: 'Pendule : torseurs et énergie', rotation: 'Rotation autour d\'un axe fixe', translation: 'Translation (2e loi de Newton)', ensemble: 'Tige + disque solidaire', cours: 'Cours' } }, 'rotate-3d');
+        RENVOIS['cm2-dynamique'] = { pendule: [2, 3, 5, 6], rotation: [4, 5], translation: [4, 5], ensemble: [2, 5], cours: [2, 3, 4, 5] };
     </script>
 <script src="revision-ds-blancs.js" defer></script>
 <script src="serie.js" defer></script>
