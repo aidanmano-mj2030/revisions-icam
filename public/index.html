@@ -3087,10 +3087,14 @@
         const CALC = { deg: true, ans: 0, hist: [] };
         function calcEvaluer(src) {
             let s = src.replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/π/g, 'pi').replace(/√/g, 'sqrt').replace(/\s+/g, '');
+            // fonctions réciproques : sin⁻¹, cos⁻¹, tan⁻¹ (bouton), cos^-1( tapé avant la parenthèse, arccos
+            s = s.replace(/(sin|cos|tan)(⁻¹|\^-1|\^\(-1\))(?=\()/gi, 'a$1').replace(/arc(sin|cos|tan)/gi, 'a$1');
             s += ')'.repeat(Math.max(0, (s.match(/\(/g) || []).length - (s.match(/\)/g) || []).length));   // parenthèses laissées ouvertes (bouton (−), sin(…) : fermées à la fin
             let i = 0;
             const ang = (x) => (CALC.deg ? x * Math.PI / 180 : x), angInv = (x) => (CALC.deg ? x * 180 / Math.PI : x);
-            const F = { sin: (x) => Math.sin(ang(x)), cos: (x) => Math.cos(ang(x)), tan: (x) => Math.tan(ang(x)), asin: (x) => angInv(Math.asin(x)), acos: (x) => angInv(Math.acos(x)), atan: (x) => angInv(Math.atan(x)),
+            // cos 90° vaut 6e-17 pour l'ordinateur (π n'est pas exact) : un résultat de trigo presque nul est un vrai zéro
+            const net = (v) => (Math.abs(v) < 1e-12 ? 0 : v);
+            const F = { sin: (x) => net(Math.sin(ang(x))), cos: (x) => net(Math.cos(ang(x))), tan: (x) => (net(Math.cos(ang(x))) === 0 ? NaN : net(Math.tan(ang(x)))), asin: (x) => angInv(Math.asin(x)), acos: (x) => angInv(Math.acos(x)), atan: (x) => angInv(Math.atan(x)),
                 sqrt: Math.sqrt, ln: Math.log, log: Math.log10, exp: Math.exp, abs: Math.abs };
             const C = { pi: Math.PI, e: Math.E, rep: CALC.ans };
             const erreur = (m) => { throw new Error(m); };
@@ -3150,6 +3154,7 @@
             const touches = [
                 [`<span id="calc-mode">DEG</span>`, '#mode', f], ['(', '(', f], [')', ')', f], ['⌫', '#del', f], ['AC', '#ac', 'bg-slate-800 text-red-300'],
                 ['sin', 'sin(', f], ['cos', 'cos(', f], ['tan', 'tan(', f], ['√', '√(', f], ['x²', '²', f],
+                ['sin⁻¹', 'sin⁻¹(', f], ['cos⁻¹', 'cos⁻¹(', f], ['tan⁻¹', 'tan⁻¹(', f], ['|x|', 'abs(', f], ['e', 'e', f],
                 ['ln', 'ln(', f], ['log', 'log(', f], ['eˣ', 'exp(', f], ['xʸ', '^', f], ['1/x', '#inv', f],
                 ['7', '7', n], ['8', '8', n], ['9', '9', n], ['÷', '÷', o], ['π', 'π', f],
                 ['4', '4', n], ['5', '5', n], ['6', '6', n], ['×', '×', o], ['×10ⁿ', 'E', f],
@@ -6454,14 +6459,14 @@
                                 ["Cylindrique", R`$(r, \theta, z)$`, R`$x = r\cos\theta,\; y = r\sin\theta,\; z = z$`],
                                 ["Sphérique", R`$(r, \theta, \varphi)$ avec $\theta$ colatitude, $\varphi$ longitude`, R`$x = r\sin\theta\cos\varphi,\; y = r\sin\theta\sin\varphi,\; z = r\cos\theta$ ; $r = \sqrt{x^2 + y^2 + z^2}$, $\cos\theta = \dfrac{z}{r}$`]
                             ], { nowrap: false }),
-                            H.p(R`<strong>Trouver l'angle $\theta$</strong> (polaire et cylindrique ; c'est aussi $\varphi$ en sphérique) à partir de $x$ et $y$ : on calcule $\arctan\left(\dfrac{y}{x}\right)$, puis on corrige selon le quadrant où se trouve le point, car la calculatrice donne toujours un angle entre $-90^\circ$ et $90^\circ$.`),
-                            H.tableau(["Position du point", R`Angle $\theta \in [0\,;\,360^\circ[$`], [
-                                [R`$x > 0$ et $y \geq 0$ (1er quadrant)`, R`$\theta = \arctan\left(\dfrac{y}{x}\right)$`],
-                                [R`$x < 0$ (2e ou 3e quadrant)`, R`$\theta = \arctan\left(\dfrac{y}{x}\right) + 180^\circ$`],
-                                [R`$x > 0$ et $y < 0$ (4e quadrant)`, R`$\theta = \arctan\left(\dfrac{y}{x}\right) + 360^\circ$`],
-                                [R`$x = 0$`, R`$\theta = 90^\circ$ si $y > 0$, $270^\circ$ si $y < 0$`]
-                            ], { nowrap: false }),
-                            H.note(R`Exemple : $M(3\,;\,-2)$. $\arctan\left(\dfrac{-2}{3}\right) \approx -33{,}69^\circ$. Comme $x > 0$ et $y < 0$, le point est dans le 4e quadrant : $\theta \approx -33{,}69 + 360 = 326{,}31^\circ$. Pour vérifier : $\cos\theta$ a le signe de $x$ et $\sin\theta$ celui de $y$.`)
+                            H.p(R`<strong>Trouver l'angle $\theta$</strong> (polaire et cylindrique ; c'est aussi $\varphi$ en sphérique) à partir de $x$ et $y$ : on calcule d'abord $r = \sqrt{x^2 + y^2}$, puis on repart de $x = r\cos\theta$ et $y = r\sin\theta$ :`),
+                            H.formule(R`\cos\theta = \frac{x}{r} \qquad \sin\theta = \frac{y}{r}`),
+                            H.p(R`Le cosinus donne l'angle, le signe du sinus (donc de $y$) dit de quel côté il est :`),
+                            H.liste([
+                                R`si $y \geq 0$ : $\theta = \arccos\left(\dfrac{x}{r}\right)$ ;`,
+                                R`si $y < 0$ : $\theta = 360^\circ - \arccos\left(\dfrac{x}{r}\right)$ (l'angle est sous l'axe des $x$).`
+                            ]),
+                            H.note(R`Exemple : $M(3\,;\,-2)$. $r = \sqrt{9 + 4} = \sqrt{13} \approx 3{,}61$. $\cos\theta = \dfrac{3}{\sqrt{13}}$, donc $\arccos\left(\dfrac{3}{\sqrt{13}}\right) \approx 33{,}69^\circ$. Comme $y < 0$ : $\theta \approx 360 - 33{,}69 = 326{,}31^\circ$. On vérifie : $\sin 326{,}31^\circ \approx -0{,}55 = \dfrac{-2}{\sqrt{13}}$.`)
                         ].join('')
                     },
                     {
@@ -7108,13 +7113,11 @@
         const ANG = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330];
         const rad = (d) => d * Math.PI / 180, deg = (r) => r * 180 / Math.PI;
         const arrondi = (x, d = 3) => Math.round(x * 10 ** d) / 10 ** d;
-        // détail du calcul d'un angle à partir de x et y : arctan, puis correction selon le quadrant
-        function angleTeX(x, y, nom = '\\theta') {
-            if (x === 0) return `<p>$x = 0$ : le point est sur l'axe vertical, donc $${nom} = ${y > 0 ? 90 : 270}^\\circ$.</p>`;
-            const at = arrondi(deg(Math.atan(y / x)), 2), q = x > 0 ? (y >= 0 ? 1 : 4) : (y >= 0 ? 2 : 3);
-            const a = arrondi(q === 1 ? at : q === 4 ? at + 360 : at + 180, 2);
-            const fin = q === 1 ? `on garde cet angle : $${nom} \\approx ${a}^\\circ$` : `on ajoute $${q === 4 ? 360 : 180}^\\circ$ : $${nom} \\approx ${at} + ${q === 4 ? 360 : 180} = ${a}^\\circ$`;
-            return `<p>$\\arctan\\left(\\dfrac{y}{x}\\right) = \\arctan\\left(\\dfrac{${y}}{${x}}\\right) \\approx ${at}^\\circ$. Ici $x ${x > 0 ? '\\gt' : '\\lt'} 0$ et $y ${y >= 0 ? '\\geq' : '\\lt'} 0$ : le point est dans le ${q === 1 ? '1er' : q + 'e'} quadrant, ${fin}.</p>`;
+        // détail du calcul d'un angle à partir de x et y : cos = x/r donne l'angle, le signe de sin (de y) donne le côté
+        function angleTeX(x, y, nom = '\\theta', r = 'r') {
+            const r2 = x * x + y * y, ac = arrondi(deg(Math.acos(x / Math.sqrt(r2))), 2), a = arrondi(y >= 0 ? ac : 360 - ac, 2);
+            const fin = y >= 0 ? `$\\sin${nom} = \\dfrac{y}{${r}} ${y > 0 ? '\\gt' : '='} 0$, donc $${nom} \\approx ${a}^\\circ$` : `$\\sin${nom} = \\dfrac{y}{${r}} \\lt 0$ : l'angle est sous l'axe des $x$, donc $${nom} \\approx 360 - ${ac} = ${a}^\\circ$`;
+            return `<p>$x = ${r}\\cos${nom}$ et $y = ${r}\\sin${nom}$, donc $\\cos${nom} = \\dfrac{x}{${r}} = \\dfrac{${x}}{\\sqrt{${r2}}}$ et $\\arccos\\left(\\dfrac{${x}}{\\sqrt{${r2}}}\\right) \\approx ${ac}^\\circ$. Puis ${fin}.</p>`;
         }
         function rPolaire() {
             if (Math.random() < 0.5) {
@@ -7155,7 +7158,7 @@
             const r = Math.sqrt(x * x + y * y + z * z), th = deg(Math.acos(z / r)); let ph = deg(Math.atan2(y, x)); if (ph < 0) ph += 360;
             return { enonce: `<p>Un point $M$ a pour coordonnées cartésiennes $(${x}\\,;\\,${y}\\,;\\,${z})$. Donne ses coordonnées sphériques $(r\\,;\\,\\theta\\,;\\,\\varphi)$ avec $\\theta \\in [0\\,;\\,180^\\circ]$ et $\\varphi \\in [0\\,;\\,360^\\circ[$ (arrondis à $10^{-2}$ ; angles en degrés).</p>`,
                 champs: [gNum('r', '$r$ =', r, { groupe: 'Coordonnées sphériques', tolAbs: 0.011 }), gNum('th', '$\\theta$ =', th, { groupe: 'Coordonnées sphériques', tolAbs: 0.2, unite: '°' }), gNum('ph', '$\\varphi$ =', ph, { groupe: 'Coordonnées sphériques', tolAbs: 0.2, modulo: 360, unite: '°' })],
-                correction: `<p>$r = \\sqrt{x^2 + y^2 + z^2} = \\sqrt{${x * x + y * y + z * z}} \\approx ${arrondi(r, 2)}$.</p><p>$\\cos\\theta = \\dfrac{z}{r}$, donc $\\theta \\approx ${arrondi(th, 2)}^\\circ$. $\\varphi$ se trouve comme l'angle polaire du point $(x\\,;\\,y)$ :</p>${angleTeX(x, y, '\\varphi')}` };
+                correction: `<p>$r = \\sqrt{x^2 + y^2 + z^2} = \\sqrt{${x * x + y * y + z * z}} \\approx ${arrondi(r, 2)}$.</p><p>$\\cos\\theta = \\dfrac{z}{r}$, donc $\\theta \\approx ${arrondi(th, 2)}^\\circ$. Pour $\\varphi$, on pose $\\rho = r\\sin\\theta = \\sqrt{x^2 + y^2} = \\sqrt{${x * x + y * y}}$ :</p>${angleTeX(x, y, '\\varphi', '\\rho')}` };
         }
         // exo V5 : positions relatives de deux droites
         function vDeuxDroites() {
