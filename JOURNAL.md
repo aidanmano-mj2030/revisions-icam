@@ -220,3 +220,8 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 - CM 2ème année, inertie : les exercices donnent maintenant la matrice d'inertie de chaque solide (on ne l'apprend pas par cœur). Types : masse, lire une matrice, Huygens (trois moments en O), ensemble de solides (poteau + disque, sur le modèle du DS).
 - `src/lecons.js` complété à la main : lancer `npm test`.
 - Maths 2ème année, repères : la leçon et la fiche expliquent comment trouver l'angle θ (ou φ) à partir de x et y (arctan(y/x) puis correction selon le quadrant, avec un exemple). La correction de l'exercice « Repères » détaille ce calcul au lieu de dire « comme en polaire ».
+
+## 26 novembre 2026 – Angle θ par le cosinus, calculatrice (Baptiste)
+
+- Maths 2ème année, repères : θ se trouve avec $\cos\theta = x/r$ et $\sin\theta = y/r$ (arccos, puis 360° − arccos si y < 0), comme en cours ; plus de tangente dans la leçon, la fiche ni les corrections (φ en sphérique avec ρ = r sin θ).
+- Calculatrice : un résultat de trigo presque nul vaut 0 (cos 90° donnait 1e-16), tan 90° est « calcul impossible » ; nouvelles touches sin⁻¹, cos⁻¹, tan⁻¹, |x| et e ; cos^-1( et arccos( tapés au clavier sont compris.
