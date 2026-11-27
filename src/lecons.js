@@ -90,6 +90,7 @@ export const LIEUX_LECONS = {
   "eco2-contrats": ["a2/eco"],
   "eco2-travail": ["a2/eco"],
   "eco2-strategie": ["a2/eco"],
+  "eco2-partenaires": ["a2/eco"],
   "ce2-dimensions": ["a2/ce"],
   "ce2-triphase": ["a2/ce"],
   "ce2-polaires": ["a2/ce"],

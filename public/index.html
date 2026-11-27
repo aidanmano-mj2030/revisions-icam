@@ -3497,7 +3497,7 @@
             "ce2-dimensions", "ce2-triphase", "ce2-polaires", "ce2-magneto", "ce2-choix", "ce2-asynchrone", "ce2-synchrone", "ce2-variateurs",
             "aii2-gemma", "aii2-grafcet", "aii2-asserv",
             "oi-qualite", "oi-kanban", "oi-msp", "oi2-gps", "oi2-veille",
-            "eco2-analyse", "eco2-financement", "eco2-contrats", "eco2-travail", "eco2-strategie"]);
+            "eco2-analyse", "eco2-financement", "eco2-contrats", "eco2-travail", "eco2-strategie", "eco2-partenaires"]);
 
         function afficherOnglets(conteneur, chapitre, actif) {
             const exos = Object.keys(EXOS).filter(k => EXOS[k].chapitre === chapitre);
@@ -17838,6 +17838,188 @@
         ECX2('eco2-strategie', 'QCM et cas', 'Le diagnostic stratégique : QCM et cas pratiques', { id: 'esd', types: { qcm: () => ecoQ(...choisir(ECO_STRAT_Q)), swot: ecoStratCas('swot', 'Dans la matrice SWOT, c\'est…'), pestel: ecoStratCas('pestel', 'Quel facteur du PESTEL ?'), porter: ecoStratCas('porter', 'Quelle force de Porter ?'), lcag: ecoStratCas('lcag', 'Quelle étape du modèle LCAG ?') },
             libelles: { tout: 'Tout', qcm: 'QCM', swot: 'Force, faiblesse, opportunité ou menace ?', pestel: 'Quel facteur PESTEL ?', porter: 'Quelle force de Porter ?', lcag: 'Quelle étape LCAG ?' } }, 'compass');
         RENVOIS['eco2-strategie'] = { qcm: [1, 2, 3, 4, 5], swot: [3, 4, 5], pestel: [4], porter: [4], lcag: [1] };
+
+        // ==========================================
+        // Éco A2, chapitre 6 : les contrats avec les partenaires (principes, clauses, analyse) et le choix d'une structure juridique
+        // ==========================================
+        CHAPITRES["2ème Année"].ECO.push({ num: "Chapitre n°6", titre: "Les contrats avec les partenaires", desc: "Grands principes du droit des contrats, formation du contrat, clauses (suspensive, résolutoire, pénale…), analyser un contrat, choisir une structure juridique.", lecon: "eco2-partenaires", exo: "eco2-partenaires" });
+        const svgEcoTempsContrat = () => ecSvg(400, 190, 'Les trois temps du contrat et les principes qui s\'y appliquent',
+            ecBoite(8, 24, 120, 104, EC.bleu, ['1. Négociation', 'liberté de contracter', 'bonne foi', 'obligation', 'd\'information'], { taille: 11.5 })
+            + ecBoite(140, 24, 120, 104, EC.violet, ['2. Formation', 'consentement', 'capacité', 'contenu licite', 'et certain'], { taille: 11.5 })
+            + ecBoite(272, 24, 120, 104, EC.vert, ['3. Exécution', 'force obligatoire', 'clauses', 'sanctions', 'bonne foi'], { taille: 11.5 })
+            + ecFleche(128, 76, 138, 76) + ecFleche(260, 76, 270, 76)
+            + ecTxt(134, 14, 'offre acceptée', { taille: 9, couleur: SVG_DISCRET }) + ecTxt(266, 14, 'signature', { taille: 9, couleur: SVG_DISCRET })
+            + ecTxt(200, 152, 'Le contrat est formé dès que l\'offre et l\'acceptation se rencontrent.', { taille: 10 })
+            + ecTxt(200, 170, 'S\'il manque une condition de formation, il est nul : il n\'a jamais existé.', { taille: 10, couleur: SVG_DISCRET }));
+        const svgEcoStructures = () => ecSvg(420, 220, 'Choisir une structure juridique : entreprise individuelle ou société',
+            ecBoite(150, 6, 120, 30, EC.ambre, ['Entreprendre'])
+            + ecFleche(180, 36, 110, 58) + ecFleche(240, 36, 312, 58)
+            + ecBoite(15, 60, 190, 40, EC.bleu, ['Entreprise individuelle', 'l\'entrepreneur seul'])
+            + ecBoite(220, 60, 190, 40, EC.violet, ['Société', 'une personne morale'])
+            + ecBoite(15, 110, 190, 62, EC.bleu, ['Micro-entreprise, EI', 'pas de personnalité morale', 'impôt sur le revenu (IR)'], { opacite: 0.07 })
+            + ecBoite(220, 110, 92, 62, EC.violet, ['1 associé', 'EURL', 'SASU'], { opacite: 0.07 })
+            + ecBoite(318, 110, 92, 62, EC.violet, ['2 et plus', 'SARL, SAS', 'SA'], { opacite: 0.07 })
+            + ecTxt(110, 192, 'formalités simples, coûts faibles', { taille: 9.5, couleur: SVG_DISCRET })
+            + ecTxt(315, 192, 'patrimoine propre, impôt sur les sociétés (IS)', { taille: 9.5, couleur: SVG_DISCRET })
+            + ecTxt(315, 208, '(IR possible sous conditions)', { taille: 9, couleur: SVG_DISCRET }));
+        Object.assign(LECONS, {
+            "eco2-partenaires": { badge: ECO2_BADGE, titre: "Les contrats avec les partenaires", sections: () => [
+                ecoSec("1. Le contrat, pour sécuriser les relations", "handshake",
+                    H.p("L'entreprise travaille avec des <strong>partenaires</strong> : fournisseurs, clients, sous-traitants, banques, bailleurs… Le <strong>contrat</strong> fixe par écrit (ou non) ce que chacun s'engage à faire : il rend la relation prévisible et protège chaque partie si l'autre ne tient pas ses engagements."),
+                    H.figure(svgEcoTempsContrat(), "Chaque temps du contrat a ses règles."),
+                    H.liste([
+                        "<strong>La négociation</strong> (phase précontractuelle) : les parties discutent des conditions (prix, quantités, délais). Tant qu'aucune offre n'est acceptée, il n'y a <strong>pas de contrat</strong> : chacun peut encore se retirer, mais de bonne foi. Une négociation qui traîne retarde tout le reste (livraison, paiement…).",
+                        "<strong>La formation</strong> : une partie fait une <strong>offre</strong> précise, l'autre l'<strong>accepte</strong>. Quand les deux volontés se rencontrent, le contrat est formé. Si l'offre est refusée, aucun contrat n'existe.",
+                        "<strong>L'exécution</strong> : chaque partie doit faire ce qu'elle a promis. Les <strong>clauses</strong> prévues à l'avance règlent les difficultés."
+                    ])),
+                ecoSec("2. Les grands principes du droit des contrats", "scale",
+                    H.tableau(["Principe", "Ce qu'il veut dire", "Exemple"], [
+                        ["Liberté contractuelle", "chacun est libre de contracter ou non, de choisir son cocontractant et de fixer le contenu du contrat, dans le respect de la loi", "une PME choisit un autre fournisseur que celui qui la démarche"],
+                        ["Consensualisme", "le seul <strong>accord des volontés</strong> suffit à former le contrat, sans formalité particulière (sauf exceptions prévues par la loi)", "un accord oral sur une réparation et son prix est déjà un contrat"],
+                        ["Force obligatoire", "ce que les parties ont voulu s'impose à elles, dans les conditions où elles l'ont voulu : on ne revient pas seul sur sa parole", "le fournisseur qui a promis 48 h doit livrer en 48 h"],
+                        ["Bonne foi", "les parties doivent être <strong>sincères, loyales et coopérer</strong>, pendant la négociation, la formation <strong>et</strong> l'exécution", "on ne négocie pas seulement pour obtenir les plans du concurrent"],
+                        ["Obligation d'information précontractuelle", "chaque partie doit donner à l'autre toute information <strong>déterminante</strong> pour son consentement, qu'elle connaît", "le bailleur signale que le local est en zone inondable"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("Pièges classiques : le consensualisme n'a rien à voir avec « ne pas prendre position » ; la bonne foi ne commence pas à la signature, elle s'applique dès les négociations.")),
+                ecoSec("3. Les conditions de formation du contrat", "file-check",
+                    H.p("Pour être valable, le contrat doit réunir <strong>trois conditions</strong> (détaillées au chapitre 3, « Les contrats ») :"),
+                    H.tableau(["Condition", "Ce qu'il faut vérifier"], [
+                        ["Consentement libre et éclairé", "aucun vice : pas d'<strong>erreur</strong> sur une qualité essentielle, pas de <strong>dol</strong> (manœuvres pour tromper), pas de <strong>violence</strong> (physique ou simple menace)"],
+                        ["Capacité juridique", "les parties ne sont ni mineures ni protégées (tutelle, curatelle) ; une société signe par son représentant, dont la fonction est précisée"],
+                        ["Contenu licite et certain", "conforme à la loi et à l'ordre public, prestation déterminée ou déterminable (on sait ce qui est dû)"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("Si une condition manque, le contrat est <strong>nul</strong> : il est censé n'avoir <strong>jamais existé</strong> (effet rétroactif). Chacun rend ce qu'il a reçu, ce qui peut coûter cher en pratique (marchandises à restituer, livraisons à reprogrammer).")),
+                ecoSec("4. Les clauses contractuelles", "list-checks",
+                    H.p("Les <strong>clauses</strong> adaptent le contrat aux besoins des parties et <strong>anticipent les difficultés</strong>. Il faut savoir les reconnaître dans un extrait et dire leur effet."),
+                    H.tableau(["Clause", "Effet", "Exemple"], [
+                        ["Suspensive", "le contrat ne devient définitif <strong>que si</strong> un événement prévu se réalise", "achat d'un local sous réserve d'obtenir le prêt : sans prêt, pas de vente"],
+                        ["Résolutoire", "<strong>si</strong> l'événement prévu se réalise (souvent un manquement), le contrat prend fin", "location résiliée de plein droit après une mise en demeure restée sans effet"],
+                        ["De renégociation", "les parties devront revoir le contrat si un événement imprévu bouleverse son équilibre", "le prix de la matière première augmente de 150 %"],
+                        ["De réserve de propriété", "le vendeur reste <strong>propriétaire</strong> jusqu'au paiement complet ; l'acheteur n'est que <strong>possesseur</strong>", "machine payée en douze échéances"],
+                        ["Limitative de responsabilité", "en cas d'inexécution, l'indemnité ne peut pas dépasser un plafond", "transporteur : 10 000 € maximum par envoi"],
+                        ["Pénale", "une somme <strong>forfaitaire</strong> fixée d'avance est due en cas d'inexécution", "200 € par jour de retard ; 40 € de frais de recouvrement"]
+                    ], { nowrap: false, gauche: true }),
+                    H.liste([
+                        "<strong>Clause pénale</strong> : rien à voir avec la prison. Le juge peut <strong>réduire ou augmenter</strong> la somme si elle est manifestement excessive ou dérisoire (article 1231-5 du Code civil).",
+                        "<strong>Clause limitative</strong> : elle est écartée si le débiteur a commis une <strong>faute lourde ou inexcusable</strong> ; la victime obtient alors la réparation intégrale. Une clause acceptable fixe donc un plafond raisonnable, sauf faute lourde.",
+                        "<strong>Suspensive ou résolutoire ?</strong> Suspensive : l'événement doit arriver pour que le contrat <em>commence</em>. Résolutoire : l'événement fait <em>tomber</em> le contrat."
+                    ])),
+                ecoSec("5. Analyser un contrat (méthode)", "search",
+                    H.p("À l'épreuve de CEJM, on peut te demander d'analyser un extrait de contrat. Deux lectures : une <strong>globale</strong> (quel contrat ? est-il valable ?) puis une <strong>détaillée</strong> (que doit faire chaque partie ? quelles clauses ?)."),
+                    H.tableau(["Élément à repérer", "Ce qu'on cherche", "Exemples"], [
+                        ["Type de contrat", "sa nature", "travail, vente, location, bail, prestation de services"],
+                        ["Parties", "nom et qualité de chacune ; pour une société, la personne physique qui signe et sa fonction", "bailleur (loueur) / locataire ; donneur d'ordre / prestataire ; vendeur / acheteur"],
+                        ["Lieu et date", "souvent à la fin, avant les signatures", "« Fait à Lyon, le 3 mars 2026 »"],
+                        ["Obligations", "les obligations principales de chacun", "le prestataire entretient le parc, le client paie chaque mois"],
+                        ["Clauses", "les clauses particulières et leur effet", "pénale, résolutoire, limitative…"],
+                        ["Durée", "quand et comment le contrat prend fin, préavis", "un an, renouvelable tacitement, préavis de trois mois"],
+                        ["Validité", "consentement, capacité, contenu licite et certain", "un signataire mineur rend le contrat annulable"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("Pour répondre à une question sur un contrat : cite l'article concerné, dis ce qu'il prévoit, puis applique-le à la situation. Ce qui n'est pas écrit dans le contrat (par exemple une tâche que le prestataire n'a pas à faire) ne peut pas être exigé.")),
+                ecoSec("6. Entreprendre : choisir une structure juridique", "building-2",
+                    H.figure(svgEcoStructures(), "Deux grandes familles : l'entreprise individuelle et la société."),
+                    H.tableau(["", "Entreprise individuelle", "Société"], [
+                        ["Formes", "micro-entreprise (auto-entrepreneur), entreprise individuelle (EI) ; l'EIRL existait aussi", "un associé : EURL, SASU ; plusieurs : SARL, SAS, SA"],
+                        ["Personnalité morale", "non : l'entreprise, c'est l'entrepreneur", "oui : la société est une personne morale indépendante, avec son propre patrimoine"],
+                        ["Patrimoine", "dans le cours : il se confond avec celui du dirigeant", "distinct de celui des associés : les dettes de la société sont les siennes"],
+                        ["Impôt", "impôt sur le revenu (IR)", "impôt sur les sociétés (IS) ; IR possible sous conditions"],
+                        ["Intérêt", "démarrer vite, simplement, avec peu de frais", "s'associer, réunir des capitaux, protéger ses biens personnels"]
+                    ], { nowrap: false, gauche: true }),
+                    H.note("À savoir : depuis le 15 mai 2022, la loi sépare automatiquement le patrimoine professionnel et le patrimoine personnel de l'entrepreneur individuel, et l'EIRL ne peut plus être créée. L'EI n'a pas pour autant de personnalité morale."))
+            ] }
+        });
+        const ECO_PART_CAS = {
+            principe: { cats: ['Liberté contractuelle', 'Consensualisme', 'Force obligatoire', 'Bonne foi', 'Obligation d\'information précontractuelle'], items: [
+                ['Une PME écarte l\'offre d\'un fournisseur et signe avec son concurrent.', 0, 'Chacun choisit librement de contracter ou non, et avec qui.'],
+                ['Une start-up rédige librement les clauses de son contrat de distribution, dans le respect de la loi.', 0, 'Les parties fixent le contenu du contrat.'],
+                ['Un garagiste et son client s\'accordent oralement sur la réparation et son prix : le contrat existe déjà.', 1, 'L\'accord des volontés suffit, sans écrit.'],
+                ['Deux commerçants se serrent la main sur le prix d\'un lot de palettes : la vente est conclue.', 1, 'Pas de formalité : l\'accord suffit.'],
+                ['Après la signature, le prestataire de maintenance ne peut pas décider seul d\'espacer ses visites.', 2, 'Ce qui a été convenu s\'impose aux parties.'],
+                ['Le fournisseur a promis une livraison sous 48 h dans le contrat : il doit la respecter.', 2, 'Le contrat tient lieu de loi entre les parties.'],
+                ['Une entreprise fait durer les négociations sans intention de signer, juste pour obtenir les plans techniques de son interlocuteur.', 3, 'Comportement déloyal : il viole la bonne foi, qui s\'applique dès les négociations.'],
+                ['Un sous-traitant prévient spontanément son client d\'un risque de retard pour chercher une solution ensemble.', 3, 'Loyauté et coopération pendant l\'exécution.'],
+                ['Avant de signer le bail, le propriétaire doit dire au futur locataire que le local est en zone inondable.', 4, 'Information déterminante pour le consentement de l\'autre partie.'],
+                ['Le vendeur d\'une machine doit signaler qu\'elle ne fonctionne qu\'en triphasé, alors que l\'acheteur n\'a que du monophasé.', 4, 'Sans cette information, l\'acheteur n\'aurait pas acheté.']] },
+            clause: { cats: ['Clause suspensive', 'Clause résolutoire', 'Clause de renégociation', 'Clause de réserve de propriété', 'Clause limitative de responsabilité', 'Clause pénale'], items: [
+                ['L\'achat du local n\'aura lieu que si la banque accorde le prêt à l\'acheteur dans les trente jours.', 0, 'La vente dépend d\'un événement futur : sans prêt, pas de vente.'],
+                ['La vente du fonds de commerce ne sera définitive que si la mairie autorise l\'ouverture.', 0, 'Le contrat attend la réalisation de la condition.'],
+                ['Le contrat sera résilié de plein droit huit jours après une mise en demeure restée sans effet.', 1, 'Le manquement fait tomber le contrat, sans passer par le juge.'],
+                ['La location prend fin automatiquement si le locataire ne respecte pas une des conditions générales.', 1, 'L\'événement prévu met fin au contrat.'],
+                ['Si le prix de l\'acier augmente de plus de 30 %, les parties se retrouveront pour revoir le prix.', 2, 'Un événement imprévu bouleverse l\'équilibre du contrat.'],
+                ['En cas de crise imprévue qui rend le contrat ruineux pour l\'une des parties, une nouvelle discussion des conditions est prévue.', 2, 'Le contrat devra être renégocié.'],
+                ['Le fournisseur reste propriétaire de la machine jusqu\'au paiement de la dernière échéance.', 3, 'L\'acheteur n\'est que possesseur tant qu\'il n\'a pas tout payé.'],
+                ['Tant que le client n\'a pas tout réglé, le véhicule appartient toujours au concessionnaire.', 3, 'Le transfert de propriété attend le paiement complet.'],
+                ['En cas de perte de la marchandise, le transporteur ne remboursera pas plus de 10 000 €.', 4, 'L\'indemnité est plafonnée (sauf faute lourde ou inexcusable).'],
+                ['Le prestataire informatique ne répond des dommages que dans la limite du montant annuel du contrat.', 4, 'Plafond d\'indemnisation.'],
+                ['Chaque jour de retard de livraison coûtera 200 € au fournisseur.', 5, 'Somme forfaitaire fixée d\'avance, que le juge peut modérer.'],
+                ['Un retard de paiement entraîne une indemnité forfaitaire de 40 € pour frais de recouvrement.', 5, 'Montant prévu d\'avance en cas d\'inexécution.']] },
+            formation: { cats: ['Consentement vicié', 'Incapacité d\'une partie', 'Contenu illicite ou incertain', 'Aucun défaut : contrat valable'], items: [
+                ['Une entreprise signe un contrat pour acheter et revendre des contrefaçons de montres de luxe.', 2, 'Objet contraire à la loi : contenu illicite, nullité absolue.'],
+                ['Un salarié signe un avenant à son contrat parce que son responsable menace de le licencier.', 0, 'Violence morale : une simple menace peut vicier le consentement.'],
+                ['Un hôpital commande des vaccins contre la grippe en croyant commander ceux contre la Covid-19.', 0, 'Erreur sur une qualité essentielle de la prestation.'],
+                ['Le vendeur d\'une voiture a trafiqué le compteur pour la vendre plus cher.', 0, 'Dol : manœuvre destinée à tromper l\'acheteur.'],
+                ['Un contrat de cession d\'actions est signé par un enfant de dix ans.', 1, 'Un mineur n\'a pas la capacité de signer un tel acte.'],
+                ['Une personne sous tutelle vend seule son appartement, sans son tuteur.', 1, 'Majeur protégé : il doit être représenté.'],
+                ['Un contrat de fourniture ne prévoit ni prix, ni moyen de le calculer.', 2, 'La prestation doit être déterminée ou déterminable : contenu incertain.'],
+                ['Deux sociétés, représentées par leurs gérants, signent librement un contrat de maintenance au prix fixé.', 3, 'Les trois conditions sont réunies.']] },
+            statut: { cats: ['Micro-entreprise ou entreprise individuelle', 'Société à un seul associé (EURL, SASU)', 'Société à plusieurs associés (SARL, SAS, SA)'], items: [
+                ['Une étudiante veut réparer des vélos à domicile le week-end, avec le moins de formalités possible.', 0, 'Démarrer vite et simplement, coûts faibles, impôt sur le revenu.'],
+                ['Un consultant veut tester son activité seul, à moindre coût, avant de se lancer vraiment.', 0, 'Formalités et coûts de fonctionnement réduits.'],
+                ['Un artisan seul veut que son entreprise soit une personne morale, avec son propre patrimoine.', 1, 'Une société à associé unique : EURL ou SASU.'],
+                ['Une créatrice seule veut une société par actions, pour faire entrer des investisseurs plus tard.', 1, 'SASU : une SAS à associé unique.'],
+                ['Trois amis veulent créer ensemble un atelier de réparation de vélos.', 2, 'Plusieurs associés : SARL ou SAS.'],
+                ['Un projet industriel doit réunir de nombreux actionnaires et beaucoup de capitaux.', 2, 'Société de capitaux à plusieurs associés, par exemple une SA.']] }
+        };
+        const ECO_PART_VF = [
+            ['Les négociations ont lieu avant la signature du contrat.', true, 'C\'est la phase précontractuelle.'],
+            ['Le principe de bonne foi ne s\'applique qu\'une fois le contrat signé.', false, 'Il s\'applique aussi pendant les négociations et la formation.'],
+            ['Le consensualisme consiste à ne pas prendre position sur un point.', false, 'Il veut dire que le seul accord des volontés suffit à former le contrat.'],
+            ['Le consentement des parties est une condition de validité du contrat.', true, 'Avec la capacité et un contenu licite et certain.'],
+            ['La clause de réserve de propriété permet à l\'acheteur de réserver un bien en attendant de pouvoir le payer.', false, 'L\'acheteur a le bien, mais le vendeur en reste propriétaire jusqu\'au paiement complet.'],
+            ['Une simple menace peut constituer une violence qui vicie le consentement.', true, 'C\'est la violence morale.'],
+            ['L\'erreur est le fait de se tromper sur un élément essentiel du contrat.', true, 'Une qualité essentielle de la prestation ou du cocontractant.'],
+            ['La nullité anéantit le contrat de façon rétroactive.', true, 'Le contrat est censé n\'avoir jamais existé.'],
+            ['La clause pénale peut envoyer le cocontractant défaillant en prison.', false, 'Elle prévoit seulement une somme d\'argent forfaitaire.'],
+            ['La clause résolutoire met fin au contrat si l\'événement prévu n\'arrive pas.', false, 'C\'est quand l\'événement prévu se réalise que le contrat prend fin.'],
+            ['Un contrat signé par un mineur peut être annulé.', true, 'Défaut de capacité : nullité relative.'],
+            ['Un contrat doit toujours être écrit pour exister.', false, 'Consensualisme : l\'accord suffit, sauf exceptions prévues par la loi.'],
+            ['Une entreprise individuelle possède la personnalité morale.', false, 'Seule la société est une personne morale.'],
+            ['Le juge peut réduire une clause pénale manifestement excessive.', true, 'Article 1231-5 du Code civil.'],
+            ['Une société signe un contrat par l\'intermédiaire d\'une personne physique qui la représente.', true, 'Sa fonction doit être précisée dans le contrat.']
+        ];
+        const ECO_PART_Q = [
+            ['Quel principe permet de refuser de contracter ou de choisir son cocontractant ?', ['La liberté contractuelle', 'La force obligatoire', 'Le consensualisme', 'La bonne foi'], 0, ''],
+            ['Le principe du consensualisme signifie que…', ['Le seul accord des volontés suffit à former le contrat', 'Il faut toujours un écrit signé', 'Les parties ne prennent pas position', 'Le juge doit valider le contrat'], 0, ''],
+            ['La force obligatoire du contrat veut dire que…', ['Ce qui a été convenu s\'impose aux parties', 'Une seule partie peut le modifier', 'Il ne vaut que s\'il est écrit', 'L\'État peut l\'annuler à tout moment'], 0, ''],
+            ['Le principe de bonne foi s\'applique…', ['Pendant la négociation, la formation et l\'exécution', 'Seulement après la signature', 'Seulement devant le juge', 'Seulement dans les contrats de travail'], 0, ''],
+            ['L\'obligation d\'information précontractuelle porte sur…', ['Toute information déterminante pour le consentement de l\'autre partie', 'Le prix de revient du vendeur', 'Toutes les informations, même sans importance', 'La vie privée des dirigeants'], 0, ''],
+            ['Quand la négociation se termine-t-elle ?', ['Quand une offre est acceptée : le contrat est formé', 'À la première réunion', 'Quand le produit est livré', 'Quand le prix est payé'], 0, ''],
+            ['Que se passe-t-il si une offre de vente est refusée ?', ['Aucun contrat n\'est formé', 'Le contrat est formé quand même', 'Le vendeur doit une indemnité', 'Le contrat est résolu'], 0, ''],
+            ['Quelles sont les trois conditions de validité d\'un contrat ?', ['Consentement libre et éclairé, capacité, contenu licite et certain', 'Écrit, signature, date', 'Prix, durée, objet', 'Offre, acceptation, livraison'], 0, ''],
+            ['Quels sont les trois vices du consentement ?', ['L\'erreur, le dol et la violence', 'L\'erreur, le retard et l\'oubli', 'Le dol, la fraude et la faillite', 'La violence, la nullité et la résolution'], 0, ''],
+            ['Un contrat nul est…', ['Censé n\'avoir jamais existé : chacun rend ce qu\'il a reçu', 'Valable pour l\'avenir', 'Suspendu', 'Renégocié'], 0, ''],
+            ['Une clause pénale prévoit…', ['Une somme forfaitaire due en cas d\'inexécution', 'Une peine de prison', 'L\'annulation du contrat par le juge', 'Une remise sur le prix'], 0, 'Rien à voir avec le droit pénal.'],
+            ['Le juge peut-il modifier le montant d\'une clause pénale ?', ['Oui, s\'il est manifestement excessif ou dérisoire', 'Non, jamais', 'Oui, dès qu\'une partie le demande', 'Seulement pour l\'augmenter'], 0, 'Article 1231-5 du Code civil.'],
+            ['Avec une clause de réserve de propriété, tant que le prix n\'est pas entièrement payé…', ['Le vendeur reste propriétaire, l\'acheteur n\'est que possesseur', 'L\'acheteur est déjà propriétaire', 'Le bien reste chez le vendeur', 'Le contrat n\'existe pas'], 0, ''],
+            ['Une clause limitative de responsabilité est écartée si…', ['Le débiteur a commis une faute lourde ou inexcusable', 'Le dommage est faible', 'Le contrat est écrit', 'Le client est une entreprise'], 0, 'La victime obtient alors la réparation intégrale.'],
+            ['Une clause qui fait dépendre la vente de l\'obtention d\'un prêt est une clause…', ['Suspensive', 'Résolutoire', 'Pénale', 'De renégociation'], 0, 'Sans prêt, la vente ne se fait pas.'],
+            ['Dans un contrat de location, comment appelle-t-on les parties ?', ['Le bailleur (loueur) et le locataire', 'Le vendeur et l\'acheteur', 'Le donneur d\'ordre et le prestataire', 'L\'employeur et le salarié'], 0, ''],
+            ['Où trouve-t-on généralement le lieu et la date de signature d\'un contrat ?', ['À la fin, avant les signatures', 'Dans le titre', 'Dans l\'article 1', 'Nulle part'], 0, ''],
+            ['Quel est l\'intérêt principal d\'une société dotée de la personnalité morale ?', ['Elle a son propre patrimoine, distinct de celui des associés', 'Elle ne paie pas d\'impôt', 'Elle n\'a besoin d\'aucun statut', 'Elle ne peut pas signer de contrat'], 0, ''],
+            ['Une société par actions simplifiée à associé unique s\'appelle…', ['Une SASU', 'Une SARL', 'Une SA', 'Une EI'], 0, ''],
+            ['En principe, les bénéfices d\'une société sont soumis…', ['À l\'impôt sur les sociétés (IS)', 'Toujours à l\'impôt sur le revenu', 'À aucun impôt', 'Seulement à la TVA'], 0, 'L\'impôt sur le revenu est possible sous conditions.']
+        ];
+        const ecoPartCas = (type, question) => () => {
+            const s = ECO_PART_CAS[type], [t, a, w] = choisir(s.items);
+            return { enonce: `<p>${t} ${question}</p>`, champs: [gChoix('r', String(a), s.cats.map((c, i) => [String(i), c]), { groupe: 'Ta réponse' })], correction: `<p><strong class="text-white">${s.cats[a]}</strong>. ${w}</p>` };
+        };
+        const ecoPartVF = () => {
+            const [t, v, w] = choisir(ECO_PART_VF);
+            return { enonce: `<p>Vrai ou faux : « ${t} »</p>`, champs: [gChoix('r', v ? 'v' : 'f', [['v', 'Vrai'], ['f', 'Faux']], { groupe: 'Ta réponse' })], correction: `<p><strong class="text-white">${v ? 'Vrai' : 'Faux'}</strong>. ${w}</p>` };
+        };
+        ECX2('eco2-partenaires', 'QCM et cas', 'Les contrats avec les partenaires : QCM et cas pratiques', { id: 'ecp', types: { qcm: () => ecoQ(...choisir(ECO_PART_Q)), vf: ecoPartVF, principe: ecoPartCas('principe', 'Quel principe du droit des contrats ?'), clause: ecoPartCas('clause', 'De quelle clause s\'agit-il ?'), formation: ecoPartCas('formation', 'Le contrat est-il bien formé ?'), statut: ecoPartCas('statut', 'Quelle structure juridique conseiller ?') },
+            libelles: { tout: 'Tout', qcm: 'QCM', vf: 'Vrai ou faux', principe: 'Quel principe ?', clause: 'Quelle clause ?', formation: 'Contrat valable ?', statut: 'Quelle structure ?' } }, 'file-check');
+        RENVOIS['eco2-partenaires'] = { qcm: [1, 2, 3, 4, 5, 6], vf: [2, 3, 4], principe: [2], clause: [4], formation: [3], statut: [6] };
 
         // ==========================================
         // CM 2ème année, chapitre 5 : la dynamique (cinétique, énergie cinétique, PFD)
