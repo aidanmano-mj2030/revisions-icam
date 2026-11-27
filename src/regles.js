@@ -105,6 +105,11 @@ const DS_CHAPITRES = {
       "espace", "reperes", "deuxvards",
     ],
   },
+  "ds-2026-11-eco": {
+    annee: "a2",
+    filtres: { cours: "eco", cas: "eco" },
+    eco: ["contrats", "travail", "strategie", "partenaires", "cascontrats", "castravail", "casstrategie"],
+  },
   "ds-2026-a1-phys": {
     annee: "a1",
     filtres: { cours: "phys", annales: "phys" },
