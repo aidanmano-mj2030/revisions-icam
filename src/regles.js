@@ -108,7 +108,7 @@ const DS_CHAPITRES = {
   "ds-2026-a1-phys": {
     annee: "a1",
     filtres: { cours: "phys", annales: "phys" },
-    phys: ["grandeurs", "dipoles", "theoremes", "vraifaux", "reseaux", "expressions", "theoremesds", "oscillo"],
+    phys: ["grandeurs", "dipoles", "theoremes", "sinus", "vraifaux", "reseaux", "expressions", "theoremesds", "oscillo"],
   },
 };
 

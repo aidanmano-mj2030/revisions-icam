@@ -225,3 +225,8 @@ Les mises à jour du site, de la plus ancienne à la plus récente. Le site est 
 
 - Maths 2ème année, repères : θ se trouve avec $\cos\theta = x/r$ et $\sin\theta = y/r$ (arccos, puis 360° − arccos si y < 0), comme en cours ; plus de tangente dans la leçon, la fiche ni les corrections (φ en sphérique avec ρ = r sin θ).
 - Calculatrice : un résultat de trigo presque nul vaut 0 (cos 90° donnait 1e-16), tan 90° est « calcul impossible » ; nouvelles touches sin⁻¹, cos⁻¹, tan⁻¹, |x| et e ; cos^-1( et arccos( tapés au clavier sont compris.
+
+## 27 novembre 2026 – Révision DS physique 1ère année : chapitre 4 (Baptiste)
+
+- Pop-up de physique 1ère année étendu aux chapitres 1 à 4 : nouveau chapitre de cours « Les grandeurs sinusoïdales » (signal, déphasage, valeurs moyenne et efficace, Fresnel et complexes ; 10 QCM et 2 exercices), formules du chapitre 4, QCM dans l'examen blanc. L'oscillogramme du DS n°2 de 2025 est maintenant relié au cours du chapitre 4.
+- `src/regles.js` : clé de progression `sinus` ajoutée à `ds-2026-a1-phys` ; lancer `npm test`.
