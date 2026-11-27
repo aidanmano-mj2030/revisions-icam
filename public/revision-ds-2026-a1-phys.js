@@ -1,11 +1,11 @@
 /*
- * Studicam : contenu de la Révision DS de physique de 1ère année (chapitres 1 à 3).
- * Date du DS à confirmer (dateAConfirmer). Parties : Cours (ch. 1 à 3) et Anciens DS (DS n°2 de
+ * Studicam : contenu de la Révision DS de physique de 1ère année (chapitres 1 à 4).
+ * Date du DS à confirmer (dateAConfirmer). Parties : Cours (ch. 1 à 4) et Anciens DS (DS n°2 de
  * 2021, 2023 et 2025, regroupés par type d'exercice, corrections refaites par nous, sans nom d'élève).
  *
  * Chargé par index.html juste après revision-ds.js, qui l'affiche sur l'accueil de 1ère année
  * (voir « Ajouter une Révision DS » dans le README). Partie « Cours » : grandeurs électriques et
- * lois de Kirchhoff, dipôles, théorèmes généraux. Notions et QCM écrits par nous à partir des
+ * lois de Kirchhoff, dipôles, théorèmes généraux, grandeurs sinusoïdales. Notions et QCM écrits par nous à partir des
  * leçons du site ; exercices avec d'autres données, recalculées.
  * Clés de progression : a1/ds/ds-2026-a1-phys/<chapitre> et a1/ds/ds-2026-a1-phys/examen-<filtre>.
  */
@@ -22,7 +22,7 @@
     const FIG = {
         conventions: () => dessin('phConventions'), noeud: () => dessin('phNoeud'),
         carac: () => dessin('phCarac'), diviseur: () => dessin('phDiviseurU'), theNor: () => dessin('phTheNor'),
-        sinus: () => dessin('phSinus'), dephasage: () => dessin('phDephasage')
+        sinus: () => dessin('phSinus'), dephasage: () => dessin('phDephasage'), phaseurs: () => dessin('phPhaseurs')
     };
     const fig = (cle) => FIG[cle]();
 
@@ -126,6 +126,49 @@
                     steps: ["Millman : U = (12/100 + 6/200 + 0/300) / (1/100 + 1/200 + 1/300).", "Numérateur : 0,12 + 0,03 = 0,15 A ; dénominateur : 0,01 + 0,005 + 0,00333 ≈ 0,01833 S.", "U ≈ 0,15 / 0,01833 ≈ 8,18 V.", "I₃ = U / R₃ ≈ 8,18 / 300 ≈ 27,3 mA (même résultat que l'exemple de la leçon, par superposition)."] },
                 { calc: true, fig: fig('theNor'), q: "Un diviseur E = 24 V, R₁ = 3 kΩ, R₂ = 6 kΩ alimente une charge R_c branchée aux bornes de R₂. Donner le Thévenin vu de R_c, puis le courant et la tension pour R_c = 2 kΩ.",
                     steps: ["E_Th = 24 × 6 / (3 + 6) = 16 V.", "R_Th = R₁ // R₂ = 3 × 6 / 9 = 2 kΩ.", "I = E_Th / (R_Th + R_c) = 16 / 4 = 4 mA.", "U = R_c·I = 2 × 4 = 8 V (la moitié de E_Th, car R_c = R_Th)."] }
+            ]
+        },
+        {
+            id: 'sinus', code: 'CH4', titre: 'Les grandeurs sinusoïdales', sous: 'Amplitude, période, pulsation, déphasage, valeurs moyenne et efficace, Fresnel',
+            sections: [
+                S('Signal sinusoïdal', 'audio-waveform',
+                    FIGURE(fig('sinus'), `X<sub>m</sub> amplitude, ω pulsation, φ₀ phase à l'origine.`),
+                    F(R`x(t) = X_m\cos(\omega t + \varphi_0) \qquad \omega = 2\pi f = \dfrac{2\pi}{T}`, `X<sub>m</sub> amplitude (valeur max) · ω pulsation (rad/s) · f fréquence (Hz) · T = 1/f période (s) · ωt + φ₀ phase instantanée`),
+                    NOTE('Lire un oscillogramme', `On compte des <b>divisions</b> (les grands carreaux), pas les petites graduations. Durée = nombre de divisions × base de temps (ms/div) ; tension = nombre de divisions × sensibilité (V/div).`)),
+                S('Déphasage', 'move-horizontal',
+                    FIGURE(fig('dephasage'), `x₂ passe par son maximum après x₁ : x₂ est en retard d'une durée Δt.`),
+                    F(R`|\Delta\varphi| = 2\pi\,\dfrac{\Delta t}{T}`, `Δt décalage entre deux maximums successifs des deux courbes · on met le signe ensuite : <b>négatif</b> pour le signal en retard, positif pour celui en avance`),
+                    T(['Δφ', 'Situation'], [
+                        ['0', 'en phase'],
+                        ['± π/2', 'en quadrature (Δt = T/4)'],
+                        ['π', 'en opposition de phase (Δt = T/2)']
+                    ])),
+                S('Valeurs moyenne et efficace', 'gauge',
+                    F(R`\langle x\rangle = \dfrac1T\int_0^T x(t)\,dt \qquad X_{eff} = \sqrt{\langle x^2\rangle} \qquad X_{eff} = \dfrac{X_m}{\sqrt2}\ \text{(sinus pur)}`, `Un sinus pur a une valeur moyenne nulle · avec une composante continue X₀ : X<sub>eff</sub>² = X₀² + X<sub>eff,∼</sub>²`),
+                    NOTE('Exemple', `Le secteur 230 V est une valeur efficace : U<sub>m</sub> = 230 × √2 ≈ 325 V. La valeur efficace, c'est la tension continue qui chaufferait autant une résistance.`)),
+                S('Fresnel et complexes', 'compass',
+                    UL([
+                        `<b>Fresnel</b> : x(t) = X<sub>m</sub>cos(ωt + φ) est représenté par un vecteur de longueur X<sub>m</sub> faisant l'angle φ avec l'axe horizontal.`,
+                        `Somme de deux sinusoïdes de <b>même fréquence</b> : on additionne les vecteurs. Coordonnées : X<sub>m</sub>cos φ et X<sub>m</sub>sin φ.`,
+                        `<b>Complexe</b> : X = X<sub>m</sub>e<sup>jφ</sup> (amplitude complexe), module X<sub>m</sub>, argument φ.`,
+                        `Pour retrouver φ à partir des coordonnées : cos φ = (horizontale)/X<sub>m</sub>, et le signe de la verticale dit si φ est positif ou négatif.`
+                    ]))
+            ],
+            qcm: [
+                { q: "Le secteur a une fréquence de 50 Hz. Pulsation ?", opts: ["100π ≈ 314 rad/s", "50π rad/s", "50 rad/s", "2π/50 rad/s"], ok: [0], expl: "ω = 2πf = 100π." },
+                { q: "Une période dure 4 ms. Fréquence ?", opts: ["250 Hz", "4 Hz", "25 Hz", "2,5 kHz"], ok: [0], expl: "f = 1/T = 1/0,004 = 250 Hz." },
+                { fig: fig('sinus'), q: "u(t) = 10 cos(200πt + π/3). Fréquence et phase à l'origine ?", opts: ["100 Hz et π/3", "200 Hz et π/3", "200π Hz et π/3", "100 Hz et 10"], ok: [0], expl: "ω = 200π = 2πf donc f = 100 Hz ; φ₀ = π/3 ; l'amplitude est 10." },
+                { q: "Valeur efficace d'une tension sinusoïdale d'amplitude 12 V ?", opts: ["≈ 8,49 V", "12 V", "≈ 17 V", "6 V"], ok: [0], expl: "12/√2." },
+                { q: "Le secteur 230 V : valeur maximale de la tension ?", opts: ["≈ 325 V", "230 V", "≈ 163 V", "460 V"], ok: [0], expl: "230 est une valeur efficace : 230 × √2 ≈ 325 V." },
+                { q: "Valeur moyenne d'une tension sinusoïdale pure ?", opts: ["0", "U_m/√2", "U_m/2", "U_m"], ok: [0], expl: "Les alternances positive et négative se compensent." },
+                { fig: fig('dephasage'), q: "Deux sinus de période 4 ms sont décalés de 1 ms. Ils sont…", opts: ["En quadrature (π/2)", "En phase", "En opposition de phase", "Déphasés de π/4"], ok: [0], expl: "2π × 1/4 = π/2." },
+                { fig: fig('dephasage'), q: "x₂ passe par son maximum juste après x₁. Alors…", opts: ["x₂ est en retard sur x₁", "x₂ est en avance sur x₁", "Ils sont en phase", "On ne peut rien dire"], ok: [0], expl: "Le premier à atteindre son maximum est en avance." },
+                { q: "Une tension a une composante continue de 3 V et une partie sinusoïdale de valeur efficace 4 V. Valeur efficace totale ?", opts: ["5 V", "7 V", "1 V", "4 V"], ok: [0], expl: "U_eff² = 3² + 4² = 25." },
+                { q: "Amplitude complexe de u(t) = 5 cos(ωt − π/4) ?", opts: ["5 e^(−jπ/4)", "5 e^(jπ/4)", "5", "−5j"], ok: [0], expl: "Module = amplitude, argument = phase à l'origine." },
+                { calc: true, fig: fig('sinus'), q: "u(t) = 311 cos(100πt − π/6) (en V, t en s). Donner l'amplitude, la valeur efficace, la fréquence, la période et la valeur de u à t = 0.",
+                    steps: ["Amplitude : U_m = 311 V ; valeur efficace : 311/√2 ≈ 220 V.", "ω = 100π rad/s, donc f = ω/2π = 50 Hz et T = 1/f = 20 ms.", "À t = 0 : u(0) = 311 cos(−π/6) = 311 × √3/2 ≈ 269 V."] },
+                { calc: true, q: "Fresnel : u₁ = 6 cos(ωt) et u₂ = 8 cos(ωt + π/2) sont en série. Trouver l'amplitude, la phase et la valeur efficace de u = u₁ + u₂.",
+                    steps: ["Vecteurs : u₁ → (6 ; 0), u₂ → (8 cos 90° ; 8 sin 90°) = (0 ; 8). Somme : (6 ; 8).", "Amplitude : U_m = √(6² + 8²) = 10 V.", "cos φ = 6/10 = 0,6, donc arccos(0,6) ≈ 53,13° ; la verticale (8) est positive, φ est positif : φ ≈ 53,13° ≈ 0,93 rad.", "u(t) = 10 cos(ωt + 0,93) et U_eff = 10/√2 ≈ 7,07 V. On n'additionne jamais les amplitudes directement (6 + 8 = 14 serait faux)."] }
             ]
         }
     ];
@@ -252,12 +295,12 @@
             ]
         },
         {
-            id: 'oscillo', code: 'OSCILLO', titre: 'Oscillogramme : valeurs, période, déphasage', sous: 'DS n°2 de 2025, exercice 6 (6 points), chapitre 4 (grandeurs sinusoïdales)',
+            id: 'oscillo', code: 'OSCILLO', titre: 'Oscillogramme : valeurs, période, déphasage', sous: 'DS n°2 de 2025, exercice 6 (6 points), chapitre 4',
             sections: [
                 S('Le sujet', 'file-text',
                     P(`Deux tensions sinusoïdales u₁ (en gras) et u₂ sur l'écran d'un oscilloscope, 0,5 ms/div et 2 V/div. Pour chacune : valeur maximale, valeur efficace, période, pulsation. Laquelle est en avance ? Déphasage de u₁ par rapport à u₂, et expressions u₁(t), u₂(t) en prenant la phase de u₂ nulle.`),
                     FIGURE(fig('dephasage'), `Comme ici, la courbe qui passe par son maximum en premier est en avance.`),
-                    NOTE('Attention', `Ce DS de novembre comprenait déjà un exercice du chapitre 4. À réviser aussi, même si le programme annoncé s'arrête au chapitre 3.`)),
+                    NOTE('Lien avec le cours', `C'est l'exercice type du chapitre 4 : il faut savoir lire l'écran (divisions), passer de T à ω, de la valeur max à la valeur efficace, et donner le bon signe au déphasage. Voir la partie Cours, chapitre 4.`)),
                 S('Correction (relevés faits par nous sur l\'oscillogramme)', 'check-check',
                     UL([
                         `Une période occupe 4 divisions : <b>T = 4 × 0,5 = 2 ms</b>, f = 500 Hz, <b>ω = 2π/T = 1 000π ≈ 3 142 rad/s</b> (même valeur pour les deux).`,
@@ -304,21 +347,26 @@
         { titre: 'Chapitre 3', items: [
             [R`V_N = \dfrac{\sum V_k / R_k + \sum \eta}{\sum 1 / R_k}`, `Millman`],
             [R`I_N = \dfrac{E_{Th}}{R_{Th}} \qquad R_N = R_{Th}`, `Passage Thévenin ↔ Norton`]
+        ] },
+        { titre: 'Chapitre 4', items: [
+            [R`x(t) = X_m\cos(\omega t + \varphi_0) \qquad \omega = 2\pi f = \dfrac{2\pi}{T}`, `Signal sinusoïdal`],
+            [R`|\Delta\varphi| = 2\pi\,\dfrac{\Delta t}{T} \qquad X_{eff} = \dfrac{X_m}{\sqrt2}`, `Déphasage (négatif pour le signal en retard), valeur efficace d'un sinus`],
+            [R`X_{eff}^2 = X_0^2 + X_{eff,\sim}^2 \qquad \underline X = X_m\,e^{j\varphi}`, `Composante continue + partie sinusoïdale · amplitude complexe`]
         ] }
     ];
 
     const PARTIES = {
-        cours: { titre: 'Physique : cours des chapitres 1 à 3', court: 'Cours', icone: 'book-open', sujets: COURS,
-            intro: `Grandeurs électriques et lois de Kirchhoff, dipôles, théorèmes généraux. Les exercices reprennent le type des TD avec d'autres valeurs.` },
+        cours: { titre: 'Physique : cours des chapitres 1 à 4', court: 'Cours', icone: 'book-open', sujets: COURS,
+            intro: `Grandeurs électriques et lois de Kirchhoff, dipôles, théorèmes généraux, grandeurs sinusoïdales. Les exercices reprennent le type des TD avec d'autres valeurs.` },
         annales: { titre: 'Physique : anciens DS', court: 'Anciens DS', icone: 'archive', sujets: ANNALES,
             intro: `Les DS n°2 de 2021, 2023 et 2025, regroupés par type d'exercice, avec leur correction (calculs refaits par nous) et une variante. Le vrai / faux est tombé à l'identique en 2023 et en 2025, et le même réseau de résistances deux fois : c'est un bon indice, pas une promesse.` }
     };
 
     RD.enregistrer({
         id: 'ds-2026-a1-phys', annee: 'a1', date: new Date(2026, 11, 12), dateAConfirmer: true, libelle: 'date à confirmer',
-        titre: 'DS de physique (chapitres 1 à 3)', titrePage: 'Révision DS : physique (chapitres 1 à 3)',
-        resume: "Examen blanc, cours des chapitres 1 à 3, exercices des anciens DS corrigés, formules.",
-        intro: "Grandeurs électriques, dipôles et théorèmes généraux. Les QCM se corrigent au clic (Entraînement) ou à la fin (Mode DS), les exercices montrent leur correction étape par étape.",
+        titre: 'DS de physique (chapitres 1 à 4)', titrePage: 'Révision DS : physique (chapitres 1 à 4)',
+        resume: "Examen blanc, cours des chapitres 1 à 4, exercices des anciens DS corrigés, formules.",
+        intro: "Grandeurs électriques, dipôles, théorèmes généraux et grandeurs sinusoïdales. Les QCM se corrigent au clic (Entraînement) ou à la fin (Mode DS), les exercices montrent leur correction étape par étape.",
         parties: PARTIES, ordre: ['cours', 'annales'], filtres: [['tout', 'Tout'], ['cours', 'Cours'], ['annales', 'Anciens DS']],
         onglets: { cours: 'Cours', annales: 'Anciens DS' },
         chap: { cours: 'grandeurs', annales: 'vraifaux' },
